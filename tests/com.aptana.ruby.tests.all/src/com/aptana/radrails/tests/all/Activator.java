@@ -32,42 +32,53 @@
  * 
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.rcp.tests.all;
+package com.aptana.radrails.tests.all;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.eclipse.core.runtime.Plugin;
+import org.osgi.framework.BundleContext;
 
-public class AllTests
-{
+/**
+ * The activator class controls the plug-in life cycle
+ */
+public class Activator extends Plugin {
 
-	public static Test suite()
-	{
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		// $JUnit-BEGIN$
-		suite.addTest(CoreTests.suite());
-		suite.addTest(UITests.suite());
-		// $JUnit-END$
-		return suite;
+	// The plug-in ID
+	public static final String PLUGIN_ID = "com.aptana.radrails.tests.all"; //$NON-NLS-1$
+
+	// The shared instance
+	private static Activator plugin;
+	
+	/**
+	 * The constructor
+	 */
+	public Activator() {
 	}
 
-	// Approach using reflection. Necessary if the host plugin (i.e. real plugin, not tests) doesn't have an
-	// "Eclipse-ExtensibleAPI: true" entry in MANIFEST.MF
-	// public static Test suite() throws ClassNotFoundException {
-	// TestSuite suite = new TestSuite(
-	// "Master test suite.");
-	//
-	// suite.addTest(getTest("com.mycompany.myplugin1.AllTests"));
-	// suite.addTest(getTest("com.mycompany.myplugin2.AllTests"));
-	// return suite;
-	// }
-	//
-	// private static Test getTest(String suiteClassName) {
-	// try {
-	// Class clazz = Class.forName(suiteClassName);
-	// Method suiteMethod = clazz.getMethod("suite", new Class[0]);
-	// return (Test) suiteMethod.invoke(null, new Object[0]);
-	// } catch (Exception e) {
-	// throw new RuntimeException("Error", e);
-	// }
-	// }
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.core.runtime.Plugins#start(org.osgi.framework.BundleContext)
+	 */
+	public void start(BundleContext context) throws Exception {
+		super.start(context);
+		plugin = this;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
+	 */
+	public void stop(BundleContext context) throws Exception {
+		plugin = null;
+		super.stop(context);
+	}
+
+	/**
+	 * Returns the shared instance
+	 *
+	 * @return the shared instance
+	 */
+	public static Activator getDefault() {
+		return plugin;
+	}
+
 }

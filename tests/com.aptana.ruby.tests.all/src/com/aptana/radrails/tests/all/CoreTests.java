@@ -32,22 +32,19 @@
  * 
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.rcp.tests.all;
+package com.aptana.radrails.tests.all;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-public class UITests
+public class CoreTests
 {
 
 	public static Test suite()
 	{
-		TestSuite suite = new TestSuite(UITests.class.getName());
+		TestSuite suite = new TestSuite(CoreTests.class.getName());
 		// $JUnit-BEGIN$
-		suite.addTest(com.aptana.editor.ruby.tests.AllTests.suite());
-		suite.addTest(com.aptana.editor.erb.tests.AllTests.suite());
 		// $JUnit-END$
 		return suite;
 	}
-
 }

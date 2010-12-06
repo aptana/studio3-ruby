@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
-Bundle-SymbolicName: com.aptana.rcp.tests.all
+Bundle-SymbolicName: com.aptana.radrails.tests.all
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.aptana.rcp.tests.all.Activator
+Bundle-Activator: com.aptana.radrails.tests.all.Activator
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources;bundle-version="3.4.0",
