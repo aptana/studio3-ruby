@@ -217,12 +217,12 @@
 
 		<!-- Run the tests. -->
 		<antcall target="run-core-test">
-			<param name="test.plugin" value="com.aptana.ruby.tests.all" />
-			<param name="test.classname" value="com.aptana.ruby.tests.all.CoreTests" />
+			<param name="test.plugin" value="com.aptana.radrails.tests.all" />
+			<param name="test.classname" value="com.aptana.radrails.tests.all.CoreTests" />
 		</antcall>
 		<antcall target="run-ui-test">
-			<param name="test.plugin" value="com.aptana.ruby.tests.all" />
-			<param name="test.classname" value="com.aptana.ruby.tests.all.UITests" />
+			<param name="test.plugin" value="com.aptana.radrails.tests.all" />
+			<param name="test.classname" value="com.aptana.radrails.tests.all.UITests" />
 		</antcall>
 
 		<antcall target="-post-test" />
@@ -235,8 +235,8 @@
 
 		<!-- Run the tests. -->
 		<antcall target="run-ui-test">
-			<param name="test.plugin" value="com.aptana.ruby.tests.all" />
-			<param name="test.classname" value="com.aptana.ruby.tests.all.PerformanceTests" />
+			<param name="test.plugin" value="com.aptana.radrails.tests.all" />
+			<param name="test.classname" value="com.aptana.radrails.tests.all.PerformanceTests" />
 		</antcall>
 
 		<antcall target="-post-test" />
