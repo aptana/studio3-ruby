@@ -23,7 +23,10 @@
 
 	<path id="instrument.classpath">
 		<fileset dir="${baseLocation}/plugins">
-			<include name="com.aptana.*.jar" />
+			<include name="com.aptana.editor.erb.*.jar" />
+			<include name="com.aptana.editor.haml.*.jar" />
+			<include name="com.aptana.editor.ruby.*.jar" />
+			<include name="com.aptana.ruby.*.jar" />
 			<include name="org.radrails.*.jar" />
 		</fileset>
 	</path>
