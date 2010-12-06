@@ -24,6 +24,7 @@
 	<path id="instrument.classpath">
 		<fileset dir="${baseLocation}/plugins">
 			<include name="com.aptana.*.jar" />
+			<include name="org.radrails.*.jar" />
 		</fileset>
 	</path>
 	<path id="source.path">
@@ -107,31 +108,15 @@
 			</fileset>
 		</copy>
 		<antcall target="run.director">
-			<param name="p2.installIU" value="com.aptana.ide.feature.libraries.subscription.feature.group" />
-			<param name="p2.repo" value="${libraries-com.p2.repo}" />
+			<param name="p2.installIU" value="com.aptana.feature.feature.group" />
+			<param name="p2.repo" value="${studio3.p2.repo}" />
 		</antcall>
 		<antcall target="run.director">
-			<param name="p2.installIU" value="com.aptana.webkitbrowser.feature.group" />
-			<param name="p2.repo" value="${webkit.p2.repo}" />
-		</antcall>
-		<!-- Install studio3-rcp Core feature -->
-		<antcall target="install.studio3-rcp.core" />
-		<!-- FIXME For some reason even though we install studio3-rcp Core, it doesn't pick it up for building the test plugins/fragments! -->
-		<antcall target="run.director">
-      <param name="p2.installIU" value="com.aptana.feature.studio.feature.group" />
-      <param name="p2.repo" value="${studio3-rcp.p2.repo}" />
+      <param name="p2.installIU" value="org.radrails.rails.feature.group" />
+      <param name="p2.repo" value="${radrails.p2.repo}" />
     </antcall>
 	</target>
-
-	<!-- - - - - - - - - - - - - - - - - - 
-          target: install.studio3-rcp.core                      
-         - - - - - - - - - - - - - - - - - -->
-	<target name="install.studio3-rcp.core" unless="dont.install.studio3-rcp.core">
-		<antcall target="run.director">
-			<param name="p2.installIU" value="com.aptana.feature.feature.group" />
-			<param name="p2.repo" value="file:${studio3.p2.repo}" />
-		</antcall>
-	</target>
+	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: wipe.plugins                      
          - - - - - - - - - - - - - - - - - -->

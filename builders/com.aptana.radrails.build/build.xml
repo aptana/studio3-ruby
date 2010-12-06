@@ -132,57 +132,10 @@
           target: generate.base                      
          - - - - - - - - - - - - - - - - - -->
 	<target name="generate.base" depends="copy.base.windows,copy.base">
-		<!-- Copy the features and plugins over into a dropins folder. Installing makes it so that non-linux plugins/features won't be there! -->
-		<mkdir dir="${baseLocation}/dropins/eclipse" />
-		<copy todir="${baseLocation}/dropins/eclipse">
-			<fileset dir="${studio3.p2.repo}" defaultexcludes="true">
-				<include name="features/*" />
-				<include name="plugins/*" />
-			</fileset>
-		</copy>
-
-		<!-- Unjar the features -->
-		<for param="file">
-			<path>
-				<fileset dir="${baseLocation}/dropins/eclipse/features" defaultexcludes="true">
-					<include name="*.jar" />
-				</fileset>
-			</path>
-			<sequential>
-				<echo message="Unzipping JAR @{file}" />
-				<basename file="@{file}" property="@{file}.name" suffix="jar" />
-				<mkdir dir="${baseLocation}/dropins/eclipse/features/${@{file}.name}" />
-				<unjar dest="${baseLocation}/dropins/eclipse/features/${@{file}.name}" src="@{file}" />
-				<delete file="@{file}" />
-			</sequential>
-		</for>
-		<!-- UnJAR the handful of plugins that we need to... -->
-		<for param="file">
-			<path>
-				<fileset dir="${baseLocation}/dropins/eclipse/plugins" defaultexcludes="true">
-					<include name="com.aptana.terminal_*.jar" />
-					<include name="com.aptana.libraries_*.jar" />
-					<include name="org.jruby_*.jar" />
-					<include name="com.aptana.branding_*.jar" />
-					<include name="com.aptana.ide.libraries.subscription_*.jar" />
-          <include name="com.aptana.parsing_*.jar" />
-					<include name="com.aptana.php.libraries_*.jar" />
-					<include name="com.aptana.portablegit.win32_*.jar" />
-					<include name="com.python.pydev*.jar" />
-					<include name="org.python.pydev*.jar" />
-					<include name="com.aptana.swt.webkitbrowser.macosx.x86_*.jar" />
-					<include name="com.aptana.swt.webkitbrowser.linux.x86_*.jar" />
-					<include name="com.aptana.swt.webkitbrowser.win32.x86_*.jar" />
-				</fileset>
-			</path>
-			<sequential>
-				<echo message="Unzipping JAR @{file}" />
-				<basename file="@{file}" property="@{file}.name" suffix="jar" />
-				<mkdir dir="${baseLocation}/dropins/eclipse/plugins/${@{file}.name}" />
-				<unjar dest="${baseLocation}/dropins/eclipse/plugins/${@{file}.name}" src="@{file}" />
-				<delete file="@{file}" />
-			</sequential>
-		</for>
+	  <antcall target="run.director">
+      <param name="p2.installIU" value="com.aptana.feature.feature.group" />
+      <param name="p2.repo" value="${studio3.p2.repo}" />
+    </antcall>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
