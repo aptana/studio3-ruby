@@ -61,8 +61,7 @@ public class RHTMLParser extends CompositeParser
 	{
 		String source = new String(parseState.getSource());
 		int startingOffset = parseState.getStartingOffset();
-		IParseNode root = new ParseRootNode(IRubyParserConstants.LANGUAGE, new ParseNode[0], startingOffset,
-				startingOffset + source.length());
+		IParseNode root = null;
 
 		advance();
 		short id = getCurrentSymbol().getId();
@@ -72,6 +71,11 @@ public class RHTMLParser extends CompositeParser
 			switch (id)
 			{
 				case ERBTokens.RUBY:
+					if (root == null)
+					{
+						root = new ParseRootNode(IRubyParserConstants.LANGUAGE, new ParseNode[0], startingOffset,
+								startingOffset + source.length());
+					}
 					processRubyBlock(root);
 					break;
 			}
