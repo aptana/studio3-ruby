@@ -49,7 +49,7 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 				return;
 			}
 
-			sub.subTask(index.getRelativeDocumentPath(store.toURI()).toString());
+			sub.subTask(getIndexingMessage(index, store));
 
 			removeTasks(store, sub.newChild(10));
 
