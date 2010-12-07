@@ -87,7 +87,7 @@ public class RubyFileIndexingParticipant extends AbstractFileIndexingParticipant
 				return;
 			}
 
-			sub.subTask(store.toString());
+			sub.subTask(index.getRelativeDocumentPath(store.toURI()).toString());
 
 			removeTasks(store, sub.newChild(10));
 
