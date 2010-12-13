@@ -32,65 +32,37 @@
  * 
  * Any modifications to this file must keep this entire header intact.
  */
-
 package com.aptana.editor.erb.html;
 
-import com.aptana.editor.common.outline.CommonOutlinePage;
-import com.aptana.editor.common.parsing.FileService;
-import com.aptana.editor.erb.IERBConstants;
-import com.aptana.editor.erb.html.outline.RHTMLOutlineContentProvider;
-import com.aptana.editor.erb.html.outline.RHTMLOutlineLabelProvider;
-import com.aptana.editor.html.HTMLEditor;
-import com.aptana.editor.html.parsing.HTMLParseState;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.swt.events.VerifyEvent;
 
-/**
- * @author Max Stepanov
- */
-public class RHTMLEditor extends HTMLEditor
+import com.aptana.editor.html.HTMLOpenTagCloserTest;
+
+public class ERBOpenTagCloserTest extends HTMLOpenTagCloserTest
 {
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.AbstractThemeableEditor#initializeEditor()
-	 */
-	@Override
-	protected void initializeEditor()
-	{
-		super.initializeEditor();
-
-		setSourceViewerConfiguration(new RHTMLSourceViewerConfiguration(getPreferenceStore(), this));
-		setDocumentProvider(new RHTMLDocumentProvider());
-	}
 
 	@Override
-	protected void installOpenTagCloser()
+	protected void setUp() throws Exception
 	{
-		new ERBOpenTagCloser(getSourceViewer()).install();
+		super.setUp();
+		closer = new ERBOpenTagCloser(viewer)
+		{
+			protected boolean shouldAutoClose(IDocument document, int offset, VerifyEvent event)
+			{
+				return true;
+			};
+		};
 	}
 
-	@Override
-	protected FileService createFileService()
+	public void testDoesntCloseSpecialERBTags()
 	{
-		return new FileService(IERBConstants.LANGUAGE_ERB, new HTMLParseState());
+		IDocument document = setDocument("<%= %");
+		VerifyEvent event = createGreaterThanKeyEvent(5);
+		closer.verifyKey(event);
+
+		assertEquals("<%= %", document.get());
+		assertTrue(event.doit);
 	}
 
-	@Override
-	protected CommonOutlinePage createOutlinePage()
-	{
-		CommonOutlinePage outline = super.createOutlinePage();
-		outline.setContentProvider(new RHTMLOutlineContentProvider());
-		outline.setLabelProvider(new RHTMLOutlineLabelProvider(getFileService().getParseState()));
-
-		return outline;
-	}
-
-	@Override
-	protected char[] getPairMatchingCharacters()
-	{
-		char[] orig = super.getPairMatchingCharacters();
-		char[] modified = new char[orig.length + 2];
-		System.arraycopy(orig, 0, modified, 0, orig.length);
-		modified[orig.length] = '%';
-		modified[orig.length + 1] = '%';
-		return modified;
-	}
 }
