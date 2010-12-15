@@ -214,10 +214,7 @@
 		</emma>
 	</target>
 
-	<target name="test" depends="build">
-		<antcall target="-pre-test" />
-		<antcall target="-instrument" />
-
+	<target name="test" depends="build,-pre-test,-instrument">
 		<!-- Run the tests. -->
 		<antcall target="run-core-test">
 			<param name="test.plugin" value="com.aptana.radrails.tests.all" />
@@ -233,9 +230,7 @@
 		<antcall target="clean.after" />
 	</target>
 
-	<target name="performance" depends="build">
-		<antcall target="-pre-test" />
-
+	<target name="performance" depends="build,-pre-test">
 		<!-- Run the tests. -->
 		<antcall target="run-ui-test">
 			<param name="test.plugin" value="com.aptana.radrails.tests.all" />
