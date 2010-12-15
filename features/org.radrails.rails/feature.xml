@@ -21,30 +21,43 @@
       <update label="%updateSiteName" url="http://download.aptana.com/rails/plugin/update/"/>
    </url>
 
-   <includes
-         id="com.aptana.feature"
-         version="0.0.0"/>
-
    <requires>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.core.filesystem"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.ui.console"/>
-      <import plugin="org.eclipse.debug.core"/>
       <import plugin="org.eclipse.debug.ui"/>
-      <import plugin="org.eclipse.ui.ide"/>
-      <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.ui.workbench"/>
-      <import plugin="org.eclipse.ui.workbench.texteditor"/>
-      <import plugin="org.eclipse.jface"/>
-      <import plugin="org.eclipse.jface.text"/>
-      <import plugin="com.aptana.git.ui"/>
+      <import plugin="org.eclipse.core.filesystem"/>
       <import plugin="com.aptana.terminal"/>
       <import plugin="com.aptana.explorer"/>
       <import plugin="com.aptana.scripting"/>
       <import plugin="com.aptana.editor.common"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.ui.navigator"/>
+      <import plugin="com.aptana.console"/>
+      <import plugin="com.aptana.workbench"/>
+      <import plugin="com.aptana.editor.html"/>
+      <import plugin="com.aptana.editor.js"/>
+      <import plugin="org.eclipse.debug.core"/>
+      <import plugin="com.aptana.core" version="3.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.resources" version="3.4.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.ide" version="3.4.0" match="greaterOrEqual"/>
+      <import plugin="com.aptana.git.ui" version="3.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="com.aptana.parsing"/>
       <import plugin="org.jruby"/>
+      <import plugin="com.aptana.theme"/>
+      <import plugin="beaver"/>
+      <import plugin="com.aptana.formatter.epl" version="3.0.0" match="greaterOrEqual"/>
+      <import plugin="com.aptana.formatter.ui.epl" version="3.0.0" match="greaterOrEqual"/>
+      <import plugin="com.aptana.ui" version="3.0.0" match="greaterOrEqual"/>
+      <import plugin="com.aptana.ui.epl"/>
+      <import plugin="com.aptana.editor.xml"/>
+      <import plugin="com.aptana.editor.css"/>
+      <import plugin="com.aptana.index.core" version="3.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jface.text" version="3.4.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.editors" version="3.4.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jface" version="3.4.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.workbench" version="3.4.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
