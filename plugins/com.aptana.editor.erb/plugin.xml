@@ -18,7 +18,7 @@
       <editor
             class="com.aptana.editor.erb.xml.RXMLEditor"
             contributorClass="com.aptana.editor.common.CommonTextEditorActionContributor"
-            extensions="rxml,erb"
+            extensions="rxml,erb,builder"
             icon="icons/erb.png"
             id="com.aptana.editor.erb.xml"
             name="%editor.rxml.name">
@@ -40,7 +40,7 @@
       <content-type
             base-type="org.eclipse.core.runtime.xml"
             describer="com.aptana.editor.erb.xml.RXMLContentDescriber"
-            file-extensions="rxml,erb"
+            file-extensions="rxml,erb,builder"
             id="com.aptana.contenttype.xml.erb"
             name="%content-type.rxml.name"
             priority="normal">
