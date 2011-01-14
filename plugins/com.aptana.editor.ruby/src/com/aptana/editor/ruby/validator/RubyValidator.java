@@ -1,10 +1,13 @@
 package com.aptana.editor.ruby.validator;
 
+import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.jrubyparser.CompatVersion;
@@ -14,12 +17,17 @@ import org.jrubyparser.lexer.LexerSource;
 import org.jrubyparser.lexer.SyntaxException;
 import org.jrubyparser.parser.ParserConfiguration;
 import org.jrubyparser.parser.ParserSupport;
+import org.jrubyparser.parser.ParserSupport19;
 import org.jrubyparser.parser.Ruby18Parser;
+import org.jrubyparser.parser.Ruby19Parser;
 import org.jrubyparser.parser.RubyParser;
 
+import com.aptana.core.ShellExecutable;
+import com.aptana.core.util.ProcessUtil;
 import com.aptana.editor.common.validator.IValidationItem;
 import com.aptana.editor.common.validator.IValidationManager;
 import com.aptana.editor.common.validator.IValidator;
+import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
 public class RubyValidator implements IValidator
 {
@@ -31,12 +39,39 @@ public class RubyValidator implements IValidator
 	public List<IValidationItem> validate(String source, final URI path, final IValidationManager manager)
 	{
 		List<IValidationItem> items = new ArrayList<IValidationItem>();
-		// TODO Check what the version of the current ruby interpreter is and use that to determine which parser compat
+		// Check what the version of the current ruby interpreter is and use that to determine which parser compat
 		// to use!
-		ParserConfiguration config = new ParserConfiguration(1, CompatVersion.RUBY1_8);
-		ParserSupport support = new ParserSupport();
-		support.setConfiguration(config);
-		RubyParser parser = new Ruby18Parser(support);
+		CompatVersion version = CompatVersion.RUBY1_8;
+		// get the working dir
+		IPath workingDir = null;
+		if (path != null && "file".equals(path.getScheme())) //$NON-NLS-1$
+		{
+			File file = new File(path);
+			workingDir = Path.fromOSString(file.getParent());
+		}
+		IPath ruby = RubyLaunchingPlugin.rubyExecutablePath();
+		String rubyVersion = ProcessUtil.outputForCommand(
+				ruby == null ? "ruby" : ruby.toOSString(), workingDir, ShellExecutable.getEnvironment(), "-v"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (rubyVersion != null && rubyVersion.startsWith("ruby 1.9")) //$NON-NLS-1$
+		{
+			version = CompatVersion.RUBY1_9;
+		}
+
+		ParserConfiguration config = new ParserConfiguration(1, version);
+
+		RubyParser parser;
+		if (version == CompatVersion.RUBY1_9)
+		{
+			ParserSupport19 support = new ParserSupport19();
+			support.setConfiguration(config);
+			parser = new Ruby19Parser(support);
+		}
+		else
+		{
+			ParserSupport support = new ParserSupport();
+			support.setConfiguration(config);
+			parser = new Ruby18Parser(support);
+		}
 		// Hook up our own warning impl to grab them and add them as validation items!
 		IRubyWarnings warnings = new IRubyWarnings()
 		{
@@ -92,12 +127,14 @@ public class RubyValidator implements IValidator
 			// FIXME So we return a list of validation items, but that's ignored, and instead we have to call add on the
 			// manager?!
 			// FIXME The argument order is different between these two seemingly similar methods!
-			// FIXME This expects column offset for line, but we have the absolute offset from beginning of file...
+			
+			// FIXME This seems to point at the token after the error...
 			int lineNumber = e.getPosition().getStartLine();
 			int charLineOffset = 0;
 			try
 			{
-				charLineOffset = new Document(source).getLineOffset(lineNumber - 1);
+				int lineOffset = new Document(source).getLineOffset(lineNumber - 1);
+				charLineOffset = start - lineOffset;
 			}
 			catch (BadLocationException ble)
 			{

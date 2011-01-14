@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.aptana.core,
  org.jrubyparser,
  com.aptana.theme,
- beaver
+ beaver,
+ com.aptana.ruby.launching
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
