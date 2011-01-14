@@ -120,14 +120,7 @@ public class RubyValidator implements IValidator
 		catch (SyntaxException e)
 		{
 			int start = e.getPosition().getStartOffset();
-			int end = e.getPosition().getEndOffset();
-			// FIXME How am I supposed to know we use the IMarker constants for severity here?!
-			// items.add(new ValidationItem(IMarker.SEVERITY_ERROR, e.getMessage(), start, end - start + 1, e
-			// .getPosition().getStartLine(), e.getPosition().getFile()));
-			// FIXME So we return a list of validation items, but that's ignored, and instead we have to call add on the
-			// manager?!
-			// FIXME The argument order is different between these two seemingly similar methods!
-			
+			int end = e.getPosition().getEndOffset();			
 			// FIXME This seems to point at the token after the error...
 			int lineNumber = e.getPosition().getStartLine();
 			int charLineOffset = 0;
