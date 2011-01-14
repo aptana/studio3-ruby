@@ -90,5 +90,17 @@
             super="com.aptana.editor.common.occurrence">
       </type>
    </extension>
+   <extension
+         point="com.aptana.editor.common.validator">
+      <language
+            name="%validator.language.ruby.name"
+            type="text/ruby">
+      </language>
+      <validator
+            class="com.aptana.editor.ruby.validator.RubyValidator"
+            language="text/ruby"
+            name="%validator.ruby.name">
+      </validator>
+   </extension>
 
 </plugin>

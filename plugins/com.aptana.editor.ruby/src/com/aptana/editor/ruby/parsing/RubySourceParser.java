@@ -61,7 +61,7 @@ public class RubySourceParser
 		this(new NullWarnings());
 	}
 
-	RubySourceParser(IRubyWarnings warnings)
+	public RubySourceParser(IRubyWarnings warnings)
 	{
 		this.warnings = warnings;
 	}
