@@ -114,7 +114,7 @@
       <launchConfigurationType
             delegate="com.aptana.ruby.internal.debug.core.launching.RubyDebuggerLaunchDelegate"
             id="com.aptana.ruby.debug.core.launchConfigurationType"
-            modes="debug"
+            modes="debug,run"
             name="%LaunchConfigurationTypeRubyApplication.name"
             public="true"
             sourceLocatorId="com.aptana.ruby.debug.core.sourceLocator"

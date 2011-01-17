@@ -88,7 +88,7 @@ public class RubyApplicationShortcut implements ILaunchShortcut
 				RubyDebugUIPlugin.logError(e);
 			}
 		}
-		// TODO Log error that we need an IFile...
+		// TODO Allow launching from URIs as long as it's a file we can reach!
 	}
 
 	protected ILaunchConfiguration findOrCreateLaunchConfiguration(IFile rubyFile, String mode) throws CoreException
