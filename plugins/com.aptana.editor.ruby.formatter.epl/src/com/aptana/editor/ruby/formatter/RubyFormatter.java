@@ -8,7 +8,7 @@
  *
  * Contributors:
  *     xored software, Inc. - initial API and Implementation (Alex Panchenko)
- *     Aptana, Inc. - Improved implementation (Shalom Gibly) 
+ *     Appcelerator, Inc. - Improved implementation (Shalom Gibly) 
  *******************************************************************************/
 package com.aptana.editor.ruby.formatter;
 
