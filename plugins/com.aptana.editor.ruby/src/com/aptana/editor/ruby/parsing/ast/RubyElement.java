@@ -29,8 +29,7 @@ public abstract class RubyElement extends ParseNode implements IRubyElement
 	public RubyElement(int start, int end)
 	{
 		super(IRubyParserConstants.LANGUAGE);
-		this.start = start;
-		this.end = end;
+		this.setLocation(start, end);
 	}
 
 	public String getName()
