@@ -34,6 +34,15 @@
       </primaryWizard>
    </extension>
    <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="com.aptana.ui.WebPerspective">
+         <newWizardShortcut
+               id="org.radrails.rails.ui.projectWizard">
+         </newWizardShortcut>
+      </perspectiveExtension>
+   </extension>
+   <extension
          point="org.eclipse.ui.commands">
       <category
             id="org.radrails.rails.ui.category"

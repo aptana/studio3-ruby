@@ -33,6 +33,15 @@
       </category>
    </extension>
    <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="com.aptana.ui.WebPerspective">
+         <newWizardShortcut
+               id="com.aptana.ruby.core.ui.rubyProjectWizard">
+         </newWizardShortcut>
+      </perspectiveExtension>
+   </extension>
+   <extension
          point="org.eclipse.ui.navigator.navigatorContent">
        <commonWizard
              associatedExtensionId="org.eclipse.ui.navigator.resourceContent"
