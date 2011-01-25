@@ -24,6 +24,7 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.jrubyparser.parser.ParserResult;
 
+import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.editor.ruby.formatter.internal.RubyFormatterContext;
 import com.aptana.editor.ruby.formatter.internal.RubyFormatterNodeBuilder;
 import com.aptana.editor.ruby.formatter.internal.RubyFormatterNodeRewriter;
@@ -33,6 +34,7 @@ import com.aptana.editor.ruby.parsing.RubySourceParser;
 import com.aptana.formatter.AbstractScriptFormatter;
 import com.aptana.formatter.FormatterDocument;
 import com.aptana.formatter.FormatterIndentDetector;
+import com.aptana.formatter.FormatterUtils;
 import com.aptana.formatter.FormatterWriter;
 import com.aptana.formatter.IFormatterContext;
 import com.aptana.formatter.epl.FormatterPlugin;
@@ -132,6 +134,15 @@ public class RubyFormatter extends AbstractScriptFormatter
 	public int getTabSize()
 	{
 		return getInt(RubyFormatterConstants.FORMATTER_TAB_SIZE);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.formatter.IScriptFormatter#getEditorSpecificTabWidth()
+	 */
+	public int getEditorSpecificTabWidth()
+	{
+		return FormatterUtils.getEditorTabWidth(RubyEditorPlugin.getDefault().getPreferenceStore());
 	}
 
 	public TextEdit format(String source, int offset, int length, int indent, boolean isSelection,
