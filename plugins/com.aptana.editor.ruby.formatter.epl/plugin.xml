@@ -10,7 +10,8 @@
                description="%ruby_erb_formatter_description"
                id="com.aptana.editor.ruby.formatterFactory"
                name="%ruby_formatter_name"
-               priority="10">
+               priority="10"
+               requiredActiveBundle="com.aptana.editor.ruby">
          </formatterFactory>
       </engineContribution>
    </extension>
@@ -23,7 +24,8 @@
                description="%ruby_formatter_description"
                id="com.aptana.erb.formatterFactory"
                name="%ruby_formatter_name"
-               priority="10">
+               priority="10"
+               requiredActiveBundle="com.aptana.editor.ruby">
          </formatterFactory>
       </engineContribution>
    </extension>
