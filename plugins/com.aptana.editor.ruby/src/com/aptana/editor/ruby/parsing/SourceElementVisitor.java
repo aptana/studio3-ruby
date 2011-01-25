@@ -511,7 +511,7 @@ public class SourceElementVisitor extends InOrderVisitor
 		requestor.enterBlock(iVisited.getPosition().getStartOffset(), iVisited.getPosition().getEndOffset() - 1);
 
 		Object ins = super.visitIterNode(iVisited);
-		
+
 		requestor.exitBlock(iVisited.getPosition().getEndOffset() - 1);
 		return ins;
 	}
@@ -656,11 +656,17 @@ public class SourceElementVisitor extends InOrderVisitor
 
 	private void addImport(FCallNode iVisited)
 	{
-		ArrayNode node = (ArrayNode) iVisited.getArgsNode();
-		String arg = getString(node);
-		if (arg != null)
+		Node argsNode = iVisited.getArgsNode();
+		// TODO What if this is a SplatNode?!
+		if (argsNode instanceof ArrayNode)
 		{
-			requestor.acceptImport(arg, iVisited.getPosition().getStartOffset(), iVisited.getPosition().getEndOffset());
+			ArrayNode node = (ArrayNode) argsNode;
+			String arg = getString(node);
+			if (arg != null)
+			{
+				requestor.acceptImport(arg, iVisited.getPosition().getStartOffset(), iVisited.getPosition()
+						.getEndOffset());
+			}
 		}
 	}
 

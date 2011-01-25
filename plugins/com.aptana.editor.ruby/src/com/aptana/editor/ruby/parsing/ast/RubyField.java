@@ -10,7 +10,7 @@ package com.aptana.editor.ruby.parsing.ast;
 import com.aptana.editor.ruby.core.IRubyElement;
 import com.aptana.editor.ruby.core.IRubyField;
 
-public class RubyField extends NamedMember implements IRubyField
+public abstract class RubyField extends NamedMember implements IRubyField
 {
 
 	public RubyField(String name, int start, int nameStart, int nameEnd)

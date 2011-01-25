@@ -129,7 +129,7 @@ public class RubySourceEditor extends AbstractThemeableEditor
 			return null;
 		}
 		IParseNode node = root.getNodeAtOffset(offset);
-		if (!fIncludeBlocks && node.getNodeType() == IRubyElement.BLOCK)
+		if (!fIncludeBlocks && node != null && node.getNodeType() == IRubyElement.BLOCK)
 		{
 			node = node.getParent();
 		}
@@ -172,68 +172,71 @@ public class RubySourceEditor extends AbstractThemeableEditor
 		// Calculate current pair
 		Map<Annotation, Position> occurrences = new HashMap<Annotation, Position>();
 		List<Position> positions = new ArrayList<Position>();
-		if (currentNode instanceof IRubyType)
+		if (currentNode != null)
 		{
-			// Match "end" to "class/module ..."
-			int endOffset = currentNode.getEndingOffset();
-			int startOffset = currentNode.getStartingOffset();
+			if (currentNode instanceof IRubyType)
+			{
+				// Match "end" to "class/module ..."
+				int endOffset = currentNode.getEndingOffset();
+				int startOffset = currentNode.getStartingOffset();
 
-			int length = 5;
-			IRubyType type = (IRubyType) currentNode;
-			if (type.isModule())
-			{
-				length = 6;
+				int length = 5;
+				IRubyType type = (IRubyType) currentNode;
+				if (type.isModule())
+				{
+					length = 6;
+				}
+				if ((offset <= endOffset && offset >= endOffset - 2)
+						|| (offset >= startOffset && offset <= startOffset + length))
+				{
+					positions.add(new Position(startOffset, length));
+					positions.add(new Position(endOffset - 2, 3));
+				}
 			}
-			if ((offset <= endOffset && offset >= endOffset - 2)
-					|| (offset >= startOffset && offset <= startOffset + length))
+			else if (currentNode instanceof IRubyMethod)
 			{
-				positions.add(new Position(startOffset, length));
-				positions.add(new Position(endOffset - 2, 3));
-			}
-		}
-		else if (currentNode instanceof IRubyMethod)
-		{
-			// Match "end" to "def ..."
-			int endOffset = currentNode.getEndingOffset();
-			int startOffset = currentNode.getStartingOffset();
-			if ((offset <= endOffset && offset >= endOffset - 2)
-					|| (offset >= startOffset && offset <= startOffset + 3))
-			{
-				positions.add(new Position(startOffset, 3));
-				positions.add(new Position(endOffset - 2, 3));
-			}
-		}
-		else if (currentNode.getNodeType() == IRubyElement.BLOCK)
-		{
-			// Match "end" to "do ..." only if it's a do/end block
-			int endOffset = currentNode.getEndingOffset();
-			IDocument document = getSourceViewer().getDocument();
-			String endText = ""; //$NON-NLS-1$
-			try
-			{
-				endText = document.get(endOffset, 1);
-			}
-			catch (BadLocationException e)
-			{
-				// ignore
-			}
-			if (endText.equals("d")) //$NON-NLS-1$
-			{
+				// Match "end" to "def ..."
+				int endOffset = currentNode.getEndingOffset();
 				int startOffset = currentNode.getStartingOffset();
 				if ((offset <= endOffset && offset >= endOffset - 2)
 						|| (offset >= startOffset && offset <= startOffset + 3))
 				{
-					positions.add(new Position(startOffset, 2));
+					positions.add(new Position(startOffset, 3));
 					positions.add(new Position(endOffset - 2, 3));
 				}
 			}
+			else if (currentNode.getNodeType() == IRubyElement.BLOCK)
+			{
+				// Match "end" to "do ..." only if it's a do/end block
+				int endOffset = currentNode.getEndingOffset();
+				IDocument document = getSourceViewer().getDocument();
+				String endText = ""; //$NON-NLS-1$
+				try
+				{
+					endText = document.get(endOffset, 1);
+				}
+				catch (BadLocationException e)
+				{
+					// ignore
+				}
+				if (endText.equals("d")) //$NON-NLS-1$
+				{
+					int startOffset = currentNode.getStartingOffset();
+					if ((offset <= endOffset && offset >= endOffset - 2)
+							|| (offset >= startOffset && offset <= startOffset + 3))
+					{
+						positions.add(new Position(startOffset, 2));
+						positions.add(new Position(endOffset - 2, 3));
+					}
+				}
+			}
+			else if (currentNode instanceof IRubyField)
+			{
+				// TODO Find occurrences of variables!
+			}
+			// TODO Also match if/else/unless/begin/rescue/end blocks!
 		}
-		else if (currentNode instanceof IRubyField)
-		{
-			// TODO Find occurrences of variables!
-		}
-		// TODO Also match if/else/unless/begin/rescue/end blocks!
-
+		
 		if (!positions.isEmpty())
 		{
 			for (Position pos : positions)

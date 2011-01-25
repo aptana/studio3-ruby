@@ -51,6 +51,7 @@ import com.aptana.index.core.IFileStoreIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.IndexContainerJob;
 import com.aptana.index.core.IndexManager;
+import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
 // TODO Move this to com.aptana.ruby.core plugin!
 public class CoreStubber extends Job
@@ -322,7 +323,7 @@ public class CoreStubber extends Job
 
 	protected static File getRubyCoreStubDir()
 	{
-		String rubyVersion = ProcessUtil.outputForCommand(RUBY_EXE, null, ShellExecutable.getEnvironment(),
+		String rubyVersion = ProcessUtil.outputForCommand(getRubyExecutable(), null, ShellExecutable.getEnvironment(),
 				VERSION_SWITCH);
 		if (rubyVersion == null)
 		{
@@ -332,6 +333,16 @@ public class CoreStubber extends Job
 		IPath outputPath = RubyEditorPlugin.getDefault().getStateLocation().append(Integer.toString(rubyVersion.hashCode()))
 				.append(RUBY_EXE);
 		return outputPath.toFile();
+	}
+
+	private static String getRubyExecutable()
+	{
+		IPath ruby = RubyLaunchingPlugin.rubyExecutablePath();
+		if (ruby != null)
+		{
+			return ruby.toOSString();
+		}
+		return RUBY_EXE;
 	}
 
 	protected List<Job> indexGems()
@@ -388,7 +399,7 @@ public class CoreStubber extends Job
 
 	public static Set<IPath> getLoadpaths()
 	{
-		String rawLoadPathOutput = ProcessUtil.outputForCommand(RUBY_EXE, null, ShellExecutable.getEnvironment(),
+		String rawLoadPathOutput = ProcessUtil.outputForCommand(getRubyExecutable(), null, ShellExecutable.getEnvironment(),
 				"-e", "puts $:"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (rawLoadPathOutput == null)
 		{
@@ -419,7 +430,7 @@ public class CoreStubber extends Job
 		URL url = FileLocator.find(RubyEditorPlugin.getDefault().getBundle(), new Path(CORE_STUBBER_PATH), null);
 		File stubberScript = ResourceUtil.resourcePathToFile(url);
 
-		Map<Integer, String> stubberResult = ProcessUtil.runInBackground(RUBY_EXE, null,
+		Map<Integer, String> stubberResult = ProcessUtil.runInBackground(getRubyExecutable(), null,
 				ShellExecutable.getEnvironment(), stubberScript.getAbsolutePath(), outputDir.getAbsolutePath());
 		int exitCode = stubberResult.keySet().iterator().next();
 		if (exitCode != 0)

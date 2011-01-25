@@ -74,6 +74,11 @@ public class WizardNewRailsProjectCreationPage extends WizardNewRubyProjectCreat
 	 */
 	protected boolean validatePage()
 	{
+		if (!super.validatePage())
+		{
+			return false;
+		}
+
 		// Validate that there is no Rails project already existing in the
 		// new project location
 		hasRailsAppFiles = hasRailsApp(getLocationText());
@@ -85,7 +90,7 @@ public class WizardNewRailsProjectCreationPage extends WizardNewRubyProjectCreat
 		{
 			setTopControl(projectGenerationControls);
 		}
-		return super.validatePage();
+		return true;
 	}
 
 	private boolean hasRailsApp(String path)
