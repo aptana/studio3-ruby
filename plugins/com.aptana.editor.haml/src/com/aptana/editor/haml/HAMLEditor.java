@@ -7,6 +7,9 @@
  */
 package com.aptana.editor.haml;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.texteditor.ChainedPreferenceStore;
+
 import com.aptana.editor.common.AbstractThemeableEditor;
 
 public class HAMLEditor extends AbstractThemeableEditor {
@@ -15,6 +18,10 @@ public class HAMLEditor extends AbstractThemeableEditor {
 	protected void initializeEditor() {
 		super.initializeEditor();
 
+		ChainedPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] {
+				HAMLEditorPlugin.getDefault().getPreferenceStore(), getPreferenceStore() });
+		setPreferenceStore(store);
+		
 		setSourceViewerConfiguration(new HAMLSourceViewerConfiguration(getPreferenceStore(), this));
 		setDocumentProvider(new HAMLDocumentProvider());
 	}
