@@ -337,7 +337,7 @@ public class CoreStubber extends Job
 
 	private static String getRubyExecutable()
 	{
-		IPath ruby = RubyLaunchingPlugin.rubyExecutablePath();
+		IPath ruby = RubyLaunchingPlugin.rubyExecutablePath(null);
 		if (ruby != null)
 		{
 			return ruby.toOSString();

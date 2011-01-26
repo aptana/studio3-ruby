@@ -6,6 +6,9 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
@@ -42,6 +45,7 @@ public class RubyValidator implements IValidator
 		// Check what the version of the current ruby interpreter is and use that to determine which parser compat
 		// to use!
 		CompatVersion version = CompatVersion.RUBY1_8;
+		IPath projectPath = null;
 		// get the working dir
 		IPath workingDir = null;
 		if (path != null && "file".equals(path.getScheme())) //$NON-NLS-1$
@@ -49,7 +53,20 @@ public class RubyValidator implements IValidator
 			File file = new File(path);
 			workingDir = Path.fromOSString(file.getParent());
 		}
-		IPath ruby = RubyLaunchingPlugin.rubyExecutablePath();
+		// Find the project root for the file in question!
+		if (workingDir != null)
+		{
+			IContainer container = ResourcesPlugin.getWorkspace().getRoot().getContainerForLocation(workingDir);
+			if (container != null)
+			{
+				IProject project = container.getProject();
+				if (project != null)
+				{
+					projectPath = project.getLocation();
+				}
+			}
+		}
+		IPath ruby = RubyLaunchingPlugin.rubyExecutablePath(projectPath);
 		String rubyVersion = ProcessUtil.outputForCommand(
 				ruby == null ? "ruby" : ruby.toOSString(), workingDir, ShellExecutable.getEnvironment(), "-v"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (rubyVersion != null && rubyVersion.startsWith("ruby 1.9")) //$NON-NLS-1$
@@ -120,7 +137,7 @@ public class RubyValidator implements IValidator
 		catch (SyntaxException e)
 		{
 			int start = e.getPosition().getStartOffset();
-			int end = e.getPosition().getEndOffset();			
+			int end = e.getPosition().getEndOffset();
 			// FIXME This seems to point at the token after the error...
 			int lineNumber = e.getPosition().getStartLine();
 			int charLineOffset = 0;
