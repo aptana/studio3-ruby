@@ -7,13 +7,13 @@
  */
 package com.aptana.editor.haml;
 
-import org.eclipse.core.runtime.Plugin;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class HAMLEditorPlugin extends Plugin {
+public class HAMLEditorPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.aptana.editor.haml"; //$NON-NLS-1$

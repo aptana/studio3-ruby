@@ -7,13 +7,26 @@
  */
 package com.aptana.editor.haml;
 
-import com.aptana.editor.common.AbstractThemeableEditor;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.internal.editors.text.EditorsPlugin;
+import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
-public class HAMLEditor extends AbstractThemeableEditor {
+import com.aptana.editor.common.AbstractThemeableEditor;
+import com.aptana.editor.common.CommonEditorPlugin;
+
+@SuppressWarnings("restriction")
+public class HAMLEditor extends AbstractThemeableEditor
+{
 
 	@Override
-	protected void initializeEditor() {
+	protected void initializeEditor()
+	{
 		super.initializeEditor();
+
+		ChainedPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] {
+				HAMLEditorPlugin.getDefault().getPreferenceStore(),
+				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
+		setPreferenceStore(store);
 
 		setSourceViewerConfiguration(new HAMLSourceViewerConfiguration(getPreferenceStore(), this));
 		setDocumentProvider(new HAMLDocumentProvider());
