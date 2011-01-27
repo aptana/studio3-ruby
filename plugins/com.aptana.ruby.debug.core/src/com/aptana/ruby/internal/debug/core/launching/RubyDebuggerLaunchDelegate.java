@@ -69,7 +69,7 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 	{
 		List<String> commandList = new ArrayList<String>();
 		// Ruby binary
-		IPath rubyExecutablePath = rubyExecutable();
+		IPath rubyExecutablePath = rubyExecutable(configuration);
 		commandList.add(rubyExecutablePath.toOSString());
 		// Arguments to ruby
 		commandList.addAll(interpreterArguments(configuration));
@@ -164,7 +164,9 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 			ILaunchConfiguration configuration) throws CoreException
 	{
 		List<String> commandList = new ArrayList<String>();
-		IPath rdebug = ExecutableUtil.find(RDEBUG_IDE, false, getRDebugIDELocations(rubyExecutablePath));
+		// FIXME What if user is using RVM? We need to respect which version of rdebug-ide we need to use!
+		IPath rdebug = ExecutableUtil.find(RDEBUG_IDE, false, getRDebugIDELocations(rubyExecutablePath),
+				getWorkingDirectory(configuration));
 		if (rdebug == null)
 		{
 			abort(Messages.RubyDebuggerLaunchDelegate_3, null);
@@ -221,9 +223,9 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 		return arguments;
 	}
 
-	protected IPath rubyExecutable() throws CoreException
+	protected IPath rubyExecutable(ILaunchConfiguration configuration) throws CoreException
 	{
-		IPath path = RubyLaunchingPlugin.rubyExecutablePath();
+		IPath path = RubyLaunchingPlugin.rubyExecutablePath(getWorkingDirectory(configuration));
 		// TODO If we can't find one, should we just try plain "ruby"?
 		if (path == null)
 		{
@@ -239,7 +241,7 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 	private String[] getEnvironment(ILaunchConfiguration configuration) throws CoreException
 	{
 		Map<String, String> env = new HashMap<String, String>();
-		env.putAll(ShellExecutable.getEnvironment());
+		env.putAll(ShellExecutable.getEnvironment(getWorkingDirectory(configuration)));
 		String[] envp = DebugPlugin.getDefault().getLaunchManager().getEnvironment(configuration);
 		if (envp != null)
 		{

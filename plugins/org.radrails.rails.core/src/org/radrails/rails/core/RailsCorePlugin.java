@@ -72,7 +72,7 @@ public class RailsCorePlugin extends Plugin
 	public static Map<Integer, String> runRailsInBackground(IPath workingDirectory, Map<String, String> environment,
 			String... args)
 	{
-		IPath rubyExe = RubyLaunchingPlugin.rubyExecutablePath();
+		IPath rubyExe = RubyLaunchingPlugin.rubyExecutablePath(workingDirectory);
 		IPath railsPath = ExecutableUtil.find(RAILS, false, null);
 		String[] newArgs = new String[args.length + 1];
 		newArgs[0] = (railsPath == null) ? RAILS : railsPath.toOSString();
