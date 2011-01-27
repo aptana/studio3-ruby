@@ -23,12 +23,14 @@ public class HAMLEditor extends AbstractThemeableEditor
 	{
 		super.initializeEditor();
 
-		ChainedPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] {
-				HAMLEditorPlugin.getDefault().getPreferenceStore(),
-				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
-		setPreferenceStore(store);
-
+		setPreferenceStore(getChainedPreferenceStore());
 		setSourceViewerConfiguration(new HAMLSourceViewerConfiguration(getPreferenceStore(), this));
 		setDocumentProvider(new HAMLDocumentProvider());
+	}
+
+	public static IPreferenceStore getChainedPreferenceStore()
+	{
+		return new ChainedPreferenceStore(new IPreferenceStore[] { HAMLEditorPlugin.getDefault().getPreferenceStore(),
+				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
 	}
 }

@@ -53,12 +53,16 @@ public class RubySourceEditor extends AbstractThemeableEditor
 	{
 		super.initializeEditor();
 
-		setPreferenceStore(new ChainedPreferenceStore(new IPreferenceStore[] {
-				RubyEditorPlugin.getDefault().getPreferenceStore(),
-				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() }));
+		setPreferenceStore(getChainedPreferenceStore());
 
 		setSourceViewerConfiguration(new RubySourceViewerConfiguration(getPreferenceStore(), this));
 		setDocumentProvider(new RubyDocumentProvider());
+	}
+
+	public static IPreferenceStore getChainedPreferenceStore()
+	{
+		return new ChainedPreferenceStore(new IPreferenceStore[] { RubyEditorPlugin.getDefault().getPreferenceStore(),
+				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
 	}
 
 	@Override
@@ -236,7 +240,7 @@ public class RubySourceEditor extends AbstractThemeableEditor
 			}
 			// TODO Also match if/else/unless/begin/rescue/end blocks!
 		}
-		
+
 		if (!positions.isEmpty())
 		{
 			for (Position pos : positions)
