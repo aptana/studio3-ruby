@@ -145,6 +145,15 @@ public class RubyFormatter extends AbstractScriptFormatter
 		return FormatterUtils.getEditorTabWidth(RubyEditorPlugin.getDefault().getPreferenceStore());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.formatter.IScriptFormatter#isEditorInsertSpacesForTabs()
+	 */
+	public boolean isEditorInsertSpacesForTabs()
+	{
+		return FormatterUtils.isInsertSpacesForTabs(RubyEditorPlugin.getDefault().getPreferenceStore());
+	}
+
 	public TextEdit format(String source, int offset, int length, int indent, boolean isSelection,
 			IFormattingContext context) throws FormatterException
 	{
