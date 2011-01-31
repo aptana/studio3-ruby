@@ -733,7 +733,7 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 			FormatterStringNode strNode = new FormatterStringNode(document, visited.getPosition().getStartOffset(),
 					iterStart);
 			builder.addChild(strNode);
-			visitChildren(visited);
+			visitChild(visited.getIterNode());
 		}
 		else
 		{
