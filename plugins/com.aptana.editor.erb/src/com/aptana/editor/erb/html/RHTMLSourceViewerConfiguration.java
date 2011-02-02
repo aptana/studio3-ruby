@@ -109,7 +109,7 @@ public class RHTMLSourceViewerConfiguration extends CompositeSourceViewerConfigu
 	{
 		// Just uses the HTML content assist processor for now
 		// TODO: needs to check for ruby content type when the content assist is available there
-		AbstractThemeableEditor editor = getAbstractThemeableEditor();
+		AbstractThemeableEditor editor = getEditor();
 		return HTMLSourceViewerConfiguration.getContentAssistProcessor(contentType, editor);
 	}
 }

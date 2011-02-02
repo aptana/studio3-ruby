@@ -43,15 +43,13 @@ public class RubySourceViewerConfiguration extends SimpleSourceViewerConfigurati
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer)
 	{
 		IContentAssistant assistant = super.getContentAssistant(sourceViewer);
-		
+
 		if (assistant instanceof ContentAssistant)
 		{
-			// Turn on prefix completion (complete partially if all proposals share same prefix), and auto insert if
-			// only one proposal
-			((ContentAssistant) assistant).enableAutoInsert(true);
+			// Turn on prefix completion (complete partially if all proposals share same prefix)
 			((ContentAssistant) assistant).enablePrefixCompletion(true);
 		}
-		
+
 		return assistant;
 	}
 
@@ -68,7 +66,7 @@ public class RubySourceViewerConfiguration extends SimpleSourceViewerConfigurati
 		{
 			fDoubleClickStrategy = new RubyDoubleClickStrategy();
 		}
-		
+
 		return fDoubleClickStrategy;
 	}
 
