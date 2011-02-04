@@ -5,25 +5,26 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.radrails.tests.all;
+package com.aptana.editor.sass.tests;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-public class UITests
+import com.aptana.editor.sass.SassCodeScannerTest;
+import com.aptana.editor.sass.SassEditorTest;
+import com.aptana.editor.sass.SassSourcePartitionScannerTest;
+
+public class AllTests
 {
 
 	public static Test suite()
 	{
-		TestSuite suite = new TestSuite(UITests.class.getName());
+		TestSuite suite = new TestSuite("Test for com.aptana.editor.sass.tests"); //$NON-NLS-1$
 		// $JUnit-BEGIN$
-		suite.addTest(com.aptana.editor.ruby.tests.AllTests.suite());
-		suite.addTest(com.aptana.editor.erb.tests.AllTests.suite());
-		// FIXME Add tests for HAML!
-//		suite.addTest(com.aptana.editor.haml.tests.AllTests.suite());
-		suite.addTest(com.aptana.editor.sass.tests.AllTests.suite());
+		suite.addTestSuite(SassSourcePartitionScannerTest.class);
+		suite.addTestSuite(SassCodeScannerTest.class);
+		suite.addTestSuite(SassEditorTest.class);
 		// $JUnit-END$
 		return suite;
 	}
-
 }
