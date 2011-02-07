@@ -7,27 +7,57 @@
  */
 package com.aptana.editor.sass;
 
+import junit.framework.TestCase;
+
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
 
-import com.aptana.editor.common.tests.AbstractTokenScannerTestCase;
-
 @SuppressWarnings("nls")
-public class SassCodeScannerTest extends AbstractTokenScannerTestCase
+public class SassCodeScannerTest extends TestCase
 {
+	
+	protected ITokenScanner scanner;
+
 	@Override
-	protected ITokenScanner createTokenScanner()
+	protected void setUp() throws Exception
 	{
-		return new SassCodeScanner()
+		super.setUp();
+
+		scanner = new SassCodeScanner()
 		{
 			protected IToken createToken(String string)
 			{
 				return SassCodeScannerTest.this.getToken(string);
 			};
 		};
+	}
+
+	@Override
+	protected void tearDown() throws Exception
+	{
+		scanner = null;
+
+		super.tearDown();
+	}
+	
+	protected void assertToken(IToken token, int offset, int length)
+	{
+		assertToken(null, token, offset, length);
+	}
+
+	protected void assertToken(String msg, IToken token, int offset, int length)
+	{
+		assertEquals("Token scope doesn't match", token.getData(), scanner.nextToken().getData());
+		assertEquals("Offsets don't match", offset, scanner.getTokenOffset());
+		assertEquals("Lengths don't match", length, scanner.getTokenLength());
+	}
+	
+	protected IToken getToken(String tokenName)
+	{
+		return new Token(tokenName);
 	}
 
 	public void testH1Through6()

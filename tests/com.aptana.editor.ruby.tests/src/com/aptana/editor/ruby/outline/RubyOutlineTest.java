@@ -9,7 +9,6 @@ package com.aptana.editor.ruby.outline;
 
 import junit.framework.TestCase;
 
-import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.editor.ruby.parsing.RubyParser;
 import com.aptana.parsing.ParseState;
 
