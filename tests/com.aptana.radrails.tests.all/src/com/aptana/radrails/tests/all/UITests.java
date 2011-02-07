@@ -17,6 +17,7 @@ public class UITests
 	{
 		TestSuite suite = new TestSuite(UITests.class.getName());
 		// $JUnit-BEGIN$
+		suite.addTest(org.radrails.rails.ui.tests.AllTests.suite());
 		suite.addTest(com.aptana.editor.ruby.tests.AllTests.suite());
 		suite.addTest(com.aptana.editor.erb.tests.AllTests.suite());
 		// FIXME Add tests for HAML!
