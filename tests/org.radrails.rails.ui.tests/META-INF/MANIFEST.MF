@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Rails UI Plugin Tests
+Bundle-SymbolicName: org.radrails.rails.ui.tests
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Appcelerator, Inc.
+Fragment-Host: org.radrails.rails.ui;bundle-version="3.0.0"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.junit
+Export-Package: org.radrails.rails.ui.tests

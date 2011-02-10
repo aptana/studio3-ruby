@@ -1,10 +1,10 @@
 /**
- * Aptana Studio
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
- * Please see the license.html included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
- */
+ * Aptana Studio
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
+ * Please see the license.html included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.radrails.rails.internal.ui.hyperlink;
 
 import java.util.regex.Matcher;
@@ -24,7 +24,7 @@ import com.aptana.workbench.hyperlink.EditorLineHyperlink;
 public class RenderPathHyperlinkDetector implements IHyperlinkDetector
 {
 	private static Pattern RENDERED_VIEW_PATTERN = Pattern.compile("^Rendered\\s+(\\S.+?)\\s+"); //$NON-NLS-1$
-	private static Pattern GENERATOR_CREATED_PATTERN = Pattern.compile("^\\s+(identical|create|exists)\\s+(\\S.+?)\\s*$"); //$NON-NLS-1$
+	private static Pattern GENERATOR_CREATED_PATTERN = Pattern.compile("^\\s+(identical|exists|create(\\s+mode\\s+\\d+)?)\\s+(\\S.+?)\\s*$"); //$NON-NLS-1$
 
 	public IHyperlink[] detectHyperlinks(String contents)
 	{
@@ -43,9 +43,9 @@ public class RenderPathHyperlinkDetector implements IHyperlinkDetector
 		m = GENERATOR_CREATED_PATTERN.matcher(contents);
 		if (m.find())
 		{
-			String filepath = m.group(2);
-			int start = m.start(2);
-			int length = m.end(2) - start;
+			String filepath = m.group(3);
+			int start = m.start(3);
+			int length = m.end(3) - start;
 			return new IHyperlink[] { new EditorLineHyperlink(new Region(start, length), filepath, 0) };
 		}
 		return new IHyperlink[0];

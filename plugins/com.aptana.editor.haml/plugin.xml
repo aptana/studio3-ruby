@@ -26,5 +26,14 @@
             priority="normal">
       </content-type>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="com.aptana.editor.common.preferences.EditorsPreferencePage"
+            class="com.aptana.editor.haml.preferences.HAMLPreferencePage"
+            id="com.aptana.editor.haml.preferences.HamlPreferencePage"
+            name="HAML">
+      </page>
+   </extension>
 
 </plugin>

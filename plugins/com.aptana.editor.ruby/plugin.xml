@@ -102,5 +102,14 @@
             name="%validator.ruby.name">
       </validator>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="com.aptana.editor.common.preferences.EditorsPreferencePage"
+            class="com.aptana.editor.ruby.preferences.RubyPreferencePage"
+            id="com.aptana.editor.ruby.preferences.RubyPreferencePage"
+            name="Ruby">
+      </page>
+   </extension>
 
 </plugin>

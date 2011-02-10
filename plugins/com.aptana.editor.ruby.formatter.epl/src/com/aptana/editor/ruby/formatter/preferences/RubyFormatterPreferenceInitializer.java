@@ -50,7 +50,7 @@ public class RubyFormatterPreferenceInitializer extends AbstractPreferenceInitia
 		store.putBoolean(RubyFormatterConstants.WRAP_COMMENTS, false);
 		store.putInt(RubyFormatterConstants.WRAP_COMMENTS_LENGTH, 80);
 
-		store.put(RubyFormatterConstants.FORMATTER_TAB_CHAR, CodeFormatterConstants.SPACE);
+		store.put(RubyFormatterConstants.FORMATTER_TAB_CHAR, CodeFormatterConstants.EDITOR);
 		store.put(RubyFormatterConstants.FORMATTER_TAB_SIZE, "2"); //$NON-NLS-1$
 		store.put(RubyFormatterConstants.FORMATTER_INDENTATION_SIZE, "2"); //$NON-NLS-1$
 

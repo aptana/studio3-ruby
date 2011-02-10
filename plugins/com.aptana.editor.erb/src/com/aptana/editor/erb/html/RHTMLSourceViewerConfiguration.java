@@ -1,10 +1,10 @@
 /**
- * Aptana Studio
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
- * Please see the license.html included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
- */
+ * Aptana Studio
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
+ * Please see the license.html included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 
 package com.aptana.editor.erb.html;
 
@@ -109,7 +109,7 @@ public class RHTMLSourceViewerConfiguration extends CompositeSourceViewerConfigu
 	{
 		// Just uses the HTML content assist processor for now
 		// TODO: needs to check for ruby content type when the content assist is available there
-		AbstractThemeableEditor editor = getAbstractThemeableEditor();
+		AbstractThemeableEditor editor = getEditor();
 		return HTMLSourceViewerConfiguration.getContentAssistProcessor(contentType, editor);
 	}
 }

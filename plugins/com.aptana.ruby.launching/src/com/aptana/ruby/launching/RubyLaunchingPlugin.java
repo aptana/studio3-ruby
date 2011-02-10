@@ -1,10 +1,10 @@
 /**
- * Aptana Studio
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
- * Please see the license.html included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
- */
+ * Aptana Studio
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
+ * Please see the license.html included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package com.aptana.ruby.launching;
 
 import java.util.ArrayList;
@@ -49,16 +49,23 @@ public class RubyLaunchingPlugin implements BundleActivator
 		RubyLaunchingPlugin.context = null;
 	}
 
-	public static IPath rubyExecutablePath()
+	/**
+	 * Search for the applicable ruby executable for the working dir. If no working dir is set, we won't take rvmrc into
+	 * account (we'll use global PATH).
+	 * 
+	 * @param workingDir
+	 * @return
+	 */
+	public static IPath rubyExecutablePath(IPath workingDir)
 	{
 		IPath path = null;
 		if (Platform.OS_WIN32.equals(Platform.getOS()))
 		{
-			path = ExecutableUtil.find(RUBYW, true, getCommonRubyBinaryLocations(RUBYW));
+			path = ExecutableUtil.find(RUBYW, true, getCommonRubyBinaryLocations(RUBYW), workingDir);
 		}
 		if (path == null)
 		{
-			path = ExecutableUtil.find(RUBY, true, getCommonRubyBinaryLocations(RUBY));
+			path = ExecutableUtil.find(RUBY, true, getCommonRubyBinaryLocations(RUBY), workingDir);
 		}
 		// TODO check TM_RUBY env value too?
 		return path;
