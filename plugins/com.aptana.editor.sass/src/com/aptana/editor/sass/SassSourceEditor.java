@@ -8,12 +8,14 @@
 package com.aptana.editor.sass;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.parsing.FileService;
+import com.aptana.editor.common.text.reconciler.IFoldingComputer;
 
 @SuppressWarnings("restriction")
 public class SassSourceEditor extends AbstractThemeableEditor
@@ -47,5 +49,11 @@ public class SassSourceEditor extends AbstractThemeableEditor
 	protected FileService createFileService()
 	{
 		return new FileService(ISassConstants.LANGUAGE);
+	}
+
+	@Override
+	public IFoldingComputer createFoldingComputer(IDocument document)
+	{
+		return new SassFoldingComputer(document);
 	}
 }
