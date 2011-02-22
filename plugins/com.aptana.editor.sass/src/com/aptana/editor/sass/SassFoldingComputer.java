@@ -47,7 +47,7 @@ public class SassFoldingComputer implements IFoldingComputer
 
 			// Iterate over lines of the document
 			String src = getDocument().get();
-			String[] lines = src.split("(\r)?\n|\r"); //$NON-NLS-1$
+			String[] lines = src.split("\r?\n|\r"); //$NON-NLS-1$
 			for (String line : lines)
 			{
 				if (sub.isCanceled())
@@ -117,10 +117,15 @@ public class SassFoldingComputer implements IFoldingComputer
 		{
 			return size;
 		}
+		int spaces = 0;
 		for (int i = 0; i < line.length(); i++)
 		{
-			// FIXME Handle tabs as being one indent, X spaces as one indent!
-			if (Character.isWhitespace(line.charAt(i)))
+			char c = line.charAt(i);
+			if (c == ' ')
+			{
+				spaces++;
+			}
+			else if (c == '\t')
 			{
 				size++;
 			}
@@ -129,7 +134,8 @@ public class SassFoldingComputer implements IFoldingComputer
 				break;
 			}
 		}
-		return size;
+		// TODO check prefs for determining width of indent. Assume 2 for now.
+		return size + (spaces / 2);
 	}
 
 	protected IDocument getDocument()
