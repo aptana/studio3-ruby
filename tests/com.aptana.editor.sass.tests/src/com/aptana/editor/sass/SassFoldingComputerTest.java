@@ -29,11 +29,11 @@ public class SassFoldingComputerTest extends TestCase
 
 		assertNotNull(positions);
 		assertEquals(2, positions.size());
-		
+
 		Position p = positions.get(0);
 		assertEquals(29, p.getOffset());
 		assertEquals(69, p.getLength());
-		
+
 		p = positions.get(1);
 		assertEquals(99, p.getOffset());
 		assertEquals(74, p.getLength());
