@@ -8,7 +8,6 @@
 package org.radrails.rails.internal.ui;
 
 import java.io.File;
-import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -55,7 +54,7 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 		super.init(workbench, currentSelection);
 		setWindowTitle(Messages.NewRailsProject_windowTitle);
 	}
-	
+
 	@Override
 	protected String[] getNatureIds()
 	{
@@ -134,17 +133,14 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 	@SuppressWarnings("nls")
 	protected boolean requiresNewArgToGenerateApp(IProject project)
 	{
-		Map<Integer, String> result = RailsCorePlugin.runRailsInBackground(project.getLocation(),
-				ShellExecutable.getEnvironment(), "-v");
-		String version = null;
-		if (result != null && result.values().size() > 0)
-		{
-			version = result.values().iterator().next();
-		}
-		if (version == null)
+		IStatus result = RailsCorePlugin.runRailsInBackground(project.getLocation(), ShellExecutable.getEnvironment(),
+				"-v");
+		if (result == null || !result.isOK())
 		{
 			return false;
 		}
+
+		String version = result.getMessage();
 		String[] parts = version.split("\\s");
 		String lastPart = parts[parts.length - 1];
 		if (lastPart.startsWith("1") || lastPart.startsWith("2"))

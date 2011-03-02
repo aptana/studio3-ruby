@@ -3,6 +3,7 @@ package org.radrails.rails.core;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
@@ -64,12 +65,12 @@ public class RailsCorePlugin extends Plugin
 		return plugin;
 	}
 
-	public static Map<Integer, String> runRailsInBackground(IPath workingDirectory, String... args)
+	public static IStatus runRailsInBackground(IPath workingDirectory, String... args)
 	{
 		return runRailsInBackground(workingDirectory, null, args);
 	}
 
-	public static Map<Integer, String> runRailsInBackground(IPath workingDirectory, Map<String, String> environment,
+	public static IStatus runRailsInBackground(IPath workingDirectory, Map<String, String> environment,
 			String... args)
 	{
 		IPath rubyExe = RubyLaunchingPlugin.rubyExecutablePath(workingDirectory);
