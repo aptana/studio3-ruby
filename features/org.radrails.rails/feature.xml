@@ -3,7 +3,8 @@
       id="org.radrails.rails"
       label="%featureName"
       version="3.0.0.qualifier"
-      provider-name="%providerName">
+      provider-name="%providerName"
+      plugin="com.aptana.editor.ruby">
 
    <description url="http://www.aptana.com">
       %description
