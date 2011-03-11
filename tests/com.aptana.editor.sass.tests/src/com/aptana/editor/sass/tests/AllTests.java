@@ -10,6 +10,7 @@ package com.aptana.editor.sass.tests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import com.aptana.editor.sass.SassFoldingComputerTest;
 import com.aptana.editor.sass.SassCodeScannerTest;
 import com.aptana.editor.sass.SassEditorTest;
 import com.aptana.editor.sass.SassSourcePartitionScannerTest;
@@ -24,6 +25,7 @@ public class AllTests
 		suite.addTestSuite(SassSourcePartitionScannerTest.class);
 		suite.addTestSuite(SassCodeScannerTest.class);
 		suite.addTestSuite(SassEditorTest.class);
+		suite.addTestSuite(SassFoldingComputerTest.class);
 		// $JUnit-END$
 		return suite;
 	}

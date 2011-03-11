@@ -17,6 +17,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 import com.aptana.core.util.ExecutableUtil;
+import com.aptana.core.util.PlatformUtil;
 
 public class RubyLaunchingPlugin implements BundleActivator
 {
@@ -85,6 +86,7 @@ public class RubyLaunchingPlugin implements BundleActivator
 		}
 		else
 		{
+			locations.add(Path.fromOSString(PlatformUtil.expandEnvironmentStrings("~/.rvm/bin/" + binaryName))); //$NON-NLS-1$
 			locations.add(Path.fromOSString("/opt/local/bin/").append(binaryName)); //$NON-NLS-1$
 			locations.add(Path.fromOSString("/usr/local/bin/").append(binaryName)); //$NON-NLS-1$
 			locations.add(Path.fromOSString("/usr/bin/").append(binaryName)); //$NON-NLS-1$

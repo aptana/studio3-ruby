@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site pack200="true"> 
     <description url="http://download.aptana.com/studio3/plugin/update/">
-    	Aptana Studio 3 Update Central. Version {version.full}
+    	Aptana RadRails Update Central. Version {version.full}
     </description> 
-	<feature url="features/com.aptana.feature.studio_{version.full}.jar" id="com.aptana.feature.studio" version="{version.full}">
-		<category name="Aptana Studio 3"/>
+	<feature url="features/org.radrails.rails_{version.full}.jar" id="org.radrails.rails" version="{version.full}">
+		<category name="Aptana RadRails"/>
 	</feature>				
-    <category-def name="Aptana Studio 3" label="Aptana Studio 3">
-        <description>Aptana Studio 3</description>
+    <category-def name="Aptana RadRails" label="Aptana RadRails">
+        <description>
+        	Add RadRails support to Aptana Studio
+        </description>
     </category-def>
 </site>

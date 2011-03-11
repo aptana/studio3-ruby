@@ -245,7 +245,7 @@ public class CoreStubber extends Job
 				if (visitor.found())
 				{
 					// TODO If this project doesn't have the ruby nature, add it!
-//					RubyProjectNature.add(project, new NullProgressMonitor());
+					// RubyProjectNature.add(project, new NullProgressMonitor());
 					return true;
 				}
 			}
@@ -330,8 +330,8 @@ public class CoreStubber extends Job
 			return null;
 		}
 		// Store core stubs based on ruby version string...
-		IPath outputPath = RubyEditorPlugin.getDefault().getStateLocation().append(Integer.toString(rubyVersion.hashCode()))
-				.append(RUBY_EXE);
+		IPath outputPath = RubyEditorPlugin.getDefault().getStateLocation()
+				.append(Integer.toString(rubyVersion.hashCode())).append(RUBY_EXE);
 		return outputPath.toFile();
 	}
 
@@ -399,8 +399,8 @@ public class CoreStubber extends Job
 
 	public static Set<IPath> getLoadpaths()
 	{
-		String rawLoadPathOutput = ProcessUtil.outputForCommand(getRubyExecutable(), null, ShellExecutable.getEnvironment(),
-				"-e", "puts $:"); //$NON-NLS-1$ //$NON-NLS-2$
+		String rawLoadPathOutput = ProcessUtil.outputForCommand(getRubyExecutable(), null,
+				ShellExecutable.getEnvironment(), "-e", "puts $:"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (rawLoadPathOutput == null)
 		{
 			return Collections.emptySet();
@@ -430,13 +430,15 @@ public class CoreStubber extends Job
 		URL url = FileLocator.find(RubyEditorPlugin.getDefault().getBundle(), new Path(CORE_STUBBER_PATH), null);
 		File stubberScript = ResourceUtil.resourcePathToFile(url);
 
-		Map<Integer, String> stubberResult = ProcessUtil.runInBackground(getRubyExecutable(), null,
+		IStatus stubberResult = ProcessUtil.runInBackground(getRubyExecutable(), null,
 				ShellExecutable.getEnvironment(), stubberScript.getAbsolutePath(), outputDir.getAbsolutePath());
-		int exitCode = stubberResult.keySet().iterator().next();
-		if (exitCode != 0)
+		if (stubberResult == null || !stubberResult.isOK())
 		{
-			String stubberOutput = stubberResult.values().iterator().next();
-			RubyEditorPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, RubyEditorPlugin.PLUGIN_ID, stubberOutput, null));
+			RubyEditorPlugin
+					.getDefault()
+					.getLog()
+					.log(new Status(IStatus.ERROR, RubyEditorPlugin.PLUGIN_ID, (stubberResult == null) ? ""
+							: stubberResult.getMessage(), null));
 		}
 		else
 		{
