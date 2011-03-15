@@ -437,7 +437,7 @@ public class CoreStubber extends Job
 			RubyEditorPlugin
 					.getDefault()
 					.getLog()
-					.log(new Status(IStatus.ERROR, RubyEditorPlugin.PLUGIN_ID, (stubberResult == null) ? ""
+					.log(new Status(IStatus.ERROR, RubyEditorPlugin.PLUGIN_ID, (stubberResult == null) ? "" //$NON-NLS-1$
 							: stubberResult.getMessage(), null));
 		}
 		else

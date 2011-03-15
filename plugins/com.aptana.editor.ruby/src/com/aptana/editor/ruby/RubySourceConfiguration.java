@@ -76,12 +76,12 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 		IContentTypeTranslator c = CommonEditorPlugin.getDefault().getContentTypeTranslator();
 		c.addTranslation(new QualifiedContentType(IRubyConstants.CONTENT_TYPE_RUBY), new QualifiedContentType(
 				"source.ruby.rails")); //$NON-NLS-1$ // FIXME Should just be source.ruby! Rails bundle should contribute the more specific scope
-		c.addTranslation(new QualifiedContentType(STRING_SINGLE), new QualifiedContentType(IRubyConstants.SINGLE_QUOTED_STRING_SCOPE)); //$NON-NLS-1$
-		c.addTranslation(new QualifiedContentType(STRING_DOUBLE), new QualifiedContentType(IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE)); //$NON-NLS-1$
+		c.addTranslation(new QualifiedContentType(STRING_SINGLE), new QualifiedContentType(IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
+		c.addTranslation(new QualifiedContentType(STRING_DOUBLE), new QualifiedContentType(IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
 		c.addTranslation(new QualifiedContentType(SINGLE_LINE_COMMENT), new QualifiedContentType(
-				IRubyConstants.LINE_COMMENT_SCOPE)); //$NON-NLS-1$
+				IRubyConstants.LINE_COMMENT_SCOPE));
 		c.addTranslation(new QualifiedContentType(MULTI_LINE_COMMENT), new QualifiedContentType(
-				IRubyConstants.BLOCK_COMMENT_SCOPE)); //$NON-NLS-1$
+				IRubyConstants.BLOCK_COMMENT_SCOPE));
 		c.addTranslation(new QualifiedContentType(REGULAR_EXPRESSION), new QualifiedContentType(
 				"string.regexp.classic.ruby")); //$NON-NLS-1$
 		c.addTranslation(new QualifiedContentType(COMMAND), new QualifiedContentType(
@@ -197,7 +197,7 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 	{
 		if (multiLineCommentScanner == null)
 		{
-			multiLineCommentScanner = new CommentScanner(getToken(IRubyConstants.BLOCK_COMMENT_SCOPE)); //$NON-NLS-1$
+			multiLineCommentScanner = new CommentScanner(getToken(IRubyConstants.BLOCK_COMMENT_SCOPE));
 		}
 		return multiLineCommentScanner;
 	}
@@ -206,7 +206,7 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 	{
 		if (singleLineCommentScanner == null)
 		{
-			singleLineCommentScanner = new CommentScanner(getToken(IRubyConstants.LINE_COMMENT_SCOPE)); //$NON-NLS-1$
+			singleLineCommentScanner = new CommentScanner(getToken(IRubyConstants.LINE_COMMENT_SCOPE));
 		}
 		return singleLineCommentScanner;
 	}
@@ -235,7 +235,7 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 		if (singleQuotedStringScanner == null)
 		{
 			singleQuotedStringScanner = new RuleBasedScanner();
-			singleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.SINGLE_QUOTED_STRING_SCOPE)); //$NON-NLS-1$
+			singleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
 		}
 		return singleQuotedStringScanner;
 	}
@@ -245,7 +245,7 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 		if (doubleQuotedStringScanner == null)
 		{
 			doubleQuotedStringScanner = new RuleBasedScanner();
-			doubleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE)); //$NON-NLS-1$
+			doubleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
 		}
 		return doubleQuotedStringScanner;
 	}

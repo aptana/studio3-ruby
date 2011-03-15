@@ -12,6 +12,6 @@ public class DebuggerNotFoundException extends RuntimeException
 
 	public DebuggerNotFoundException()
 	{
-		super("Could not connect to debugger.");
+		super("Could not connect to debugger."); //$NON-NLS-1$
 	}
 }

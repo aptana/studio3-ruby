@@ -9,6 +9,7 @@ import org.eclipse.jface.text.source.ICharacterPairMatcher;
 
 import com.aptana.editor.common.internal.peer.CharacterPairMatcher;
 
+@SuppressWarnings("restriction")
 public class CharacterPairMatcherTest extends TestCase
 {
 
