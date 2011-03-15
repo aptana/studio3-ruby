@@ -22,7 +22,7 @@ public class ExceptionSuspensionPoint extends SuspensionPoint
 
 	public String toString()
 	{
-		return this.getExceptionType() + " occurred :" + this.getExceptionMessage();
+		return this.getExceptionType() + " occurred :" + this.getExceptionMessage(); //$NON-NLS-1$
 	}
 
 	public String getExceptionMessage()

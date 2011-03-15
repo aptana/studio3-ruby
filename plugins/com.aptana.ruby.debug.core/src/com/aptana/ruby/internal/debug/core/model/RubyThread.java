@@ -267,7 +267,7 @@ public class RubyThread extends RubyDebugElement implements IRubyThread
 
 	protected void createName(SuspensionPoint suspensionPoint)
 	{
-		this.name = MessageFormat.format("Ruby Thread - {0} ({1})", getId(), suspensionPoint != null ? suspensionPoint
+		this.name = MessageFormat.format("Ruby Thread - {0} ({1})", getId(), suspensionPoint != null ? suspensionPoint //$NON-NLS-1$
 				: status);
 	}
 
@@ -315,7 +315,7 @@ public class RubyThread extends RubyDebugElement implements IRubyThread
 
 		public ThreadJob(RubyThread thread)
 		{
-			super("RDT thread evaluations");
+			super("RDT thread evaluations"); //$NON-NLS-1$
 			fJDIThread = thread;
 			fRunnables = new Vector<Runnable>(5);
 			setSystem(true);
@@ -362,10 +362,10 @@ public class RubyThread extends RubyDebugElement implements IRubyThread
 					if (failed == null)
 					{
 						failed = new MultiStatus(RubyDebugCorePlugin.getPluginIdentifier(), -1,
-								"Exception processing async thread queue", null);
+								"Exception processing async thread queue", null); //$NON-NLS-1$
 					}
 					failed.add(new Status(IStatus.ERROR, RubyDebugCorePlugin.getPluginIdentifier(), -1,
-							"Exception processing async thread queue", e));
+							"Exception processing async thread queue", e)); //$NON-NLS-1$
 				}
 				i++;
 				monitor.worked(1);
