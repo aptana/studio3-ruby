@@ -111,5 +111,11 @@
             name="Ruby">
       </page>
    </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.aptana.editor.ruby.preferences.RubyPreferenceInitializer">
+      </initializer>
+   </extension>
 
 </plugin>
