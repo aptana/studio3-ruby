@@ -154,8 +154,13 @@ public class RubyFormatter extends AbstractScriptFormatter
 		return FormatterUtils.isInsertSpacesForTabs(RubyEditorPlugin.getDefault().getPreferenceStore());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.formatter.IScriptFormatter#format(java.lang.String, int, int, int, boolean,
+	 * org.eclipse.jface.text.formatter.IFormattingContext, java.lang.String)
+	 */
 	public TextEdit format(String source, int offset, int length, int indent, boolean isSelection,
-			IFormattingContext context) throws FormatterException
+			IFormattingContext context, String indentSufix) throws FormatterException
 	{
 		String input = source.substring(offset, offset + length);
 		if (isSlave())
