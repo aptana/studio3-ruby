@@ -539,8 +539,8 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 					beginEndOffset = bodyNode.getPosition().getEndOffset();
 				}
 			}
-			beginNode.setBegin(builder.createTextNode(document, beginPosition.getStartOffset(), bodyNodePosition
-					.getStartOffset()));
+			beginNode.setBegin(builder.createTextNode(document, beginPosition.getStartOffset(),
+					bodyNodePosition.getStartOffset()));
 			builder.push(beginNode);
 			visitChild(visited.getBodyNode());
 			builder.checkedPop(beginNode, -1);
@@ -666,8 +666,8 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	public Object visitStrNode(StrNode visited)
 	{
 		SourcePosition position = visited.getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(), position
-				.getEndOffset());
+		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
+				position.getEndOffset());
 		builder.addChild(strNode);
 		return null;
 	}
@@ -675,8 +675,8 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	public Object visitVCallNode(VCallNode visited)
 	{
 		SourcePosition position = visited.getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(), position
-				.getEndOffset());
+		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
+				position.getEndOffset());
 		builder.addChild(strNode);
 		return null;
 	}
@@ -684,8 +684,8 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	public Object visitDStrNode(DStrNode visited)
 	{
 		SourcePosition position = visited.getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(), position
-				.getEndOffset());
+		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
+				position.getEndOffset());
 		builder.addChild(strNode);
 		return null;
 	}
@@ -693,8 +693,8 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	public Object visitRegexpNode(RegexpNode visited)
 	{
 		SourcePosition position = visited.getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(), position
-				.getEndOffset());
+		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
+				position.getEndOffset());
 		builder.addChild(strNode);
 		return null;
 	}
@@ -702,8 +702,8 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	public Object visitDRegxNode(DRegexpNode visited)
 	{
 		SourcePosition position = visited.getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(), position
-				.getEndOffset());
+		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
+				position.getEndOffset());
 		builder.addChild(strNode);
 		return null;
 	}
@@ -711,8 +711,8 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	public Object visitXStrNode(XStrNode visited)
 	{
 		SourcePosition position = visited.getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(), position
-				.getEndOffset());
+		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
+				position.getEndOffset());
 		builder.addChild(strNode);
 		return null;
 	}
@@ -722,8 +722,8 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		if (isRequireMethod(visited))
 		{
 			SourcePosition position = visited.getPosition();
-			FormatterRequireNode requireNode = new FormatterRequireNode(document, position.getStartOffset(), position
-					.getEndOffset());
+			FormatterRequireNode requireNode = new FormatterRequireNode(document, position.getStartOffset(),
+					position.getEndOffset());
 			builder.addChild(requireNode);
 		}
 		else if (visited.getIterNode() != null)
@@ -738,8 +738,8 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		else
 		{
 			SourcePosition position = visited.getPosition();
-			FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(), position
-					.getEndOffset());
+			FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
+					position.getEndOffset());
 			builder.addChild(strNode);
 		}
 		return null;
@@ -781,12 +781,12 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	{
 
 		SourcePosition position = visited.getPosition();
-		String right = document.get(position.getStartOffset(), position.getStartOffset() + 1);
-		String left = document.get(position.getEndOffset() - 1, position.getEndOffset());
-		if ("{".equals(right) && "}".equals(left)) { //$NON-NLS-1$ //$NON-NLS-2$
+		String left = document.get(position.getStartOffset(),
+				Math.min(position.getStartOffset() + 1, document.getLength()));
+		String right = document.get(Math.max(0, position.getEndOffset() - 1), position.getEndOffset());
+		if ("{".equals(left) && "}".equals(right)) { //$NON-NLS-1$ //$NON-NLS-2$
 			final FormatterHashNode hashNode = new FormatterHashNode(document);
-			hashNode.setBegin(builder
-					.createTextNode(document, position.getStartOffset(), position.getStartOffset() + 1));
+			hashNode.setBegin(builder.createTextNode(document, position.getStartOffset(), position.getStartOffset() + 1));
 			builder.push(hashNode);
 			// builder.checkedPop(hashNode, right.getStartOffset());
 			visitChildren(visited);
