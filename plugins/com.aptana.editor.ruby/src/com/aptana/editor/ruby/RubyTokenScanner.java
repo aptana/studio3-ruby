@@ -266,11 +266,7 @@ public class RubyTokenScanner implements ITokenScanner
 
 	public void setRange(IDocument document, int offset, int length)
 	{
-		lexer.reset();
-		lexer.setState(LexState.EXPR_BEG);
-		lexer.setPreserveSpaces(true);
-		parserSupport.initTopLocalVariables();
-		isInSymbol = false;
+		reset();
 		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.RUBY1_8);
 		try
 		{
@@ -286,6 +282,16 @@ public class RubyTokenScanner implements ITokenScanner
 		}
 		origOffset = offset;
 		origLength = length;
+	}
+
+	protected void reset()
+	{
+		lexer.reset();
+		lexer.setState(LexState.EXPR_BEG);
+		lexer.setPreserveSpaces(true);
+		parserSupport.initTopLocalVariables();
+		isInSymbol = false;
+		inAlias = false;
 	}
 
 	String getSource(int offset, int length)

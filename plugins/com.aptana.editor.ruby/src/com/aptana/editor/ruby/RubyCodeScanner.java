@@ -28,6 +28,7 @@ public class RubyCodeScanner implements ITokenScanner
 	private Vector<QueuedToken> queue;
 	private int fLength;
 	private int fOffset;
+	private int fOrigOffset;
 
 	public RubyCodeScanner()
 	{
@@ -89,12 +90,15 @@ public class RubyCodeScanner implements ITokenScanner
 					lookForBlock = true;
 					return getToken("keyword.control.start-block.ruby"); //$NON-NLS-1$
 				case Tokens.kCLASS:
+					nextAreArgs = false;
 					nextIsClassName = true;
 					return getToken("keyword.control.class.ruby"); //$NON-NLS-1$
 				case Tokens.kMODULE:
+					nextAreArgs = false;
 					nextIsModuleName = true;
 					return getToken("keyword.control.module.ruby"); //$NON-NLS-1$
 				case Tokens.kDEF:
+					nextAreArgs = false;
 					nextIsMethodName = true;
 					return getToken("keyword.control.def.ruby"); //$NON-NLS-1$
 				default:
@@ -244,15 +248,15 @@ public class RubyCodeScanner implements ITokenScanner
 				return getToken("error.ruby"); //$NON-NLS-1$
 			case Tokens.tIDENTIFIER:
 			case Tokens.tFID:
-				if (nextAreArgs)
-				{
-					return getToken("variable.parameter.ruby"); //$NON-NLS-1$
-				}
 				if (nextIsMethodName)
 				{
 					nextIsMethodName = false;
 					nextAreArgs = true;
 					return getToken("entity.name.function.ruby"); //$NON-NLS-1$
+				}
+				if (nextAreArgs)
+				{
+					return getToken("variable.parameter.ruby"); //$NON-NLS-1$
 				}
 				if (lookForBlock && inPipe)
 					return getToken("variable.other.block.ruby"); //$NON-NLS-1$
@@ -270,7 +274,7 @@ public class RubyCodeScanner implements ITokenScanner
 		if (data.intValue() != Tokens.tWHITESPACE)
 			return false;
 		// make sure it's actually a newline
-		String tokenSrc = fScanner.getSource(fOffset, fLength);
+		String tokenSrc = fScanner.getSource(fOffset - fOrigOffset, fLength);
 		if (tokenSrc == null)
 			return false;
 		return tokenSrc.equals("\r\n") || tokenSrc.equals("\n") || tokenSrc.equals("\r");
@@ -335,6 +339,7 @@ public class RubyCodeScanner implements ITokenScanner
 	{
 		fScanner.setRange(document, offset, length);
 		reset();
+		fOrigOffset = offset;
 	}
 
 	private void reset()
