@@ -118,7 +118,7 @@ public class RubyTokenScanner implements ITokenScanner
 			fTokenLength = getOffset() - fOffset;
 			return returnValue;
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			RubyEditorPlugin.log(e);
 		}
