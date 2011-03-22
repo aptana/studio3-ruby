@@ -7,19 +7,11 @@
  */
 package com.aptana.editor.haml.preferences;
 
-import org.eclipse.osgi.util.NLS;
-
-public class Messages extends NLS
+public interface IPreferenceConstants
 {
-	private static final String BUNDLE_NAME = "com.aptana.editor.haml.preferences.messages"; //$NON-NLS-1$
-	public static String HAMLPreferencePage_HAML_Editor_Title;
-	static
-	{
-		// initialize resource bundle
-		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
-	}
-
-	private Messages()
-	{
-	}
+	/**
+	 * The preference key used to enable and disable auto indent.
+	 */
+	
+	String HAML_AUTO_INDENT = "HAML_AUTO_INDENT"; //$NON-NLS-1$
 }

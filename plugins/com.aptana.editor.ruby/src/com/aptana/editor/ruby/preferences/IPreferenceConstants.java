@@ -7,19 +7,16 @@
  */
 package com.aptana.editor.ruby.preferences;
 
-import org.eclipse.osgi.util.NLS;
+/**
+ * IPreferenceConstants
+ */
 
-public class Messages extends NLS
+public interface IPreferenceConstants
 {
-	private static final String BUNDLE_NAME = "com.aptana.editor.ruby.preferences.messages"; //$NON-NLS-1$
-	public static String RubyPreferencePage_Ruby_Page_Title;
-	static
-	{
-		// initialize resource bundle
-		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
-	}
+	/**
+	 * The preference key used to enable and disable auto indent.
+	 */
+	
+	String RUBY_AUTO_INDENT = "RUBY_AUTO_INDENT"; //$NON-NLS-1$
 
-	private Messages()
-	{
-	}
 }

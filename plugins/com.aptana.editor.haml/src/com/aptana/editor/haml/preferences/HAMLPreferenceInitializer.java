@@ -5,26 +5,26 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.preferences;
+package com.aptana.editor.haml.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 
-import com.aptana.editor.ruby.RubyEditorPlugin;
+import com.aptana.editor.haml.HAMLEditorPlugin;
 
-public class RubyPreferenceInitializer extends AbstractPreferenceInitializer
+public class HAMLPreferenceInitializer extends AbstractPreferenceInitializer
 {
 
 	@Override
 	public void initializeDefaultPreferences()
 	{
-		IEclipsePreferences prefs = new DefaultScope().getNode(RubyEditorPlugin.PLUGIN_ID);
-		// Force standard ruby indent/spaces. 2 spaces for indent, not tabs, not 4 spaces.
+		IEclipsePreferences prefs = new DefaultScope().getNode(HAMLEditorPlugin.PLUGIN_ID);
+		// Force standard haml indent/spaces. 2 spaces for indent, not tabs, not 4 spaces.
 		prefs.putInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH, 2);
 		prefs.putBoolean(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS, true);
-		prefs.putBoolean(IPreferenceConstants.RUBY_AUTO_INDENT, true);
+		prefs.putBoolean(IPreferenceConstants.HAML_AUTO_INDENT, true);
 	}
 
 }

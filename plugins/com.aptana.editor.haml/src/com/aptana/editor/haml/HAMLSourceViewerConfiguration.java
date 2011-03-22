@@ -9,6 +9,7 @@
 package com.aptana.editor.haml;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.ISourceViewer;
 
@@ -49,4 +50,11 @@ public class HAMLSourceViewerConfiguration extends SimpleSourceViewerConfigurati
 			});
 	}
 
+	@Override
+	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType)
+	{
+		return new IAutoEditStrategy[] { new HAMLAutoEditStrategy(contentType, this, sourceViewer) };
+	}
+
+	
 }

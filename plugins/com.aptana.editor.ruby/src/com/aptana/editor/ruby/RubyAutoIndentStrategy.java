@@ -26,6 +26,7 @@ import org.jrubyparser.parser.Ruby18Parser;
 import org.jrubyparser.parser.RubyParser;
 
 import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
+import com.aptana.editor.ruby.preferences.IPreferenceConstants;
 
 /**
  * Special subclass of auto indenter that will auto-close methods/blocks/classes/types with 'end" when needed.
@@ -155,15 +156,21 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 	@SuppressWarnings("nls")
 	private boolean atStartOfBlock(String line)
 	{
-		return line.startsWith("class ") || line.startsWith("if ") || line.startsWith("while ") || line.startsWith("module ")
-				|| line.startsWith("unless ") || line.startsWith("def ") || line.equals("begin")
-				|| line.startsWith("case ") || line.startsWith("for ") || openBlockPattern.matcher(line).matches();
+		return line.startsWith("class ") || line.startsWith("if ") || line.startsWith("while ")
+				|| line.startsWith("module ") || line.startsWith("unless ") || line.startsWith("def ")
+				|| line.equals("begin") || line.startsWith("case ") || line.startsWith("for ")
+				|| openBlockPattern.matcher(line).matches();
 	}
 
 	private boolean closeBlock()
 	{
 		// TODO Set up a pref value for user to turn this behavior off?
 		return true;
+	}
+
+	protected boolean shouldAutoIndent()
+	{
+		return RubyEditorPlugin.getDefault().getPreferenceStore().getBoolean(IPreferenceConstants.RUBY_AUTO_INDENT);
 	}
 
 }
