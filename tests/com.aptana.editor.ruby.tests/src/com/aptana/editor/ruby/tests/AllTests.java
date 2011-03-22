@@ -11,6 +11,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import com.aptana.editor.ruby.RubyCodeScannerTest;
+import com.aptana.editor.ruby.RubyContentAssistTest;
 import com.aptana.editor.ruby.RubyEditorTest;
 import com.aptana.editor.ruby.RubyParserTest;
 import com.aptana.editor.ruby.RubyRegexScannerTest;
@@ -32,6 +33,7 @@ public class AllTests
 		suite.addTestSuite(RubyParserTest.class);
 		suite.addTestSuite(RubyEditorTest.class);
 		suite.addTestSuite(RubyOutlineTest.class);
+		suite.addTestSuite(RubyContentAssistTest.class);
 		// $JUnit-END$
 		return suite;
 	}
