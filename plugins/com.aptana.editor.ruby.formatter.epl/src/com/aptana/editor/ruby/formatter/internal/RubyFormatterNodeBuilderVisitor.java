@@ -36,6 +36,9 @@ import org.jrubyparser.ast.HashNode;
 import org.jrubyparser.ast.IfNode;
 import org.jrubyparser.ast.IterNode;
 import org.jrubyparser.ast.ListNode;
+import org.jrubyparser.ast.Match2Node;
+import org.jrubyparser.ast.Match3Node;
+import org.jrubyparser.ast.MatchNode;
 import org.jrubyparser.ast.MethodDefNode;
 import org.jrubyparser.ast.ModuleNode;
 import org.jrubyparser.ast.NilImplicitNode;
@@ -686,6 +689,39 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		SourcePosition position = visited.getPosition();
 		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
 				position.getEndOffset());
+		builder.addChild(strNode);
+		return null;
+	}
+
+	public Object visitMatch2Node(Match2Node visited)
+	{
+		SourcePosition position = visited.getPosition();
+		SourcePosition receiverPosition = visited.getReceiverNode().getPosition();
+		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
+				receiverPosition.getEndOffset());
+
+		builder.addChild(strNode);
+		return null;
+	}
+
+	public Object visitMatch3Node(Match3Node visited)
+	{
+		SourcePosition position = visited.getPosition();
+		SourcePosition receiverPosition = visited.getReceiverNode().getPosition();
+		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
+				receiverPosition.getEndOffset());
+
+		builder.addChild(strNode);
+		return null;
+	}
+
+	public Object visitMatchNode(MatchNode visited)
+	{
+		SourcePosition position = visited.getPosition();
+		SourcePosition receiverPosition = visited.getRegexpNode().getPosition();
+		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
+				receiverPosition.getEndOffset());
+
 		builder.addChild(strNode);
 		return null;
 	}
