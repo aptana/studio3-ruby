@@ -10,6 +10,9 @@ package com.aptana.editor.ruby;
 import java.io.StringReader;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
@@ -24,6 +27,8 @@ import org.jrubyparser.parser.ParserConfiguration;
 import org.jrubyparser.parser.ParserSupport;
 import org.jrubyparser.parser.Ruby18Parser;
 import org.jrubyparser.parser.RubyParser;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
 
 import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
 import com.aptana.editor.ruby.preferences.IPreferenceConstants;
@@ -37,10 +42,41 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 {
 	private final Pattern openBlockPattern = Pattern.compile(".*[\\S].*do[\\w|\\s]*"); //$NON-NLS-1$
 	private static final String BLOCK_CLOSER = "end"; //$NON-NLS-1$
+	private static boolean shouldAutoIndent;
+	private static IPreferenceChangeListener autoIndentPrefChangeListener;
+
+	static
+	{
+		RubyAutoIndentStrategy.autoIndentPrefChangeListener = new IPreferenceChangeListener()
+		{
+
+			public void preferenceChange(PreferenceChangeEvent event)
+			{
+				if (IPreferenceConstants.RUBY_AUTO_INDENT.equals(event.getKey()))
+					updateAutoUpdatePreference();
+
+			}
+		};
+		new InstanceScope().getNode(RubyEditorPlugin.PLUGIN_ID).addPreferenceChangeListener(
+				autoIndentPrefChangeListener);
+
+		RubyEditorPlugin.getDefault().getBundle().getBundleContext().addBundleListener(new BundleListener()
+		{
+
+			public void bundleChanged(BundleEvent event)
+			{
+				if (event.getType() == BundleEvent.STOPPING)
+					new InstanceScope().getNode(RubyEditorPlugin.PLUGIN_ID).removePreferenceChangeListener(
+							autoIndentPrefChangeListener);
+			}
+		});
+
+	}
 
 	RubyAutoIndentStrategy(String contentType, SourceViewerConfiguration svc, ISourceViewer sourceViewer)
 	{
 		super(contentType, svc, sourceViewer);
+		updateAutoUpdatePreference();
 	}
 
 	@Override
@@ -170,7 +206,13 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 
 	protected boolean shouldAutoIndent()
 	{
-		return RubyEditorPlugin.getDefault().getPreferenceStore().getBoolean(IPreferenceConstants.RUBY_AUTO_INDENT);
+		return shouldAutoIndent;
+	}
+
+	private static void updateAutoUpdatePreference()
+	{
+		shouldAutoIndent = RubyEditorPlugin.getDefault().getPreferenceStore()
+				.getBoolean(IPreferenceConstants.RUBY_AUTO_INDENT);
 	}
 
 }
