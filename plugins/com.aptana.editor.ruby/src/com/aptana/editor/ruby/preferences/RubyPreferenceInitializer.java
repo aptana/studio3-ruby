@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 
+import com.aptana.editor.common.preferences.IPreferenceConstants;
 import com.aptana.editor.ruby.RubyEditorPlugin;
 
 public class RubyPreferenceInitializer extends AbstractPreferenceInitializer
@@ -24,7 +25,7 @@ public class RubyPreferenceInitializer extends AbstractPreferenceInitializer
 		// Force standard ruby indent/spaces. 2 spaces for indent, not tabs, not 4 spaces.
 		prefs.putInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH, 2);
 		prefs.putBoolean(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS, true);
-		prefs.putBoolean(IPreferenceConstants.RUBY_AUTO_INDENT, true);
+		prefs.putBoolean(IPreferenceConstants.EDITOR_AUTO_INDENT, true);
 	}
 
 }

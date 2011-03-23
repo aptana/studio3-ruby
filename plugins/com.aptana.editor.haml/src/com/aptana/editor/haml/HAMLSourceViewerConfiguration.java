@@ -17,44 +17,50 @@ import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.SimpleSourceViewerConfiguration;
 import com.aptana.editor.common.TextUtils;
+import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
 import com.aptana.editor.haml.internal.RubyAttributesSourceConfiguration;
 import com.aptana.editor.ruby.RubySourceConfiguration;
 
 /**
  * @author Max Stepanov
  */
-public class HAMLSourceViewerConfiguration extends SimpleSourceViewerConfiguration {
+public class HAMLSourceViewerConfiguration extends SimpleSourceViewerConfiguration
+{
 
-	protected HAMLSourceViewerConfiguration(IPreferenceStore preferences, AbstractThemeableEditor editor) {
+	protected HAMLSourceViewerConfiguration(IPreferenceStore preferences, AbstractThemeableEditor editor)
+	{
 		super(preferences, editor);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see com.aptana.editor.common.SimpleSourceViewerConfiguration#getSourceViewerConfiguration()
 	 */
 	@Override
-	public ISourceViewerConfiguration getSourceViewerConfiguration() {
+	public ISourceViewerConfiguration getSourceViewerConfiguration()
+	{
 		return HAMLSourceConfiguration.getDefault();
 	}
 
-	/* (non-Javadoc)
-	 * @see com.aptana.editor.common.SimpleSourceViewerConfiguration#getConfiguredContentTypes(org.eclipse.jface.text.source.ISourceViewer)
+	/*
+	 * (non-Javadoc)
+	 * @see
+	 * com.aptana.editor.common.SimpleSourceViewerConfiguration#getConfiguredContentTypes(org.eclipse.jface.text.source
+	 * .ISourceViewer)
 	 */
 	@Override
-	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
-		return TextUtils.combine(
-				new String[][] { { IDocument.DEFAULT_CONTENT_TYPE },
-				HAMLSourceConfiguration.CONTENT_TYPES,
-				RubySourceConfiguration.CONTENT_TYPES,
-				RubyAttributesSourceConfiguration.CONTENT_TYPES
-			});
+	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer)
+	{
+		return TextUtils.combine(new String[][] { { IDocument.DEFAULT_CONTENT_TYPE },
+				HAMLSourceConfiguration.CONTENT_TYPES, RubySourceConfiguration.CONTENT_TYPES,
+				RubyAttributesSourceConfiguration.CONTENT_TYPES });
 	}
 
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType)
 	{
-		return new IAutoEditStrategy[] { new HAMLAutoEditStrategy(contentType, this, sourceViewer) };
+		return new IAutoEditStrategy[] { new RubyRegexpAutoIndentStrategy(contentType, this, sourceViewer,
+				HAMLEditorPlugin.getDefault().getPreferenceStore()) };
 	}
 
-	
 }
