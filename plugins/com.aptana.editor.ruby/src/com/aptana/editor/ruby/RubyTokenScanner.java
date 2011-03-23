@@ -7,7 +7,6 @@
  */
 package com.aptana.editor.ruby;
 
-import java.io.IOException;
 import java.io.StringReader;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -118,7 +117,7 @@ public class RubyTokenScanner implements ITokenScanner
 			fTokenLength = getOffset() - fOffset;
 			return returnValue;
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			RubyEditorPlugin.log(e);
 		}
