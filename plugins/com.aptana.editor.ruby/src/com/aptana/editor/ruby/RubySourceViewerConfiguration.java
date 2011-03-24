@@ -79,7 +79,8 @@ public class RubySourceViewerConfiguration extends SimpleSourceViewerConfigurati
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType)
 	{
-		return new IAutoEditStrategy[] { new RubyAutoIndentStrategy(contentType, this, sourceViewer) };
+		return new IAutoEditStrategy[] { new RubyAutoIndentStrategy(contentType, this, sourceViewer, RubyEditorPlugin
+				.getDefault().getPreferenceStore()) };
 	}
 
 	/*

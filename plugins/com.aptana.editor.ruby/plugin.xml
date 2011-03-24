@@ -99,7 +99,8 @@
       <validator
             class="com.aptana.editor.ruby.validator.RubyValidator"
             language="text/ruby"
-            name="%validator.ruby.name">
+            name="%validator.ruby.name"
+            type="com.aptana.editor.ruby.problem">
       </validator>
    </extension>
    <extension
@@ -108,8 +109,37 @@
             category="com.aptana.editor.common.preferences.EditorsPreferencePage"
             class="com.aptana.editor.ruby.preferences.RubyPreferencePage"
             id="com.aptana.editor.ruby.preferences.RubyPreferencePage"
-            name="Ruby">
+            name="%page.ruby.name">
       </page>
+   </extension>
+   <extension
+         id="problem"
+         name="%marker.ruby.name"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <super
+            type="org.eclipse.core.resources.textmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+      <attribute
+            name="id">
+      </attribute>
+      <attribute
+            name="flags">
+      </attribute>
+      <attribute
+            name="arguments">
+      </attribute>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.aptana.editor.ruby.preferences.RubyPreferenceInitializer">
+      </initializer>
    </extension>
 
 </plugin>

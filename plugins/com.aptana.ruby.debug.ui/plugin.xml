@@ -15,6 +15,13 @@
                type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget">
          </adapter>
       </factory>
+      <factory
+            adaptableType="com.aptana.editor.erb.html.RHTMLEditor"
+             class="com.aptana.ruby.debug.ui.RubyBreakpointAdapterFactory">
+         <adapter
+               type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget">
+         </adapter>
+      </factory>
    </extension>
 	<extension point="org.eclipse.debug.ui.launchShortcuts">
 		<shortcut label="%RubyApplicationShortcut.label"

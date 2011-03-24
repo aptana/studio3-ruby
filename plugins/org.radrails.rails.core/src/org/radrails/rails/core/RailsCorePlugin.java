@@ -74,7 +74,8 @@ public class RailsCorePlugin extends Plugin
 			String... args)
 	{
 		IPath rubyExe = RubyLaunchingPlugin.rubyExecutablePath(workingDirectory);
-		IPath railsPath = ExecutableUtil.find(RAILS, false, null);
+		// TODO Add in some common rails bin script paths to search?
+		IPath railsPath = ExecutableUtil.find(RAILS, false, null, workingDirectory);
 		String[] newArgs = new String[args.length + 1];
 		newArgs[0] = (railsPath == null) ? RAILS : railsPath.toOSString();
 		System.arraycopy(args, 0, newArgs, 1, args.length);

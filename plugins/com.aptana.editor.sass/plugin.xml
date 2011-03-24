@@ -35,5 +35,11 @@
             name="SASS">
       </page>
    </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.aptana.editor.sass.preferences.SASSPreferenceInitializer">
+      </initializer>
+   </extension>
 
 </plugin>

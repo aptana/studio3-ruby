@@ -7,7 +7,6 @@
  */
 package com.aptana.editor.ruby;
 
-import java.io.IOException;
 import java.io.StringReader;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -118,7 +117,7 @@ public class RubyTokenScanner implements ITokenScanner
 			fTokenLength = getOffset() - fOffset;
 			return returnValue;
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			RubyEditorPlugin.log(e);
 		}
@@ -266,11 +265,7 @@ public class RubyTokenScanner implements ITokenScanner
 
 	public void setRange(IDocument document, int offset, int length)
 	{
-		lexer.reset();
-		lexer.setState(LexState.EXPR_BEG);
-		lexer.setPreserveSpaces(true);
-		parserSupport.initTopLocalVariables();
-		isInSymbol = false;
+		reset();
 		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.RUBY1_8);
 		try
 		{
@@ -286,6 +281,16 @@ public class RubyTokenScanner implements ITokenScanner
 		}
 		origOffset = offset;
 		origLength = length;
+	}
+
+	protected void reset()
+	{
+		lexer.reset();
+		lexer.setState(LexState.EXPR_BEG);
+		lexer.setPreserveSpaces(true);
+		parserSupport.initTopLocalVariables();
+		isInSymbol = false;
+		inAlias = false;
 	}
 
 	String getSource(int offset, int length)

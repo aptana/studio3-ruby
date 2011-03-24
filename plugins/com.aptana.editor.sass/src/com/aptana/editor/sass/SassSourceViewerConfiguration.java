@@ -8,10 +8,13 @@
 package com.aptana.editor.sass;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.IAutoEditStrategy;
+import org.eclipse.jface.text.source.ISourceViewer;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.SimpleSourceViewerConfiguration;
+import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
 
 public class SassSourceViewerConfiguration extends SimpleSourceViewerConfiguration
 {
@@ -34,5 +37,12 @@ public class SassSourceViewerConfiguration extends SimpleSourceViewerConfigurati
 	public ISourceViewerConfiguration getSourceViewerConfiguration()
 	{
 		return SassSourceConfiguration.getDefault();
+	}
+
+	@Override
+	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType)
+	{
+		return new IAutoEditStrategy[] { new RubyRegexpAutoIndentStrategy(contentType, this, sourceViewer, Activator
+				.getDefault().getPreferenceStore()) };
 	}
 }

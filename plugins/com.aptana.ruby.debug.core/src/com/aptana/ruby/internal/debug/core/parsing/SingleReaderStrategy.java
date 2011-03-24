@@ -17,9 +17,9 @@ public class SingleReaderStrategy extends AbstractReadStrategy {
 		int eventType = xpp.getEventType();
 		do {
 			if (eventType == XmlPullParser.START_DOCUMENT) {
-				RubyDebugCorePlugin.debug("Start document");
+				RubyDebugCorePlugin.debug("Start document"); //$NON-NLS-1$
 			} else if (eventType == XmlPullParser.END_DOCUMENT) {
-				RubyDebugCorePlugin.debug("End document");
+				RubyDebugCorePlugin.debug("End document"); //$NON-NLS-1$
 				break ;
 			} else if (eventType == XmlPullParser.START_TAG) {
 				streamReader.processStartElement(xpp);

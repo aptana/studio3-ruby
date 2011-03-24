@@ -4,7 +4,7 @@ public class BreakpointSuspensionPoint extends SuspensionPoint
 {
 	public String toString()
 	{
-		return "Breakpoint at " + this.getPosition();
+		return "Breakpoint at " + this.getPosition(); //$NON-NLS-1$
 	}
 
 	public boolean isBreakpoint()

@@ -10,6 +10,7 @@ package com.aptana.editor.ruby;
 import java.io.StringReader;
 import java.util.regex.Pattern;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
@@ -34,13 +35,14 @@ import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
  */
 class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 {
+	public RubyAutoIndentStrategy(String contentType, SourceViewerConfiguration configuration,
+			ISourceViewer sourceViewer, IPreferenceStore prefStore)
+	{
+		super(contentType, configuration, sourceViewer, prefStore);
+	}
+
 	private final Pattern openBlockPattern = Pattern.compile(".*[\\S].*do[\\w|\\s]*"); //$NON-NLS-1$
 	private static final String BLOCK_CLOSER = "end"; //$NON-NLS-1$
-
-	RubyAutoIndentStrategy(String contentType, SourceViewerConfiguration svc, ISourceViewer sourceViewer)
-	{
-		super(contentType, svc, sourceViewer);
-	}
 
 	@Override
 	protected boolean autoIndent(IDocument d, DocumentCommand c)
@@ -155,9 +157,10 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 	@SuppressWarnings("nls")
 	private boolean atStartOfBlock(String line)
 	{
-		return line.startsWith("class ") || line.startsWith("if ") || line.startsWith("while ") || line.startsWith("module ")
-				|| line.startsWith("unless ") || line.startsWith("def ") || line.equals("begin")
-				|| line.startsWith("case ") || line.startsWith("for ") || openBlockPattern.matcher(line).matches();
+		return line.startsWith("class ") || line.startsWith("if ") || line.startsWith("while ")
+				|| line.startsWith("module ") || line.startsWith("unless ") || line.startsWith("def ")
+				|| line.equals("begin") || line.startsWith("case ") || line.startsWith("for ")
+				|| openBlockPattern.matcher(line).matches();
 	}
 
 	private boolean closeBlock()

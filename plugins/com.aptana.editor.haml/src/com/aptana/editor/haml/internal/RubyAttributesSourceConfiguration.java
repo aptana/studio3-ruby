@@ -56,9 +56,9 @@ public class RubyAttributesSourceConfiguration implements IPartitioningConfigura
 	
 	static {
 		IContentTypeTranslator c = CommonEditorPlugin.getDefault().getContentTypeTranslator();
-		c.addTranslation(new QualifiedContentType(DEFAULT), new QualifiedContentType(IHAMLConstants.RUBY_ATTRIBUTES_SCOPE)); //$NON-NLS-1$
-		c.addTranslation(new QualifiedContentType(STRING_SINGLE), new QualifiedContentType(IHAMLConstants.RUBY_ATTRIBUTES_SCOPE, IRubyConstants.SINGLE_QUOTED_STRING_SCOPE)); //$NON-NLS-1$ //$NON-NLS-2$
-		c.addTranslation(new QualifiedContentType(STRING_DOUBLE), new QualifiedContentType(IHAMLConstants.RUBY_ATTRIBUTES_SCOPE, IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		c.addTranslation(new QualifiedContentType(DEFAULT), new QualifiedContentType(IHAMLConstants.RUBY_ATTRIBUTES_SCOPE));
+		c.addTranslation(new QualifiedContentType(STRING_SINGLE), new QualifiedContentType(IHAMLConstants.RUBY_ATTRIBUTES_SCOPE, IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
+		c.addTranslation(new QualifiedContentType(STRING_DOUBLE), new QualifiedContentType(IHAMLConstants.RUBY_ATTRIBUTES_SCOPE, IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
 	}
 
 	private RubyCodeScanner codeScanner;
@@ -143,7 +143,7 @@ public class RubyAttributesSourceConfiguration implements IPartitioningConfigura
 	private ITokenScanner getSingleQuotedStringScanner() {
 		if (singleQuotedStringScanner == null) {
 			singleQuotedStringScanner = new RuleBasedScanner();
-			singleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.SINGLE_QUOTED_STRING_SCOPE)); //$NON-NLS-1$
+			singleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
 		}
 		return singleQuotedStringScanner;
 	}
@@ -151,7 +151,7 @@ public class RubyAttributesSourceConfiguration implements IPartitioningConfigura
 	private ITokenScanner getDoubleQuotedStringScanner() {
 		if (doubleQuotedStringScanner == null) {
 			doubleQuotedStringScanner = new RuleBasedScanner();
-			doubleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE)); //$NON-NLS-1$
+			doubleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
 		}
 		return doubleQuotedStringScanner;
 	}
