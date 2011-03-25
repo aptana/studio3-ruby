@@ -149,6 +149,10 @@ public class RubyValidator implements IValidator
 			catch (BadLocationException ble)
 			{
 			}
+			if (start == end && end == source.length() && charLineOffset > 0)
+			{
+				charLineOffset--;
+			}
 			items.add(manager.addError(e.getMessage(), lineNumber, charLineOffset, end - start + 1, path));
 		}
 
