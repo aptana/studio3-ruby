@@ -117,9 +117,9 @@ public interface IRubyLineBreakpoint extends IRubyBreakpoint, ILineBreakpoint {
 	 * the project relative path.
 	 * 
 	 * @return
-	 * @throws CoreException 
+	 * @throws CoreException
 	 */
-	public IPath getFileName() throws CoreException;
+	public IPath getFilePath() throws CoreException;
 
 	public void setIndex(int index);
 

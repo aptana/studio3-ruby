@@ -77,7 +77,7 @@ public class RubyModelPresentation extends LabelProvider implements IDebugModelP
 			try
 			{
 				IRubyLineBreakpoint rlbp = (IRubyLineBreakpoint) element;
-				return MessageFormat.format("{0} [line: {1}]", rlbp.getFileName().toPortableString(), rlbp.getLineNumber()); //$NON-NLS-1$
+				return MessageFormat.format("{0} [line: {1}]", rlbp.getFilePath().toPortableString(), rlbp.getLineNumber()); //$NON-NLS-1$
 			}
 			catch (CoreException e)
 			{
@@ -203,7 +203,7 @@ public class RubyModelPresentation extends LabelProvider implements IDebugModelP
 		{
 			try
 			{
-				IPath fileName = ((IRubyLineBreakpoint) element).getFileName();
+				IPath fileName = ((IRubyLineBreakpoint) element).getFilePath();
 				return EFS.getStore(fileName.toFile().toURI());
 			}
 			catch (CoreException e)
