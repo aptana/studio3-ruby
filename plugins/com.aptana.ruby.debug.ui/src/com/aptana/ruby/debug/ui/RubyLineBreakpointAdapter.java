@@ -78,7 +78,7 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 				continue;
 			}
 			IRubyLineBreakpoint rubyLineBreakpoint = (IRubyLineBreakpoint) breakpoint;
-			if (rubyLineBreakpoint.getFileName().equals(fileName))
+			if (rubyLineBreakpoint.getFilePath().equals(fileName))
 			{
 				if (rubyLineBreakpoint.getLineNumber() == (lineNumber + 1))
 				{
