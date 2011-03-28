@@ -11,6 +11,7 @@
 package com.aptana.ruby.debug.core;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 
 /**
@@ -102,7 +103,7 @@ public interface IRubyLineBreakpoint extends IRubyBreakpoint, ILineBreakpoint
 	 * @return
 	 * @throws CoreException 
 	 */
-	public String getFileName() throws CoreException;
+	public IPath getFileName() throws CoreException;
 
 	public void setIndex(int index);
 
