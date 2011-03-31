@@ -125,7 +125,7 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 	}
 
 	/**
-	 * As of Rails 3 beta4, to generate an app, you need to use 'rails new APP_NAME'
+	 * To generate an app, you need to use 'rails new APP_NAME'
 	 * 
 	 * @param project
 	 * @return

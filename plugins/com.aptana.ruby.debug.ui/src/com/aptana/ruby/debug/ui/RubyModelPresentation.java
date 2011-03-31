@@ -12,6 +12,7 @@
 package com.aptana.ruby.debug.ui;
 
 import java.io.File;
+import java.text.MessageFormat;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -20,6 +21,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
@@ -75,7 +77,7 @@ public class RubyModelPresentation extends LabelProvider implements IDebugModelP
 			try
 			{
 				IRubyLineBreakpoint rlbp = (IRubyLineBreakpoint) element;
-				return rlbp.getFileName() + ":" + rlbp.getLineNumber(); //$NON-NLS-1$
+				return MessageFormat.format("{0} [line: {1}]", rlbp.getFilePath().toPortableString(), rlbp.getLineNumber()); //$NON-NLS-1$
 			}
 			catch (CoreException e)
 			{
@@ -201,8 +203,8 @@ public class RubyModelPresentation extends LabelProvider implements IDebugModelP
 		{
 			try
 			{
-				String fileName = ((IRubyLineBreakpoint) element).getFileName();
-				return EFS.getStore(Path.fromPortableString(fileName).toFile().toURI());
+				IPath fileName = ((IRubyLineBreakpoint) element).getFilePath();
+				return EFS.getStore(fileName.toFile().toURI());
 			}
 			catch (CoreException e)
 			{

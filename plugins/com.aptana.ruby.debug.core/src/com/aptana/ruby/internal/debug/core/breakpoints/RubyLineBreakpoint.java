@@ -7,7 +7,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IBreakpoint;
 
@@ -48,14 +50,14 @@ public class RubyLineBreakpoint extends RubyBreakpoint implements IRubyLineBreak
 	 * @param typeName
 	 * @see RDtDebugModel#createLineBreakpoint(IResource, String, int, int, int, int, boolean, Map)
 	 */
-	public RubyLineBreakpoint(IResource resource, String fileName, String typeName, int lineNumber, int charStart,
+	public RubyLineBreakpoint(IResource resource, IPath fileName, String typeName, int lineNumber, int charStart,
 			int charEnd, int hitCount, boolean add, Map<String, Object> attributes) throws DebugException
 	{
 		this(resource, fileName, typeName, lineNumber, charStart, charEnd, hitCount, add, attributes,
 				RUBY_LINE_BREAKPOINT);
 	}
 
-	protected RubyLineBreakpoint(final IResource resource, final String fileName, final String typeName,
+	protected RubyLineBreakpoint(final IResource resource, final IPath fileName, final String typeName,
 			final int lineNumber, final int charStart, final int charEnd, final int hitCount, final boolean add,
 			final Map<String, Object> attributes, final String markerType) throws DebugException
 	{
@@ -68,7 +70,7 @@ public class RubyLineBreakpoint extends RubyBreakpoint implements IRubyLineBreak
 				setMarker(resource.createMarker(RUBY_LINE_BREAKPOINT));
 				if (resource.equals(ResourcesPlugin.getWorkspace().getRoot()))
 				{
-					attributes.put(EXTERNAL_FILENAME, fileName);
+					attributes.put(EXTERNAL_FILENAME, fileName.toPortableString());
 				}
 				// add attributes
 				addLineBreakpointAttributes(attributes, getModelIdentifier(), true, lineNumber, charStart, charEnd);
@@ -120,14 +122,15 @@ public class RubyLineBreakpoint extends RubyBreakpoint implements IRubyLineBreak
 		}
 	}
 
-	public String getFileName() throws CoreException
+	// FIXME Return URI?
+	public IPath getFilePath() throws CoreException
 	{
 		IResource resource = ensureMarker().getResource();
 		if (resource.equals(ResourcesPlugin.getWorkspace().getRoot()))
 		{
-			return ensureMarker().getAttribute(EXTERNAL_FILENAME, ""); //$NON-NLS-1$
+			return Path.fromPortableString(ensureMarker().getAttribute(EXTERNAL_FILENAME, "")); //$NON-NLS-1$
 		}
-		return resource.getName();
+		return resource.getProjectRelativePath();
 	}
 
 	public int getLineNumber() throws CoreException

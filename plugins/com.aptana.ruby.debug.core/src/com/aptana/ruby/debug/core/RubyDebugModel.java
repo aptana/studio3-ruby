@@ -6,9 +6,11 @@ import java.util.Map;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.model.IBreakpoint;
+
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
 import com.aptana.ruby.debug.core.model.IRubyExceptionBreakpoint;
 import com.aptana.ruby.internal.debug.core.breakpoints.RubyExceptionBreakpoint;
@@ -87,7 +89,7 @@ public class RubyDebugModel
 	 *                responsible for the failure.</li>
 	 *                </ul>
 	 */
-	public static IRubyLineBreakpoint createLineBreakpoint(IResource resource, String fileName, String typeName,
+	public static IRubyLineBreakpoint createLineBreakpoint(IResource resource, IPath fileName, String typeName,
 			int lineNumber, boolean register, Map<String, Object> attributes) throws CoreException
 	{
 		if (attributes == null)

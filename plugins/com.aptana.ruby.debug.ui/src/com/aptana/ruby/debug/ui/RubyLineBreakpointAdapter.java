@@ -1,5 +1,6 @@
 package com.aptana.ruby.debug.ui;
 
+import java.io.File;
 import java.net.URI;
 
 import org.eclipse.core.filesystem.EFS;
@@ -7,6 +8,7 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
@@ -45,23 +47,23 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 
 		URI uri = store.toURI();
 		IResource resource = null;
-		String fileName = null;
+		IPath fileName = null;
 		if ("file".equals(uri.getScheme())) //$NON-NLS-1$
 		{
+			File file = new File(uri);
+			fileName = Path.fromOSString(file.getAbsolutePath());
 			resource = ResourcesPlugin.getWorkspace().getRoot()
-					.getFileForLocation(Path.fromPortableString(uri.getPath()));
+					.getFileForLocation(fileName);
 		}
 
 		if (resource == null)
 		{
 			// External file. Stick the marker on the workspace root
 			resource = ResourcesPlugin.getWorkspace().getRoot();
-			fileName = uri.getPath();
 		}
 		else
 		{
-			// inside the workspace
-			fileName = resource.getName();
+			fileName = resource.getProjectRelativePath();
 		}
 		ITextSelection textSelection = (ITextSelection) selection;
 		int lineNumber = textSelection.getStartLine();
@@ -76,7 +78,7 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 				continue;
 			}
 			IRubyLineBreakpoint rubyLineBreakpoint = (IRubyLineBreakpoint) breakpoint;
-			if (rubyLineBreakpoint.getFileName().equals(fileName))
+			if (rubyLineBreakpoint.getFilePath().equals(fileName))
 			{
 				if (rubyLineBreakpoint.getLineNumber() == (lineNumber + 1))
 				{
