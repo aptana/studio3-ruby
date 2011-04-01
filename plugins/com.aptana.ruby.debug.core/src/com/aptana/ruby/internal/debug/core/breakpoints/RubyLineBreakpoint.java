@@ -133,6 +133,16 @@ public class RubyLineBreakpoint extends RubyBreakpoint implements IRubyLineBreak
 		return resource.getProjectRelativePath();
 	}
 
+	public IPath getLocation() throws CoreException
+	{
+		IResource resource = ensureMarker().getResource();
+		if (resource.equals(ResourcesPlugin.getWorkspace().getRoot()))
+		{
+			return Path.fromPortableString(ensureMarker().getAttribute(EXTERNAL_FILENAME, "")); //$NON-NLS-1$
+		}
+		return resource.getLocation();
+	}
+
 	public int getLineNumber() throws CoreException
 	{
 		return ensureMarker().getAttribute(IMarker.LINE_NUMBER, -1);

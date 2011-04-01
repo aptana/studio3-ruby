@@ -203,7 +203,7 @@ public class RubyModelPresentation extends LabelProvider implements IDebugModelP
 		{
 			try
 			{
-				IPath fileName = ((IRubyLineBreakpoint) element).getFilePath();
+				IPath fileName = ((IRubyLineBreakpoint) element).getLocation();
 				return EFS.getStore(fileName.toFile().toURI());
 			}
 			catch (CoreException e)
