@@ -126,7 +126,7 @@ public class RubyDebuggerProxy
 				else if (breakpoint instanceof IRubyLineBreakpoint)
 				{
 					IRubyLineBreakpoint rubyLineBreakpoint = (IRubyLineBreakpoint) breakpoint;
-					String command = commandFactory.createAddBreakpoint(rubyLineBreakpoint.getFilePath().toOSString(),
+					String command = commandFactory.createAddBreakpoint(rubyLineBreakpoint.getLocation().toOSString(),
 							rubyLineBreakpoint.getLineNumber());
 					int index = new BreakpointCommand(command).executeWithResult(debuggerConnection);
 					rubyLineBreakpoint.setIndex(index);
@@ -581,7 +581,8 @@ public class RubyDebuggerProxy
 				try
 				{
 					IRubyLineBreakpoint lineBreak = (IRubyLineBreakpoint) breakpoint;
-					if (lineBreak.getLineNumber() == hit.getLine() && lineBreak.getFilePath().equals(hit.getFile()))
+					if (lineBreak.getLineNumber() == hit.getLine()
+							&& lineBreak.getLocation().toOSString().equals(hit.getFile()))
 						return lineBreak;
 				}
 				catch (CoreException e)
