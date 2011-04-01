@@ -25,7 +25,6 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
 import org.radrails.rails.ui.RailsUIPlugin;
 
-import com.aptana.console.process.ConsoleProcessFactory;
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
 
 public class DebugServerHandler extends RunServerHandler
@@ -113,7 +112,6 @@ public class DebugServerHandler extends RunServerHandler
 		wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, args);
 		wc.setAttribute(ILaunchConfiguration.ATTR_SOURCE_LOCATOR_ID,
 				IRubyLaunchConfigurationConstants.ID_RUBY_SOURCE_LOCATOR);
-		wc.setAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, ConsoleProcessFactory.ID);
 		return wc.doSave();
 	}
 
