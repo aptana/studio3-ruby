@@ -138,38 +138,42 @@ public class ExecuteHandler extends AbstractHandler
 
 	static String valueToCode(IValue value) throws DebugException
 	{
+		StringBuilder buffer = new StringBuilder("# => "); //$NON-NLS-1$
 		String string = value.getValueString();
 		if (value instanceof IRubyValue)
 		{
 			IRubyValue rubyValue = (IRubyValue) value;
-			if (value.getReferenceTypeName().equals("Array")) //$NON-NLS-1$
+			if ("Array".equals(value.getReferenceTypeName())) //$NON-NLS-1$
 			{
-				StringBuffer buffer = new StringBuffer("["); //$NON-NLS-1$
+				buffer.append("["); //$NON-NLS-1$
 				IVariable[] vars = rubyValue.getVariables();
 				for (int i = 0; i < vars.length; i++)
 				{
 					buffer.append(vars[i].getValue().getValueString());
 					if (i < vars.length - 1)
+					{
 						buffer.append(", "); //$NON-NLS-1$
+					}
 				}
-				buffer.append("]"); //$NON-NLS-1$
-				string = buffer.toString();
+				buffer.append("]"); //$NON-NLS-1$				
 			}
-			else if (value.getReferenceTypeName().equals("Hash")) //$NON-NLS-1$
+			else if ("Hash".equals(value.getReferenceTypeName())) //$NON-NLS-1$
 			{
-				StringBuffer buffer = new StringBuffer("{"); //$NON-NLS-1$
+				buffer.append("{"); //$NON-NLS-1$
 				IVariable[] vars = rubyValue.getVariables();
 				for (int i = 0; i < vars.length; i++)
 				{
 					buffer.append(vars[i]);
 					if (i < vars.length - 1)
+					{
 						buffer.append(", "); //$NON-NLS-1$
+					}
 				}
 				buffer.append("}"); //$NON-NLS-1$
-				string = buffer.toString();
 			}
 		}
-		return "# => " + string; //$NON-NLS-1$
+		buffer.append(string);
+		return buffer.toString();
 	}
 
 	static IRubyStackFrame getEvaluationContext(IWorkbenchWindow workbenchWindow)

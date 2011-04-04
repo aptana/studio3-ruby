@@ -197,16 +197,12 @@
     <command
           defaultHandler="com.aptana.ruby.internal.debug.ui.display.ExecuteHandler"
           id="com.aptana.ruby.debug.ui.commands.execute"
-          name="Execute">
+          name="%execute.command.name">
     </command>
     <command
           defaultHandler="com.aptana.ruby.internal.debug.ui.display.ClearDisplayViewHandler"
           id="com.aptana.ruby.debug.ui.command.clear_display"
-          name="Clear">
-    </command>
-    <command
-          id="com.aptana.ruby.debug.ui.command.clear_display"
-          name="Clear">
+          name="%clear_display.command.name">
     </command>
   </extension>
   <extension point="org.eclipse.ui.actionSets">
