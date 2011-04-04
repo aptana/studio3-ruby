@@ -31,6 +31,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.XMLMemento;
 import org.eclipse.ui.part.ViewPart;
 
+import com.aptana.editor.ruby.RubySourceEditor;
+import com.aptana.editor.ruby.RubySourceViewerConfiguration;
 import com.aptana.ruby.debug.core.model.IEvaluationResult;
 import com.aptana.ruby.debug.core.model.IRubyStackFrame;
 import com.aptana.ruby.debug.ui.RubyDebugUIPlugin;
@@ -67,8 +69,7 @@ public class DisplayView extends ViewPart implements ITextInputListener, IPerspe
 		int styles = SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI | SWT.FULL_SELECTION;
 		fSourceViewer = new SourceViewer(parent, null, styles);
 		fDataDisplay = new DataDisplay(fSourceViewer);
-		// FIXME Use RubySourceViewerConfiguration
-		// fSourceViewer.configure(new DisplayViewerConfiguration());
+		fSourceViewer.configure(new RubySourceViewerConfiguration(RubySourceEditor.getChainedPreferenceStore(), null));
 		fSourceViewer.getTextWidget().setBackground(
 				ThemePlugin.getDefault().getColorManager()
 						.getColor(ThemePlugin.getDefault().getThemeManager().getCurrentTheme().getBackground()));
