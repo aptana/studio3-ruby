@@ -303,7 +303,7 @@
         point="org.eclipse.ui.menus">
      <menuContribution
            allPopups="false"
-           locationURI="toolbar:com.aptana.ruby.debug.ui.DisplayView?endof=evaluation.group">
+           locationURI="toolbar:com.aptana.ruby.debug.ui.DisplayView">
         <command
               commandId="com.aptana.ruby.debug.ui.commands.execute"
               icon="icons/full/etool16/run_sbook.gif"

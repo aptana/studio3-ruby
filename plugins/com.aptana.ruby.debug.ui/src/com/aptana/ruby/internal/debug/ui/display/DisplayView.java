@@ -1,13 +1,5 @@
 package com.aptana.ruby.internal.debug.ui.display;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
@@ -41,19 +33,11 @@ import com.aptana.theme.ThemePlugin;
 public class DisplayView extends ViewPart implements ITextInputListener, IPerspectiveListener2
 {
 
-	private static final String EVALUATION_GROUP_ID = "evaluation.group"; //$NON-NLS-1$
+	private IDataDisplay fDataDisplay;
+	private IDocumentListener fDocumentListener;
+	private SourceViewer fSourceViewer;
+	private String fRestoredContents;
 
-	protected IDataDisplay fDataDisplay;
-	protected IDocumentListener fDocumentListener = null;
-
-	protected SourceViewer fSourceViewer;
-	protected IAction fClearDisplayAction;
-	protected DisplayViewAction fContentAssistAction;
-
-	protected Map<String, IAction> fGlobalActions = new HashMap<String, IAction>(4);
-	protected List<String> fSelectionActions = new ArrayList<String>(3);
-
-	protected String fRestoredContents = null;
 	/**
 	 * This memento allows the Display view to save and restore state when it is closed and opened within a session. A
 	 * different memento is supplied by the platform for persistance at workbench shutdown.
@@ -65,9 +49,7 @@ public class DisplayView extends ViewPart implements ITextInputListener, IPerspe
 	 */
 	public void createPartControl(Composite parent)
 	{
-
-		int styles = SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI | SWT.FULL_SELECTION;
-		fSourceViewer = new SourceViewer(parent, null, styles);
+		fSourceViewer = new SourceViewer(parent, null, SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
 		fDataDisplay = new DataDisplay(fSourceViewer);
 		fSourceViewer.configure(new RubySourceViewerConfiguration(RubySourceEditor.getChainedPreferenceStore(), null));
 		fSourceViewer.getTextWidget().setBackground(
@@ -138,7 +120,6 @@ public class DisplayView extends ViewPart implements ITextInputListener, IPerspe
 
 		});
 		fRestoredContents = null;
-		initializeToolBar();
 
 		// PlatformUI.getWorkbench().getHelpSystem().setHelp(fSourceViewer.getTextWidget(),
 		// IRubyDebugHelpContextIds.DISPLAY_VIEW);
@@ -156,7 +137,7 @@ public class DisplayView extends ViewPart implements ITextInputListener, IPerspe
 		{
 			doc = new Document();
 		}
-		// FIXME Set up RubyDocumentProvider/partitioner stuff
+		// FIXME Set up RubyDocumentProvider/partitioner stuff?
 		// RubyTextTools tools = RubyDebugUIPlugin.getDefault().getRubyTextTools();
 		// tools.setupRubyDocumentPartitioner(doc, IRubyPartitions.RUBY_PARTITIONING);
 
@@ -173,17 +154,6 @@ public class DisplayView extends ViewPart implements ITextInputListener, IPerspe
 		{
 			fSourceViewer.getControl().setFocus();
 		}
-	}
-
-	/**
-	 * Configures the toolBar.
-	 */
-	private void initializeToolBar()
-	{
-		// FIXME Do we really need this group?
-		IToolBarManager tbm = getViewSite().getActionBars().getToolBarManager();
-		tbm.add(new Separator(EVALUATION_GROUP_ID));
-		getViewSite().getActionBars().updateActionBars();
 	}
 
 	/*
@@ -297,12 +267,6 @@ public class DisplayView extends ViewPart implements ITextInputListener, IPerspe
 	public void dispose()
 	{
 		getSite().getWorkbenchWindow().removePerspectiveListener(this);
-		// if (fSourceViewer != null)
-		// {
-		// fSourceViewer.dispose();
-		// fSourceViewer = null;
-		// }
-
 		super.dispose();
 	}
 
