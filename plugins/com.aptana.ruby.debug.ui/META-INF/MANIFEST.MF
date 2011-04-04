@@ -7,16 +7,18 @@ Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.filesystem,
+ com.aptana.ruby.debug.core,
+ org.eclipse.jface.text,
+ org.eclipse.ui,
  org.eclipse.debug.ui,
  org.eclipse.ui.ide,
  org.eclipse.ui.workbench.texteditor,
- org.eclipse.jface.text,
- org.eclipse.ui,
  org.eclipse.ui.editors,
- com.aptana.ruby.debug.core,
+ com.aptana.ui,
  com.aptana.editor.ruby,
  com.aptana.editor.erb,
- com.aptana.console
+ com.aptana.console,
+ com.aptana.theme
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: com.aptana.ruby.debug.ui.RubyDebugUIPlugin
 Bundle-Localization: plugin

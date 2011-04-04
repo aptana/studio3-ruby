@@ -105,4 +105,8 @@ public class RubyDebugUIPlugin extends AbstractUIPlugin
 		return getPluginId();
 	}
 
+	public static void logError(Throwable t)
+	{
+		logError(t.getMessage(), t);
+	}
 }
