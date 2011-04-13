@@ -18,6 +18,7 @@ import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -52,8 +53,7 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 		{
 			File file = new File(uri);
 			fileName = Path.fromOSString(file.getAbsolutePath());
-			resource = ResourcesPlugin.getWorkspace().getRoot()
-					.getFileForLocation(fileName);
+			resource = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(fileName);
 		}
 
 		if (resource == null)
@@ -120,21 +120,29 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 		{
 			ITextEditor editorPart = (ITextEditor) part;
 			IEditorInput editorInput = editorPart.getEditorInput();
-			if (editorInput instanceof IURIEditorInput)
+			IFileStore store = null;
+			if (editorInput instanceof IStorageEditorInput)
+			{
+				IStorageEditorInput storageInput = (IStorageEditorInput) editorInput;
+				IPath path = storageInput.getStorage().getFullPath();
+				File file = path.toFile();
+				store = EFS.getStore(file.toURI());
+			}
+			else if (editorInput instanceof IURIEditorInput)
 			{
 				IURIEditorInput uriInput = (IURIEditorInput) editorInput;
-				IFileStore store = EFS.getStore(uriInput.getURI());
-				if (store == null)
-				{
-					return null;
-				}
+				store = EFS.getStore(uriInput.getURI());
+			}
+			if (store == null)
+			{
+				return null;
+			}
 
-				if (isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY)
-						|| isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY_AMBIGUOUS)
-						|| isAssociatedWith(store.getName(), IERBConstants.CONTENT_TYPE_HTML_ERB))
-				{
-					return store;
-				}
+			if (isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY)
+					|| isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY_AMBIGUOUS)
+					|| isAssociatedWith(store.getName(), IERBConstants.CONTENT_TYPE_HTML_ERB))
+			{
+				return store;
 			}
 		}
 		catch (CoreException e)
