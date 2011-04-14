@@ -86,7 +86,7 @@ public class RubyEvaluationElementRule implements IPredicateRule {
 	private static final char TILDA = '~';
 	private static final char DASH = '-';
 	private static final char AMPERSAND = '&';
-	private static final char EXCLAMATION = '&';
+	private static final char EXCLAMATION = '!';
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.rules.IWordDetector#isWordStart(char)
