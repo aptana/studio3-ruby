@@ -10,7 +10,7 @@ package com.aptana.editor.erb.xml;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.parsing.FileService;
-import com.aptana.editor.ruby.parsing.IRubyParserConstants;
+import com.aptana.editor.ruby.IRubyConstants;
 
 /**
  * @author Max Stepanov
@@ -37,6 +37,6 @@ public class RXMLEditor extends AbstractThemeableEditor
 	@Override
 	protected FileService createFileService()
 	{
-		return new FileService(IRubyParserConstants.LANGUAGE);
+		return new FileService(IRubyConstants.CONTENT_TYPE_RUBY);
 	}
 }

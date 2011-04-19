@@ -36,7 +36,6 @@ import com.aptana.editor.ruby.core.IRubyMethod;
 import com.aptana.editor.ruby.core.IRubyType;
 import com.aptana.editor.ruby.outline.RubyOutlineContentProvider;
 import com.aptana.editor.ruby.outline.RubyOutlineLabelProvider;
-import com.aptana.editor.ruby.parsing.IRubyParserConstants;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.lexer.IRange;
 
@@ -68,7 +67,7 @@ public class RubySourceEditor extends AbstractThemeableEditor
 	@Override
 	protected FileService createFileService()
 	{
-		return new FileService(IRubyParserConstants.LANGUAGE);
+		return new FileService(IRubyConstants.CONTENT_TYPE_RUBY);
 	}
 
 	protected char[] getPairMatchingCharacters()
