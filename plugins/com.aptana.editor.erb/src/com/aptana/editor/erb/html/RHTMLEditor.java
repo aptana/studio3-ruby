@@ -43,7 +43,7 @@ public class RHTMLEditor extends HTMLEditor
 	@Override
 	protected FileService createFileService()
 	{
-		return new FileService(IERBConstants.LANGUAGE_ERB, new HTMLParseState());
+		return new FileService(IERBConstants.CONTENT_TYPE_HTML_ERB, new HTMLParseState());
 	}
 
 	@Override
