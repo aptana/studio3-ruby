@@ -117,6 +117,7 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 			return false;
 		}
 
+		// TODO set up warnings/ version/line number/etc in RubyParseState and re-use RubyParser.parse(IParseState)!
 		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.BOTH);
 		ParserSupport19 support = new ParserSupport19();
 		support.setConfiguration(config);

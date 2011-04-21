@@ -67,6 +67,7 @@ public class RubyValidator implements IValidator
 			version = CompatVersion.RUBY1_9;
 		}
 
+		// TODO set up warnings/ version/line number/etc in RubyParseState and re-use RubyParser.parse(IParseState)!
 		ParserConfiguration config = new ParserConfiguration(1, version);
 		RubyParser parser;
 		if (version == CompatVersion.RUBY1_8)
