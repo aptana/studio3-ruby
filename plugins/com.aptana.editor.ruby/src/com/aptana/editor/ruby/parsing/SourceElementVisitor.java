@@ -27,6 +27,7 @@ import org.jrubyparser.ast.ConstDeclNode;
 import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.DAsgnNode;
 import org.jrubyparser.ast.DStrNode;
+import org.jrubyparser.ast.DVarNode;
 import org.jrubyparser.ast.DefnNode;
 import org.jrubyparser.ast.DefsNode;
 import org.jrubyparser.ast.FCallNode;
@@ -211,6 +212,10 @@ public class SourceElementVisitor extends InOrderVisitor
 		}
 		requestor.acceptMethodReference(name, arguments.size(), iVisited.getPosition().getStartOffset());
 
+		// TODO try and do some heuristics here to store possible value of DVarNodes inside blocks
+		// i.e. if method is each/map/whatever, assume receiver is a collection/array, and that each item will be the
+		// value passed into the DVarNode
+
 		return super.visitCallNode(iVisited);
 	}
 
@@ -360,6 +365,13 @@ public class SourceElementVisitor extends InOrderVisitor
 		if (name.equals(REQUIRE) || name.equals(LOAD))
 		{
 			addImport(iVisited);
+		}
+		// TODO Handle "extend", which acts like "include" but for instances. If this is done in class_eval, treat the
+		// same
+		else if (name.equals("extend"))
+		{
+			// Collect included mixins
+			includeModule(iVisited);
 		}
 		else if (name.equals(INCLUDE))
 		{
@@ -770,6 +782,12 @@ public class SourceElementVisitor extends InOrderVisitor
 					{
 						mixins.add(((StrNode) next).getValue());
 					}
+				}
+				else if (node instanceof DVarNode)
+				{
+					// FIXME track DAsgnNodes, then infer value, then try and also look at the callnode beforeiternode
+					// and use heuristics?
+
 				}
 			}
 		}
