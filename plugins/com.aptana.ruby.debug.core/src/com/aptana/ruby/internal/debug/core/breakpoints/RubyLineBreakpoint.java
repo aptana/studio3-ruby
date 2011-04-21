@@ -78,9 +78,8 @@ public class RubyLineBreakpoint extends RubyBreakpoint implements IRubyLineBreak
 				// add attributes
 				attributes.put(
 						IMarker.MESSAGE,
-						MessageFormat.format("Ruby breakpoint [{0},line: {1}]", msgFilename,
+						MessageFormat.format(Messages.RubyLineBreakpoint_Message, msgFilename,
 								Integer.toString(lineNumber)));
-
 				addLineBreakpointAttributes(attributes, getModelIdentifier(), true, lineNumber, charStart, charEnd);
 				addTypeNameAndHitCount(attributes, typeName, hitCount);
 				// set attributes
