@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.jrubyparser.CompatVersion;
 import org.jrubyparser.ast.CommentNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.parser.ParserResult;
@@ -98,7 +99,7 @@ public class RubyFileIndexingParticipant extends AbstractFileIndexingParticipant
 			}
 			RubyParser parser = (RubyParser) pool.checkOut();
 
-			RubySourceParser sourceParser = parser.getSourceParser();
+			RubySourceParser sourceParser = parser.getSourceParser(CompatVersion.BOTH);
 			ParserResult result = sourceParser.parse(store.getName(), source);
 
 			pool.checkIn(parser);
