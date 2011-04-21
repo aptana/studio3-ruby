@@ -226,8 +226,11 @@ public class RubySourceIndexer implements ISourceElementRequestor
 
 		if (typeStack != null && !typeStack.isEmpty())
 		{
-			TypeInfo info = typeStack.peek();
+			// We need to pop and then push after grabbing namespace because the method assumes the current type info
+			// isn't on the stack yet!
+			TypeInfo info = typeStack.pop();
 			String[] enclosingTypes = getEnclosingTypeNames(info.name);
+			typeStack.push(info);
 			addIncludedModuleReference(getSimpleName(info.name), enclosingTypes, moduleName);
 		}
 	}
