@@ -22,8 +22,8 @@ import org.jrubyparser.parser.ParserResult;
 
 import com.aptana.core.util.IOUtil;
 import com.aptana.editor.common.tasks.TaskTag;
+import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.editor.ruby.RubyEditorPlugin;
-import com.aptana.editor.ruby.parsing.IRubyParserConstants;
 import com.aptana.editor.ruby.parsing.ISourceElementRequestor;
 import com.aptana.editor.ruby.parsing.RubyParser;
 import com.aptana.editor.ruby.parsing.RubySourceParser;
@@ -91,7 +91,7 @@ public class RubyFileIndexingParticipant extends AbstractFileIndexingParticipant
 		try
 		{
 			// create parser and associated parse state
-			IParserPool pool = ParserPoolFactory.getInstance().getParserPool(IRubyParserConstants.LANGUAGE);
+			IParserPool pool = ParserPoolFactory.getInstance().getParserPool(IRubyConstants.CONTENT_TYPE_RUBY);
 			if (pool == null)
 			{
 				return;

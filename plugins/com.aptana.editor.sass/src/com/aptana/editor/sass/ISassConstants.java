@@ -15,6 +15,5 @@ package com.aptana.editor.sass;
 public interface ISassConstants {
 
 	public String CONTENT_TYPE_SASS = "com.aptana.contenttype.sass"; //$NON-NLS-1$
-	public String LANGUAGE = "text/sass"; //$NON-NLS-1$
 }
 

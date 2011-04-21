@@ -9,12 +9,9 @@
 package com.aptana.editor.erb.html;
 
 import com.aptana.editor.common.outline.CommonOutlinePage;
-import com.aptana.editor.common.parsing.FileService;
-import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.erb.html.outline.RHTMLOutlineContentProvider;
 import com.aptana.editor.erb.html.outline.RHTMLOutlineLabelProvider;
 import com.aptana.editor.html.HTMLEditor;
-import com.aptana.editor.html.parsing.HTMLParseState;
 
 /**
  * @author Max Stepanov
@@ -38,12 +35,6 @@ public class RHTMLEditor extends HTMLEditor
 	protected void installOpenTagCloser()
 	{
 		new ERBOpenTagCloser(getSourceViewer()).install();
-	}
-
-	@Override
-	protected FileService createFileService()
-	{
-		return new FileService(IERBConstants.CONTENT_TYPE_HTML_ERB, new HTMLParseState());
 	}
 
 	@Override

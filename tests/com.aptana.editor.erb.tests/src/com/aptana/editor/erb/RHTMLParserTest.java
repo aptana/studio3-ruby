@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 
 import com.aptana.editor.erb.html.parsing.RHTMLParser;
 import com.aptana.editor.html.parsing.HTMLParseState;
-import com.aptana.editor.ruby.parsing.IRubyParserConstants;
+import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.parsing.ast.IParseNode;
 
 public class RHTMLParserTest extends TestCase
@@ -45,12 +45,12 @@ public class RHTMLParserTest extends TestCase
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren();
 		assertEquals(6, children.length);
-		assertEquals(IRubyParserConstants.LANGUAGE, children[0].getLanguage());
-		assertEquals(IRubyParserConstants.LANGUAGE, children[1].getLanguage());
+		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[0].getLanguage());
+		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[1].getLanguage());
 		assertEquals(3, children[2].getNodeType()); // HTMLSpecialNode
-		assertEquals(IRubyParserConstants.LANGUAGE, children[3].getLanguage());
+		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[3].getLanguage());
 		assertEquals(3, children[4].getNodeType()); // HTMLSpecialNode
-		assertEquals(IRubyParserConstants.LANGUAGE, children[5].getLanguage());
+		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[5].getLanguage());
 	}
 
 	@SuppressWarnings("nls")
@@ -66,10 +66,10 @@ public class RHTMLParserTest extends TestCase
 		children = children[0].getChildren(); // <em></em><%= %>
 		assertEquals(2, children.length);
 		assertEquals(2, children[0].getNodeType()); // HTMLElementNode
-		assertEquals(IRubyParserConstants.LANGUAGE, children[1].getLanguage());
+		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[1].getLanguage());
 		children = children[0].getChildren(); // <%= %>
 		assertEquals(1, children.length);
-		assertEquals(IRubyParserConstants.LANGUAGE, children[0].getLanguage());
+		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[0].getLanguage());
 	}
 
 	@SuppressWarnings("nls")
@@ -84,7 +84,7 @@ public class RHTMLParserTest extends TestCase
 		children = children[0].getChildren(); // <tr></tr><% %><% %>
 		assertEquals(3, children.length);
 		assertEquals(2, children[0].getNodeType()); // HTMLElementNode
-		assertEquals(IRubyParserConstants.LANGUAGE, children[1].getLanguage());
-		assertEquals(IRubyParserConstants.LANGUAGE, children[2].getLanguage());
+		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[1].getLanguage());
+		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[2].getLanguage());
 	}
 }

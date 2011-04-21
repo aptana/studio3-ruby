@@ -28,7 +28,6 @@ import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.outline.CommonOutlineItem;
 import com.aptana.editor.common.outline.CommonOutlinePage;
-import com.aptana.editor.common.parsing.FileService;
 import com.aptana.editor.ruby.core.IImportContainer;
 import com.aptana.editor.ruby.core.IRubyElement;
 import com.aptana.editor.ruby.core.IRubyField;
@@ -62,12 +61,6 @@ public class RubySourceEditor extends AbstractThemeableEditor
 	{
 		return new ChainedPreferenceStore(new IPreferenceStore[] { RubyEditorPlugin.getDefault().getPreferenceStore(),
 				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
-	}
-
-	@Override
-	protected FileService createFileService()
-	{
-		return new FileService(IRubyConstants.CONTENT_TYPE_RUBY);
 	}
 
 	protected char[] getPairMatchingCharacters()

@@ -10,8 +10,8 @@ package com.aptana.editor.ruby.parsing.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.editor.ruby.core.IRubyElement;
-import com.aptana.editor.ruby.parsing.IRubyParserConstants;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
 
@@ -23,12 +23,12 @@ public abstract class RubyElement extends ParseNode implements IRubyElement
 
 	protected RubyElement()
 	{
-		super(IRubyParserConstants.LANGUAGE);
+		super(IRubyConstants.CONTENT_TYPE_RUBY);
 	}
 
 	public RubyElement(int start, int end)
 	{
-		super(IRubyParserConstants.LANGUAGE);
+		super(IRubyConstants.CONTENT_TYPE_RUBY);
 		this.setLocation(start, end);
 	}
 

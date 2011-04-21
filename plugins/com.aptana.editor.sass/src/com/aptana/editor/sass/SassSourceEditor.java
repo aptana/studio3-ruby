@@ -14,7 +14,6 @@ import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
-import com.aptana.editor.common.parsing.FileService;
 import com.aptana.editor.common.text.reconciler.IFoldingComputer;
 
 @SuppressWarnings("restriction")
@@ -39,16 +38,6 @@ public class SassSourceEditor extends AbstractThemeableEditor
 	{
 		return new ChainedPreferenceStore(new IPreferenceStore[] { Activator.getDefault().getPreferenceStore(),
 				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.AbstractThemeableEditor#createFileService()
-	 */
-	@Override
-	protected FileService createFileService()
-	{
-		return new FileService(ISassConstants.CONTENT_TYPE_SASS);
 	}
 
 	@Override
