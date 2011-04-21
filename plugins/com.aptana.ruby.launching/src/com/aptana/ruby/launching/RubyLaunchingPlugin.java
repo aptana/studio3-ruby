@@ -8,16 +8,21 @@
 package com.aptana.ruby.launching;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.ExecutableUtil;
 import com.aptana.core.util.PlatformUtil;
+import com.aptana.core.util.ProcessUtil;
 
 public class RubyLaunchingPlugin implements BundleActivator
 {
@@ -26,6 +31,8 @@ public class RubyLaunchingPlugin implements BundleActivator
 	private static final String RUBY = "ruby"; //$NON-NLS-1$
 
 	private static BundleContext context;
+
+	private static Map<IProject, String> projectToVersion;
 
 	static BundleContext getContext()
 	{
@@ -48,6 +55,7 @@ public class RubyLaunchingPlugin implements BundleActivator
 	public void stop(BundleContext bundleContext) throws Exception
 	{
 		RubyLaunchingPlugin.context = null;
+		projectToVersion = null;
 	}
 
 	/**
@@ -59,6 +67,7 @@ public class RubyLaunchingPlugin implements BundleActivator
 	 */
 	public static IPath rubyExecutablePath(IPath workingDir)
 	{
+		// TODO Cache this?
 		IPath path = null;
 		if (Platform.OS_WIN32.equals(Platform.getOS()))
 		{
@@ -97,5 +106,34 @@ public class RubyLaunchingPlugin implements BundleActivator
 					.append(binaryName));
 		}
 		return locations;
+	}
+
+	/**
+	 * Return the version string for the ruby interpreter set up for a given project.
+	 * 
+	 * @param project
+	 * @return
+	 */
+	public static synchronized String getRubyVersionForProject(IProject project)
+	{
+		// This seems expensive, so we're caching the version per-project
+		if (projectToVersion == null)
+		{
+			projectToVersion = new HashMap<IProject, String>();
+		}
+		if (projectToVersion.containsKey(project))
+		{
+			return projectToVersion.get(project);
+		}
+		IPath rubyExe = rubyExecutablePath(project.getLocation());
+		if (rubyExe == null)
+		{
+			projectToVersion.put(project, null);
+			return null;
+		}
+		String version = ProcessUtil.outputForCommand(rubyExe.toOSString(), null, ShellExecutable.getEnvironment(),
+				"-v"); //$NON-NLS-1$
+		projectToVersion.put(project, version);
+		return version;
 	}
 }

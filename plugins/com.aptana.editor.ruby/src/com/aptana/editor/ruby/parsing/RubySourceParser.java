@@ -10,13 +10,15 @@ package com.aptana.editor.ruby.parsing;
 import java.io.Reader;
 import java.io.StringReader;
 
+import org.jrubyparser.CompatVersion;
 import org.jrubyparser.IRubyWarnings;
-import org.jrubyparser.Parser.NullWarnings;
 import org.jrubyparser.lexer.LexerSource;
 import org.jrubyparser.parser.ParserConfiguration;
 import org.jrubyparser.parser.ParserResult;
 import org.jrubyparser.parser.ParserSupport;
+import org.jrubyparser.parser.ParserSupport19;
 import org.jrubyparser.parser.Ruby18Parser;
+import org.jrubyparser.parser.Ruby19Parser;
 
 /**
  * @author Chris Williams
@@ -26,17 +28,19 @@ public class RubySourceParser
 {
 
 	private IRubyWarnings warnings;
-	private Ruby18Parser parser;
+	private org.jrubyparser.parser.RubyParser parser;
 	private ParserConfiguration config;
+	private CompatVersion compatVersion;
 
-	RubySourceParser()
+	public RubySourceParser(CompatVersion compatVersion, IRubyWarnings warnings)
 	{
-		this(new NullWarnings());
+		this.compatVersion = compatVersion;
+		this.warnings = warnings;
 	}
 
-	public RubySourceParser(IRubyWarnings warnings)
+	public RubySourceParser(CompatVersion compatVersion)
 	{
-		this.warnings = warnings;
+		this(compatVersion, new org.jrubyparser.Parser.NullWarnings());
 	}
 
 	public ParserResult parse(String source)
@@ -58,7 +62,7 @@ public class RubySourceParser
 	 *            boolean indicating if to force a parse and bypass any cached results
 	 * @return the parse result
 	 */
-	public ParserResult parse(String fileName, String source, boolean bypassCache)
+	private ParserResult parse(String fileName, String source, boolean bypassCache)
 	{
 		if (source == null)
 		{
@@ -94,9 +98,18 @@ public class RubySourceParser
 		if (parser == null)
 		{
 			config = getParserConfig();
-			ParserSupport support = new ParserSupport();
-			support.setConfiguration(config);
-			parser = new Ruby18Parser(support);
+			if (compatVersion == CompatVersion.RUBY1_8)
+			{
+				ParserSupport support = new ParserSupport();
+				support.setConfiguration(config);
+				parser = new Ruby18Parser(support);
+			}
+			else
+			{
+				ParserSupport19 support = new ParserSupport19();
+				support.setConfiguration(config);
+				parser = new Ruby19Parser(support);
+			}
 		}
 		parser.setWarnings(warnings);
 		LexerSource lexerSource = LexerSource.getSource(fileName, content, config);
@@ -117,6 +130,6 @@ public class RubySourceParser
 
 	protected ParserConfiguration getParserConfig()
 	{
-		return new ParserConfiguration();
+		return new ParserConfiguration(0, compatVersion);
 	}
 }

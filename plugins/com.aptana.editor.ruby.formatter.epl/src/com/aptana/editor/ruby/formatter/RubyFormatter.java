@@ -22,6 +22,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
+import org.jrubyparser.CompatVersion;
 import org.jrubyparser.parser.ParserResult;
 
 import com.aptana.editor.ruby.RubyEditorPlugin;
@@ -280,11 +281,11 @@ public class RubyFormatter extends AbstractScriptFormatter
 		RubySourceParser sourceParser = null;
 		if (parser instanceof RubyParser)
 		{
-			sourceParser = ((RubyParser) parser).getSourceParser();
+			sourceParser = ((RubyParser) parser).getSourceParser(CompatVersion.BOTH);
 		}
 		if (sourceParser == null)
 		{
-			sourceParser = new RubyParser().getSourceParser();
+			sourceParser = new RubyParser().getSourceParser(CompatVersion.BOTH);
 		}
 		return sourceParser;
 	}

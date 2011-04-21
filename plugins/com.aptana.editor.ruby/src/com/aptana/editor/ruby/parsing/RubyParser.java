@@ -7,6 +7,9 @@
  */
 package com.aptana.editor.ruby.parsing;
 
+import org.jrubyparser.CompatVersion;
+
+import com.aptana.editor.ruby.RubyParseState;
 import com.aptana.editor.ruby.parsing.ast.RubyScript;
 import com.aptana.parsing.IParseState;
 import com.aptana.parsing.IParser;
@@ -15,11 +18,9 @@ import com.aptana.parsing.ast.IParseRootNode;
 public class RubyParser implements IParser
 {
 
-	private RubySourceParser fParser;
-
 	public RubyParser()
 	{
-		fParser = new RubySourceParser();
+
 	}
 
 	public IParseRootNode parse(IParseState parseState) throws Exception
@@ -29,14 +30,21 @@ public class RubyParser implements IParser
 				+ source.length());
 		RubyStructureBuilder builder = new RubyStructureBuilder(root);
 		SourceElementVisitor visitor = new SourceElementVisitor(builder);
-		visitor.acceptNode(getSourceParser().parse(source).getAST());
+
+		CompatVersion compatVersion = CompatVersion.BOTH;
+		if (parseState instanceof RubyParseState)
+		{
+			compatVersion = ((RubyParseState) parseState).getCompatVersion();
+		}
+		visitor.acceptNode(getSourceParser(compatVersion).parse(source).getAST());
 		parseState.setParseResult(root);
 
 		return root;
 	}
 
-	public RubySourceParser getSourceParser()
+	public RubySourceParser getSourceParser(CompatVersion rubyVersion)
 	{
-		return fParser;
+		// TODO cache the parser by version here?
+		return new RubySourceParser(rubyVersion);
 	}
 }

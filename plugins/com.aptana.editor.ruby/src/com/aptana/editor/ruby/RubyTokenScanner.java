@@ -266,7 +266,7 @@ public class RubyTokenScanner implements ITokenScanner
 	public void setRange(IDocument document, int offset, int length)
 	{
 		reset();
-		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.RUBY1_8);
+		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.BOTH);
 		try
 		{
 			fContents = document.get(offset, length);
