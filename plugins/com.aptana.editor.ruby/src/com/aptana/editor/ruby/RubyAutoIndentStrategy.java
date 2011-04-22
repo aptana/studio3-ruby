@@ -117,7 +117,8 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 			return false;
 		}
 
-		// TODO set up warnings/ version/line number/etc in RubyParseState and re-use RubyParser.parse(IParseState)!
+		// TODO Re-use parser pool? Right now we can't because syntax exceptions get silently swallowed; and we need to
+		// pass down warnings/line number/etc in parseState.
 		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.BOTH);
 		ParserSupport19 support = new ParserSupport19();
 		support.setConfiguration(config);
