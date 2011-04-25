@@ -54,6 +54,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		super();
 	}
 
+	// FIXME Search more than just the project index. Also search core/std lib/gems
 	public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks)
 	{
 		List<IHyperlink> hyperlinks = new ArrayList<IHyperlink>();
@@ -67,7 +68,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 			{
 				return null;
 			}
-			// FIXME Need to expand to the node bounds!
+			// Expand hyperlink region to the node bounds
 			srcRegion = region;
 			Node atOffset = new OffsetNodeLocator().find(root, region.getOffset());
 			if (atOffset == null)
@@ -117,21 +118,46 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		}
 	}
 
+	/**
+	 * Generate a hyperlink to the first preceding assignment to the same local variable.
+	 * 
+	 * @param atOffset
+	 * @return
+	 */
 	private Collection<? extends IHyperlink> localVariableDeclaration(Node atOffset)
 	{
 		return variableDeclaration(atOffset, NodeType.LOCALASGNNODE);
 	}
 
+	/**
+	 * Generate a hyperlink to the first preceding assignment to the same instance variable.
+	 * 
+	 * @param atOffset
+	 * @return
+	 */
 	private Collection<? extends IHyperlink> instanceVariableDeclaration(Node atOffset)
 	{
 		return variableDeclaration(atOffset, NodeType.INSTASGNNODE);
 	}
 
+	/**
+	 * Generate a hyperlink to the first preceding assignment to the same class variable.
+	 * 
+	 * @param atOffset
+	 * @return
+	 */
 	private Collection<? extends IHyperlink> classVariableDeclaration(Node atOffset)
 	{
 		return variableDeclaration(atOffset, NodeType.CLASSVARASGNNODE);
 	}
 
+	/**
+	 * Common code for finding first preceding assignment to a variable.
+	 * 
+	 * @param atOffset
+	 * @param nodeType
+	 * @return
+	 */
 	private Collection<? extends IHyperlink> variableDeclaration(Node atOffset, final NodeType nodeType)
 	{
 		Node decl = new FirstPrecursorNodeLocator().find(root, atOffset.getPosition().getStartOffset() - 1,
@@ -153,6 +179,13 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		return Collections.emptyList();
 	}
 
+	/**
+	 * Generate hyperlinks for a constant reference. Could be referring to a constant that is declared, or to a type
+	 * name.
+	 * 
+	 * @param atOffset
+	 * @return
+	 */
 	private List<IHyperlink> constNode(Node atOffset)
 	{
 		List<IHyperlink> links = new ArrayList<IHyperlink>();
@@ -162,6 +195,13 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		return links;
 	}
 
+	/**
+	 * Given a constant name, search the project index for declarations of constants matching that name and then
+	 * generate hyperlinks to those declarations.
+	 * 
+	 * @param constantName
+	 * @return
+	 */
 	private List<IHyperlink> findConstant(String constantName)
 	{
 		try
@@ -172,12 +212,17 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			RubyEditorPlugin.log(e);
 		}
 		return Collections.emptyList();
 	}
 
+	/**
+	 * Offset and length in destination file of hyperlink. Point to name region for type/method declarations.
+	 * 
+	 * @param p
+	 * @return
+	 */
 	private IRegion createRegion(IRubyElement p)
 	{
 		if (p instanceof NamedMember)
@@ -203,8 +248,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		}
 		catch (CoreException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			RubyEditorPlugin.log(e);
 		}
 		return null;
 	}
@@ -250,8 +294,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			RubyEditorPlugin.log(e);
 		}
 		return Collections.emptyList();
 	}
@@ -267,14 +310,12 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			RubyEditorPlugin.log(e);
 		}
 		return Collections.emptyList();
 	}
 
-	protected List<IHyperlink> getMatchingElementHyperlinks(List<QueryResult> results, String elementName,
-			int elementType)
+	private List<IHyperlink> getMatchingElementHyperlinks(List<QueryResult> results, String elementName, int elementType)
 	{
 		if (results == null)
 		{
