@@ -119,58 +119,28 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 
 	private Collection<? extends IHyperlink> localVariableDeclaration(Node atOffset)
 	{
-		// Check for matching local var declaration up the scope blocks!
-		Node decl = new FirstPrecursorNodeLocator().find(root, atOffset.getPosition().getStartOffset() - 1,
-				new INodeAcceptor()
-				{
-
-					public boolean accepts(Node node)
-					{
-						return node.getNodeType() == NodeType.LOCALASGNNODE;
-					}
-				});
-		if (decl != null)
-		{
-			List<IHyperlink> links = new ArrayList<IHyperlink>();
-			links.add(new EditorLineHyperlink(srcRegion, getURI(), new Region(decl.getPosition().getStartOffset(), decl
-					.getPosition().getEndOffset() - decl.getPosition().getStartOffset())));
-			return links;
-		}
-		return Collections.emptyList();
+		return variableDeclaration(atOffset, NodeType.LOCALASGNNODE);
 	}
 
 	private Collection<? extends IHyperlink> instanceVariableDeclaration(Node atOffset)
 	{
-		// Check for matching instance var declaration up the scope blocks!
-		Node decl = new FirstPrecursorNodeLocator().find(root, atOffset.getPosition().getStartOffset() - 1,
-				new INodeAcceptor()
-				{
-
-					public boolean accepts(Node node)
-					{
-						return node.getNodeType() == NodeType.INSTASGNNODE;
-					}
-				});
-		if (decl != null)
-		{
-			List<IHyperlink> links = new ArrayList<IHyperlink>();
-			links.add(new EditorLineHyperlink(srcRegion, getURI(), new Region(decl.getPosition().getStartOffset(), decl
-					.getPosition().getEndOffset() - decl.getPosition().getStartOffset())));
-			return links;
-		}
-		return Collections.emptyList();
+		return variableDeclaration(atOffset, NodeType.INSTASGNNODE);
 	}
 
 	private Collection<? extends IHyperlink> classVariableDeclaration(Node atOffset)
 	{
-		// Check for matching class var declaration up the scope blocks!
+		return variableDeclaration(atOffset, NodeType.CLASSVARASGNNODE);
+	}
+
+	private Collection<? extends IHyperlink> variableDeclaration(Node atOffset, final NodeType nodeType)
+	{
 		Node decl = new FirstPrecursorNodeLocator().find(root, atOffset.getPosition().getStartOffset() - 1,
 				new INodeAcceptor()
 				{
 
 					public boolean accepts(Node node)
 					{
-						return node.getNodeType() == NodeType.CLASSVARASGNNODE;
+						return node.getNodeType() == nodeType;
 					}
 				});
 		if (decl != null)
@@ -194,41 +164,18 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 
 	private List<IHyperlink> findConstant(String constantName)
 	{
-		List<IHyperlink> constants = new ArrayList<IHyperlink>();
 		try
 		{
 			List<QueryResult> results = getIndex().query(new String[] { IRubyIndexConstants.CONSTANT_DECL },
 					constantName, SearchPattern.EXACT_MATCH | SearchPattern.CASE_SENSITIVE);
-			if (results == null)
-			{
-				return Collections.emptyList();
-			}
-			for (QueryResult result : results)
-			{
-				Set<String> docs = result.getDocuments();
-				for (String doc : docs)
-				{
-					RubyScript root = parseURI(doc);
-					if (root != null)
-					{
-						List<IRubyElement> possible = root.getChildrenOfTypeRecursive(IRubyElement.CONSTANT);
-						for (IRubyElement p : possible)
-						{
-							if (constantName.equals(p.getName()))
-							{
-								constants.add(new EditorLineHyperlink(srcRegion, URI.create(doc), createRegion(p)));
-							}
-						}
-					}
-				}
-			}
+			return getMatchingElementHyperlinks(results, constantName, IRubyElement.CONSTANT);
 		}
 		catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return constants;
+		return Collections.emptyList();
 	}
 
 	private IRegion createRegion(IRubyElement p)
@@ -294,83 +241,67 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 
 	private List<IHyperlink> findMethods(String methodName)
 	{
-		List<IHyperlink> methods = new ArrayList<IHyperlink>();
 		try
 		{
 			List<QueryResult> results = getIndex().query(new String[] { IRubyIndexConstants.METHOD_DECL },
 					methodName + IRubyIndexConstants.SEPARATOR,
 					SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
-			if (results == null)
-			{
-				return Collections.emptyList();
-			}
-			for (QueryResult result : results)
-			{
-				Set<String> docs = result.getDocuments();
-				for (String doc : docs)
-				{
-					RubyScript root = parseURI(doc);
-					if (root != null)
-					{
-						List<IRubyElement> possible = root.getChildrenOfTypeRecursive(IRubyElement.METHOD);
-						for (IRubyElement p : possible)
-						{
-							if (methodName.equals(p.getName()))
-							{
-								methods.add(new EditorLineHyperlink(srcRegion, URI.create(doc), createRegion(p)));
-							}
-						}
-					}
-				}
-			}
+			return getMatchingElementHyperlinks(results, methodName, IRubyElement.METHOD);
 		}
 		catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return methods;
+		return Collections.emptyList();
 	}
 
 	private List<IHyperlink> findType(String typeName)
 	{
-		List<IHyperlink> types = new ArrayList<IHyperlink>();
 		try
 		{
 			List<QueryResult> results = getIndex().query(new String[] { IRubyIndexConstants.TYPE_DECL },
 					typeName + IRubyIndexConstants.SEPARATOR + IRubyIndexConstants.SEPARATOR,
 					SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
-			if (results == null)
-			{
-				return Collections.emptyList();
-			}
-			for (QueryResult result : results)
-			{
-				Set<String> docs = result.getDocuments();
-				for (String doc : docs)
-				{
-					RubyScript root = parseURI(doc);
-					if (root != null)
-					{
-						List<IRubyElement> possible = root.getChildrenOfTypeRecursive(IRubyElement.TYPE);
-						for (IRubyElement p : possible)
-						{
-							if (typeName.equals(p.getName()))
-							{
-								// FIXME Find the name range!
-								types.add(new EditorLineHyperlink(srcRegion, URI.create(doc), createRegion(p)));
-							}
-						}
-					}
-				}
-			}
+			return getMatchingElementHyperlinks(results, typeName, IRubyElement.TYPE);
 		}
 		catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return types;
+		return Collections.emptyList();
+	}
+
+	protected List<IHyperlink> getMatchingElementHyperlinks(List<QueryResult> results, String elementName,
+			int elementType)
+	{
+		if (results == null)
+		{
+			return Collections.emptyList();
+		}
+
+		List<IHyperlink> links = new ArrayList<IHyperlink>();
+		for (QueryResult result : results)
+		{
+			Set<String> docs = result.getDocuments();
+			for (String doc : docs)
+			{
+				RubyScript root = parseURI(doc);
+				if (root != null)
+				{
+					List<IRubyElement> possible = root.getChildrenOfTypeRecursive(elementType);
+					for (IRubyElement p : possible)
+					{
+						if (elementName.equals(p.getName()))
+						{
+							links.add(new EditorLineHyperlink(srcRegion, URI.create(doc), createRegion(p)));
+						}
+					}
+				}
+			}
+		}
+		return links;
 	}
 
 }
