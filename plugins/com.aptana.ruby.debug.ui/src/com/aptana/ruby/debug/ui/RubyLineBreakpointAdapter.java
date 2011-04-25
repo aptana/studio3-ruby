@@ -5,6 +5,7 @@ import java.net.URI;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -122,22 +123,28 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 			ITextEditor editorPart = (ITextEditor) part;
 			IEditorInput editorInput = editorPart.getEditorInput();
 			IFileStore store = null;
-			if (editorInput instanceof IStorageEditorInput)
-			{
-				IStorageEditorInput storageInput = (IStorageEditorInput) editorInput;
-				IPath path = storageInput.getStorage().getFullPath();
-				File file = path.toFile();
-				store = EFS.getStore(file.toURI());
-			}
-			else if (editorInput instanceof IURIEditorInput)
+			if (editorInput instanceof IURIEditorInput)
 			{
 				IURIEditorInput uriInput = (IURIEditorInput) editorInput;
 				store = EFS.getStore(uriInput.getURI());
 			}
-				if (store == null)
+			else if (editorInput instanceof IStorageEditorInput)
+			{
+				IStorageEditorInput storageInput = (IStorageEditorInput) editorInput;
+				IPath path = storageInput.getStorage().getFullPath();
+				File file = path.toFile();
+				if (!file.exists())
 				{
-					return null;
+					// path might be relative to workspace root
+					IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+					file = iFile.getLocation().toFile();
 				}
+				store = EFS.getStore(file.toURI());
+			}
+			if (store == null)
+			{
+				return null;
+			}
 
 				if (isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY)
 						|| isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY_AMBIGUOUS)
