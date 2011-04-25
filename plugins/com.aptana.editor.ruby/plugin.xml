@@ -149,7 +149,7 @@
          point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
       <hyperlinkDetector
             activate="true"
-            class="com.aptana.editor.ruby.RubyHyperlinkDetector"
+            class="com.aptana.editor.ruby.hyperlink.RubyHyperlinkDetector"
             id="com.aptana.editor.ruby.hyperlinkDetector1"
             name="name"
             targetId="com.aptana.ruby.ui.rubyCode">
