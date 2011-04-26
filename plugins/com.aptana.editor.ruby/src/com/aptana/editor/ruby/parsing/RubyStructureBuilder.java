@@ -39,7 +39,7 @@ import com.aptana.ruby.core.IRubyMethod.Visibility;
  * @author Chris Williams
  * @author Michael Xia
  */
-public class RubyStructureBuilder implements ISourceElementRequestor
+class RubyStructureBuilder implements ISourceElementRequestor
 {
 
 	private RubyScript script;
