@@ -123,7 +123,7 @@ public class RubyLineBreakpoint extends RubyBreakpoint implements IRubyLineBreak
 	}
 
 	// FIXME Return URI?
-	public IPath getFilePath() throws CoreException
+	public IPath getFileName() throws CoreException
 	{
 		IResource resource = ensureMarker().getResource();
 		if (resource.equals(ResourcesPlugin.getWorkspace().getRoot()))

@@ -53,7 +53,8 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 		{
 			File file = new File(uri);
 			fileName = Path.fromOSString(file.getAbsolutePath());
-			resource = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(fileName);
+			resource = ResourcesPlugin.getWorkspace().getRoot()
+					.getFileForLocation(fileName);
 		}
 
 		if (resource == null)
@@ -133,18 +134,18 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 				IURIEditorInput uriInput = (IURIEditorInput) editorInput;
 				store = EFS.getStore(uriInput.getURI());
 			}
-			if (store == null)
-			{
-				return null;
-			}
+				if (store == null)
+				{
+					return null;
+				}
 
-			if (isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY)
-					|| isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY_AMBIGUOUS)
-					|| isAssociatedWith(store.getName(), IERBConstants.CONTENT_TYPE_HTML_ERB))
-			{
-				return store;
+				if (isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY)
+						|| isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY_AMBIGUOUS)
+						|| isAssociatedWith(store.getName(), IERBConstants.CONTENT_TYPE_HTML_ERB))
+				{
+					return store;
+				}
 			}
-		}
 		catch (CoreException e)
 		{
 			RubyDebugUIPlugin.logError(e);
