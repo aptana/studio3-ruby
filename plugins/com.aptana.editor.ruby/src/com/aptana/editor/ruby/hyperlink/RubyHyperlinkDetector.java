@@ -23,6 +23,7 @@ import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.jrubyparser.CompatVersion;
 import org.jrubyparser.Parser;
 import org.jrubyparser.ast.CallNode;
+import org.jrubyparser.ast.Colon2MethodNode;
 import org.jrubyparser.ast.Colon2Node;
 import org.jrubyparser.ast.INameNode;
 import org.jrubyparser.ast.Node;
@@ -54,9 +55,6 @@ import com.aptana.parsing.lexer.IRange;
 public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 {
 
-	/**
-	 * 
-	 */
 	private static final String NAMESPACE_DELIMITER = "::"; //$NON-NLS-1$
 
 	private IRegion srcRegion;
@@ -221,8 +219,6 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 	private List<IHyperlink> constNode(Node atOffset)
 	{
 		String namespace = new NamespaceVisitor().getNamespace(root, atOffset.getPosition().getStartOffset());
-		// FIXME Check the current namespace to determine full namespace of constant/type we're trying to resolve (see
-		// ActionController::Base's implicit ref to Metal)
 		List<IHyperlink> links = new ArrayList<IHyperlink>();
 		String constantName = ((INameNode) atOffset).getName();
 		links.addAll(findConstant(constantName));
@@ -234,9 +230,12 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		return links;
 	}
 
-	private List<IHyperlink> typeName(Colon2Node atOffset)
+	private Collection<? extends IHyperlink> typeName(Colon2Node atOffset)
 	{
-		// TODO Handle Colon2ConstNode vs Colon2MethodNode.
+		if (atOffset instanceof Colon2MethodNode)
+		{
+			return noReceiverMethodCallLink(atOffset);
+		}
 		List<IHyperlink> links = new ArrayList<IHyperlink>();
 		String fullyQualifiedTypeName = ASTUtils.getFullyQualifiedName(atOffset);
 		links.addAll(findType(fullyQualifiedTypeName));

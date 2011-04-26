@@ -65,6 +65,7 @@ import com.aptana.editor.ruby.parsing.ast.InOrderVisitor;
 public class SourceElementVisitor extends InOrderVisitor
 {
 
+	private static final String EXTEND = "extend"; //$NON-NLS-1$
 	private static final String OBJECT = "Object"; //$NON-NLS-1$
 	private static final String CONSTRUCTOR_NAME = "initialize"; //$NON-NLS-1$
 	private static final String MODULE = "Module"; //$NON-NLS-1$
@@ -366,9 +367,8 @@ public class SourceElementVisitor extends InOrderVisitor
 		{
 			addImport(iVisited);
 		}
-		// TODO Handle "extend", which acts like "include" but for instances. If this is done in class_eval, treat the
-		// same
-		else if (name.equals("extend"))
+		// Handle "extend", which acts like "include" but for instances. If this is done in class_eval, treat the same
+		else if (name.equals(EXTEND))
 		{
 			// Collect included mixins
 			includeModule(iVisited);
