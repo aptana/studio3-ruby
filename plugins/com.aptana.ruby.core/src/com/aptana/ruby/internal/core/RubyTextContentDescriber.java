@@ -5,7 +5,7 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby;
+package com.aptana.ruby.internal.core;
 
 import java.io.BufferedReader;
 import java.io.IOException;
