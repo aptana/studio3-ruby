@@ -38,10 +38,34 @@ public abstract class AbstractVisitor implements NodeVisitor
 			}
 			return null;
 		}
-		else
+		if (node instanceof LambdaNode)
 		{
-			return node.accept(this);
+			return visitLambdaNode((LambdaNode) node);
 		}
+		if (node instanceof OptArgNode)
+		{
+			return visitOptArgNode((OptArgNode) node);
+		}
+		if (node instanceof ArgAuxillaryNode)
+		{
+			return visitArgAuxillaryNode((ArgAuxillaryNode) node);
+		}
+		return node.accept(this);
+	}
+
+	public Object visitLambdaNode(LambdaNode iVisited)
+	{
+		return visitNode(iVisited);
+	}
+
+	public Object visitOptArgNode(OptArgNode iVisited)
+	{
+		return visitNode(iVisited);
+	}
+
+	public Object visitArgAuxillaryNode(ArgAuxillaryNode iVisited)
+	{
+		return visitNode(iVisited);
 	}
 
 	public Object visitAliasNode(AliasNode iVisited)
