@@ -15,11 +15,11 @@ import com.aptana.editor.common.parsing.CompositeParser;
 import com.aptana.editor.erb.parsing.lexer.ERBTokens;
 import com.aptana.editor.html.IHTMLConstants;
 import com.aptana.editor.ruby.IRubyConstants;
-import com.aptana.editor.ruby.core.IRubyScript;
 import com.aptana.parsing.IParseState;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
 import com.aptana.parsing.ast.ParseRootNode;
+import com.aptana.ruby.core.IRubyScript;
 
 public class RHTMLParser extends CompositeParser
 {

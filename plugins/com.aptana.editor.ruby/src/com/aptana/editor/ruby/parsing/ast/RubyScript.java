@@ -7,10 +7,10 @@
  */
 package com.aptana.editor.ruby.parsing.ast;
 
-import com.aptana.editor.ruby.core.IImportContainer;
-import com.aptana.editor.ruby.core.IRubyElement;
-import com.aptana.editor.ruby.core.IRubyScript;
 import com.aptana.parsing.ast.IParseNode;
+import com.aptana.ruby.core.IImportContainer;
+import com.aptana.ruby.core.IRubyElement;
+import com.aptana.ruby.core.IRubyScript;
 
 public class RubyScript extends RubyElement implements IRubyScript
 {

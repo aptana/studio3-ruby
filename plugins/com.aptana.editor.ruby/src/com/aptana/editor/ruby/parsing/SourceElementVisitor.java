@@ -51,12 +51,12 @@ import org.jrubyparser.ast.UnnamedRestArgNode;
 import org.jrubyparser.ast.VCallNode;
 import org.jrubyparser.ast.YieldNode;
 
-import com.aptana.editor.ruby.core.IRubyMethod;
 import com.aptana.editor.ruby.parsing.ISourceElementRequestor.FieldInfo;
 import com.aptana.editor.ruby.parsing.ISourceElementRequestor.MethodInfo;
 import com.aptana.editor.ruby.parsing.ISourceElementRequestor.TypeInfo;
 import com.aptana.editor.ruby.parsing.ast.ASTUtils;
 import com.aptana.editor.ruby.parsing.ast.InOrderVisitor;
+import com.aptana.ruby.core.IRubyMethod;
 
 /**
  * @author Chris Williams

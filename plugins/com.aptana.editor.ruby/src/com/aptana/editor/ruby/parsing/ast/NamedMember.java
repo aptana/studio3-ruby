@@ -7,9 +7,9 @@
  */
 package com.aptana.editor.ruby.parsing.ast;
 
-import com.aptana.editor.ruby.core.IRubyMember;
 import com.aptana.parsing.ast.INameNode;
 import com.aptana.parsing.lexer.IRange;
+import com.aptana.ruby.core.IRubyMember;
 
 public abstract class NamedMember extends RubyElement implements IRubyMember
 {

@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.aptana.editor.ruby.IRubyConstants;
-import com.aptana.editor.ruby.core.IRubyElement;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
+import com.aptana.ruby.core.IRubyElement;
 
 public abstract class RubyElement extends ParseNode implements IRubyElement
 {

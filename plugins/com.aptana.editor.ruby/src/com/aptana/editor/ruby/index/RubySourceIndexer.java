@@ -11,9 +11,9 @@ import java.net.URI;
 import java.util.Stack;
 
 import com.aptana.core.util.StringUtil;
-import com.aptana.editor.ruby.core.IRubyMethod.Visibility;
 import com.aptana.editor.ruby.parsing.ISourceElementRequestor;
 import com.aptana.index.core.Index;
+import com.aptana.ruby.core.IRubyMethod.Visibility;
 
 public class RubySourceIndexer implements ISourceElementRequestor
 {
