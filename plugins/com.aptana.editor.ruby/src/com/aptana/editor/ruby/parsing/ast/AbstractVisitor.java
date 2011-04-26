@@ -7,8 +7,8 @@
  */
 package com.aptana.editor.ruby.parsing.ast;
 
-import org.jrubyparser.ast.*;
 import org.jrubyparser.NodeVisitor;
+import org.jrubyparser.ast.*;
 
 /**
  * @author Chris Williams
@@ -29,7 +29,43 @@ public abstract class AbstractVisitor implements NodeVisitor
 		{
 			return visitNullNode();
 		}
+		if (node instanceof ListNode)
+		{
+			ListNode list = (ListNode) node;
+			for (Node child : list.childNodes())
+			{
+				child.accept(this);
+			}
+			return null;
+		}
+		if (node instanceof LambdaNode)
+		{
+			return visitLambdaNode((LambdaNode) node);
+		}
+		if (node instanceof OptArgNode)
+		{
+			return visitOptArgNode((OptArgNode) node);
+		}
+		if (node instanceof ArgAuxillaryNode)
+		{
+			return visitArgAuxillaryNode((ArgAuxillaryNode) node);
+		}
 		return node.accept(this);
+	}
+
+	public Object visitLambdaNode(LambdaNode iVisited)
+	{
+		return visitNode(iVisited);
+	}
+
+	public Object visitOptArgNode(OptArgNode iVisited)
+	{
+		return visitNode(iVisited);
+	}
+
+	public Object visitArgAuxillaryNode(ArgAuxillaryNode iVisited)
+	{
+		return visitNode(iVisited);
 	}
 
 	public Object visitAliasNode(AliasNode iVisited)
