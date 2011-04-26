@@ -21,6 +21,7 @@ import org.jrubyparser.ast.CommentNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.parser.ParserResult;
 
+import com.aptana.core.resources.TaskTag;
 import com.aptana.core.util.IOUtil;
 import com.aptana.index.core.AbstractFileIndexingParticipant;
 import com.aptana.index.core.Index;
