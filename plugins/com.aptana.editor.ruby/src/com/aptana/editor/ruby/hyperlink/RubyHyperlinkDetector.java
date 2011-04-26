@@ -35,7 +35,6 @@ import com.aptana.editor.common.text.hyperlink.IndexQueryingHyperlinkDetector;
 import com.aptana.editor.ruby.CoreStubber;
 import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.editor.ruby.RubyEditorPlugin;
-import com.aptana.editor.ruby.core.IRubyElement;
 import com.aptana.editor.ruby.index.IRubyIndexConstants;
 import com.aptana.editor.ruby.inference.ITypeGuess;
 import com.aptana.editor.ruby.internal.inference.TypeInferrer;
@@ -51,6 +50,7 @@ import com.aptana.index.core.QueryResult;
 import com.aptana.index.core.SearchPattern;
 import com.aptana.parsing.ParserPoolFactory;
 import com.aptana.parsing.lexer.IRange;
+import com.aptana.ruby.core.IRubyElement;
 
 public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 {
