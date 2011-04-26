@@ -12,10 +12,10 @@ import java.util.Stack;
 
 import com.aptana.core.util.StringUtil;
 import com.aptana.index.core.Index;
-import com.aptana.ruby.core.ISourceElementRequestor;
 import com.aptana.ruby.core.IRubyMethod.Visibility;
+import com.aptana.ruby.core.ISourceElementRequestor;
 
-public class RubySourceIndexer implements ISourceElementRequestor
+class RubySourceIndexer implements ISourceElementRequestor
 {
 	private static final String NAMESPACE_DELIMETER = "::"; //$NON-NLS-1$
 
