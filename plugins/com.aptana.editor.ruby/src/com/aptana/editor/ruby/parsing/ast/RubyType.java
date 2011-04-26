@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.aptana.editor.ruby.core.IRubyElement;
-import com.aptana.editor.ruby.core.IRubyField;
-import com.aptana.editor.ruby.core.IRubyMethod;
-import com.aptana.editor.ruby.core.IRubyType;
+import com.aptana.ruby.core.IRubyElement;
+import com.aptana.ruby.core.IRubyField;
+import com.aptana.ruby.core.IRubyMethod;
+import com.aptana.ruby.core.IRubyType;
 
 public class RubyType extends NamedMember implements IRubyType
 {

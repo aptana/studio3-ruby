@@ -14,10 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-import com.aptana.editor.ruby.core.IImportContainer;
-import com.aptana.editor.ruby.core.IRubyElement;
-import com.aptana.editor.ruby.core.IRubyMethod;
-import com.aptana.editor.ruby.core.IRubyMethod.Visibility;
 import com.aptana.editor.ruby.parsing.ast.RubyBlock;
 import com.aptana.editor.ruby.parsing.ast.RubyClassVariable;
 import com.aptana.editor.ruby.parsing.ast.RubyConstant;
@@ -34,6 +30,10 @@ import com.aptana.editor.ruby.parsing.ast.RubyModule;
 import com.aptana.editor.ruby.parsing.ast.RubyScript;
 import com.aptana.editor.ruby.parsing.ast.RubyType;
 import com.aptana.parsing.ast.IParseNode;
+import com.aptana.ruby.core.IImportContainer;
+import com.aptana.ruby.core.IRubyElement;
+import com.aptana.ruby.core.IRubyMethod;
+import com.aptana.ruby.core.IRubyMethod.Visibility;
 
 /**
  * @author Chris Williams

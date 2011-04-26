@@ -5,11 +5,22 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.core;
+package com.aptana.ruby.core;
 
-import com.aptana.parsing.ast.IParseRootNode;
-
-public interface IRubyScript extends IRubyElement, IParseRootNode
+public interface IRubyMethod extends IRubyMember
 {
-	public IImportContainer getImportContainer();
+	public enum Visibility
+	{
+		PUBLIC, PROTECTED, PRIVATE
+	}
+
+	public Visibility getVisibility();
+
+	public String[] getParameters();
+
+	public String[] getBlockVars();
+
+	public boolean isSingleton();
+
+	public boolean isConstructor();
 }

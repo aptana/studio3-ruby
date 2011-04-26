@@ -7,7 +7,7 @@
  */
 package com.aptana.editor.ruby.parsing;
 
-import com.aptana.editor.ruby.core.IRubyMethod.Visibility;
+import com.aptana.ruby.core.IRubyMethod.Visibility;
 
 public interface ISourceElementRequestor
 {
