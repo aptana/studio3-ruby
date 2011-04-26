@@ -116,6 +116,10 @@ public class RubyLaunchingPlugin implements BundleActivator
 	 */
 	public static synchronized String getRubyVersionForProject(IProject project)
 	{
+		if (project == null)
+		{
+			return null;
+		}
 		// This seems expensive, so we're caching the version per-project
 		if (projectToVersion == null)
 		{
