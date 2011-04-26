@@ -5,7 +5,7 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.index;
+package com.aptana.ruby.internal.core.index;
 
 import java.util.List;
 import java.util.Set;
@@ -22,14 +22,13 @@ import org.jrubyparser.ast.Node;
 import org.jrubyparser.parser.ParserResult;
 
 import com.aptana.core.util.IOUtil;
-import com.aptana.editor.common.tasks.TaskTag;
-import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.index.core.AbstractFileIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.parsing.IParserPool;
 import com.aptana.parsing.ParserPoolFactory;
 import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.ISourceElementRequestor;
+import com.aptana.ruby.core.RubyCorePlugin;
 import com.aptana.ruby.core.RubyParser;
 import com.aptana.ruby.core.RubySourceParser;
 import com.aptana.ruby.core.ast.SourceElementVisitor;
@@ -78,7 +77,7 @@ public class RubyFileIndexingParticipant extends AbstractFileIndexingParticipant
 		}
 		catch (Throwable e)
 		{
-			RubyEditorPlugin.log(e);
+			RubyCorePlugin.log(e);
 		}
 		finally
 		{

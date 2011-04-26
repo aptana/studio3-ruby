@@ -5,7 +5,7 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.index;
+package com.aptana.ruby.internal.core.index;
 
 import java.net.URI;
 import java.util.Stack;
@@ -13,6 +13,7 @@ import java.util.Stack;
 import com.aptana.core.util.StringUtil;
 import com.aptana.index.core.Index;
 import com.aptana.ruby.core.IRubyMethod.Visibility;
+import com.aptana.ruby.core.index.IRubyIndexConstants;
 import com.aptana.ruby.core.ISourceElementRequestor;
 
 class RubySourceIndexer implements ISourceElementRequestor

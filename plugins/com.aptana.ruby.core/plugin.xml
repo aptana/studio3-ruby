@@ -57,4 +57,16 @@
             content-type="com.aptana.contenttype.ruby">
       </parser>
    </extension>
+      <extension
+         point="com.aptana.index.core.fileIndexingParticipants">
+      <fileIndexingParticipant
+            class="com.aptana.ruby.internal.core.index.RubyFileIndexingParticipant">
+         <contentTypeBinding
+               contentTypeId="com.aptana.contenttype.ruby">
+         </contentTypeBinding>
+         <contentTypeBinding
+               contentTypeId="com.aptana.contenttype.ruby.ambiguous">
+         </contentTypeBinding>
+      </fileIndexingParticipant>
+   </extension>
 </plugin>

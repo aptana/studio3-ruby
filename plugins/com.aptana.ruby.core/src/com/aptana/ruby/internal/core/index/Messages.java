@@ -5,15 +5,17 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby;
+package com.aptana.ruby.internal.core.index;
 
 import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS
 {
-	private static final String BUNDLE_NAME = "com.aptana.editor.ruby.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "com.aptana.ruby.internal.core.index.messages"; //$NON-NLS-1$
+
 	public static String CoreStubber_IndexingRuby;
 	public static String CoreStubber_IndexingRubyCore;
+
 	static
 	{
 		// initialize resource bundle

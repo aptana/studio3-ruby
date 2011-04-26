@@ -14,8 +14,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.ide,
  com.aptana.editor.common,
  com.aptana.parsing,
- org.jruby,
- com.aptana.index.core,
  com.aptana.core,
  org.jrubyparser,
  com.aptana.theme,
@@ -27,7 +25,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Export-Package: com.aptana.editor.ruby,
  com.aptana.editor.ruby.core,
- com.aptana.editor.ruby.index,
  com.aptana.editor.ruby.outline
 Bundle-ClassPath: .
 Eclipse-ExtensibleAPI: true

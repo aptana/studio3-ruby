@@ -5,7 +5,7 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby;
+package com.aptana.ruby.internal.core.index;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,12 +46,12 @@ import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.ExecutableUtil;
 import com.aptana.core.util.ProcessUtil;
 import com.aptana.core.util.ResourceUtil;
-import com.aptana.editor.ruby.index.RubyFileIndexingParticipant;
 import com.aptana.index.core.IFileStoreIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.IndexContainerJob;
 import com.aptana.index.core.IndexManager;
 import com.aptana.ruby.core.IRubyConstants;
+import com.aptana.ruby.core.RubyCorePlugin;
 import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
 // TODO Move this to com.aptana.ruby.core plugin!
@@ -148,7 +148,7 @@ public class CoreStubber extends Job
 					}
 					catch (CoreException e)
 					{
-						RubyEditorPlugin.log(e.getStatus());
+						RubyCorePlugin.log(e.getStatus());
 					}
 				}
 			};
@@ -215,7 +215,7 @@ public class CoreStubber extends Job
 		}
 		catch (Exception e)
 		{
-			return new Status(IStatus.ERROR, RubyEditorPlugin.PLUGIN_ID, e.getMessage(), e);
+			return new Status(IStatus.ERROR, RubyCorePlugin.PLUGIN_ID, e.getMessage(), e);
 		}
 		finally
 		{
@@ -331,7 +331,7 @@ public class CoreStubber extends Job
 			return null;
 		}
 		// Store core stubs based on ruby version string...
-		IPath outputPath = RubyEditorPlugin.getDefault().getStateLocation()
+		IPath outputPath = RubyCorePlugin.getDefault().getStateLocation()
 				.append(Integer.toString(rubyVersion.hashCode())).append(RUBY_EXE);
 		return outputPath.toFile();
 	}
@@ -428,17 +428,17 @@ public class CoreStubber extends Job
 
 	protected void generateCoreStubs(File outputDir, File finishMarker) throws IOException
 	{
-		URL url = FileLocator.find(RubyEditorPlugin.getDefault().getBundle(), new Path(CORE_STUBBER_PATH), null);
+		URL url = FileLocator.find(RubyCorePlugin.getDefault().getBundle(), new Path(CORE_STUBBER_PATH), null);
 		File stubberScript = ResourceUtil.resourcePathToFile(url);
 
 		IStatus stubberResult = ProcessUtil.runInBackground(getRubyExecutable(), null,
 				ShellExecutable.getEnvironment(), stubberScript.getAbsolutePath(), outputDir.getAbsolutePath());
 		if (stubberResult == null || !stubberResult.isOK())
 		{
-			RubyEditorPlugin
+			RubyCorePlugin
 					.getDefault()
 					.getLog()
-					.log(new Status(IStatus.ERROR, RubyEditorPlugin.PLUGIN_ID, (stubberResult == null) ? "" //$NON-NLS-1$
+					.log(new Status(IStatus.ERROR, RubyCorePlugin.PLUGIN_ID, (stubberResult == null) ? "" //$NON-NLS-1$
 							: stubberResult.getMessage(), null));
 		}
 		else
