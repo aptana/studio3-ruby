@@ -12,6 +12,7 @@ import java.util.Set;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -21,6 +22,7 @@ import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.jrubyparser.CompatVersion;
 import org.jrubyparser.Parser;
 import org.jrubyparser.ast.CallNode;
+import org.jrubyparser.ast.Colon2Node;
 import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.INameNode;
 import org.jrubyparser.ast.Node;
@@ -29,6 +31,7 @@ import org.jrubyparser.parser.ParserConfiguration;
 
 import com.aptana.core.util.IOUtil;
 import com.aptana.editor.common.text.hyperlink.IndexQueryingHyperlinkDetector;
+import com.aptana.editor.ruby.CoreStubber;
 import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.editor.ruby.core.IRubyElement;
@@ -38,6 +41,8 @@ import com.aptana.editor.ruby.parsing.ast.INodeAcceptor;
 import com.aptana.editor.ruby.parsing.ast.NamedMember;
 import com.aptana.editor.ruby.parsing.ast.OffsetNodeLocator;
 import com.aptana.editor.ruby.parsing.ast.RubyScript;
+import com.aptana.index.core.Index;
+import com.aptana.index.core.IndexManager;
 import com.aptana.index.core.QueryResult;
 import com.aptana.index.core.SearchPattern;
 import com.aptana.parsing.ParserPoolFactory;
@@ -60,10 +65,13 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		List<IHyperlink> hyperlinks = new ArrayList<IHyperlink>();
 		try
 		{
+			// Can we grab an already parsed version from FileService?
+
 			IDocument doc = textViewer.getDocument();
 			Parser parser = new Parser();
 			// TODO Handle fixing common syntax errors as we do in ruble for CA!
 			root = parser.parse("", new StringReader(doc.get()), new ParserConfiguration(0, CompatVersion.BOTH));
+
 			if (root == null)
 			{
 				return null;
@@ -86,6 +94,9 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 				case CONSTNODE:
 					hyperlinks.addAll(constNode(atOffset));
 					break;
+				case COLON2NODE:
+					hyperlinks.addAll(typeName((Colon2Node) atOffset));
+					break;
 				case LOCALVARNODE:
 					hyperlinks.addAll(localVariableDeclaration(atOffset));
 					break;
@@ -96,6 +107,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 					hyperlinks.addAll(classVariableDeclaration(atOffset));
 					break;
 				default:
+					System.out.println(atOffset);
 					break;
 			}
 		}
@@ -188,11 +200,41 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 	 */
 	private List<IHyperlink> constNode(Node atOffset)
 	{
+		// FIXME Check the current namespace to determine full namespace of constant/type we're trying to resolve (see
+		// ActionController::Base's implicit ref to Metal)
 		List<IHyperlink> links = new ArrayList<IHyperlink>();
 		String constantName = ((INameNode) atOffset).getName();
 		links.addAll(findConstant(constantName));
 		links.addAll(findType(constantName));
 		return links;
+	}
+
+	private List<IHyperlink> typeName(Colon2Node atOffset)
+	{
+		// TODO Handle Colon2ConstNode vs Colon2MethodNode.
+		List<IHyperlink> links = new ArrayList<IHyperlink>();
+		String fullyQualifiedTypeName = getFullyQualifiedTypeName(atOffset);
+		links.addAll(findType(fullyQualifiedTypeName));
+		return links;
+	}
+
+	private String getFullyQualifiedTypeName(Colon2Node typeNode)
+	{
+		Node leftNode = typeNode.getLeftNode();
+		if (leftNode != null)
+		{
+			if (leftNode instanceof Colon2Node)
+			{
+				return getFullyQualifiedTypeName((Colon2Node) leftNode) + "::" + typeNode.getName();
+			}
+			else if (leftNode instanceof INameNode)
+			{
+				INameNode namedNode = (INameNode) leftNode;
+				return namedNode.getName() + "::" + typeNode.getName();
+			}
+		}
+
+		return typeNode.getName();
 	}
 
 	/**
@@ -206,6 +248,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 	{
 		try
 		{
+			// TODO Search AST in current file first?
 			List<QueryResult> results = getIndex().query(new String[] { IRubyIndexConstants.CONSTANT_DECL },
 					constantName, SearchPattern.EXACT_MATCH | SearchPattern.CASE_SENSITIVE);
 			return getMatchingElementHyperlinks(results, constantName, IRubyElement.CONSTANT);
@@ -215,6 +258,27 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 			RubyEditorPlugin.log(e);
 		}
 		return Collections.emptyList();
+	}
+
+	/**
+	 * Returns the full set of indices that we may need to search. Project index, ruby core, ruby std libs, then gems.
+	 * 
+	 * @return
+	 */
+	protected List<Index> getAllIndices()
+	{
+		List<Index> indices = new ArrayList<Index>();
+		indices.add(getIndex());
+		indices.add(CoreStubber.getRubyCoreIndex());
+		for (IPath path : CoreStubber.getLoadpaths())
+		{
+			indices.add(IndexManager.getInstance().getIndex(path.toFile().toURI()));
+		}
+		for (IPath path : CoreStubber.getGemPaths())
+		{
+			indices.add(IndexManager.getInstance().getIndex(path.toFile().toURI()));
+		}
+		return indices;
 	}
 
 	/**
@@ -285,34 +349,53 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 
 	private List<IHyperlink> findMethods(String methodName)
 	{
+		// TODO Handle narrowing by type...
+		List<IHyperlink> links = new ArrayList<IHyperlink>();
 		try
 		{
-			List<QueryResult> results = getIndex().query(new String[] { IRubyIndexConstants.METHOD_DECL },
-					methodName + IRubyIndexConstants.SEPARATOR,
-					SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
-			return getMatchingElementHyperlinks(results, methodName, IRubyElement.METHOD);
+			// Search all indices
+			for (Index index : getAllIndices())
+			{
+				List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.METHOD_DECL }, methodName
+						+ IRubyIndexConstants.SEPARATOR, SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
+				links.addAll(getMatchingElementHyperlinks(results, methodName, IRubyElement.METHOD));
+			}
 		}
 		catch (IOException e)
 		{
 			RubyEditorPlugin.log(e);
 		}
-		return Collections.emptyList();
+		return links;
 	}
 
 	private List<IHyperlink> findType(String typeName)
 	{
+		// Handle qualified type name!
+		String namespace = "";
+		int separatorIndex = typeName.indexOf("::");
+		if (separatorIndex != -1)
+		{
+			namespace = typeName.substring(0, separatorIndex);
+			typeName = typeName.substring(separatorIndex + 2);
+		}
+		List<IHyperlink> links = new ArrayList<IHyperlink>();
 		try
 		{
-			List<QueryResult> results = getIndex().query(new String[] { IRubyIndexConstants.TYPE_DECL },
-					typeName + IRubyIndexConstants.SEPARATOR + IRubyIndexConstants.SEPARATOR,
-					SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
-			return getMatchingElementHyperlinks(results, typeName, IRubyElement.TYPE);
+			// Search all indices
+			for (Index index : getAllIndices())
+			{
+				List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.TYPE_DECL }, typeName
+						+ IRubyIndexConstants.SEPARATOR + namespace + IRubyIndexConstants.SEPARATOR,
+						SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
+				// TODO Exit early if we find matches?
+				links.addAll(getMatchingElementHyperlinks(results, typeName, IRubyElement.TYPE));
+			}
 		}
 		catch (IOException e)
 		{
 			RubyEditorPlugin.log(e);
 		}
-		return Collections.emptyList();
+		return links;
 	}
 
 	private List<IHyperlink> getMatchingElementHyperlinks(List<QueryResult> results, String elementName, int elementType)
