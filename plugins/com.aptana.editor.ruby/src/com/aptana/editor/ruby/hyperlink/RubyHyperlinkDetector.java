@@ -59,14 +59,12 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		super();
 	}
 
-	// FIXME Search more than just the project index. Also search core/std lib/gems
 	public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks)
 	{
 		List<IHyperlink> hyperlinks = new ArrayList<IHyperlink>();
 		try
 		{
 			// Can we grab an already parsed version from FileService?
-
 			IDocument doc = textViewer.getDocument();
 			Parser parser = new Parser();
 			// TODO Handle fixing common syntax errors as we do in ruble for CA!
@@ -84,7 +82,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 				return null;
 			}
 			srcRegion = new Region(atOffset.getPosition().getStartOffset(), atOffset.getPosition().getEndOffset()
-					- atOffset.getPosition().getStartOffset() + 1);
+					- atOffset.getPosition().getStartOffset());
 			switch (atOffset.getNodeType())
 			{
 				case CALLNODE:
@@ -200,11 +198,16 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 	 */
 	private List<IHyperlink> constNode(Node atOffset)
 	{
+		String namespace = new NamespaceVisitor().getNamespace(root, atOffset.getPosition().getStartOffset());
 		// FIXME Check the current namespace to determine full namespace of constant/type we're trying to resolve (see
 		// ActionController::Base's implicit ref to Metal)
 		List<IHyperlink> links = new ArrayList<IHyperlink>();
 		String constantName = ((INameNode) atOffset).getName();
 		links.addAll(findConstant(constantName));
+		if (namespace.length() > 0)
+		{
+			constantName = namespace + "::" + constantName;
+		}
 		links.addAll(findType(constantName));
 		return links;
 	}
@@ -248,9 +251,14 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 	{
 		try
 		{
+			Index index = getIndex();
+			if (index == null)
+			{
+				return Collections.emptyList();
+			}
 			// TODO Search AST in current file first?
-			List<QueryResult> results = getIndex().query(new String[] { IRubyIndexConstants.CONSTANT_DECL },
-					constantName, SearchPattern.EXACT_MATCH | SearchPattern.CASE_SENSITIVE);
+			List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.CONSTANT_DECL }, constantName,
+					SearchPattern.EXACT_MATCH | SearchPattern.CASE_SENSITIVE);
 			return getMatchingElementHyperlinks(results, constantName, IRubyElement.CONSTANT);
 		}
 		catch (IOException e)
@@ -356,6 +364,10 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 			// Search all indices
 			for (Index index : getAllIndices())
 			{
+				if (index == null)
+				{
+					continue;
+				}
 				List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.METHOD_DECL }, methodName
 						+ IRubyIndexConstants.SEPARATOR, SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
 				links.addAll(getMatchingElementHyperlinks(results, methodName, IRubyElement.METHOD));
@@ -384,6 +396,10 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 			// Search all indices
 			for (Index index : getAllIndices())
 			{
+				if (index == null)
+				{
+					continue;
+				}
 				List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.TYPE_DECL }, typeName
 						+ IRubyIndexConstants.SEPARATOR + namespace + IRubyIndexConstants.SEPARATOR,
 						SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
@@ -396,6 +412,19 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 			RubyEditorPlugin.log(e);
 		}
 		return links;
+	}
+
+	@Override
+	protected Index getIndex()
+	{
+		Index index = super.getIndex();
+		if (index != null)
+		{
+			return index;
+		}
+		// TODO Handle when we have an external file open, check it's path and try and find the correct index where this
+		// is a file underneath it...
+		return null;
 	}
 
 	private List<IHyperlink> getMatchingElementHyperlinks(List<QueryResult> results, String elementName, int elementType)

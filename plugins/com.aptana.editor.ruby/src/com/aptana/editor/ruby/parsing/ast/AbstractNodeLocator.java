@@ -37,6 +37,10 @@ public abstract class AbstractNodeLocator extends InOrderVisitor
 
 	protected String popType()
 	{
+		if (typeNameStack.isEmpty())
+		{
+			return null;
+		}
 		return typeNameStack.pop();
 	}
 
