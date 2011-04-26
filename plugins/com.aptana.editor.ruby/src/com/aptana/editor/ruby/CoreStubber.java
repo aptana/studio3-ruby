@@ -51,6 +51,7 @@ import com.aptana.index.core.IFileStoreIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.IndexContainerJob;
 import com.aptana.index.core.IndexManager;
+import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
 // TODO Move this to com.aptana.ruby.core plugin!

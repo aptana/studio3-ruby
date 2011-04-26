@@ -5,36 +5,21 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.parsing.ast;
+package com.aptana.ruby.internal.core;
 
 import com.aptana.ruby.core.IRubyElement;
 
-public class RubyImport extends RubyElement
+public class RubyDynamicVariable extends RubyField
 {
 
-	private String fValue;
-
-	public RubyImport(String value, int start, int end)
+	public RubyDynamicVariable(String name, int start, int nameStart, int nameEnd)
 	{
-		super(start, end);
-		fValue = value;
+		super(name, start, nameStart, nameEnd);
 	}
 
 	@Override
 	public short getNodeType()
 	{
-		return IRubyElement.IMPORT_DECLARATION;
-	}
-
-	@Override
-	public String getName()
-	{
-		return fValue;
-	}
-
-	@Override
-	public String toString()
-	{
-		return getName();
+		return IRubyElement.DYNAMIC_VAR;
 	}
 }

@@ -5,21 +5,36 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.parsing.ast;
+package com.aptana.ruby.internal.core;
 
 import com.aptana.ruby.core.IRubyElement;
 
-public class RubyBlock extends RubyElement
+public class RubyImport extends RubyElement
 {
 
-	public RubyBlock(int start, int end)
+	private String fValue;
+
+	public RubyImport(String value, int start, int end)
 	{
 		super(start, end);
+		fValue = value;
 	}
 
 	@Override
 	public short getNodeType()
 	{
-		return IRubyElement.BLOCK;
+		return IRubyElement.IMPORT_DECLARATION;
+	}
+
+	@Override
+	public String getName()
+	{
+		return fValue;
+	}
+
+	@Override
+	public String toString()
+	{
+		return getName();
 	}
 }

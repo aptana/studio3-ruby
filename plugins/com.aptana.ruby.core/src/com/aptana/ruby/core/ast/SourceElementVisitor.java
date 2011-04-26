@@ -5,14 +5,13 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.parsing;
+package com.aptana.ruby.core.ast;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jruby.runtime.Visibility;
 import org.jrubyparser.ast.AliasNode;
 import org.jrubyparser.ast.ArgsNode;
 import org.jrubyparser.ast.ArgumentNode;
@@ -51,12 +50,12 @@ import org.jrubyparser.ast.UnnamedRestArgNode;
 import org.jrubyparser.ast.VCallNode;
 import org.jrubyparser.ast.YieldNode;
 
-import com.aptana.editor.ruby.parsing.ISourceElementRequestor.FieldInfo;
-import com.aptana.editor.ruby.parsing.ISourceElementRequestor.MethodInfo;
-import com.aptana.editor.ruby.parsing.ISourceElementRequestor.TypeInfo;
-import com.aptana.editor.ruby.parsing.ast.ASTUtils;
-import com.aptana.editor.ruby.parsing.ast.InOrderVisitor;
 import com.aptana.ruby.core.IRubyMethod;
+import com.aptana.ruby.core.ISourceElementRequestor;
+import com.aptana.ruby.core.IRubyMethod.Visibility;
+import com.aptana.ruby.core.ISourceElementRequestor.FieldInfo;
+import com.aptana.ruby.core.ISourceElementRequestor.MethodInfo;
+import com.aptana.ruby.core.ISourceElementRequestor.TypeInfo;
 
 /**
  * @author Chris Williams

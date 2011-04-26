@@ -5,7 +5,7 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.parsing.ast;
+package com.aptana.ruby.core.ast;
 
 import org.jrubyparser.NodeVisitor;
 import org.jrubyparser.ast.*;

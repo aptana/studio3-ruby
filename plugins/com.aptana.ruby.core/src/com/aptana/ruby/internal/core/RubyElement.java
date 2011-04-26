@@ -5,14 +5,14 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.parsing.ast;
+package com.aptana.ruby.internal.core;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
+import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.IRubyElement;
 
 public abstract class RubyElement extends ParseNode implements IRubyElement

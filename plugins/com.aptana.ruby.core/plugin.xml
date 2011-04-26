@@ -50,4 +50,11 @@
             name="arguments">
       </attribute>
    </extension>
+   <extension
+         point="com.aptana.parsing.parser">
+      <parser
+            class="com.aptana.ruby.core.RubyParser"
+            content-type="com.aptana.contenttype.ruby">
+      </parser>
+   </extension>
 </plugin>

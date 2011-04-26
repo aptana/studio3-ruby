@@ -23,16 +23,16 @@ import org.jrubyparser.parser.ParserResult;
 
 import com.aptana.core.util.IOUtil;
 import com.aptana.editor.common.tasks.TaskTag;
-import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.editor.ruby.RubyEditorPlugin;
-import com.aptana.editor.ruby.parsing.ISourceElementRequestor;
-import com.aptana.editor.ruby.parsing.RubyParser;
-import com.aptana.editor.ruby.parsing.RubySourceParser;
-import com.aptana.editor.ruby.parsing.SourceElementVisitor;
 import com.aptana.index.core.AbstractFileIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.parsing.IParserPool;
 import com.aptana.parsing.ParserPoolFactory;
+import com.aptana.ruby.core.IRubyConstants;
+import com.aptana.ruby.core.ISourceElementRequestor;
+import com.aptana.ruby.core.RubyParser;
+import com.aptana.ruby.core.RubySourceParser;
+import com.aptana.ruby.core.ast.SourceElementVisitor;
 
 public class RubyFileIndexingParticipant extends AbstractFileIndexingParticipant
 {

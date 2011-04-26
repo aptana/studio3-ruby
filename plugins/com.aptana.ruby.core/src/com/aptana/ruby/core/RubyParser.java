@@ -5,14 +5,15 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.parsing;
+package com.aptana.ruby.core;
 
 import org.jrubyparser.CompatVersion;
 
-import com.aptana.editor.ruby.parsing.ast.RubyScript;
 import com.aptana.parsing.IParseState;
 import com.aptana.parsing.IParser;
 import com.aptana.parsing.ast.IParseRootNode;
+import com.aptana.ruby.core.ast.SourceElementVisitor;
+import com.aptana.ruby.internal.core.RubyScript;
 
 public class RubyParser implements IParser
 {

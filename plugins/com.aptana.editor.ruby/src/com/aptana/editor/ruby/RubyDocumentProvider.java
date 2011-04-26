@@ -11,6 +11,7 @@ import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 
 import com.aptana.editor.common.IPartitioningConfiguration;
 import com.aptana.editor.common.SimpleDocumentProvider;
+import com.aptana.ruby.core.IRubyConstants;
 
 public class RubyDocumentProvider extends SimpleDocumentProvider
 {

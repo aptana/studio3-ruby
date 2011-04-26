@@ -5,7 +5,7 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.parsing;
+package com.aptana.ruby.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,26 +14,23 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-import com.aptana.editor.ruby.parsing.ast.RubyBlock;
-import com.aptana.editor.ruby.parsing.ast.RubyClassVariable;
-import com.aptana.editor.ruby.parsing.ast.RubyConstant;
-import com.aptana.editor.ruby.parsing.ast.RubyDynamicVariable;
-import com.aptana.editor.ruby.parsing.ast.RubyElement;
-import com.aptana.editor.ruby.parsing.ast.RubyField;
-import com.aptana.editor.ruby.parsing.ast.RubyGlobal;
-import com.aptana.editor.ruby.parsing.ast.RubyImport;
-import com.aptana.editor.ruby.parsing.ast.RubyImportContainer;
-import com.aptana.editor.ruby.parsing.ast.RubyInstanceVariable;
-import com.aptana.editor.ruby.parsing.ast.RubyLocalVariable;
-import com.aptana.editor.ruby.parsing.ast.RubyMethod;
-import com.aptana.editor.ruby.parsing.ast.RubyModule;
-import com.aptana.editor.ruby.parsing.ast.RubyScript;
-import com.aptana.editor.ruby.parsing.ast.RubyType;
 import com.aptana.parsing.ast.IParseNode;
-import com.aptana.ruby.core.IImportContainer;
-import com.aptana.ruby.core.IRubyElement;
-import com.aptana.ruby.core.IRubyMethod;
 import com.aptana.ruby.core.IRubyMethod.Visibility;
+import com.aptana.ruby.internal.core.RubyBlock;
+import com.aptana.ruby.internal.core.RubyClassVariable;
+import com.aptana.ruby.internal.core.RubyConstant;
+import com.aptana.ruby.internal.core.RubyDynamicVariable;
+import com.aptana.ruby.internal.core.RubyElement;
+import com.aptana.ruby.internal.core.RubyField;
+import com.aptana.ruby.internal.core.RubyGlobal;
+import com.aptana.ruby.internal.core.RubyImport;
+import com.aptana.ruby.internal.core.RubyImportContainer;
+import com.aptana.ruby.internal.core.RubyInstanceVariable;
+import com.aptana.ruby.internal.core.RubyLocalVariable;
+import com.aptana.ruby.internal.core.RubyMethod;
+import com.aptana.ruby.internal.core.RubyModule;
+import com.aptana.ruby.internal.core.RubyScript;
+import com.aptana.ruby.internal.core.RubyType;
 
 /**
  * @author Chris Williams

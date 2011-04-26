@@ -5,7 +5,7 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.parsing.ast;
+package com.aptana.ruby.internal.core;
 
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.ruby.core.IImportContainer;

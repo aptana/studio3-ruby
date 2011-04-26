@@ -6,7 +6,7 @@
  * Any modifications to this file must keep this entire header intact.
  */
 
-package com.aptana.editor.ruby;
+package com.aptana.ruby.core;
 
 /**
  * @author Max Stepanov

@@ -7,8 +7,8 @@
  */
 package com.aptana.editor.erb.html.parsing;
 
-import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.parsing.ast.ParseNode;
+import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.IRubyScript;
 
 public class ERBScript extends ParseNode
