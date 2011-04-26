@@ -9,7 +9,6 @@ package com.aptana.editor.ruby.parsing;
 
 import org.jrubyparser.CompatVersion;
 
-import com.aptana.editor.ruby.RubyParseState;
 import com.aptana.editor.ruby.parsing.ast.RubyScript;
 import com.aptana.parsing.IParseState;
 import com.aptana.parsing.IParser;
