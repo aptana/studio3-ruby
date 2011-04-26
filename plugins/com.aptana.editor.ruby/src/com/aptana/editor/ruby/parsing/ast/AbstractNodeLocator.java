@@ -37,7 +37,7 @@ public abstract class AbstractNodeLocator extends InOrderVisitor
 
 	protected String popType()
 	{
-		if (typeNameStack.isEmpty())
+		if (typeNameStack == null || typeNameStack.isEmpty())
 		{
 			return null;
 		}
@@ -46,7 +46,7 @@ public abstract class AbstractNodeLocator extends InOrderVisitor
 
 	protected String peekType()
 	{
-		if (typeNameStack.isEmpty())
+		if (typeNameStack == null || typeNameStack.isEmpty())
 		{
 			return null;
 		}

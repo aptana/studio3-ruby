@@ -6,6 +6,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -23,7 +24,6 @@ import org.jrubyparser.CompatVersion;
 import org.jrubyparser.Parser;
 import org.jrubyparser.ast.CallNode;
 import org.jrubyparser.ast.Colon2Node;
-import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.INameNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.ast.NodeType;
@@ -36,6 +36,9 @@ import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.editor.ruby.core.IRubyElement;
 import com.aptana.editor.ruby.index.IRubyIndexConstants;
+import com.aptana.editor.ruby.inference.ITypeGuess;
+import com.aptana.editor.ruby.internal.inference.TypeInferrer;
+import com.aptana.editor.ruby.parsing.ast.ASTUtils;
 import com.aptana.editor.ruby.parsing.ast.FirstPrecursorNodeLocator;
 import com.aptana.editor.ruby.parsing.ast.INodeAcceptor;
 import com.aptana.editor.ruby.parsing.ast.NamedMember;
@@ -50,6 +53,11 @@ import com.aptana.parsing.lexer.IRange;
 
 public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 {
+
+	/**
+	 * 
+	 */
+	private static final String NAMESPACE_DELIMITER = "::"; //$NON-NLS-1$
 
 	private IRegion srcRegion;
 	private Node root;
@@ -68,7 +76,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 			IDocument doc = textViewer.getDocument();
 			Parser parser = new Parser();
 			// TODO Handle fixing common syntax errors as we do in ruble for CA!
-			root = parser.parse("", new StringReader(doc.get()), new ParserConfiguration(0, CompatVersion.BOTH));
+			root = parser.parse("", new StringReader(doc.get()), new ParserConfiguration(0, CompatVersion.BOTH)); //$NON-NLS-1$
 
 			if (root == null)
 			{
@@ -85,6 +93,10 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 					- atOffset.getPosition().getStartOffset());
 			switch (atOffset.getNodeType())
 			{
+				case VCALLNODE:
+				case FCALLNODE:
+					hyperlinks.addAll(noReceiverMethodCallLink((INameNode) atOffset));
+					break;
 				case CALLNODE:
 					hyperlinks.addAll(methodCallLink((CallNode) atOffset));
 					break;
@@ -105,7 +117,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 					hyperlinks.addAll(classVariableDeclaration(atOffset));
 					break;
 				default:
-					System.out.println(atOffset);
+					// System.out.println(atOffset);
 					break;
 			}
 		}
@@ -119,13 +131,23 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 			{
 				return null;
 			}
-			return hyperlinks.toArray(new IHyperlink[hyperlinks.size()]);
+			// Remove duplicates!
+			Set<IHyperlink> uniques = new LinkedHashSet<IHyperlink>(hyperlinks);
+			return uniques.toArray(new IHyperlink[uniques.size()]);
 		}
 		finally
 		{
 			root = null;
 			srcRegion = null;
 		}
+	}
+
+	private Collection<? extends IHyperlink> noReceiverMethodCallLink(INameNode atOffset)
+	{
+		String methodName = atOffset.getName();
+		// TODO Try and infer the type of "self" and search up the hierarchy for matching methods first before we do a
+		// global search!
+		return findMethods(methodName);
 	}
 
 	/**
@@ -206,7 +228,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		links.addAll(findConstant(constantName));
 		if (namespace.length() > 0)
 		{
-			constantName = namespace + "::" + constantName;
+			constantName = namespace + NAMESPACE_DELIMITER + constantName;
 		}
 		links.addAll(findType(constantName));
 		return links;
@@ -216,28 +238,9 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 	{
 		// TODO Handle Colon2ConstNode vs Colon2MethodNode.
 		List<IHyperlink> links = new ArrayList<IHyperlink>();
-		String fullyQualifiedTypeName = getFullyQualifiedTypeName(atOffset);
+		String fullyQualifiedTypeName = ASTUtils.getFullyQualifiedName(atOffset);
 		links.addAll(findType(fullyQualifiedTypeName));
 		return links;
-	}
-
-	private String getFullyQualifiedTypeName(Colon2Node typeNode)
-	{
-		Node leftNode = typeNode.getLeftNode();
-		if (leftNode != null)
-		{
-			if (leftNode instanceof Colon2Node)
-			{
-				return getFullyQualifiedTypeName((Colon2Node) leftNode) + "::" + typeNode.getName();
-			}
-			else if (leftNode instanceof INameNode)
-			{
-				INameNode namedNode = (INameNode) leftNode;
-				return namedNode.getName() + "::" + typeNode.getName();
-			}
-		}
-
-		return typeNode.getName();
 	}
 
 	/**
@@ -332,27 +335,18 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		if ("new".equals(methodName)) //$NON-NLS-1$
 		{
 			Node receiver = callNode.getReceiverNode();
-			String typeName = inferType(receiver);
-			links.addAll(findType(typeName)); // TODO Find the "initialize" sub-method of the type if it exists!
+			Collection<ITypeGuess> guesses = new TypeInferrer().infer(root, receiver);
+			for (ITypeGuess guess : guesses)
+			{
+				// TODO Find the "initialize" sub-method of the type if it exists!
+				links.addAll(findType(guess.getType()));
+			}
 		}
 		else
 		{
 			links.addAll(findMethods(methodName));
 		}
 		return links;
-	}
-
-	private String inferType(Node receiver)
-	{
-		// TODO Infer the type of the receiver...
-		switch (receiver.getNodeType())
-		{
-			case CONSTNODE:
-				return ((ConstNode) receiver).getName();
-			default:
-				break;
-		}
-		return null;
 	}
 
 	private List<IHyperlink> findMethods(String methodName)
@@ -383,8 +377,8 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 	private List<IHyperlink> findType(String typeName)
 	{
 		// Handle qualified type name!
-		String namespace = "";
-		int separatorIndex = typeName.indexOf("::");
+		String namespace = ""; //$NON-NLS-1$
+		int separatorIndex = typeName.indexOf(NAMESPACE_DELIMITER);
 		if (separatorIndex != -1)
 		{
 			namespace = typeName.substring(0, separatorIndex);
@@ -404,6 +398,8 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 						+ IRubyIndexConstants.SEPARATOR + namespace + IRubyIndexConstants.SEPARATOR,
 						SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
 				// TODO Exit early if we find matches?
+				// FIXME Sort by a priority. We should prefer filenames that match the type name, parent folders
+				// matching parent namespaces.
 				links.addAll(getMatchingElementHyperlinks(results, typeName, IRubyElement.TYPE));
 			}
 		}

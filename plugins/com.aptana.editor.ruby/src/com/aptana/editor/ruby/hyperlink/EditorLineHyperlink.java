@@ -8,6 +8,7 @@
 package com.aptana.editor.ruby.hyperlink;
 
 import java.net.URI;
+import java.text.MessageFormat;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -48,7 +49,8 @@ public class EditorLineHyperlink implements IHyperlink
 
 	public String getHyperlinkText()
 	{
-		return uri.toString();
+		// Also include offset/line number as same file may be in more than one link
+		return MessageFormat.format("{0}, {1}", uri.toString(), destRegion.toString()); //$NON-NLS-1$
 	}
 
 	public void open()
@@ -80,5 +82,56 @@ public class EditorLineHyperlink implements IHyperlink
 
 		ITextEditor textEditor = (ITextEditor) editorPart;
 		textEditor.selectAndReveal(destRegion.getOffset(), destRegion.getLength());
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((destRegion == null) ? 0 : destRegion.hashCode());
+		result = prime * result + ((uri == null) ? 0 : uri.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+		if (obj == null)
+		{
+			return false;
+		}
+		if (getClass() != obj.getClass())
+		{
+			return false;
+		}
+		EditorLineHyperlink other = (EditorLineHyperlink) obj;
+		if (destRegion == null)
+		{
+			if (other.destRegion != null)
+			{
+				return false;
+			}
+		}
+		else if (!destRegion.equals(other.destRegion))
+		{
+			return false;
+		}
+		if (uri == null)
+		{
+			if (other.uri != null)
+			{
+				return false;
+			}
+		}
+		else if (!uri.equals(other.uri))
+		{
+			return false;
+		}
+		return true;
 	}
 }
