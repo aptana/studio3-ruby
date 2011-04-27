@@ -5,11 +5,11 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.internal.inference;
+package com.aptana.ruby.internal.core.inference;
 
 import java.text.MessageFormat;
 
-import com.aptana.editor.ruby.inference.ITypeGuess;
+import com.aptana.ruby.core.inference.ITypeGuess;
 
 public class BasicTypeGuess implements ITypeGuess
 {

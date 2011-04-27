@@ -5,7 +5,7 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.internal.inference;
+package com.aptana.ruby.internal.core.inference;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -30,14 +30,14 @@ import org.jrubyparser.ast.Node;
 import org.jrubyparser.ast.NodeType;
 import org.jrubyparser.parser.ParserConfiguration;
 
-import com.aptana.editor.ruby.inference.ITypeGuess;
-import com.aptana.editor.ruby.inference.ITypeInferrer;
-import com.aptana.editor.ruby.parsing.ast.ASTUtils;
-import com.aptana.editor.ruby.parsing.ast.ClosestSpanningNodeLocator;
-import com.aptana.editor.ruby.parsing.ast.FirstPrecursorNodeLocator;
-import com.aptana.editor.ruby.parsing.ast.INodeAcceptor;
-import com.aptana.editor.ruby.parsing.ast.OffsetNodeLocator;
-import com.aptana.editor.ruby.parsing.ast.ScopedNodeLocator;
+import com.aptana.ruby.core.ast.ASTUtils;
+import com.aptana.ruby.core.ast.ClosestSpanningNodeLocator;
+import com.aptana.ruby.core.ast.FirstPrecursorNodeLocator;
+import com.aptana.ruby.core.ast.INodeAcceptor;
+import com.aptana.ruby.core.ast.OffsetNodeLocator;
+import com.aptana.ruby.core.ast.ScopedNodeLocator;
+import com.aptana.ruby.core.inference.ITypeGuess;
+import com.aptana.ruby.core.inference.ITypeInferrer;
 
 @SuppressWarnings("nls")
 public class TypeInferrer implements ITypeInferrer

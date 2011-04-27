@@ -1,4 +1,4 @@
-package com.aptana.editor.ruby.parsing.ast;
+package com.aptana.ruby.core.ast;
 
 import org.jrubyparser.ast.Node;
 

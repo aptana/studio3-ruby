@@ -1,10 +1,9 @@
-package com.aptana.editor.ruby.hyperlink;
+package com.aptana.ruby.core.ast;
 
 import org.jrubyparser.ast.Colon3Node;
 import org.jrubyparser.ast.ModuleNode;
 import org.jrubyparser.ast.Node;
 
-import com.aptana.editor.ruby.parsing.ast.AbstractNodeLocator;
 
 public class NamespaceVisitor extends AbstractNodeLocator
 {

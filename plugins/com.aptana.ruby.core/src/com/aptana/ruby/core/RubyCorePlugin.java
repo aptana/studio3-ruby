@@ -13,6 +13,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.osgi.framework.BundleContext;
 
+import com.aptana.ruby.core.codeassist.CodeResolver;
+import com.aptana.ruby.internal.core.codeassist.RubyCodeResolver;
 import com.aptana.ruby.internal.core.index.CoreStubber;
 
 public class RubyCorePlugin extends Plugin
@@ -23,6 +25,8 @@ public class RubyCorePlugin extends Plugin
 
 	// The shared instance
 	private static RubyCorePlugin plugin;
+
+	private RubyCodeResolver fCodeResolver;
 
 	/**
 	 * The constructor
@@ -50,6 +54,7 @@ public class RubyCorePlugin extends Plugin
 	 */
 	public void stop(BundleContext context) throws Exception
 	{
+		fCodeResolver = null;
 		plugin = null;
 		super.stop(context);
 	}
@@ -72,6 +77,15 @@ public class RubyCorePlugin extends Plugin
 	public static void log(IStatus status)
 	{
 		getDefault().getLog().log(status);
+	}
+
+	public synchronized CodeResolver getCodeResolver()
+	{
+		if (fCodeResolver == null)
+		{
+			fCodeResolver = new RubyCodeResolver();
+		}
+		return fCodeResolver;
 	}
 
 }
