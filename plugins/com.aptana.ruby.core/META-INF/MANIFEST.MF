@@ -17,5 +17,6 @@ Bundle-ActivationPolicy: lazy
 Export-Package: com.aptana.ruby.core,
  com.aptana.ruby.core.ast,
  com.aptana.ruby.core.index,
- com.aptana.ruby.internal.core.index;x-friends:="com.aptana.editor.erb"
+ com.aptana.ruby.internal.core.index;x-friends:="com.aptana.editor.erb",
+ com.aptana.ruby.internal.core;x-friends:="com.aptana.scripting"
 Eclipse-ExtensibleAPI: true

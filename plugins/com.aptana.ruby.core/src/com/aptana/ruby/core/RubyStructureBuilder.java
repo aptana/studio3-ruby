@@ -33,10 +33,12 @@ import com.aptana.ruby.internal.core.RubyScript;
 import com.aptana.ruby.internal.core.RubyType;
 
 /**
+ * This class is public for Ruby CA in the ruble right now!
+ * 
  * @author Chris Williams
  * @author Michael Xia
  */
-class RubyStructureBuilder implements ISourceElementRequestor
+public class RubyStructureBuilder implements ISourceElementRequestor
 {
 
 	private RubyScript script;
