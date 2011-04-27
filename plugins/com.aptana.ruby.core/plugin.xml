@@ -11,5 +11,43 @@
          </run>
       </runtime>
    </extension>
-
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="rb,rake,cgi,fcgi,rbx,rjs,gemspec,irbrc,ru"
+            file-names="Rakefile,Capfile,Gemfile"
+            id="com.aptana.contenttype.ruby"
+            name="%content-type.rb.name"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="com.aptana.contenttype.ruby"
+            describer="com.aptana.ruby.internal.core.RubyTextContentDescriber"
+            file-names="plugin,server,runner,generate,dbconsole,about,console,destroy,autospec,spec,rails"
+            id="com.aptana.contenttype.ruby.ambiguous"
+            name="%content-type.ruby.ambiguous.name"
+            priority="normal">
+      </content-type>
+   </extension>
+   <extension
+         id="problem"
+         name="%marker.ruby.name"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="com.aptana.core.problem">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+      <attribute
+            name="id">
+      </attribute>
+      <attribute
+            name="flags">
+      </attribute>
+      <attribute
+            name="arguments">
+      </attribute>
+   </extension>
 </plugin>

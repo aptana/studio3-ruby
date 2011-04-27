@@ -10,8 +10,8 @@ package com.aptana.editor.ruby.parsing.ast;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.aptana.editor.ruby.core.IRubyElement;
-import com.aptana.editor.ruby.core.IRubyMethod;
+import com.aptana.ruby.core.IRubyElement;
+import com.aptana.ruby.core.IRubyMethod;
 
 public class RubyMethod extends NamedMember implements IRubyMethod
 {

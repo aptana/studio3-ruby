@@ -5,20 +5,8 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.core;
+package com.aptana.ruby.core;
 
-public interface IRubyType extends IRubyMember
+public interface IImportContainer extends IRubyElement
 {
-
-	public IRubyField[] getFields();
-
-	public IRubyMethod[] getMethods();
-
-	public String[] getIncludedModuleNames();
-
-	public String getSuperclassName();
-
-	public boolean isClass();
-
-	public boolean isModule();
 }

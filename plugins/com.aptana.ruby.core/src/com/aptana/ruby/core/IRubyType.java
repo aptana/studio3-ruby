@@ -5,22 +5,20 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby.core;
+package com.aptana.ruby.core;
 
-public interface IRubyMethod extends IRubyMember
+public interface IRubyType extends IRubyMember
 {
-	public enum Visibility
-	{
-		PUBLIC, PROTECTED, PRIVATE
-	}
 
-	public Visibility getVisibility();
+	public IRubyField[] getFields();
 
-	public String[] getParameters();
+	public IRubyMethod[] getMethods();
 
-	public String[] getBlockVars();
+	public String[] getIncludedModuleNames();
 
-	public boolean isSingleton();
+	public String getSuperclassName();
 
-	public boolean isConstructor();
+	public boolean isClass();
+
+	public boolean isModule();
 }

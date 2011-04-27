@@ -14,9 +14,9 @@ import java.util.List;
 
 import com.aptana.editor.common.outline.CommonOutlineContentProvider;
 import com.aptana.editor.common.outline.CommonOutlineItem;
-import com.aptana.editor.ruby.core.IRubyElement;
-import com.aptana.editor.ruby.core.IRubyMethod;
 import com.aptana.parsing.ast.IParseNode;
+import com.aptana.ruby.core.IRubyElement;
+import com.aptana.ruby.core.IRubyMethod;
 
 public class RubyOutlineContentProvider extends CommonOutlineContentProvider
 {
