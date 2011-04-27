@@ -11,8 +11,8 @@ import junit.framework.TestCase;
 
 import com.aptana.editor.erb.html.parsing.RHTMLParser;
 import com.aptana.editor.html.parsing.HTMLParseState;
-import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.parsing.ast.IParseNode;
+import com.aptana.ruby.core.IRubyConstants;
 
 public class RHTMLParserTest extends TestCase
 {

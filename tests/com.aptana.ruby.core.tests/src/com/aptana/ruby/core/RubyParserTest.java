@@ -5,19 +5,15 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby;
+package com.aptana.ruby.core;
 
 import junit.framework.TestCase;
 
-import com.aptana.editor.ruby.parsing.RubyParser;
-import com.aptana.editor.ruby.parsing.ast.RubyElement;
 import com.aptana.parsing.ParseState;
 import com.aptana.parsing.ast.IParseNode;
-import com.aptana.ruby.core.IRubyElement;
-import com.aptana.ruby.core.IRubyField;
-import com.aptana.ruby.core.IRubyMethod;
-import com.aptana.ruby.core.IRubyType;
+import com.aptana.ruby.internal.core.RubyElement;
 
+@SuppressWarnings("nls")
 public class RubyParserTest extends TestCase
 {
 

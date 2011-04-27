@@ -6,3 +6,5 @@ Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: Appcelerator, Inc.
 Fragment-Host: com.aptana.ruby.core
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.junit
+Export-Package: com.aptana.ruby.core.tests
