@@ -9,14 +9,14 @@ package com.aptana.editor.ruby;
 
 import junit.framework.TestCase;
 
-import com.aptana.editor.ruby.core.IRubyElement;
-import com.aptana.editor.ruby.core.IRubyField;
-import com.aptana.editor.ruby.core.IRubyMethod;
-import com.aptana.editor.ruby.core.IRubyType;
 import com.aptana.editor.ruby.parsing.RubyParser;
 import com.aptana.editor.ruby.parsing.ast.RubyElement;
 import com.aptana.parsing.ParseState;
 import com.aptana.parsing.ast.IParseNode;
+import com.aptana.ruby.core.IRubyElement;
+import com.aptana.ruby.core.IRubyField;
+import com.aptana.ruby.core.IRubyMethod;
+import com.aptana.ruby.core.IRubyType;
 
 public class RubyParserTest extends TestCase
 {
