@@ -21,8 +21,8 @@ import org.jrubyparser.ast.CommentNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.parser.ParserResult;
 
+import com.aptana.core.resources.TaskTag;
 import com.aptana.core.util.IOUtil;
-import com.aptana.editor.common.tasks.TaskTag;
 import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.editor.ruby.parsing.ISourceElementRequestor;
