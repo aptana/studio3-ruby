@@ -27,9 +27,9 @@ import com.aptana.editor.html.HTMLSourceConfiguration;
 import com.aptana.editor.html.HTMLSourceViewerConfiguration;
 import com.aptana.editor.html.IHTMLConstants;
 import com.aptana.editor.js.IJSConstants;
-import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.editor.ruby.RubySourceConfiguration;
 import com.aptana.editor.ruby.core.RubyDoubleClickStrategy;
+import com.aptana.ruby.core.IRubyConstants;
 
 /**
  * @author Max Stepanov

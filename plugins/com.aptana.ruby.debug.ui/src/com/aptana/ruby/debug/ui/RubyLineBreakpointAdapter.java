@@ -25,7 +25,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.aptana.editor.erb.IERBConstants;
-import com.aptana.editor.ruby.IRubyConstants;
+import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.debug.core.IRubyLineBreakpoint;
 import com.aptana.ruby.debug.core.RubyDebugModel;
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;

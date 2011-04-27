@@ -82,10 +82,10 @@ import com.aptana.editor.ruby.formatter.internal.nodes.FormatterUntilNode;
 import com.aptana.editor.ruby.formatter.internal.nodes.FormatterWhenElseNode;
 import com.aptana.editor.ruby.formatter.internal.nodes.FormatterWhenNode;
 import com.aptana.editor.ruby.formatter.internal.nodes.FormatterWhileNode;
-import com.aptana.editor.ruby.parsing.ast.AbstractVisitor;
 import com.aptana.formatter.IFormatterDocument;
 import com.aptana.formatter.nodes.IFormatterContainerNode;
 import com.aptana.formatter.nodes.IFormatterTextNode;
+import com.aptana.ruby.core.ast.AbstractVisitor;
 
 /**
  * This class builds the nodes by visiting the Ruby AST tree.

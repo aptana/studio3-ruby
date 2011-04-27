@@ -8,7 +8,15 @@ Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources,
  com.aptana.core,
- com.aptana.parsing
+ com.aptana.parsing,
+ org.jrubyparser,
+ com.aptana.index.core,
+ com.aptana.ruby.launching
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
-Export-Package: com.aptana.ruby.core
+Export-Package: com.aptana.ruby.core,
+ com.aptana.ruby.core.ast,
+ com.aptana.ruby.core.index,
+ com.aptana.ruby.internal.core.index;x-friends:="com.aptana.editor.erb",
+ com.aptana.ruby.internal.core;x-friends:="com.aptana.scripting"
+Eclipse-ExtensibleAPI: true

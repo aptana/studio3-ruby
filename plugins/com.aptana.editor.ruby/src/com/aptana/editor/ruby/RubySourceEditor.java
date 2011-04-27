@@ -33,6 +33,7 @@ import com.aptana.editor.ruby.outline.RubyOutlineLabelProvider;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.lexer.IRange;
 import com.aptana.ruby.core.IImportContainer;
+import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.IRubyElement;
 import com.aptana.ruby.core.IRubyField;
 import com.aptana.ruby.core.IRubyMethod;

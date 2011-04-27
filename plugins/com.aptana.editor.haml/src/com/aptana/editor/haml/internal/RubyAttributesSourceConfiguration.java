@@ -30,8 +30,8 @@ import com.aptana.editor.common.text.rules.SingleCharacterRule;
 import com.aptana.editor.common.text.rules.SubPartitionScanner;
 import com.aptana.editor.common.text.rules.ThemeingDamagerRepairer;
 import com.aptana.editor.haml.IHAMLConstants;
-import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.editor.ruby.RubyCodeScanner;
+import com.aptana.ruby.core.IRubyConstants;
 
 /**
  * @author Max Stepanov
