@@ -7,7 +7,6 @@
  */
 package com.aptana.editor.ruby.hyperlink;
 
-import java.net.URI;
 import java.text.MessageFormat;
 
 import org.eclipse.core.filesystem.EFS;
@@ -22,19 +21,18 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.aptana.editor.ruby.RubyEditorPlugin;
+import com.aptana.ruby.core.codeassist.ResolutionTarget;
 
-public class EditorLineHyperlink implements IHyperlink
+public class ResolutionTargetHyperlink implements IHyperlink
 {
 
 	private IRegion region;
-	private URI uri;
-	private IRegion destRegion;
+	private ResolutionTarget target;
 
-	public EditorLineHyperlink(IRegion region, URI uri, IRegion destRegion)
+	public ResolutionTargetHyperlink(IRegion region, ResolutionTarget target)
 	{
 		this.region = region;
-		this.uri = uri;
-		this.destRegion = destRegion;
+		this.target = target;
 	}
 
 	public IRegion getHyperlinkRegion()
@@ -50,7 +48,7 @@ public class EditorLineHyperlink implements IHyperlink
 	public String getHyperlinkText()
 	{
 		// Also include offset/line number as same file may be in more than one link
-		return MessageFormat.format("{0}, {1}", uri.toString(), destRegion.toString()); //$NON-NLS-1$
+		return MessageFormat.format("{0}, {1}", target.getURI().toString(), target.getRange().toString()); //$NON-NLS-1$
 	}
 
 	public void open()
@@ -58,7 +56,7 @@ public class EditorLineHyperlink implements IHyperlink
 		try
 		{
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-			IFileStore store = EFS.getStore(uri);
+			IFileStore store = EFS.getStore(target.getURI());
 			if (store == null)
 			{
 				return;
@@ -81,7 +79,7 @@ public class EditorLineHyperlink implements IHyperlink
 		}
 
 		ITextEditor textEditor = (ITextEditor) editorPart;
-		textEditor.selectAndReveal(destRegion.getOffset(), destRegion.getLength());
+		textEditor.selectAndReveal(target.getRange().getStartingOffset(), target.getRange().getLength());
 	}
 
 	@Override
@@ -89,8 +87,8 @@ public class EditorLineHyperlink implements IHyperlink
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((destRegion == null) ? 0 : destRegion.hashCode());
-		result = prime * result + ((uri == null) ? 0 : uri.hashCode());
+		result = prime * result + ((region == null) ? 0 : region.hashCode());
+		result = prime * result + ((target == null) ? 0 : target.hashCode());
 		return result;
 	}
 
@@ -109,29 +107,30 @@ public class EditorLineHyperlink implements IHyperlink
 		{
 			return false;
 		}
-		EditorLineHyperlink other = (EditorLineHyperlink) obj;
-		if (destRegion == null)
+		ResolutionTargetHyperlink other = (ResolutionTargetHyperlink) obj;
+		if (region == null)
 		{
-			if (other.destRegion != null)
+			if (other.region != null)
 			{
 				return false;
 			}
 		}
-		else if (!destRegion.equals(other.destRegion))
+		else if (!region.equals(other.region))
 		{
 			return false;
 		}
-		if (uri == null)
+		if (target == null)
 		{
-			if (other.uri != null)
+			if (other.target != null)
 			{
 				return false;
 			}
 		}
-		else if (!uri.equals(other.uri))
+		else if (!target.equals(other.target))
 		{
 			return false;
 		}
 		return true;
 	}
+
 }

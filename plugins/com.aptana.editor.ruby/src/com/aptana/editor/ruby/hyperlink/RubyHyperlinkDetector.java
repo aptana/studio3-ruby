@@ -14,7 +14,6 @@ import org.jrubyparser.ast.Node;
 
 import com.aptana.editor.common.text.hyperlink.IndexQueryingHyperlinkDetector;
 import com.aptana.editor.ruby.RubyEditorPlugin;
-import com.aptana.parsing.lexer.IRange;
 import com.aptana.ruby.core.RubyCorePlugin;
 import com.aptana.ruby.core.codeassist.CodeResolver;
 import com.aptana.ruby.core.codeassist.ResolutionTarget;
@@ -54,7 +53,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 			{
 				for (ResolutionTarget target : resolved)
 				{
-					hyperlinks.add(new EditorLineHyperlink(srcRegion, target.getUri(), toRegion(target.getRange())));
+					hyperlinks.add(new ResolutionTargetHyperlink(srcRegion, target));
 				}
 			}
 		}
@@ -76,10 +75,5 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		{
 			srcRegion = null;
 		}
-	}
-
-	private IRegion toRegion(IRange range)
-	{
-		return new Region(range.getStartingOffset(), range.getLength());
 	}
 }
