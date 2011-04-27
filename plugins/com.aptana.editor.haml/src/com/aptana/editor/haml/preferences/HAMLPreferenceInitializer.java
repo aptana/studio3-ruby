@@ -23,8 +23,10 @@ public class HAMLPreferenceInitializer extends AbstractPreferenceInitializer
 	{
 		IEclipsePreferences prefs = new DefaultScope().getNode(HAMLEditorPlugin.PLUGIN_ID);
 		// Force standard haml indent/spaces. 2 spaces for indent, not tabs, not 4 spaces.
-		prefs.putInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH, 2);
-		prefs.putBoolean(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS, true);
+		prefs.putInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH,
+				IHAMLPreferenceConstants.DEFAULT_HAML_TAB_WIDTH);
+		prefs.putBoolean(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS,
+				IHAMLPreferenceConstants.DEFAULT_HAML_SPACES_FOR_TABS);
 		prefs.putBoolean(IPreferenceConstants.EDITOR_AUTO_INDENT, true);
 	}
 

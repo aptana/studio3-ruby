@@ -7,10 +7,12 @@
  */
 package com.aptana.editor.ruby.preferences;
 
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Composite;
+
 import com.aptana.editor.common.preferences.CommonEditorPreferencePage;
 import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.editor.ruby.RubySourceEditor;
@@ -44,6 +46,24 @@ public class RubyPreferencePage extends CommonEditorPreferencePage
 	protected IPreferenceStore getChainedEditorPreferenceStore()
 	{
 		return RubySourceEditor.getChainedPreferenceStore();
+	}
+
+	@Override
+	protected IEclipsePreferences getDefaultPluginPreferenceStore()
+	{
+		return new DefaultScope().getNode(RubyEditorPlugin.PLUGIN_ID);
+	}
+
+	@Override
+	protected boolean getDefaultSpacesForTabs()
+	{
+		return IRubyPreferenceConstants.DEFAULT_RUBY_SPACES_FOR_TABS;
+	}
+
+	@Override
+	protected int getDefaultTabWidth()
+	{
+		return IRubyPreferenceConstants.DEFAULT_RUBY_TAB_WIDTH;
 	}
 
 }
