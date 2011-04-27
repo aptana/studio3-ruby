@@ -17,6 +17,7 @@ public class CoreTests
 	{
 		TestSuite suite = new TestSuite(CoreTests.class.getName());
 		// $JUnit-BEGIN$
+		suite.addTestSuite(com.aptana.ruby.core.tests.AllTests.class);
 		// $JUnit-END$
 		return suite;
 	}
