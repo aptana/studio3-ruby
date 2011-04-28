@@ -16,12 +16,12 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.ruby.core.codeassist.ResolutionTarget;
+import com.aptana.ui.util.UIUtils;
 
 public class ResolutionTargetHyperlink implements IHyperlink
 {
@@ -29,6 +29,7 @@ public class ResolutionTargetHyperlink implements IHyperlink
 	private IRegion region;
 	private ResolutionTarget target;
 
+	// TODO Can we combine this and URIHyperlink?
 	public ResolutionTargetHyperlink(IRegion region, ResolutionTarget target)
 	{
 		this.region = region;
@@ -55,7 +56,7 @@ public class ResolutionTargetHyperlink implements IHyperlink
 	{
 		try
 		{
-			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			IWorkbenchPage page = UIUtils.getActivePage();
 			IFileStore store = EFS.getStore(target.getURI());
 			if (store == null)
 			{
@@ -63,7 +64,7 @@ public class ResolutionTargetHyperlink implements IHyperlink
 			}
 
 			IEditorPart editor = IDE.openEditorOnFileStore(page, store);
-			setEditorToLine(editor);
+			setEditorToRange(editor);
 		}
 		catch (CoreException e)
 		{
@@ -71,7 +72,7 @@ public class ResolutionTargetHyperlink implements IHyperlink
 		}
 	}
 
-	private void setEditorToLine(IEditorPart editorPart) throws CoreException
+	private void setEditorToRange(IEditorPart editorPart) throws CoreException
 	{
 		if (!(editorPart instanceof ITextEditor))
 		{

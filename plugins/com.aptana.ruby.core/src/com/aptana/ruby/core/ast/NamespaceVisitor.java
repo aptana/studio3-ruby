@@ -4,9 +4,10 @@ import org.jrubyparser.ast.Colon3Node;
 import org.jrubyparser.ast.ModuleNode;
 import org.jrubyparser.ast.Node;
 
-
 public class NamespaceVisitor extends AbstractNodeLocator
 {
+
+	private static final String NAMESPACE_DELIMITER = "::"; //$NON-NLS-1$
 
 	private int offset;
 	private boolean done;
@@ -53,7 +54,7 @@ public class NamespaceVisitor extends AbstractNodeLocator
 		String type = null;
 		while ((type = popType()) != null)
 		{
-			builder.insert(0, type).insert(0, "::");
+			builder.insert(0, type).insert(0, NAMESPACE_DELIMITER);
 		}
 		if (builder.length() > 0)
 		{

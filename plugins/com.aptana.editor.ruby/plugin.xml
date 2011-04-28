@@ -92,8 +92,8 @@
       <hyperlinkDetector
             activate="true"
             class="com.aptana.editor.ruby.hyperlink.RubyHyperlinkDetector"
-            id="com.aptana.editor.ruby.hyperlinkDetector1"
-            name="name"
+            id="com.aptana.editor.ruby.hyperlinkDetector"
+            name="%ruby.hyperlinkDetector.name"
             targetId="com.aptana.ruby.ui.rubyCode">
       </hyperlinkDetector>
    </extension>
