@@ -28,6 +28,7 @@ public class RubyPreferenceInitializer extends AbstractPreferenceInitializer
 		prefs.putBoolean(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS,
 				IRubyPreferenceConstants.DEFAULT_RUBY_SPACES_FOR_TABS);
 		prefs.putBoolean(IPreferenceConstants.EDITOR_AUTO_INDENT, true);
+		prefs.putBoolean(IPreferenceConstants.EDITOR_ENABLE_FOLDING, true);
 	}
 
 }

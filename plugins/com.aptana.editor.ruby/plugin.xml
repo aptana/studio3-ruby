@@ -17,25 +17,6 @@
       </editor>
    </extension>
    <extension
-         point="com.aptana.index.core.fileIndexingParticipants">
-      <fileIndexingParticipant
-            class="com.aptana.editor.ruby.index.RubyFileIndexingParticipant">
-         <contentTypeBinding
-               contentTypeId="com.aptana.contenttype.ruby">
-         </contentTypeBinding>
-         <contentTypeBinding
-               contentTypeId="com.aptana.contenttype.ruby.ambiguous">
-         </contentTypeBinding>
-      </fileIndexingParticipant>
-   </extension>
-   <extension
-         point="com.aptana.parsing.parser">
-      <parser
-            class="com.aptana.editor.ruby.parsing.RubyParser"
-            content-type="com.aptana.contenttype.ruby">
-      </parser>
-   </extension>
-   <extension
          point="org.eclipse.ui.editors.markerAnnotationSpecification">
       <specification
             annotationType="com.aptana.ruby.blockPair.occurrences"
@@ -97,6 +78,24 @@
       <initializer
             class="com.aptana.editor.ruby.preferences.RubyPreferenceInitializer">
       </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
+      <target
+            id="com.aptana.ruby.ui.rubyCode"
+            name="%RubyEditorHyperlinkTarget">
+            <context type="org.eclipse.ui.texteditor.ITextEditor"/>
+      </target>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            activate="true"
+            class="com.aptana.editor.ruby.hyperlink.RubyHyperlinkDetector"
+            id="com.aptana.editor.ruby.hyperlinkDetector"
+            name="%ruby.hyperlinkDetector.name"
+            targetId="com.aptana.ruby.ui.rubyCode">
+      </hyperlinkDetector>
    </extension>
 
 </plugin>

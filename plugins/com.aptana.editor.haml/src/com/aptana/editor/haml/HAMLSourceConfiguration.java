@@ -40,8 +40,8 @@ import com.aptana.editor.haml.internal.text.rules.HAMLElementRule;
 import com.aptana.editor.haml.internal.text.rules.HAMLEscapeRule;
 import com.aptana.editor.haml.internal.text.rules.HAMLSingleLineRule;
 import com.aptana.editor.haml.internal.text.rules.RubyEvaluationElementRule;
-import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.editor.ruby.RubySourceConfiguration;
+import com.aptana.ruby.core.IRubyConstants;
 
 /**
  * @author Max Stepanov

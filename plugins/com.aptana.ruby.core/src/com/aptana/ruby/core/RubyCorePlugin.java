@@ -7,8 +7,15 @@
  */
 package com.aptana.ruby.core;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.osgi.framework.BundleContext;
+
+import com.aptana.ruby.core.codeassist.CodeResolver;
+import com.aptana.ruby.internal.core.codeassist.RubyCodeResolver;
+import com.aptana.ruby.internal.core.index.CoreStubber;
 
 public class RubyCorePlugin extends Plugin
 {
@@ -18,6 +25,8 @@ public class RubyCorePlugin extends Plugin
 
 	// The shared instance
 	private static RubyCorePlugin plugin;
+
+	private RubyCodeResolver fCodeResolver;
 
 	/**
 	 * The constructor
@@ -34,6 +43,9 @@ public class RubyCorePlugin extends Plugin
 	{
 		super.start(context);
 		plugin = this;
+		// Schedule a job to stub out core library for ruby, then index it
+		Job job = new CoreStubber();
+		job.schedule();
 	}
 
 	/*
@@ -42,6 +54,7 @@ public class RubyCorePlugin extends Plugin
 	 */
 	public void stop(BundleContext context) throws Exception
 	{
+		fCodeResolver = null;
 		plugin = null;
 		super.stop(context);
 	}
@@ -54,6 +67,25 @@ public class RubyCorePlugin extends Plugin
 	public static RubyCorePlugin getDefault()
 	{
 		return plugin;
+	}
+
+	public static void log(Throwable e)
+	{
+		log(new Status(IStatus.ERROR, PLUGIN_ID, null, e));
+	}
+
+	public static void log(IStatus status)
+	{
+		getDefault().getLog().log(status);
+	}
+
+	public synchronized CodeResolver getCodeResolver()
+	{
+		if (fCodeResolver == null)
+		{
+			fCodeResolver = new RubyCodeResolver();
+		}
+		return fCodeResolver;
 	}
 
 }

@@ -149,6 +149,10 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 			}
 			return true;
 		}
+		catch (Throwable t)
+		{
+			// ignore whatever odd exceptions that may get thrown here.
+		}
 		return false;
 	}
 

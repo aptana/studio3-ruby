@@ -28,6 +28,7 @@ public class HAMLPreferenceInitializer extends AbstractPreferenceInitializer
 		prefs.putBoolean(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS,
 				IHAMLPreferenceConstants.DEFAULT_HAML_SPACES_FOR_TABS);
 		prefs.putBoolean(IPreferenceConstants.EDITOR_AUTO_INDENT, true);
+		prefs.putBoolean(com.aptana.editor.common.preferences.IPreferenceConstants.EDITOR_ENABLE_FOLDING, true);
 	}
 
 }
