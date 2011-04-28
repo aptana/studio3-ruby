@@ -51,6 +51,21 @@ public abstract class RubyElement extends ParseNode implements IRubyElement
 		return list.toArray(new IRubyElement[list.size()]);
 	}
 
+	public List<IRubyElement> getChildrenOfTypeRecursive(int type)
+	{
+		List<IRubyElement> list = new ArrayList<IRubyElement>();
+		IParseNode[] children = getChildren();
+		for (IParseNode child : children)
+		{
+			if (child.getNodeType() == type)
+			{
+				list.add((IRubyElement) child);
+			}
+			list.addAll(((RubyElement) child).getChildrenOfTypeRecursive(type));
+		}
+		return list;
+	}
+
 	public int getOccurrenceCount()
 	{
 		return occurrenceCount;

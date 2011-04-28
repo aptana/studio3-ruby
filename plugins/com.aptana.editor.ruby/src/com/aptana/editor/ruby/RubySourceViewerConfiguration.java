@@ -7,6 +7,8 @@
  */
 package com.aptana.editor.ruby;
 
+import java.util.Map;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
@@ -98,5 +100,14 @@ public class RubySourceViewerConfiguration extends SimpleSourceViewerConfigurati
 	protected IContentAssistProcessor getContentAssistProcessor(ISourceViewer sourceViewer, String contentType)
 	{
 		return new RubyContentAssistProcessor(getEditor());
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	protected Map getHyperlinkDetectorTargets(ISourceViewer sourceViewer)
+	{
+		Map targets = super.getHyperlinkDetectorTargets(sourceViewer);
+		targets.put("com.aptana.ruby.ui.rubyCode", getEditor()); //$NON-NLS-1$
+		return targets;
 	}
 }

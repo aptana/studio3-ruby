@@ -54,7 +54,6 @@ import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.RubyCorePlugin;
 import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
-// TODO Move this to com.aptana.ruby.core plugin!
 public class CoreStubber extends Job
 {
 
@@ -120,7 +119,7 @@ public class CoreStubber extends Job
 									if (delta.getKind() == IResourceDelta.ADDED
 											|| (delta.getKind() == IResourceDelta.CHANGED
 													&& (delta.getFlags() & IResourceDelta.OPEN) != 0 && resource
-													.isAccessible()))
+														.isAccessible()))
 									{
 										// Check if project contains ruby files!
 										IProject project = resource.getProject();
@@ -435,9 +434,7 @@ public class CoreStubber extends Job
 				ShellExecutable.getEnvironment(), stubberScript.getAbsolutePath(), outputDir.getAbsolutePath());
 		if (stubberResult == null || !stubberResult.isOK())
 		{
-			RubyCorePlugin
-					.getDefault()
-					.getLog()
+			RubyCorePlugin.getDefault().getLog()
 					.log(new Status(IStatus.ERROR, RubyCorePlugin.PLUGIN_ID, (stubberResult == null) ? "" //$NON-NLS-1$
 							: stubberResult.getMessage(), null));
 		}
