@@ -64,5 +64,5 @@ public class SassPreferencePage extends CommonEditorPreferencePage
 	{
 		return ISASSPreferenceConstants.DEFAULT_SASS_TAB_WIDTH;
 	}
-	
+
 }
