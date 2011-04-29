@@ -1,12 +1,14 @@
 package com.aptana.editor.sass;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 
 public class SassFoldingComputerTest extends TestCase
 {
@@ -25,17 +27,13 @@ public class SassFoldingComputerTest extends TestCase
 			"  margin: $margin / 2\n" +
 			"  border-color: $blue");
 		SassFoldingComputer sfc = new SassFoldingComputer(document);
-		List<Position> positions = sfc.emitFoldingRegions(null);
+		Map<ProjectionAnnotation, Position> annotations = sfc.emitFoldingRegions(false, null);
+		assertNotNull(annotations);
 
-		assertNotNull(positions);
+		Collection<Position> positions = annotations.values();
 		assertEquals(2, positions.size());
 
-		Position p = positions.get(0);
-		assertEquals(29, p.getOffset());
-		assertEquals(69, p.getLength());
-
-		p = positions.get(1);
-		assertEquals(99, p.getOffset());
-		assertEquals(74, p.getLength());
+		assertTrue(positions.contains(new Position(29, 69)));
+		assertTrue(positions.contains(new Position(99, 74)));
 	}
 }
