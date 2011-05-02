@@ -7,7 +7,6 @@
  */
 package com.aptana.ruby.internal.core.codeassist;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -228,23 +227,15 @@ public class RubyCodeResolver extends CodeResolver
 	 */
 	private Collection<ResolutionTarget> findConstant(String constantName)
 	{
-		try
+		Index index = getIndex();
+		if (index == null)
 		{
-			Index index = getIndex();
-			if (index == null)
-			{
-				return Collections.emptyList();
-			}
-			// TODO Search AST in current file first?
-			List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.CONSTANT_DECL }, constantName,
-					SearchPattern.EXACT_MATCH | SearchPattern.CASE_SENSITIVE);
-			return getMatchingElementHyperlinks(results, constantName, IRubyElement.CONSTANT);
+			return Collections.emptyList();
 		}
-		catch (IOException e)
-		{
-			RubyCorePlugin.log(e);
-		}
-		return Collections.emptyList();
+		// TODO Search AST in current file first?
+		List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.CONSTANT_DECL }, constantName,
+				SearchPattern.EXACT_MATCH | SearchPattern.CASE_SENSITIVE);
+		return getMatchingElementHyperlinks(results, constantName, IRubyElement.CONSTANT);
 	}
 
 	/**
@@ -332,23 +323,16 @@ public class RubyCodeResolver extends CodeResolver
 	{
 		// TODO Handle narrowing by type...
 		List<ResolutionTarget> links = new ArrayList<ResolutionTarget>();
-		try
+		// Search all indices
+		for (Index index : getAllIndices())
 		{
-			// Search all indices
-			for (Index index : getAllIndices())
+			if (index == null)
 			{
-				if (index == null)
-				{
-					continue;
-				}
-				List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.METHOD_DECL }, methodName
-						+ IRubyIndexConstants.SEPARATOR, SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
-				links.addAll(getMatchingElementHyperlinks(results, methodName, IRubyElement.METHOD));
+				continue;
 			}
-		}
-		catch (IOException e)
-		{
-			RubyCorePlugin.log(e);
+			List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.METHOD_DECL }, methodName
+					+ IRubyIndexConstants.SEPARATOR, SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
+			links.addAll(getMatchingElementHyperlinks(results, methodName, IRubyElement.METHOD));
 		}
 		return links;
 	}
@@ -364,27 +348,20 @@ public class RubyCodeResolver extends CodeResolver
 			typeName = typeName.substring(separatorIndex + 2);
 		}
 		List<ResolutionTarget> links = new ArrayList<ResolutionTarget>();
-		try
+		// Search all indices
+		for (Index index : getAllIndices())
 		{
-			// Search all indices
-			for (Index index : getAllIndices())
+			if (index == null)
 			{
-				if (index == null)
-				{
-					continue;
-				}
-				List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.TYPE_DECL }, typeName
-						+ IRubyIndexConstants.SEPARATOR + namespace + IRubyIndexConstants.SEPARATOR,
-						SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
-				// TODO Exit early if we find matches?
-				// FIXME Sort by a priority. We should prefer filenames that match the type name, parent folders
-				// matching parent namespaces.
-				links.addAll(getMatchingElementHyperlinks(results, typeName, IRubyElement.TYPE));
+				continue;
 			}
-		}
-		catch (IOException e)
-		{
-			RubyCorePlugin.log(e);
+			List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.TYPE_DECL }, typeName
+					+ IRubyIndexConstants.SEPARATOR + namespace + IRubyIndexConstants.SEPARATOR,
+					SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
+			// TODO Exit early if we find matches?
+			// FIXME Sort by a priority. We should prefer filenames that match the type name, parent folders
+			// matching parent namespaces.
+			links.addAll(getMatchingElementHyperlinks(results, typeName, IRubyElement.TYPE));
 		}
 		return links;
 	}
