@@ -28,6 +28,8 @@ import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.outline.CommonOutlineItem;
 import com.aptana.editor.common.outline.CommonOutlinePage;
+import com.aptana.editor.common.text.reconciler.IFoldingComputer;
+import com.aptana.editor.ruby.internal.text.RubyFoldingComputer;
 import com.aptana.editor.ruby.outline.RubyOutlineContentProvider;
 import com.aptana.editor.ruby.outline.RubyOutlineLabelProvider;
 import com.aptana.parsing.ast.IParseNode;
@@ -252,5 +254,11 @@ public class RubySourceEditor extends AbstractThemeableEditor
 			// no new pair, so don't highlight anything
 			fTagPairOccurrences = null;
 		}
+	}
+
+	@Override
+	public IFoldingComputer createFoldingComputer(IDocument document)
+	{
+		return new RubyFoldingComputer(this, document);
 	}
 }

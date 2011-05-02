@@ -12,7 +12,15 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS
 {
 	private static final String BUNDLE_NAME = "com.aptana.editor.ruby.preferences.messages"; //$NON-NLS-1$
+
 	public static String RubyPreferencePage_Ruby_Page_Title;
+	public static String RubyPreferencePage_initial_fold_options_label;
+	public static String RubyPreferencePage_fold_comments_label;
+	public static String RubyPreferencePage_fold_methods_label;
+	public static String RubyPreferencePage_fold_inner_types_label;
+	public static String RubyPreferencePage_fold_blocks_label;
+	public static String RubyPreferencePage_fold_requires_label;
+
 	static
 	{
 		// initialize resource bundle

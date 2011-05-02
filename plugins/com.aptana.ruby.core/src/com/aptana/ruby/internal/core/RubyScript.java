@@ -7,6 +7,8 @@
  */
 package com.aptana.ruby.internal.core;
 
+import java.util.List;
+
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.ruby.core.IImportContainer;
 import com.aptana.ruby.core.IRubyElement;
@@ -16,6 +18,7 @@ public class RubyScript extends RubyElement implements IRubyScript
 {
 
 	private RubyImportContainer fImportContainer;
+	private List<IParseNode> commentNodes;
 
 	public RubyScript(int start, int end)
 	{
@@ -40,6 +43,15 @@ public class RubyScript extends RubyElement implements IRubyScript
 
 	public IParseNode[] getCommentNodes()
 	{
-		return new IParseNode[0];
+		if (commentNodes == null || commentNodes.isEmpty())
+		{
+			return new IParseNode[0];
+		}
+		return commentNodes.toArray(new IParseNode[commentNodes.size()]);
+	}
+
+	public void setCommentNodes(List<IParseNode> commentParseNodes)
+	{
+		this.commentNodes = commentParseNodes;
 	}
 }

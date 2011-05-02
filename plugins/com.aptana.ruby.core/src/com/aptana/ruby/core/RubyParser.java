@@ -7,12 +7,19 @@
  */
 package com.aptana.ruby.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jrubyparser.CompatVersion;
+import org.jrubyparser.ast.CommentNode;
+import org.jrubyparser.parser.ParserResult;
 
 import com.aptana.parsing.IParseState;
 import com.aptana.parsing.IParser;
+import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.IParseRootNode;
 import com.aptana.ruby.core.ast.SourceElementVisitor;
+import com.aptana.ruby.internal.core.RubyComment;
 import com.aptana.ruby.internal.core.RubyScript;
 
 public class RubyParser implements IParser
@@ -36,7 +43,14 @@ public class RubyParser implements IParser
 		{
 			compatVersion = ((RubyParseState) parseState).getCompatVersion();
 		}
-		visitor.acceptNode(getSourceParser(compatVersion).parse(source).getAST());
+		ParserResult result = getSourceParser(compatVersion).parse(source);
+		visitor.acceptNode(result.getAST());
+		List<IParseNode> commentParseNodes = new ArrayList<IParseNode>();
+		for (CommentNode commentNode : result.getCommentNodes())
+		{
+			commentParseNodes.add(new RubyComment(commentNode));
+		}
+		root.setCommentNodes(commentParseNodes);
 		parseState.setParseResult(root);
 
 		return root;
