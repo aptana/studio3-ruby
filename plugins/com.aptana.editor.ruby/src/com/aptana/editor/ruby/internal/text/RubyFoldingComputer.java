@@ -29,7 +29,7 @@ public class RubyFoldingComputer extends AbstractFoldingComputer
 	}
 
 	@Override
-	protected boolean isFoldable(IParseNode child)
+	public boolean isFoldable(IParseNode child)
 	{
 		// FIXME There doesn't seem to be a way to fold multiline if/unless/case/begin/rescue/end
 		return (child instanceof IRubyType) || (child instanceof IRubyMethod) || (child instanceof IRubyComment)
@@ -37,7 +37,7 @@ public class RubyFoldingComputer extends AbstractFoldingComputer
 	}
 
 	@Override
-	protected boolean isCollapsed(IParseNode child)
+	public boolean isCollapsed(IParseNode child)
 	{
 		if (child instanceof IRubyMethod)
 		{
