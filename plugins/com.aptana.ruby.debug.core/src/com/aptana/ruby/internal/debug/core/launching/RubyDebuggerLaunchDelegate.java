@@ -14,6 +14,7 @@ package com.aptana.ruby.internal.debug.core.launching;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +25,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -219,6 +221,19 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 			}
 		}
 
+		URL url = FileLocator.find(RubyLaunchingPlugin.getDefault().getBundle(),
+				Path.fromPortableString("ruby/sync.rb"), null); //$NON-NLS-1$
+		try
+		{
+			url = FileLocator.toFileURL(url);
+			File file = new File(url.toURI());
+			arguments.add(MessageFormat.format("-I \"{0}\"", file.getParent())); //$NON-NLS-1$
+			arguments.add("-rsync"); //$NON-NLS-1$
+		}
+		catch (Exception e)
+		{
+			RubyLaunchingPlugin.log(e);
+		}
 		arguments.add(END_OF_ARGUMENTS_DELIMETER);
 		return arguments;
 	}
