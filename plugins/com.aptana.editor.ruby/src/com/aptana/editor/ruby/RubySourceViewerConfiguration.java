@@ -12,7 +12,6 @@ import java.util.Map;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
-import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 
@@ -94,12 +93,6 @@ public class RubySourceViewerConfiguration extends SimpleSourceViewerConfigurati
 	public ISourceViewerConfiguration getSourceViewerConfiguration()
 	{
 		return RubySourceConfiguration.getDefault();
-	}
-
-	@Override
-	protected IContentAssistProcessor getContentAssistProcessor(ISourceViewer sourceViewer, String contentType)
-	{
-		return new RubyContentAssistProcessor(getEditor());
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

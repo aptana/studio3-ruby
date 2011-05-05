@@ -24,7 +24,6 @@ import com.aptana.editor.css.ICSSConstants;
 import com.aptana.editor.erb.ERBPartitionerSwitchStrategy;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.html.HTMLSourceConfiguration;
-import com.aptana.editor.html.HTMLSourceViewerConfiguration;
 import com.aptana.editor.html.IHTMLConstants;
 import com.aptana.editor.js.IJSConstants;
 import com.aptana.editor.ruby.RubySourceConfiguration;
@@ -109,7 +108,6 @@ public class RHTMLSourceViewerConfiguration extends CompositeSourceViewerConfigu
 	{
 		// Just uses the HTML content assist processor for now
 		// TODO: needs to check for ruby content type when the content assist is available there
-		AbstractThemeableEditor editor = getEditor();
-		return HTMLSourceViewerConfiguration.getContentAssistProcessor(contentType, editor);
+		return HTMLSourceConfiguration.getDefault().getContentAssistProcessor(getEditor(), contentType);
 	}
 }
