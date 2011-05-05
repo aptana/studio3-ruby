@@ -71,6 +71,10 @@ public class ResolveContext
 
 	public List<ResolutionTarget> getResolved()
 	{
+		if (resolved == null || resolved.isEmpty())
+		{
+			return Collections.emptyList();
+		}
 		// TODO Sort/prioritize these based on their location? confidence level?
 		return Collections.unmodifiableList(resolved);
 	}
