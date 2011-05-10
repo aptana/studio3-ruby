@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.jrubyparser.ISourcePositionHolder;
 import org.jrubyparser.SourcePosition;
@@ -99,6 +100,7 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 
 	private IFormatterDocument document;
 	private RubyFormatterNodeBuilder builder;
+	private static final Pattern LINE_SPLIT_PATTERN = Pattern.compile("\r?\n|\r"); //$NON-NLS-1$
 
 	protected RubyFormatterNodeBuilderVisitor(IFormatterDocument document, RubyFormatterNodeBuilder builder)
 	{
@@ -1035,7 +1037,7 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		// We split on new-lines, and in case the split result is giving us a String array of one element, we know that
 		// all the rest of the lines in that text were new-lines terminators.
 		String text = document.get(position.getStartOffset(), position.getEndOffset());
-		String[] linesSplit = text.split("\r?\n|\r"); //$NON-NLS-1$
+		String[] linesSplit = LINE_SPLIT_PATTERN.split(text);
 		if (linesSplit.length == 1)
 		{
 			return true;
