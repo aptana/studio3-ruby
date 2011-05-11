@@ -11,6 +11,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.navigator.CommonNavigator;
@@ -23,13 +24,18 @@ abstract class AbstractRailsHandler extends AbstractHandler
 	protected IProject getProject(ExecutionEvent event)
 	{
 		IResource resource = null;
-		IEditorPart part = HandlerUtil.getActiveEditor(event);
-		if (part != null)
+
+		IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
+		if (activePart instanceof IEditorPart)
 		{
-			IEditorInput editorInput = part.getEditorInput();
-			if (editorInput != null)
+			IEditorPart part = HandlerUtil.getActiveEditor(event);
+			if (part != null)
 			{
-				resource = (IResource) editorInput.getAdapter(IResource.class);
+				IEditorInput editorInput = part.getEditorInput();
+				if (editorInput != null)
+				{
+					resource = (IResource) editorInput.getAdapter(IResource.class);
+				}
 			}
 		}
 		if (resource == null)

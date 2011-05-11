@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.jrubyparser.ISourcePositionHolder;
 import org.jrubyparser.SourcePosition;
@@ -25,6 +26,7 @@ import org.jrubyparser.ast.BeginNode;
 import org.jrubyparser.ast.CaseNode;
 import org.jrubyparser.ast.ClassNode;
 import org.jrubyparser.ast.Colon3Node;
+import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.DRegexpNode;
 import org.jrubyparser.ast.DStrNode;
 import org.jrubyparser.ast.DefnNode;
@@ -42,8 +44,10 @@ import org.jrubyparser.ast.MatchNode;
 import org.jrubyparser.ast.MethodDefNode;
 import org.jrubyparser.ast.ModuleNode;
 import org.jrubyparser.ast.NilImplicitNode;
+import org.jrubyparser.ast.NilNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.ast.NodeType;
+import org.jrubyparser.ast.OptArgNode;
 import org.jrubyparser.ast.PostExeNode;
 import org.jrubyparser.ast.PreExeNode;
 import org.jrubyparser.ast.RegexpNode;
@@ -52,6 +56,7 @@ import org.jrubyparser.ast.RescueNode;
 import org.jrubyparser.ast.ReturnNode;
 import org.jrubyparser.ast.SClassNode;
 import org.jrubyparser.ast.StrNode;
+import org.jrubyparser.ast.SymbolNode;
 import org.jrubyparser.ast.UntilNode;
 import org.jrubyparser.ast.VCallNode;
 import org.jrubyparser.ast.WhenNode;
@@ -95,6 +100,7 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 
 	private IFormatterDocument document;
 	private RubyFormatterNodeBuilder builder;
+	private static final Pattern LINE_SPLIT_PATTERN = Pattern.compile("\r?\n|\r"); //$NON-NLS-1$
 
 	protected RubyFormatterNodeBuilderVisitor(IFormatterDocument document, RubyFormatterNodeBuilder builder)
 	{
@@ -114,10 +120,11 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		FormatterClassNode classNode = new FormatterClassNode(document);
 		SourcePosition position = visited.getPosition();
 		classNode.setBegin(builder.createTextNode(document, position.getStartOffset(), visited.getCPath().getPosition()
-				.getEndOffset()));
+				.getStartOffset()));
 		builder.push(classNode);
-		visitChildren(visited);
+		// visitChildren(visited);
 		Node bodyNode = visited.getBodyNode();
+		bodyNode.accept(this);
 		int bodyEndOffset;
 		if (NodeType.NILNODE.equals(bodyNode.getNodeType()))
 		{
@@ -141,7 +148,16 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		builder.push(classNode);
 		visitChildren(visited);
 		Node bodyNode = visited.getBodyNode();
-		int bodyEndOffset = bodyNode.getPosition().getEndOffset();
+		Node receiverNode = visited.getReceiverNode();
+		int bodyEndOffset = position.getEndOffset();
+		if (bodyNode != null)
+		{
+			bodyEndOffset = bodyNode.getPosition().getEndOffset();
+		}
+		else if (receiverNode != null)
+		{
+			bodyEndOffset = receiverNode.getPosition().getEndOffset();
+		}
 		builder.checkedPop(classNode, bodyEndOffset);
 		classNode.setEnd(builder.createTextNode(document, bodyEndOffset, position.getEndOffset()));
 		return null;
@@ -273,14 +289,41 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	{
 		FormatterForNode forNode = new FormatterForNode(document);
 		Node bodyNode = visited.getBodyNode();
-		forNode.setBegin(builder.createTextNode(document, visited.getPosition().getStartOffset(), bodyNode
-				.getPosition().getStartOffset() - 1));
-		builder.push(forNode);
-		visitChildren(visited);
+		Node iterNode = visited.getIterNode();
+		int bodyStart = -1;
+		int bodyEnd = -1;
 		SourcePosition position = visited.getPosition();
-		int bodyEndOffset = bodyNode.getPosition().getEndOffset();
-		builder.checkedPop(forNode, bodyEndOffset);
-		forNode.setEnd(builder.createTextNode(document, bodyEndOffset, position.getEndOffset()));
+		if (iterNode != null)
+		{
+			bodyStart = iterNode.getPosition().getEndOffset();
+		}
+		if (bodyNode != null)
+		{
+			if (bodyStart < 0)
+			{
+				bodyStart = locateEndOffset(document, position.getEndOffset());
+			}
+			bodyEnd = bodyNode.getPosition().getEndOffset() - 1;
+		}
+		else
+		{
+			if (bodyStart < 0)
+			{
+				bodyStart = locateEndOffset(document, position.getEndOffset());
+			}
+			if (bodyEnd < 0)
+			{
+				bodyEnd = bodyStart;
+			}
+		}
+		forNode.setBegin(builder.createTextNode(document, position.getStartOffset(), bodyStart));
+		builder.push(forNode);
+		if (bodyNode != null)
+		{
+			bodyNode.accept(this);
+		}
+		builder.checkedPop(forNode, bodyEnd);
+		forNode.setEnd(builder.createTextNode(document, bodyEnd, position.getEndOffset()));
 		return null;
 	}
 
@@ -666,30 +709,44 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		return null;
 	}
 
+	public Object visitNilNode(NilNode visited)
+	{
+		pushTextNode(visited.getPosition());
+		return null;
+	}
+
+	public Object visitConstNode(ConstNode visited)
+	{
+		pushTextNode(visited.getPosition());
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.ruby.core.ast.AbstractVisitor#visitSymbolNode(org.jrubyparser.ast.SymbolNode)
+	 */
+	@Override
+	public Object visitSymbolNode(SymbolNode visited)
+	{
+		pushTextNode(visited.getPosition());
+		return null;
+	}
+
 	public Object visitStrNode(StrNode visited)
 	{
-		SourcePosition position = visited.getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
-				position.getEndOffset());
-		builder.addChild(strNode);
+		pushTextNode(visited.getPosition());
 		return null;
 	}
 
 	public Object visitVCallNode(VCallNode visited)
 	{
-		SourcePosition position = visited.getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
-				position.getEndOffset());
-		builder.addChild(strNode);
+		pushTextNode(visited.getPosition());
 		return null;
 	}
 
 	public Object visitDStrNode(DStrNode visited)
 	{
-		SourcePosition position = visited.getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
-				position.getEndOffset());
-		builder.addChild(strNode);
+		pushTextNode(visited.getPosition());
 		return null;
 	}
 
@@ -697,10 +754,7 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	{
 		SourcePosition position = visited.getPosition();
 		SourcePosition receiverPosition = visited.getReceiverNode().getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
-				receiverPosition.getEndOffset());
-
-		builder.addChild(strNode);
+		pushTextNode(position.getStartOffset(), receiverPosition.getEndOffset());
 		return null;
 	}
 
@@ -708,10 +762,7 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	{
 		SourcePosition position = visited.getPosition();
 		SourcePosition receiverPosition = visited.getReceiverNode().getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
-				receiverPosition.getEndOffset());
-
-		builder.addChild(strNode);
+		pushTextNode(position.getStartOffset(), receiverPosition.getEndOffset());
 		return null;
 	}
 
@@ -719,37 +770,25 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	{
 		SourcePosition position = visited.getPosition();
 		SourcePosition receiverPosition = visited.getRegexpNode().getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
-				receiverPosition.getEndOffset());
-
-		builder.addChild(strNode);
+		pushTextNode(position.getStartOffset(), receiverPosition.getEndOffset());
 		return null;
 	}
 
 	public Object visitRegexpNode(RegexpNode visited)
 	{
-		SourcePosition position = visited.getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
-				position.getEndOffset());
-		builder.addChild(strNode);
+		pushTextNode(visited.getPosition());
 		return null;
 	}
 
 	public Object visitDRegxNode(DRegexpNode visited)
 	{
-		SourcePosition position = visited.getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
-				position.getEndOffset());
-		builder.addChild(strNode);
+		pushTextNode(visited.getPosition());
 		return null;
 	}
 
 	public Object visitXStrNode(XStrNode visited)
 	{
-		SourcePosition position = visited.getPosition();
-		FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
-				position.getEndOffset());
-		builder.addChild(strNode);
+		pushTextNode(visited.getPosition());
 		return null;
 	}
 
@@ -766,17 +805,12 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		{
 			// it's a block iteration node
 			int iterStart = visited.getIterNode().getPosition().getStartOffset();
-			FormatterStringNode strNode = new FormatterStringNode(document, visited.getPosition().getStartOffset(),
-					iterStart);
-			builder.addChild(strNode);
+			pushTextNode(visited.getPosition().getStartOffset(), iterStart);
 			visitChild(visited.getIterNode());
 		}
 		else
 		{
-			SourcePosition position = visited.getPosition();
-			FormatterStringNode strNode = new FormatterStringNode(document, position.getStartOffset(),
-					position.getEndOffset());
-			builder.addChild(strNode);
+			pushTextNode(visited.getPosition());
 		}
 		return null;
 	}
@@ -836,6 +870,16 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.ruby.core.ast.AbstractVisitor#visitOptArgNode(org.jrubyparser.ast.OptArgNode)
+	 */
+	@Override
+	public Object visitOptArgNode(OptArgNode visited)
+	{
+		return super.visitOptArgNode(visited);
+	}
+
 	private boolean isRequireMethod(FCallNode call)
 	{
 		if ("require".equals(call.getName())) //$NON-NLS-1$
@@ -869,7 +913,17 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	{
 		if (child != null && isVisitable(child))
 		{
-			child.accept(this);
+			try
+			{
+				child.accept(this);
+			}
+			catch (UnsupportedOperationException e)
+			{
+				if (child instanceof OptArgNode)
+				{
+					visitOptArgNode((OptArgNode) child);
+				}
+			}
 		}
 	}
 
@@ -946,6 +1000,28 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	}
 
 	/**
+	 * Push a FormatterStringNode for the given position.
+	 * 
+	 * @param position
+	 */
+	private void pushTextNode(SourcePosition position)
+	{
+		pushTextNode(position.getStartOffset(), position.getEndOffset());
+	}
+
+	/**
+	 * Push a FormatterStringNode for the given start and end offsets.
+	 * 
+	 * @param startOffset
+	 * @param endOffset
+	 */
+	private void pushTextNode(int startOffset, int endOffset)
+	{
+		FormatterStringNode strNode = new FormatterStringNode(document, startOffset, endOffset);
+		builder.addChild(strNode);
+	}
+
+	/**
 	 * Returns true if the given position start and end lines are equal, or if the end-line was pushed only because
 	 * new-lines and white spaces appear in the code.
 	 * 
@@ -961,10 +1037,22 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		// We split on new-lines, and in case the split result is giving us a String array of one element, we know that
 		// all the rest of the lines in that text were new-lines terminators.
 		String text = document.get(position.getStartOffset(), position.getEndOffset());
-		String[] linesSplit = text.split("\r?\n|\r"); //$NON-NLS-1$
+		String[] linesSplit = LINE_SPLIT_PATTERN.split(text);
 		if (linesSplit.length == 1)
 		{
 			return true;
+		}
+		else if (linesSplit.length > 1)
+		{
+			int start = (linesSplit[0].trim().length() == 0) ? 0 : 1;
+			int end = (linesSplit[linesSplit.length - 1].trim().length() == 0) ? linesSplit.length
+					: linesSplit.length - 1;
+			boolean allWhiteSpace = true;
+			for (int i = start; i < end && allWhiteSpace; i++)
+			{
+				allWhiteSpace &= linesSplit[i].trim().length() == 0;
+			}
+			return allWhiteSpace;
 		}
 		return false;
 	}
