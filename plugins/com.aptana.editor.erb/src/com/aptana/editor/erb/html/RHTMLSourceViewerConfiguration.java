@@ -9,6 +9,7 @@
 package com.aptana.editor.erb.html;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -19,8 +20,10 @@ import com.aptana.editor.common.CompositeSourceViewerConfiguration;
 import com.aptana.editor.common.IPartitionerSwitchStrategy;
 import com.aptana.editor.common.scripting.IContentTypeTranslator;
 import com.aptana.editor.common.scripting.QualifiedContentType;
+import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
 import com.aptana.editor.common.text.rules.CompositePartitionScanner;
 import com.aptana.editor.css.ICSSConstants;
+import com.aptana.editor.erb.Activator;
 import com.aptana.editor.erb.ERBPartitionerSwitchStrategy;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.html.HTMLSourceConfiguration;
@@ -92,7 +95,7 @@ public class RHTMLSourceViewerConfiguration extends CompositeSourceViewerConfigu
 	{
 		return "punctuation.section.embedded.ruby"; //$NON-NLS-1$
 	}
-	
+
 	@Override
 	public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType)
 	{
@@ -110,4 +113,12 @@ public class RHTMLSourceViewerConfiguration extends CompositeSourceViewerConfigu
 		// TODO: needs to check for ruby content type when the content assist is available there
 		return HTMLSourceConfiguration.getDefault().getContentAssistProcessor(getEditor(), contentType);
 	}
+
+	@Override
+	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType)
+	{
+		return new IAutoEditStrategy[] { new RubyRegexpAutoIndentStrategy(contentType, this, sourceViewer, Activator
+				.getDefault().getPreferenceStore()) };
+	}
+
 }
