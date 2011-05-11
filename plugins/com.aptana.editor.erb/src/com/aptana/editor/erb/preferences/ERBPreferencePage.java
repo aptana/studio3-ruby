@@ -20,7 +20,6 @@ public class ERBPreferencePage extends CommonEditorPreferencePage
 {
 	public ERBPreferencePage()
 	{
-		super();
 		setDescription(Messages.ERBPreferencePage_ERB_page_title);
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
 	}
