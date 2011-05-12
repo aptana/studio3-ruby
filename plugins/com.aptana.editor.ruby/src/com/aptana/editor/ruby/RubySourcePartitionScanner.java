@@ -20,14 +20,14 @@ import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.jrubyparser.CompatVersion;
-import org.jrubyparser.SourcePosition;
 import org.jrubyparser.Parser.NullWarnings;
+import org.jrubyparser.SourcePosition;
 import org.jrubyparser.ast.CommentNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.lexer.Lexer;
+import org.jrubyparser.lexer.Lexer.LexState;
 import org.jrubyparser.lexer.LexerSource;
 import org.jrubyparser.lexer.SyntaxException;
-import org.jrubyparser.lexer.Lexer.LexState;
 import org.jrubyparser.lexer.SyntaxException.PID;
 import org.jrubyparser.parser.ParserConfiguration;
 import org.jrubyparser.parser.ParserResult;
@@ -61,7 +61,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 	{
 		lexer = new Lexer();
 		parserSupport = new ParserSupport();
-		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.RUBY1_8);
+		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.BOTH);
 		parserSupport.setConfiguration(config);
 		result = new ParserResult();
 		parserSupport.setResult(result);
@@ -88,7 +88,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		}
 		if (myOffset == -1)
 			myOffset = 0;
-		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.RUBY1_8);
+		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.BOTH);
 		try
 		{
 			fContents = document.get(myOffset, length);

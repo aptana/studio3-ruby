@@ -8,8 +8,14 @@
 
 package com.aptana.editor.erb.html;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.internal.editors.text.EditorsPlugin;
+import org.eclipse.ui.texteditor.ChainedPreferenceStore;
+
+import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.outline.CommonOutlinePage;
 import com.aptana.editor.common.parsing.FileService;
+import com.aptana.editor.erb.Activator;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.erb.html.outline.RHTMLOutlineContentProvider;
 import com.aptana.editor.erb.html.outline.RHTMLOutlineLabelProvider;
@@ -19,6 +25,7 @@ import com.aptana.editor.html.parsing.HTMLParseState;
 /**
  * @author Max Stepanov
  */
+@SuppressWarnings("restriction")
 public class RHTMLEditor extends HTMLEditor
 {
 	/*
@@ -30,6 +37,7 @@ public class RHTMLEditor extends HTMLEditor
 	{
 		super.initializeEditor();
 
+		setPreferenceStore(getChainedPreferenceStore());
 		setSourceViewerConfiguration(new RHTMLSourceViewerConfiguration(getPreferenceStore(), this));
 		setDocumentProvider(new RHTMLDocumentProvider());
 	}
@@ -43,7 +51,7 @@ public class RHTMLEditor extends HTMLEditor
 	@Override
 	protected FileService createFileService()
 	{
-		return new FileService(IERBConstants.LANGUAGE_ERB, new HTMLParseState());
+		return new FileService(IERBConstants.CONTENT_TYPE_HTML_ERB, new HTMLParseState());
 	}
 
 	@Override
@@ -65,5 +73,11 @@ public class RHTMLEditor extends HTMLEditor
 		modified[orig.length] = '%';
 		modified[orig.length + 1] = '%';
 		return modified;
+	}
+
+	public static IPreferenceStore getChainedPreferenceStore()
+	{
+		return new ChainedPreferenceStore(new IPreferenceStore[] { Activator.getDefault().getPreferenceStore(),
+				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
 	}
 }

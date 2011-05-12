@@ -10,6 +10,7 @@ package com.aptana.editor.haml.preferences;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 
 import com.aptana.editor.common.preferences.IPreferenceConstants;
@@ -17,15 +18,21 @@ import com.aptana.editor.haml.HAMLEditorPlugin;
 
 public class HAMLPreferenceInitializer extends AbstractPreferenceInitializer
 {
-
 	@Override
 	public void initializeDefaultPreferences()
 	{
 		IEclipsePreferences prefs = new DefaultScope().getNode(HAMLEditorPlugin.PLUGIN_ID);
-		// Force standard haml indent/spaces. 2 spaces for indent, not tabs, not 4 spaces.
-		prefs.putInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH, 2);
-		prefs.putBoolean(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS, true);
+		prefs.putBoolean(com.aptana.editor.common.preferences.IPreferenceConstants.EDITOR_ENABLE_FOLDING, true);
 		prefs.putBoolean(IPreferenceConstants.EDITOR_AUTO_INDENT, true);
-	}
 
+		// Check if we previously set preference to use global defaults
+		IEclipsePreferences instanceScopePref = new InstanceScope().getNode(HAMLEditorPlugin.PLUGIN_ID);
+		if (!instanceScopePref.getBoolean(IPreferenceConstants.USE_GLOBAL_DEFAULTS, false))
+		{
+			prefs.putInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH,
+					IHAMLPreferenceConstants.DEFAULT_HAML_TAB_WIDTH);
+			prefs.putBoolean(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS,
+					IHAMLPreferenceConstants.DEFAULT_HAML_SPACES_FOR_TABS);
+		}
+	}
 }

@@ -7,6 +7,7 @@
  */
 package com.aptana.editor.sass.preferences;
 
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -45,5 +46,23 @@ public class SassPreferencePage extends CommonEditorPreferencePage
 	{
 		return SassSourceEditor.getChainedPreferenceStore();
 	}
-	
+
+	@Override
+	protected IEclipsePreferences getDefaultPluginPreferenceStore()
+	{
+		return new DefaultScope().getNode(Activator.PLUGIN_ID);
+	}
+
+	@Override
+	protected boolean getDefaultSpacesForTabs()
+	{
+		return ISASSPreferenceConstants.DEFAULT_SASS_SPACES_FOR_TABS;
+	}
+
+	@Override
+	protected int getDefaultTabWidth()
+	{
+		return ISASSPreferenceConstants.DEFAULT_SASS_TAB_WIDTH;
+	}
+
 }

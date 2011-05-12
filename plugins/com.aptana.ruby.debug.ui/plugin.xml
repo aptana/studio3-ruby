@@ -122,6 +122,15 @@
         type="com.aptana.ruby.debug.core.remoteDebuggerLaunchConfigurationType">
   	  </launchConfigurationTabGroup>
    </extension>
+   <extension point="org.eclipse.ui.views">
+      <view
+            name="%displayViewName"
+            icon="$nl$/icons/full/etool16/disp_sbook.gif"
+            category="org.eclipse.debug.ui"
+            class="com.aptana.ruby.internal.debug.ui.display.DisplayView"
+            id="com.aptana.ruby.debug.ui.DisplayView">
+      </view>
+    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
@@ -135,8 +144,14 @@
          <perspectiveShortcut
                id="com.aptana.ui.WebPerspective">
          </perspectiveShortcut>
+       <view
+             id="com.aptana.ruby.debug.ui.DisplayView"
+             relationship="stack"
+             relative="org.eclipse.ui.console.ConsoleView"
+             visible="false"/>
+       <viewShortcut id="com.aptana.ruby.debug.ui.DisplayView"/>
       </perspectiveExtension>
-   </extension>
+   </extension>   
    <extension
          point="org.eclipse.ui.contexts">
       <context
@@ -179,6 +194,16 @@
         categoryId="org.eclipse.debug.ui.category.run"
         id="com.aptana.ruby.debug.ui.commands.ModifyCatchpoint"
         name="%modifyCatchpoint.label"/>
+    <command
+          defaultHandler="com.aptana.ruby.internal.debug.ui.display.ExecuteHandler"
+          id="com.aptana.ruby.debug.ui.commands.execute"
+          name="%execute.command.name">
+    </command>
+    <command
+          defaultHandler="com.aptana.ruby.internal.debug.ui.display.ClearDisplayViewHandler"
+          id="com.aptana.ruby.debug.ui.command.clear_display"
+          name="%clear_display.command.name">
+    </command>
   </extension>
   <extension point="org.eclipse.ui.actionSets">
     <actionSet
@@ -269,5 +294,22 @@
            class="com.aptana.ruby.debug.ui.ExternalRubyFileAnnotationModelFactory"
            contentTypeId="com.aptana.contenttype.ruby">
      </factory>
+  </extension>
+  <extension
+        point="org.eclipse.ui.menus">
+     <menuContribution
+           allPopups="false"
+           locationURI="toolbar:com.aptana.ruby.debug.ui.DisplayView">
+        <command
+              commandId="com.aptana.ruby.debug.ui.commands.execute"
+              icon="icons/full/etool16/run_sbook.gif"
+              style="push">
+        </command>
+        <command
+              commandId="com.aptana.ruby.debug.ui.command.clear_display"
+              icon="platform:/plugin/org.eclipse.ui.console/icons/full/elcl16/clear_co.gif"
+              style="push">
+        </command>
+     </menuContribution>
   </extension>
 </plugin>

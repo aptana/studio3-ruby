@@ -50,8 +50,7 @@
          point="com.aptana.parsing.parser">
       <parser
             class="com.aptana.editor.erb.html.parsing.RHTMLParser"
-            content-type="com.aptana.contenttype.html.erb"
-            language="text/erb">
+            content-type="com.aptana.contenttype.html.erb">
       </parser>
    </extension>
    <extension
@@ -62,6 +61,21 @@
                contentTypeId="com.aptana.contenttype.html.erb">
          </contentTypeBinding>
       </fileIndexingParticipant>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.aptana.editor.erb.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="com.aptana.editor.common.preferences.EditorsPreferencePage"
+            class="com.aptana.editor.erb.preferences.ERBPreferencePage"
+            id="com.aptana.editor.erb.preferences.ERBPreferencePage"
+            name="%page.erb.name">
+      </page>
    </extension>
 
 </plugin>

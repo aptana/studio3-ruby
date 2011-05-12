@@ -28,17 +28,18 @@ import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.outline.CommonOutlineItem;
 import com.aptana.editor.common.outline.CommonOutlinePage;
-import com.aptana.editor.common.parsing.FileService;
-import com.aptana.editor.ruby.core.IImportContainer;
-import com.aptana.editor.ruby.core.IRubyElement;
-import com.aptana.editor.ruby.core.IRubyField;
-import com.aptana.editor.ruby.core.IRubyMethod;
-import com.aptana.editor.ruby.core.IRubyType;
+import com.aptana.editor.common.text.reconciler.IFoldingComputer;
+import com.aptana.editor.ruby.internal.text.RubyFoldingComputer;
 import com.aptana.editor.ruby.outline.RubyOutlineContentProvider;
 import com.aptana.editor.ruby.outline.RubyOutlineLabelProvider;
-import com.aptana.editor.ruby.parsing.IRubyParserConstants;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.lexer.IRange;
+import com.aptana.ruby.core.IImportContainer;
+import com.aptana.ruby.core.IRubyConstants;
+import com.aptana.ruby.core.IRubyElement;
+import com.aptana.ruby.core.IRubyField;
+import com.aptana.ruby.core.IRubyMethod;
+import com.aptana.ruby.core.IRubyType;
 
 @SuppressWarnings("restriction")
 public class RubySourceEditor extends AbstractThemeableEditor
@@ -63,12 +64,6 @@ public class RubySourceEditor extends AbstractThemeableEditor
 	{
 		return new ChainedPreferenceStore(new IPreferenceStore[] { RubyEditorPlugin.getDefault().getPreferenceStore(),
 				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
-	}
-
-	@Override
-	protected FileService createFileService()
-	{
-		return new FileService(IRubyParserConstants.LANGUAGE);
 	}
 
 	protected char[] getPairMatchingCharacters()
@@ -259,5 +254,11 @@ public class RubySourceEditor extends AbstractThemeableEditor
 			// no new pair, so don't highlight anything
 			fTagPairOccurrences = null;
 		}
+	}
+
+	@Override
+	public IFoldingComputer createFoldingComputer(IDocument document)
+	{
+		return new RubyFoldingComputer(this, document);
 	}
 }

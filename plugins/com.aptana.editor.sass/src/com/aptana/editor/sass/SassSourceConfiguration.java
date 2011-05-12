@@ -9,6 +9,7 @@
 package com.aptana.editor.sass;
 
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.EndOfLineRule;
@@ -20,6 +21,7 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 
+import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.IPartitioningConfiguration;
 import com.aptana.editor.common.ISourceViewerConfiguration;
@@ -150,6 +152,15 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 		dr = new ThemeingDamagerRepairer(getDoubleQuotedStringScanner());
 		reconciler.setDamager(dr, STRING_DOUBLE);
 		reconciler.setRepairer(dr, STRING_DOUBLE);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getContentAssistProcessor(com.aptana.editor.common.AbstractThemeableEditor, java.lang.String)
+	 */
+	public IContentAssistProcessor getContentAssistProcessor(AbstractThemeableEditor editor, String contentType)
+	{
+		return null;
 	}
 
 	private ITokenScanner getCodeScanner()

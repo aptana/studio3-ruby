@@ -13,20 +13,20 @@ import beaver.Symbol;
 
 import com.aptana.editor.common.parsing.CompositeParser;
 import com.aptana.editor.erb.parsing.lexer.ERBTokens;
-import com.aptana.editor.html.parsing.IHTMLParserConstants;
-import com.aptana.editor.ruby.core.IRubyScript;
-import com.aptana.editor.ruby.parsing.IRubyParserConstants;
+import com.aptana.editor.html.IHTMLConstants;
 import com.aptana.parsing.IParseState;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
 import com.aptana.parsing.ast.ParseRootNode;
+import com.aptana.ruby.core.IRubyConstants;
+import com.aptana.ruby.core.IRubyScript;
 
 public class RHTMLParser extends CompositeParser
 {
 
 	public RHTMLParser()
 	{
-		super(new RHTMLParserScanner(), IHTMLParserConstants.LANGUAGE);
+		super(new RHTMLParserScanner(), IHTMLConstants.CONTENT_TYPE_HTML);
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class RHTMLParser extends CompositeParser
 				case ERBTokens.RUBY:
 					if (root == null)
 					{
-						root = new ParseRootNode(IRubyParserConstants.LANGUAGE, new ParseNode[0], startingOffset,
+						root = new ParseRootNode(IRubyConstants.CONTENT_TYPE_RUBY, new ParseNode[0], startingOffset,
 								startingOffset + source.length());
 					}
 					processRubyBlock(root);
@@ -74,7 +74,7 @@ public class RHTMLParser extends CompositeParser
 			id = getCurrentSymbol().getId();
 		}
 
-		IParseNode result = getParseResult(IRubyParserConstants.LANGUAGE, start, end);
+		IParseNode result = getParseResult(IRubyConstants.CONTENT_TYPE_RUBY, start, end);
 		if (result != null)
 		{
 			Symbol endTag = getCurrentSymbol();

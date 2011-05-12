@@ -7,9 +7,9 @@
  */
 package com.aptana.editor.erb.html.parsing;
 
-import com.aptana.editor.ruby.core.IRubyScript;
-import com.aptana.editor.ruby.parsing.IRubyParserConstants;
 import com.aptana.parsing.ast.ParseNode;
+import com.aptana.ruby.core.IRubyConstants;
+import com.aptana.ruby.core.IRubyScript;
 
 public class ERBScript extends ParseNode
 {
@@ -20,7 +20,7 @@ public class ERBScript extends ParseNode
 
 	public ERBScript(IRubyScript script, String startTag, String endTag)
 	{
-		super(IRubyParserConstants.LANGUAGE);
+		super(IRubyConstants.CONTENT_TYPE_RUBY);
 		fScript = script;
 		fStartTag = startTag;
 		fEndTag = endTag;

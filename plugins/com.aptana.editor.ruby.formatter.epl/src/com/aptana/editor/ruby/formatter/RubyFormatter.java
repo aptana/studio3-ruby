@@ -22,15 +22,13 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
+import org.jrubyparser.CompatVersion;
 import org.jrubyparser.parser.ParserResult;
 
 import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.editor.ruby.formatter.internal.RubyFormatterContext;
 import com.aptana.editor.ruby.formatter.internal.RubyFormatterNodeBuilder;
 import com.aptana.editor.ruby.formatter.internal.RubyFormatterNodeRewriter;
-import com.aptana.editor.ruby.parsing.NullParserResult;
-import com.aptana.editor.ruby.parsing.RubyParser;
-import com.aptana.editor.ruby.parsing.RubySourceParser;
 import com.aptana.formatter.AbstractScriptFormatter;
 import com.aptana.formatter.FormatterDocument;
 import com.aptana.formatter.FormatterIndentDetector;
@@ -42,6 +40,9 @@ import com.aptana.formatter.nodes.IFormatterContainerNode;
 import com.aptana.formatter.ui.FormatterException;
 import com.aptana.formatter.ui.FormatterMessages;
 import com.aptana.parsing.IParser;
+import com.aptana.ruby.core.NullParserResult;
+import com.aptana.ruby.core.RubyParser;
+import com.aptana.ruby.core.RubySourceParser;
 import com.aptana.ui.util.StatusLineMessageTimerManager;
 
 public class RubyFormatter extends AbstractScriptFormatter
@@ -280,11 +281,11 @@ public class RubyFormatter extends AbstractScriptFormatter
 		RubySourceParser sourceParser = null;
 		if (parser instanceof RubyParser)
 		{
-			sourceParser = ((RubyParser) parser).getSourceParser();
+			sourceParser = ((RubyParser) parser).getSourceParser(CompatVersion.BOTH);
 		}
 		if (sourceParser == null)
 		{
-			sourceParser = new RubyParser().getSourceParser();
+			sourceParser = new RubyParser().getSourceParser(CompatVersion.BOTH);
 		}
 		return sourceParser;
 	}

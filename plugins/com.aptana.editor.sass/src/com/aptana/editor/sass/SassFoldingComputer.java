@@ -15,6 +15,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
+import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 
 import com.aptana.editor.common.text.reconciler.IFoldingComputer;
 
@@ -28,15 +29,20 @@ public class SassFoldingComputer implements IFoldingComputer
 		this.document = document;
 	}
 
-	public List<Position> emitFoldingRegions(IProgressMonitor monitor)
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.common.text.reconciler.IFoldingComputer#emitFoldingRegions(boolean,
+	 * org.eclipse.core.runtime.IProgressMonitor)
+	 */
+	public Map<ProjectionAnnotation, Position> emitFoldingRegions(boolean initialReconcile, IProgressMonitor monitor)
 	{
 		int lineCount = getDocument().getNumberOfLines();
 		if (lineCount <= 1)
 		{
-			return Collections.emptyList();
+			return Collections.emptyMap();
 		}
 
-		List<Position> positions = new ArrayList<Position>();
+		Map<ProjectionAnnotation, Position> positions = new HashMap<ProjectionAnnotation, Position>();
 		SubMonitor sub = SubMonitor.convert(monitor, lineCount);
 		try
 		{
@@ -74,9 +80,11 @@ public class SassFoldingComputer implements IFoldingComputer
 					{
 						if (entry.getKey() >= indent)
 						{
-							positions.add(new Position(entry.getValue(), (fLastLineRegion.getOffset()
-									+ fLastLineRegion.getLength() + 1)
-									- entry.getValue()));
+							positions.put(
+									new ProjectionAnnotation(),
+									new Position(entry.getValue(), (fLastLineRegion.getOffset()
+											+ fLastLineRegion.getLength() + 1)
+											- entry.getValue()));
 							toRemove.add(entry.getKey());
 						}
 					}
@@ -93,7 +101,8 @@ public class SassFoldingComputer implements IFoldingComputer
 			// Do we have any leftover opens? Close them!
 			for (Map.Entry<Integer, Integer> entry : starts.entrySet())
 			{
-				positions.add(new Position(entry.getValue(), getDocument().getLength() - entry.getValue()));
+				positions.put(new ProjectionAnnotation(), new Position(entry.getValue(), getDocument().getLength()
+						- entry.getValue()));
 			}
 		}
 		catch (BadLocationException e)

@@ -9,6 +9,7 @@
 package com.aptana.editor.haml;
 
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.EndOfLineRule;
@@ -22,6 +23,7 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 
+import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.IPartitioningConfiguration;
 import com.aptana.editor.common.ISourceViewerConfiguration;
@@ -40,8 +42,8 @@ import com.aptana.editor.haml.internal.text.rules.HAMLElementRule;
 import com.aptana.editor.haml.internal.text.rules.HAMLEscapeRule;
 import com.aptana.editor.haml.internal.text.rules.HAMLSingleLineRule;
 import com.aptana.editor.haml.internal.text.rules.RubyEvaluationElementRule;
-import com.aptana.editor.ruby.IRubyConstants;
 import com.aptana.editor.ruby.RubySourceConfiguration;
+import com.aptana.ruby.core.IRubyConstants;
 
 /**
  * @author Max Stepanov
@@ -231,6 +233,14 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 		reconciler.setDamager(dr, HTML_ATTRIBUTES);
 		reconciler.setRepairer(dr, HTML_ATTRIBUTES);
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getContentAssistProcessor(com.aptana.editor.common.AbstractThemeableEditor, java.lang.String)
+	 */
+	public IContentAssistProcessor getContentAssistProcessor(AbstractThemeableEditor editor, String contentType) {
+		return null;
 	}
 
 	private ITokenScanner getTextScanner() {

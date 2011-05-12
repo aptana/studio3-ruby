@@ -8,47 +8,34 @@
 package com.aptana.ruby.launching;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.osgi.framework.BundleActivator;
+import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
+import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.ExecutableUtil;
 import com.aptana.core.util.PlatformUtil;
+import com.aptana.core.util.ProcessUtil;
 
-public class RubyLaunchingPlugin implements BundleActivator
+public class RubyLaunchingPlugin extends Plugin
 {
+	public static final String PLUGIN_ID = "com.aptana.ruby.launching"; //$NON-NLS-1$
 
 	private static final String RUBYW = "rubyw"; //$NON-NLS-1$
 	private static final String RUBY = "ruby"; //$NON-NLS-1$
 
-	private static BundleContext context;
+	private static Map<IProject, String> projectToVersion;
 
-	static BundleContext getContext()
-	{
-		return context;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-	 */
-	public void start(BundleContext bundleContext) throws Exception
-	{
-		RubyLaunchingPlugin.context = bundleContext;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
-	public void stop(BundleContext bundleContext) throws Exception
-	{
-		RubyLaunchingPlugin.context = null;
-	}
+	protected static RubyLaunchingPlugin plugin;
 
 	/**
 	 * Search for the applicable ruby executable for the working dir. If no working dir is set, we won't take rvmrc into
@@ -59,6 +46,7 @@ public class RubyLaunchingPlugin implements BundleActivator
 	 */
 	public static IPath rubyExecutablePath(IPath workingDir)
 	{
+		// TODO Cache this?
 		IPath path = null;
 		if (Platform.OS_WIN32.equals(Platform.getOS()))
 		{
@@ -97,5 +85,99 @@ public class RubyLaunchingPlugin implements BundleActivator
 					.append(binaryName));
 		}
 		return locations;
+	}
+
+	/**
+	 * Return the version string for the ruby interpreter set up for a given project.
+	 * 
+	 * @param project
+	 * @return
+	 */
+	public static synchronized String getRubyVersionForProject(IProject project)
+	{
+		if (project == null)
+		{
+			return null;
+		}
+		// This seems expensive, so we're caching the version per-project
+		if (projectToVersion == null)
+		{
+			projectToVersion = new HashMap<IProject, String>();
+		}
+		if (projectToVersion.containsKey(project))
+		{
+			return projectToVersion.get(project);
+		}
+		IPath rubyExe = rubyExecutablePath(project.getLocation());
+		if (rubyExe == null)
+		{
+			projectToVersion.put(project, null);
+			return null;
+		}
+		String version = ProcessUtil.outputForCommand(rubyExe.toOSString(), null, ShellExecutable.getEnvironment(),
+				"-v"); //$NON-NLS-1$
+		projectToVersion.put(project, version);
+		return version;
+	}
+
+	public RubyLaunchingPlugin()
+	{
+		super();
+	}
+
+	public static Plugin getDefault()
+	{
+		return plugin;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.core.runtime.Plugin#start(org.osgi.framework.BundleContext)
+	 */
+	public void start(BundleContext context) throws Exception
+	{
+		super.start(context);
+		plugin = this;
+	}
+
+	@Override
+	public void stop(BundleContext context) throws Exception
+	{
+		plugin = null;
+		projectToVersion = null;
+		super.stop(context);
+	}
+
+	public static void log(int severity, String message)
+	{
+		log(new Status(severity, PLUGIN_ID, IStatus.OK, message, null));
+	}
+
+	public static void log(String message, Throwable e)
+	{
+		log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, message, e));
+	}
+
+	private static void log(IStatus status)
+	{
+		if (RubyLaunchingPlugin.getDefault() != null)
+		{
+			getDefault().getLog().log(status);
+		}
+		else
+		{
+			System.out.println("Error: "); //$NON-NLS-1$
+			System.out.println(status.getMessage());
+		}
+	}
+
+	public static void log(Throwable e)
+	{
+		log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, e.getMessage(), e));
+	}
+
+	public static String getPluginIdentifier()
+	{
+		return PLUGIN_ID;
 	}
 }

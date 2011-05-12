@@ -17,45 +17,6 @@
       </editor>
    </extension>
    <extension
-         point="org.eclipse.core.contenttype.contentTypes">
-      <content-type
-            base-type="org.eclipse.core.runtime.text"
-            file-extensions="rb,rake,cgi,fcgi,rbx,rjs,gemspec,irbrc,ru"
-            file-names="Rakefile,Capfile,Gemfile"
-            id="com.aptana.contenttype.ruby"
-            name="%content-type.rb.name"
-            priority="normal">
-      </content-type>
-      <content-type
-            base-type="com.aptana.contenttype.ruby"
-            describer="com.aptana.editor.ruby.RubyTextContentDescriber"
-            file-names="plugin,server,runner,generate,dbconsole,about,console,destroy,autospec,spec,rails"
-            id="com.aptana.contenttype.ruby.ambiguous"
-            name="%content-type.ruby.ambiguous.name"
-            priority="normal">
-      </content-type>
-   </extension>
-   <extension
-         point="com.aptana.index.core.fileIndexingParticipants">
-      <fileIndexingParticipant
-            class="com.aptana.editor.ruby.index.RubyFileIndexingParticipant">
-         <contentTypeBinding
-               contentTypeId="com.aptana.contenttype.ruby">
-         </contentTypeBinding>
-         <contentTypeBinding
-               contentTypeId="com.aptana.contenttype.ruby.ambiguous">
-         </contentTypeBinding>
-      </fileIndexingParticipant>
-   </extension>
-   <extension
-         point="com.aptana.parsing.parser">
-      <parser
-            class="com.aptana.editor.ruby.parsing.RubyParser"
-            content-type="com.aptana.contenttype.ruby"
-            language="text/ruby">
-      </parser>
-   </extension>
-   <extension
          point="org.eclipse.ui.editors.markerAnnotationSpecification">
       <specification
             annotationType="com.aptana.ruby.blockPair.occurrences"
@@ -92,15 +53,15 @@
    </extension>
    <extension
          point="com.aptana.editor.common.validator">
-      <language
+      <content-type
             name="%validator.language.ruby.name"
-            type="text/ruby">
-      </language>
+            id="com.aptana.contenttype.ruby">
+      </content-type>
       <validator
             class="com.aptana.editor.ruby.validator.RubyValidator"
-            language="text/ruby"
-            name="%validator.ruby.name"
-            type="com.aptana.editor.ruby.problem">
+            content-type="com.aptana.contenttype.ruby"
+            marker-type="com.aptana.editor.ruby.problem"
+            name="%validator.ruby.name">
       </validator>
    </extension>
    <extension
@@ -113,33 +74,28 @@
       </page>
    </extension>
    <extension
-         id="problem"
-         name="%marker.ruby.name"
-         point="org.eclipse.core.resources.markers">
-      <super
-            type="org.eclipse.core.resources.problemmarker">
-      </super>
-      <super
-            type="org.eclipse.core.resources.textmarker">
-      </super>
-      <persistent
-            value="true">
-      </persistent>
-      <attribute
-            name="id">
-      </attribute>
-      <attribute
-            name="flags">
-      </attribute>
-      <attribute
-            name="arguments">
-      </attribute>
-   </extension>
-   <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
             class="com.aptana.editor.ruby.preferences.RubyPreferenceInitializer">
       </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
+      <target
+            id="com.aptana.ruby.ui.rubyCode"
+            name="%RubyEditorHyperlinkTarget">
+            <context type="org.eclipse.ui.texteditor.ITextEditor"/>
+      </target>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            activate="true"
+            class="com.aptana.editor.ruby.hyperlink.RubyHyperlinkDetector"
+            id="com.aptana.editor.ruby.hyperlinkDetector"
+            name="%ruby.hyperlinkDetector.name"
+            targetId="com.aptana.ruby.ui.rubyCode">
+      </hyperlinkDetector>
    </extension>
 
 </plugin>

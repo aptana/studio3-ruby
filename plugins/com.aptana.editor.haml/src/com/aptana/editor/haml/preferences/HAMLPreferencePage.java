@@ -7,6 +7,7 @@
  */
 package com.aptana.editor.haml.preferences;
 
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -45,6 +46,24 @@ public class HAMLPreferencePage extends CommonEditorPreferencePage
 	protected IPreferenceStore getChainedEditorPreferenceStore()
 	{
 		return HAMLEditor.getChainedPreferenceStore();
+	}
+
+	@Override
+	protected IEclipsePreferences getDefaultPluginPreferenceStore()
+	{
+		return new DefaultScope().getNode(HAMLEditorPlugin.PLUGIN_ID);
+	}
+
+	@Override
+	protected boolean getDefaultSpacesForTabs()
+	{
+		return IHAMLPreferenceConstants.DEFAULT_HAML_SPACES_FOR_TABS;
+	}
+
+	@Override
+	protected int getDefaultTabWidth()
+	{
+		return IHAMLPreferenceConstants.DEFAULT_HAML_TAB_WIDTH;
 	}
 
 }

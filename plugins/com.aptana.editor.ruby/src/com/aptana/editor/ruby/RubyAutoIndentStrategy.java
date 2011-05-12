@@ -18,12 +18,13 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.jrubyparser.CompatVersion;
 import org.jrubyparser.Parser.NullWarnings;
 import org.jrubyparser.lexer.LexerSource;
 import org.jrubyparser.lexer.SyntaxException;
 import org.jrubyparser.parser.ParserConfiguration;
-import org.jrubyparser.parser.ParserSupport;
-import org.jrubyparser.parser.Ruby18Parser;
+import org.jrubyparser.parser.ParserSupport19;
+import org.jrubyparser.parser.Ruby19Parser;
 import org.jrubyparser.parser.RubyParser;
 
 import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
@@ -116,11 +117,13 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 			return false;
 		}
 
-		ParserConfiguration config = new ParserConfiguration();
-		ParserSupport support = new ParserSupport();
+		// TODO Re-use parser pool? Right now we can't because syntax exceptions get silently swallowed; and we need to
+		// pass down warnings/line number/etc in parseState.
+		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.BOTH);
+		ParserSupport19 support = new ParserSupport19();
 		support.setConfiguration(config);
 		support.setWarnings(new NullWarnings());
-		RubyParser parser = new Ruby18Parser(support);
+		RubyParser parser = new Ruby19Parser(support);
 		LexerSource lexerSource = null;
 		try
 		{

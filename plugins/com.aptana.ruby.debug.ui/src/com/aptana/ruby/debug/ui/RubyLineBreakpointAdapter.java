@@ -25,7 +25,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.aptana.editor.erb.IERBConstants;
-import com.aptana.editor.ruby.IRubyConstants;
+import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.debug.core.IRubyLineBreakpoint;
 import com.aptana.ruby.debug.core.RubyDebugModel;
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
@@ -54,8 +54,7 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 		{
 			File file = new File(uri);
 			fileName = Path.fromOSString(file.getAbsolutePath());
-			resource = ResourcesPlugin.getWorkspace().getRoot()
-					.getFileForLocation(fileName);
+			resource = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(fileName);
 		}
 
 		if (resource == null)
@@ -146,12 +145,11 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 				return null;
 			}
 
-				if (isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY)
-						|| isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY_AMBIGUOUS)
-						|| isAssociatedWith(store.getName(), IERBConstants.CONTENT_TYPE_HTML_ERB))
-				{
-					return store;
-				}
+			if (isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY)
+					|| isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY_AMBIGUOUS)
+					|| isAssociatedWith(store.getName(), IERBConstants.CONTENT_TYPE_HTML_ERB))
+			{
+				return store;
 			}
 		catch (CoreException e)
 		{

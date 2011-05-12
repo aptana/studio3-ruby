@@ -1,5 +1,6 @@
 package com.aptana.ruby.internal.debug.core.breakpoints;
 
+import java.text.MessageFormat;
 import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
@@ -68,11 +69,17 @@ public class RubyLineBreakpoint extends RubyBreakpoint implements IRubyLineBreak
 			{
 				// create the marker
 				setMarker(resource.createMarker(RUBY_LINE_BREAKPOINT));
+				String msgFilename = resource.getFullPath().toString();
 				if (resource.equals(ResourcesPlugin.getWorkspace().getRoot()))
 				{
 					attributes.put(EXTERNAL_FILENAME, fileName.toPortableString());
+					msgFilename = fileName.toOSString();
 				}
 				// add attributes
+				attributes.put(
+						IMarker.MESSAGE,
+						MessageFormat.format(Messages.RubyLineBreakpoint_Message, msgFilename,
+								Integer.toString(lineNumber)));
 				addLineBreakpointAttributes(attributes, getModelIdentifier(), true, lineNumber, charStart, charEnd);
 				addTypeNameAndHitCount(attributes, typeName, hitCount);
 				// set attributes

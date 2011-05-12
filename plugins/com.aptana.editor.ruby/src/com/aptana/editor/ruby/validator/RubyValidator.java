@@ -25,8 +25,6 @@ import org.jrubyparser.parser.Ruby18Parser;
 import org.jrubyparser.parser.Ruby19Parser;
 import org.jrubyparser.parser.RubyParser;
 
-import com.aptana.core.ShellExecutable;
-import com.aptana.core.util.ProcessUtil;
 import com.aptana.editor.common.validator.IValidationItem;
 import com.aptana.editor.common.validator.IValidationManager;
 import com.aptana.editor.common.validator.IValidator;
@@ -44,8 +42,8 @@ public class RubyValidator implements IValidator
 		List<IValidationItem> items = new ArrayList<IValidationItem>();
 		// Check what the version of the current ruby interpreter is and use that to determine which parser compat
 		// to use!
-		CompatVersion version = CompatVersion.RUBY1_8;
-		IPath projectPath = null;
+		CompatVersion version = CompatVersion.BOTH;
+		IProject project = null;
 		// get the working dir
 		IPath workingDir = null;
 		if (path != null && "file".equals(path.getScheme())) //$NON-NLS-1$
@@ -59,36 +57,32 @@ public class RubyValidator implements IValidator
 			IContainer container = ResourcesPlugin.getWorkspace().getRoot().getContainerForLocation(workingDir);
 			if (container != null)
 			{
-				IProject project = container.getProject();
-				if (project != null)
-				{
-					projectPath = project.getLocation();
-				}
+				project = container.getProject();
 			}
 		}
-		IPath ruby = RubyLaunchingPlugin.rubyExecutablePath(projectPath);
-		String rubyVersion = ProcessUtil.outputForCommand(
-				ruby == null ? "ruby" : ruby.toOSString(), workingDir, ShellExecutable.getEnvironment(), "-v"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		String rubyVersion = RubyLaunchingPlugin.getRubyVersionForProject(project);
 		if (rubyVersion != null && rubyVersion.startsWith("ruby 1.9")) //$NON-NLS-1$
 		{
 			version = CompatVersion.RUBY1_9;
 		}
 
+		// TODO set up warnings/ version/line number/etc in RubyParseState and re-use RubyParser.parse(IParseState)!
 		ParserConfiguration config = new ParserConfiguration(1, version);
-
 		RubyParser parser;
-		if (version == CompatVersion.RUBY1_9)
-		{
-			ParserSupport19 support = new ParserSupport19();
-			support.setConfiguration(config);
-			parser = new Ruby19Parser(support);
-		}
-		else
+		if (version == CompatVersion.RUBY1_8)
 		{
 			ParserSupport support = new ParserSupport();
 			support.setConfiguration(config);
 			parser = new Ruby18Parser(support);
 		}
+		else
+		{
+			ParserSupport19 support = new ParserSupport19();
+			support.setConfiguration(config);
+			parser = new Ruby19Parser(support);
+		}
+
 		// Hook up our own warning impl to grab them and add them as validation items!
 		IRubyWarnings warnings = new IRubyWarnings()
 		{

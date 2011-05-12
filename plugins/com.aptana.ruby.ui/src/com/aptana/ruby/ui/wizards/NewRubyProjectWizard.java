@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -206,18 +205,40 @@ public class NewRubyProjectWizard extends BasicNewResourceWizard implements IExe
 		return new String[] { RubyProjectNature.ID };
 	}
 
-	private void doGitClone(final IProjectDescription overridingDescription)
+	private void doGitClone(final IProjectDescription overridingDescription) throws CoreException
 	{
-		Job job = new CloneJob(mainPage.gitCloneURI(), mainPage.getLocationPath().toOSString(), true)
+		final String sourceURI = mainPage.gitCloneURI();
+		final String dest = mainPage.getLocationPath().toOSString();
+
+		try
 		{
-			@Override
-			protected void doCreateProject(IProject project, IProjectDescription desc, IProgressMonitor monitor)
-					throws CoreException
+			getContainer().run(true, true, new IRunnableWithProgress()
 			{
-				super.doCreateProject(project, overridingDescription, monitor);
-			}
-		};
-		job.schedule();
+
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException
+				{
+					CloneJob job = new CloneJob(sourceURI, dest, true)
+					{
+						@Override
+						protected void doCreateProject(IProject project, IProjectDescription desc,
+								IProgressMonitor monitor) throws CoreException
+						{
+							super.doCreateProject(project, overridingDescription, monitor);
+						}
+					};
+					job.run(monitor);
+
+				}
+			});
+		}
+		catch (InvocationTargetException e)
+		{
+			throw new CoreException(new Status(IStatus.ERROR, RubyUIPlugin.getPluginIdentifier(), e.getMessage(), e));
+		}
+		catch (InterruptedException e)
+		{
+			throw new CoreException(new Status(IStatus.ERROR, RubyUIPlugin.getPluginIdentifier(), e.getMessage(), e));
+		}
 	}
 
 	private void doBasicCreateProject(final IProject newProjectHandle, final IProjectDescription description)

@@ -12,10 +12,10 @@ import org.eclipse.swt.graphics.Image;
 
 import com.aptana.editor.common.outline.CommonOutlineItem;
 import com.aptana.editor.ruby.RubyEditorPlugin;
-import com.aptana.editor.ruby.core.IRubyElement;
-import com.aptana.editor.ruby.core.IRubyMethod;
-import com.aptana.editor.ruby.core.IRubyMethod.Visibility;
-import com.aptana.editor.ruby.core.IRubyType;
+import com.aptana.ruby.core.IRubyElement;
+import com.aptana.ruby.core.IRubyMethod;
+import com.aptana.ruby.core.IRubyType;
+import com.aptana.ruby.core.IRubyMethod.Visibility;
 
 public class RubyOutlineLabelProvider extends LabelProvider
 {

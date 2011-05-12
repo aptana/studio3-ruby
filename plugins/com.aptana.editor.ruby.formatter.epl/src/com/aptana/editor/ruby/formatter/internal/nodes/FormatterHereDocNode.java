@@ -13,6 +13,7 @@ package com.aptana.editor.ruby.formatter.internal.nodes;
 
 import org.eclipse.jface.text.IRegion;
 
+import com.aptana.formatter.ExcludeRegionList.EXCLUDE_STRATEGY;
 import com.aptana.formatter.FormatterUtils;
 import com.aptana.formatter.IFormatterCallback;
 import com.aptana.formatter.IFormatterContext;
@@ -80,11 +81,11 @@ public class FormatterHereDocNode extends FormatterTextNode implements IFormatte
 		visitor.write(heredocContext, getStartOffset(), getEndOffset());
 		if (contentRegion != null)
 		{
-			visitor.excludeRegion(contentRegion);
+			visitor.excludeRegion(contentRegion, EXCLUDE_STRATEGY.WRITE_AS_IS);
 		}
 		if (endMarkerRegion != null)
 		{
-			visitor.excludeRegion(endMarkerRegion);
+			visitor.excludeRegion(endMarkerRegion, EXCLUDE_STRATEGY.WRITE_AS_IS);
 		}
 		visitor.addNewLineCallback(this);
 	}

@@ -15,11 +15,11 @@ import com.aptana.editor.common.outline.CommonOutlineItem;
 import com.aptana.editor.erb.Activator;
 import com.aptana.editor.erb.html.parsing.ERBScript;
 import com.aptana.editor.html.outline.HTMLOutlineLabelProvider;
-import com.aptana.editor.ruby.core.IRubyScript;
 import com.aptana.editor.ruby.outline.RubyOutlineLabelProvider;
-import com.aptana.editor.ruby.parsing.IRubyParserConstants;
 import com.aptana.parsing.IParseState;
 import com.aptana.parsing.ast.IParseNode;
+import com.aptana.ruby.core.IRubyConstants;
+import com.aptana.ruby.core.IRubyScript;
 
 public class RHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider
 {
@@ -33,7 +33,7 @@ public class RHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider
 	public RHTMLOutlineLabelProvider(IParseState parseState)
 	{
 		fParseState = parseState;
-		addSubLanguage(IRubyParserConstants.LANGUAGE, new RubyOutlineLabelProvider());
+		addSubLanguage(IRubyConstants.CONTENT_TYPE_RUBY, new RubyOutlineLabelProvider());
 	}
 
 	@Override

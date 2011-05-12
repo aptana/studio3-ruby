@@ -9,12 +9,12 @@ package com.aptana.editor.erb.html.outline;
 
 import com.aptana.editor.html.outline.HTMLOutlineContentProvider;
 import com.aptana.editor.ruby.outline.RubyOutlineContentProvider;
-import com.aptana.editor.ruby.parsing.IRubyParserConstants;
+import com.aptana.ruby.core.IRubyConstants;
 
 public class RHTMLOutlineContentProvider extends HTMLOutlineContentProvider
 {
 	public RHTMLOutlineContentProvider()
 	{
-		addSubLanguage(IRubyParserConstants.LANGUAGE, new RubyOutlineContentProvider());
+		addSubLanguage(IRubyConstants.CONTENT_TYPE_RUBY, new RubyOutlineContentProvider());
 	}
 }
