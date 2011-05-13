@@ -151,6 +151,7 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 			{
 				return store;
 			}
+		}
 		catch (CoreException e)
 		{
 			RubyDebugUIPlugin.logError(e);
