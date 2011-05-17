@@ -52,13 +52,26 @@ public class DisplayView extends ViewPart implements ITextInputListener, IPerspe
 		fSourceViewer = new SourceViewer(parent, null, SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
 		fDataDisplay = new DataDisplay(fSourceViewer);
 		fSourceViewer.configure(new RubySourceViewerConfiguration(RubySourceEditor.getChainedPreferenceStore(), null));
+
 		fSourceViewer.getTextWidget().setBackground(
 				ThemePlugin.getDefault().getColorManager()
 						.getColor(ThemePlugin.getDefault().getThemeManager().getCurrentTheme().getBackground()));
 		fSourceViewer.getTextWidget().setForeground(
 				ThemePlugin.getDefault().getColorManager()
 						.getColor(ThemePlugin.getDefault().getThemeManager().getCurrentTheme().getForeground()));
+		fSourceViewer.getTextWidget()
+				.setSelectionBackground(
+						ThemePlugin
+								.getDefault()
+								.getColorManager()
+								.getColor(
+										ThemePlugin.getDefault().getThemeManager().getCurrentTheme()
+												.getSelectionAgainstBG()));
+		fSourceViewer.getTextWidget().setSelectionForeground(
+				ThemePlugin.getDefault().getColorManager()
+						.getColor(ThemePlugin.getDefault().getThemeManager().getCurrentTheme().getForeground()));
 		fSourceViewer.getTextWidget().setFont(JFaceResources.getTextFont());
+
 		IDocument doc = getRestoredDocument();
 		fSourceViewer.setDocument(doc);
 		fSourceViewer.addTextInputListener(this);
