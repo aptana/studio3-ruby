@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: com.aptana.ruby.debug.core;singleton:=true
-Bundle-Version: 3.0.0.qualifier
+Bundle-Version: 3.0.2.qualifier
 Bundle-ClassPath: .,
  lib/kxml2-2.3.0.jar
 Bundle-Activator: com.aptana.ruby.debug.core.RubyDebugCorePlugin
