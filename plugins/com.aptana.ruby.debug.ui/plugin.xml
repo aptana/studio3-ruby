@@ -91,7 +91,17 @@
 	<extension point="org.eclipse.ui.popupMenus">
 		<viewerContribution
            id="com.aptana.ruby.debug.ui.RulerPopupActions"
-           targetID="#AbstractTextEditorRulerContext"> <!-- FIXME This is 3.5+, and applies to all editors... -->
+           targetID="com.aptana.editor.ruby.RulerContext">
+         <action
+               label="%AddBreakpoint.label"
+               class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+               menubarPath="debug"
+               id="com.aptana.ruby.debug.ui.actions.ToggleBreakpointAction">
+         </action>
+      </viewerContribution>
+		<viewerContribution
+           id="com.aptana.ruby.debug.ui.RulerPopupActions"
+           targetID="com.aptana.editor.erb.html.RulerContext">
          <action
                label="%AddBreakpoint.label"
                class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
