@@ -8,7 +8,7 @@ public abstract class AbstractNodeLocator extends InOrderVisitor
 {
 	private Stack<String> typeNameStack;
 
-	protected boolean spansOffset(Node node, int offset)
+	public boolean spansOffset(Node node, int offset)
 	{
 		if (node == null || node.getPosition() == null)
 		{

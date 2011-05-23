@@ -13,12 +13,16 @@ import java.util.Stack;
 import com.aptana.core.util.StringUtil;
 import com.aptana.index.core.Index;
 import com.aptana.ruby.core.IRubyMethod.Visibility;
-import com.aptana.ruby.core.index.IRubyIndexConstants;
 import com.aptana.ruby.core.ISourceElementRequestor;
+import com.aptana.ruby.core.index.IRubyIndexConstants;
 
+// TODO Also index symbols?
 class RubySourceIndexer implements ISourceElementRequestor
 {
-	private static final String NAMESPACE_DELIMETER = "::"; //$NON-NLS-1$
+	private static final String NAMESPACE_DELIMETER = IRubyIndexConstants.NAMESPACE_DELIMETER;
+
+	protected static final String VERSION_KEY = "index_version"; //$NON-NLS-1$
+	protected static final int CURRENT_VERSION = 5;
 
 	private Stack<TypeInfo> typeStack = new Stack<TypeInfo>();
 	private Index index;
@@ -71,7 +75,7 @@ class RubySourceIndexer implements ISourceElementRequestor
 		String indexKey = createTypeDeclarationKey(isModule, simpleName, enclosingTypes, secondary);
 		addIndex(IRubyIndexConstants.TYPE_DECL, indexKey);
 
-		if (superclass != null && !superclass.equals(IRubyIndexConstants.OBJECT))
+		if (superclass != null && !IRubyIndexConstants.OBJECT.equals(superclass))
 		{
 			addTypeReference(superclass);
 		}
@@ -79,10 +83,13 @@ class RubySourceIndexer implements ISourceElementRequestor
 		if (!isModule)
 		{
 			// We know that both class and superclass must be classes because Modules can't have subclasses
-			addIndex(
-					IRubyIndexConstants.SUPER_REF,
-					createSuperTypeReferenceKey(simpleName, enclosingTypes, IRubyIndexConstants.CLASS_SUFFIX,
-							superclass, IRubyIndexConstants.CLASS_SUFFIX));
+			if (superclass != null && !IRubyIndexConstants.OBJECT.equals(superclass))
+			{
+				addIndex(
+						IRubyIndexConstants.SUPER_REF,
+						createSuperTypeReferenceKey(simpleName, enclosingTypes, IRubyIndexConstants.CLASS_SUFFIX,
+								superclass, IRubyIndexConstants.CLASS_SUFFIX));
+			}
 		}
 		if (modules != null)
 		{
@@ -154,8 +161,12 @@ class RubySourceIndexer implements ISourceElementRequestor
 
 	public void enterConstructor(MethodInfo constructor)
 	{
-		addIndex(IRubyIndexConstants.CONSTRUCTOR_DECL,
-				createMethodKey(getSimpleName(constructor.name), constructor.parameterNames.length));
+		// FIXME Create a special key for the constructor
+		addIndex(
+				IRubyIndexConstants.CONSTRUCTOR_DECL,
+				createMethodDefKey("initialize", getSimpleName(constructor.name),
+						new String[] { getNamespace(constructor.name) }, Visibility.PUBLIC, true,
+						constructor.parameterNames.length));
 	}
 
 	public void enterField(FieldInfo field)
@@ -164,29 +175,71 @@ class RubySourceIndexer implements ISourceElementRequestor
 		{
 			return;
 		}
-		String category = IRubyIndexConstants.LOCAL_DECL;
 		if (field.name.startsWith("@@")) //$NON-NLS-1$
 		{
-			category = IRubyIndexConstants.FIELD_DECL;
+			addIndex(IRubyIndexConstants.FIELD_DECL, createdNamespacedFieldKey(field.name));
+			return;
 		}
 		else if (field.name.startsWith("@")) //$NON-NLS-1$
 		{
-			category = IRubyIndexConstants.FIELD_DECL;
+			addIndex(IRubyIndexConstants.FIELD_DECL, createdNamespacedFieldKey(field.name));
+			return;
 		}
 		else if (field.name.startsWith("$")) //$NON-NLS-1$
 		{
-			category = IRubyIndexConstants.GLOBAL_DECL;
+			addIndex(IRubyIndexConstants.GLOBAL_DECL, field.name);
+			return;
 		}
 		else if (Character.isUpperCase(field.name.charAt(0)))
 		{
-			category = IRubyIndexConstants.CONSTANT_DECL;
+			addIndex(IRubyIndexConstants.CONSTANT_DECL, createdNamespacedFieldKey(field.name));
+			return;
 		}
-		addIndex(category, field.name);
+		addIndex(IRubyIndexConstants.LOCAL_DECL, field.name);
+	}
+
+	private String createdNamespacedFieldKey(String name)
+	{
+		// TODO Use Toplevel, not Object?
+		String simpleName = IRubyIndexConstants.OBJECT;
+		String[] enclosingTypes = new String[0];
+		if (!typeStack.isEmpty())
+		{
+			TypeInfo info = typeStack.pop();
+			simpleName = getSimpleName(info.name);
+			enclosingTypes = getEnclosingTypeNames(info.name);
+			typeStack.push(info);
+		}
+
+		StringBuilder builder = new StringBuilder();
+		builder.append(name);
+		builder.append(IRubyIndexConstants.SEPARATOR);
+		// Defining type simple name
+		builder.append(simpleName);
+		builder.append(IRubyIndexConstants.SEPARATOR);
+		// Defining type namespace
+		if (enclosingTypes != null && enclosingTypes.length > 0)
+		{
+			for (String enclosingName : enclosingTypes)
+			{
+				builder.append(enclosingName);
+				builder.append(NAMESPACE_DELIMETER);
+			}
+			builder.delete(builder.length() - 2, builder.length());
+		}
+		return builder.toString();
 	}
 
 	public void enterMethod(MethodInfo method)
 	{
-		addIndex(IRubyIndexConstants.METHOD_DECL, createMethodKey(method.name, method.parameterNames.length));
+		TypeInfo info = typeStack.pop();
+		String simpleName = getSimpleName(info.name);
+		String[] enclosingTypes = getEnclosingTypeNames(info.name);
+		typeStack.push(info);
+		addIndex(
+				IRubyIndexConstants.METHOD_DECL,
+				createMethodDefKey(method.name, simpleName, enclosingTypes, method.visibility, method.isClassLevel,
+						method.parameterNames.length));
 	}
 
 	public void acceptYield(String name)
@@ -311,6 +364,20 @@ class RubySourceIndexer implements ISourceElementRequestor
 		return builder.toString();
 	}
 
+	private String getNamespace(String name)
+	{
+		if (name == null)
+		{
+			return null;
+		}
+		int index = name.lastIndexOf(NAMESPACE_DELIMETER);
+		if (index != -1)
+		{
+			return name.substring(0, index);
+		}
+		return StringUtil.EMPTY;
+	}
+
 	private String getSimpleName(String name)
 	{
 		return lastSegment(name, NAMESPACE_DELIMETER);
@@ -322,12 +389,57 @@ class RubySourceIndexer implements ISourceElementRequestor
 
 	public void acceptMethodReference(String name, int argCount, int offset)
 	{
-		addIndex(IRubyIndexConstants.METHOD_REF, createMethodKey(name, argCount));
+		addIndex(IRubyIndexConstants.METHOD_REF, createMethodRefKey(name, argCount));
 	}
 
-	private String createMethodKey(String name, int argCount)
+	private String createMethodRefKey(String name, int argCount)
 	{
 		return name + IRubyIndexConstants.SEPARATOR + String.valueOf(argCount);
+	}
+
+	private String createMethodDefKey(String methodName, String definingTypeSimpleName, String[] definingTypeNamespace,
+			Visibility visibility, boolean isSingleton, int argCount)
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append(methodName);
+		builder.append(IRubyIndexConstants.SEPARATOR);
+		// Defining type simple name
+		builder.append(definingTypeSimpleName);
+		builder.append(IRubyIndexConstants.SEPARATOR);
+		// Defining type namespace
+		if (definingTypeNamespace != null && definingTypeNamespace.length > 0)
+		{
+			for (String enclosingName : definingTypeNamespace)
+			{
+				builder.append(enclosingName);
+				builder.append(NAMESPACE_DELIMETER);
+			}
+			builder.delete(builder.length() - 2, builder.length());
+		}
+		builder.append(IRubyIndexConstants.SEPARATOR);
+		// Visibility
+		builder.append(getVisibilityChar(visibility));
+		builder.append(IRubyIndexConstants.SEPARATOR);
+		// Singleton or instance
+		builder.append(isSingleton ? 'S' : 'I');
+		builder.append(IRubyIndexConstants.SEPARATOR);
+		// Arg count
+		builder.append(String.valueOf(argCount));
+		return builder.toString();
+	}
+
+	private char getVisibilityChar(Visibility visibility)
+	{
+		switch (visibility)
+		{
+			case PRIVATE:
+				return 'V';
+			case PROTECTED:
+				return 'R';
+			case PUBLIC:
+				return 'P';
+		}
+		return 'X';
 	}
 
 	public void acceptImport(String value, int startOffset, int endOffset)
@@ -350,7 +462,7 @@ class RubySourceIndexer implements ISourceElementRequestor
 	{
 		String simpleTypeName = getSimpleName(name);
 		addIndex(IRubyIndexConstants.REF, simpleTypeName);
-		addIndex(IRubyIndexConstants.CONSTRUCTOR_REF, createMethodKey(simpleTypeName, argCount));
+		addIndex(IRubyIndexConstants.CONSTRUCTOR_REF, createMethodRefKey(simpleTypeName, argCount));
 	}
 
 	public void enterBlock(int startOffset, int endOffset)

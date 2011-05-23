@@ -7,10 +7,14 @@
  */
 package com.aptana.ruby.launching;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -30,10 +34,31 @@ public class RubyLaunchingPlugin extends Plugin
 {
 	public static final String PLUGIN_ID = "com.aptana.ruby.launching"; //$NON-NLS-1$
 
+	private static final String GEM_COMMAND = "gem"; //$NON-NLS-1$
 	private static final String RUBYW = "rubyw"; //$NON-NLS-1$
 	private static final String RUBY = "ruby"; //$NON-NLS-1$
 
-	private static Map<IProject, String> projectToVersion;
+	/**
+	 * Map from project to ruby version. FIXME make use of the workingDirToRubyExe map?
+	 */
+	private static Map<IProject, String> projectToVersion = new HashMap<IProject, String>();
+	/**
+	 * map of working directories to the corresponding Ruby interpreter found on PATH there.
+	 */
+	private static Map<IPath, IPath> workingDirToRubyExe = new HashMap<IPath, IPath>();
+	/**
+	 * Map from ruby interpreter to loadpaths
+	 */
+	private static Map<String, Set<IPath>> rubyToLoadPaths = new HashMap<String, Set<IPath>>();
+	/**
+	 * Map from ruby interpreter to set of gem paths. FIXME I'm not sure this is 100% RVM friendly since they could use
+	 * gemsets...
+	 */
+	private static Map<String, Set<IPath>> rubyToGemPaths = new HashMap<String, Set<IPath>>();
+	/**
+	 * Cache from ruby interpreter path to version string
+	 */
+	private static Map<IPath, String> pathToVersion = new HashMap<IPath, String>();
 
 	protected static RubyLaunchingPlugin plugin;
 
@@ -46,18 +71,23 @@ public class RubyLaunchingPlugin extends Plugin
 	 */
 	public static IPath rubyExecutablePath(IPath workingDir)
 	{
-		// TODO Cache this?
-		IPath path = null;
-		if (Platform.OS_WIN32.equals(Platform.getOS()))
+		// Use Path.ROOT in place of null working dir
+		IPath pathKey = (workingDir == null ? Path.ROOT : workingDir);
+		if (!workingDirToRubyExe.containsKey(pathKey))
 		{
-			path = ExecutableUtil.find(RUBYW, true, getCommonRubyBinaryLocations(RUBYW), workingDir);
+			IPath path = null;
+			if (Platform.OS_WIN32.equals(Platform.getOS()))
+			{
+				path = ExecutableUtil.find(RUBYW, true, getCommonRubyBinaryLocations(RUBYW), workingDir);
+			}
+			if (path == null)
+			{
+				path = ExecutableUtil.find(RUBY, true, getCommonRubyBinaryLocations(RUBY), workingDir);
+			}
+			// TODO check TM_RUBY env value too?
+			workingDirToRubyExe.put(pathKey, path);
 		}
-		if (path == null)
-		{
-			path = ExecutableUtil.find(RUBY, true, getCommonRubyBinaryLocations(RUBY), workingDir);
-		}
-		// TODO check TM_RUBY env value too?
-		return path;
+		return workingDirToRubyExe.get(pathKey);
 	}
 
 	/**
@@ -100,24 +130,113 @@ public class RubyLaunchingPlugin extends Plugin
 			return null;
 		}
 		// This seems expensive, so we're caching the version per-project
-		if (projectToVersion == null)
-		{
-			projectToVersion = new HashMap<IProject, String>();
-		}
 		if (projectToVersion.containsKey(project))
 		{
 			return projectToVersion.get(project);
 		}
+
 		IPath rubyExe = rubyExecutablePath(project.getLocation());
-		if (rubyExe == null)
-		{
-			projectToVersion.put(project, null);
-			return null;
-		}
-		String version = ProcessUtil.outputForCommand(rubyExe.toOSString(), null, ShellExecutable.getEnvironment(),
-				"-v"); //$NON-NLS-1$
+		String version = getRubyVersion(rubyExe);
 		projectToVersion.put(project, version);
 		return version;
+	}
+
+	public synchronized static Set<IPath> getLoadpaths(IProject project)
+	{
+		IPath workingDir = (project == null ? null : project.getLocation());
+		IPath rubyPath = rubyExecutablePath(workingDir);
+		String rubyExe = (rubyPath == null ? RUBY : rubyPath.toOSString());
+		if (!rubyToLoadPaths.containsKey(rubyExe))
+		{
+			String rawLoadPathOutput = ProcessUtil.outputForCommand(rubyExe, null,
+					ShellExecutable.getEnvironment(workingDir), "-e", "puts $:"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (rawLoadPathOutput == null)
+			{
+				rubyToLoadPaths.put(rubyExe, null);
+			}
+			else
+			{
+				Set<IPath> paths = new HashSet<IPath>();
+				String[] loadpaths = rawLoadPathOutput.split("\r\n|\r|\n"); //$NON-NLS-1$
+				if (loadpaths != null)
+				{
+					for (String loadpath : loadpaths)
+					{
+						if (".".equals(loadpath)) //$NON-NLS-1$
+						{
+							continue;
+						}
+						paths.add(new Path(loadpath));
+					}
+				}
+				rubyToLoadPaths.put(rubyExe, paths);
+			}
+		}
+		Set<IPath> result = rubyToLoadPaths.get(rubyExe);
+		if (result == null)
+		{
+			return Collections.emptySet();
+		}
+		return result;
+	}
+
+	public synchronized static Set<IPath> getGemPaths(IProject project)
+	{
+		// FIXME this is including every single gem! We should narrow the list down based on Gemfile in project root if
+		// we can!
+		IPath wd = null;
+		if (project != null)
+		{
+			wd = project.getLocation();
+		}
+		IPath rubyPath = rubyExecutablePath(wd);
+		String rubyPathString = null;
+		if (rubyPath == null)
+		{
+			rubyPathString = RUBY;
+		}
+		else
+		{
+			rubyPathString = rubyPath.toOSString();
+		}
+
+		if (!rubyToGemPaths.containsKey(rubyPathString))
+		{
+			IPath gemBinPath = ExecutableUtil.find(GEM_COMMAND, true, null, wd);
+			String gemCommand = GEM_COMMAND;
+			if (gemBinPath != null)
+			{
+				gemCommand = gemBinPath.toOSString();
+			}
+			// FIXME Will this actually behave properly with RVM?
+			// FIXME Not finding my user gem path on Windows...
+			String gemEnvOutput = ProcessUtil.outputForCommand(rubyPathString, wd, ShellExecutable.getEnvironment(wd),
+					gemCommand, "env", "gempath"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (gemEnvOutput == null)
+			{
+				rubyToGemPaths.put(rubyPathString, null);
+			}
+			else
+			{
+				Set<IPath> paths = new HashSet<IPath>();
+				String[] gemPaths = gemEnvOutput.split(File.pathSeparator);
+				if (gemPaths != null)
+				{
+					for (String gemPath : gemPaths)
+					{
+						IPath gemsPath = new Path(gemPath).append("gems"); //$NON-NLS-1$
+						paths.add(gemsPath);
+					}
+				}
+				rubyToGemPaths.put(rubyPathString, paths);
+			}
+		}
+		Set<IPath> result = rubyToGemPaths.get(rubyPathString);
+		if (result == null)
+		{
+			return Collections.emptySet();
+		}
+		return result;
 	}
 
 	public RubyLaunchingPlugin()
@@ -145,6 +264,9 @@ public class RubyLaunchingPlugin extends Plugin
 	{
 		plugin = null;
 		projectToVersion = null;
+		workingDirToRubyExe = null;
+		rubyToLoadPaths = null;
+		pathToVersion = null;
 		super.stop(context);
 	}
 
@@ -179,5 +301,16 @@ public class RubyLaunchingPlugin extends Plugin
 	public static String getPluginIdentifier()
 	{
 		return PLUGIN_ID;
+	}
+
+	public synchronized static String getRubyVersion(IPath rubyExe)
+	{
+		if (!pathToVersion.containsKey(rubyExe))
+		{
+			String rubyPath = (rubyExe == null ? RUBY : rubyExe.toOSString());
+			String version = ProcessUtil.outputForCommand(rubyPath, null, ShellExecutable.getEnvironment(), "-v"); //$NON-NLS-1$
+			pathToVersion.put(rubyExe, version);
+		}
+		return pathToVersion.get(rubyExe);
 	}
 }

@@ -233,8 +233,8 @@ public class RubyCodeResolver extends CodeResolver
 			return Collections.emptyList();
 		}
 		// TODO Search AST in current file first?
-		List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.CONSTANT_DECL }, constantName,
-				SearchPattern.EXACT_MATCH | SearchPattern.CASE_SENSITIVE);
+		List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.CONSTANT_DECL }, constantName
+				+ IRubyIndexConstants.SEPARATOR, SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
 		return getMatchingElementHyperlinks(results, constantName, IRubyElement.CONSTANT);
 	}
 

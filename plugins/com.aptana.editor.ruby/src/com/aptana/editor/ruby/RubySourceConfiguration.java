@@ -177,6 +177,7 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getContentAssistProcessor(com.aptana.editor.common.AbstractThemeableEditor, java.lang.String)
 	 */
 	public IContentAssistProcessor getContentAssistProcessor(AbstractThemeableEditor editor, String contentType) {
+		// TODO Use different CA processors based on partition, i.e. don't do ruby CA for comments!
 		return new RubyContentAssistProcessor(editor);
 	}
 

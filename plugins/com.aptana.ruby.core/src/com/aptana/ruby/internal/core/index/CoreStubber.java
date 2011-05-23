@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,9 +43,11 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.osgi.service.prefs.BackingStoreException;
 
 import com.aptana.core.ShellExecutable;
-import com.aptana.core.util.ExecutableUtil;
 import com.aptana.core.util.ProcessUtil;
 import com.aptana.core.util.ResourceUtil;
 import com.aptana.index.core.IFileStoreIndexingParticipant;
@@ -57,12 +61,16 @@ import com.aptana.ruby.launching.RubyLaunchingPlugin;
 public class CoreStubber extends Job
 {
 
-	private static final String GEM_COMMAND = "gem"; //$NON-NLS-1$
-	private static final String RUBY_EXE = "ruby"; //$NON-NLS-1$
-	private static final String VERSION_SWITCH = "-v"; //$NON-NLS-1$
-
 	private static final String CORE_STUBBER_PATH = "ruby/core_stubber.rb"; //$NON-NLS-1$
 	private static final String FINISH_MARKER_FILENAME = "finish_marker"; //$NON-NLS-1$
+
+	/**
+	 * A way to version the core stubs. If the core stubber script changes, be sure to bump this so new core stubs are
+	 * created!
+	 */
+	private static final String CORE_STUBBER_VERSION = "2"; //$NON-NLS-1$
+
+	protected static boolean outOfDate = false;
 
 	public CoreStubber()
 	{
@@ -73,6 +81,8 @@ public class CoreStubber extends Job
 	@Override
 	protected IStatus run(IProgressMonitor monitor)
 	{
+		// TODO This also needs to listen for new projects added and make sure we do the core stubbing stuff if it's
+		// tied to a new interpreter!
 		SubMonitor sub = SubMonitor.convert(monitor, 100);
 
 		// Bail out early if there are no ruby files in the user's workspace
@@ -158,24 +168,66 @@ public class CoreStubber extends Job
 
 		try
 		{
-			File outputDir = getRubyCoreStubDir();
-			if (outputDir == null)
+			Set<IPath> rubyExes = new HashSet<IPath>();
+			Set<IPath> pathsToIndex = new HashSet<IPath>();
+			// We need to do this for every single project tied to ruby, set up it's own ruby core stub dir, std
+			// lib, gems, etc.
+			for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects())
 			{
-				return Status.CANCEL_STATUS;
+				IPath wd = null;
+				if (project != null)
+				{
+					wd = project.getLocation();
+				}
+				IPath rubyExe = RubyLaunchingPlugin.rubyExecutablePath(wd);
+				rubyExes.add(rubyExe);
+				pathsToIndex.addAll(getUniqueLoadpaths(project));
+				pathsToIndex.addAll(RubyLaunchingPlugin.getGemPaths(project));
 			}
-			File finishMarker = new File(outputDir, FINISH_MARKER_FILENAME);
-			// Skip if we already generated core stubs for this ruby...
-			if (!finishMarker.exists())
+
+			Set<File> stubDirs = new HashSet<File>();
+			int unit = 50 / rubyExes.size();
+			for (IPath rubyExe : rubyExes)
 			{
-				generateCoreStubs(outputDir, finishMarker);
+				String rubyVersion = RubyLaunchingPlugin.getRubyVersion(rubyExe);
+				File outputDir = getRubyCoreStubDir(rubyVersion);
+				if (outputDir == null)
+				{
+					continue;
+				}
+				stubDirs.add(outputDir);
+				File finishMarker = new File(outputDir, FINISH_MARKER_FILENAME);
+				// Skip if we already generated core stubs for this ruby...
+				if (!finishMarker.exists())
+				{
+					generateCoreStubs(rubyExe, outputDir, finishMarker);
+				}
+				sub.worked(unit);
 			}
-			sub.setWorkRemaining(10);
+			sub.setWorkRemaining(50);
 
 			final IProgressMonitor pm = Job.getJobManager().createProgressGroup();
 			final List<Job> jobs = new ArrayList<Job>();
-			jobs.add(indexCoreStubs(outputDir));
-			jobs.addAll(indexStdLib());
-			jobs.addAll(indexGems());
+
+			// Check index version. if out of date, force re-index of everything!
+			int currentVersion = Platform.getPreferencesService().getInt(RubyCorePlugin.PLUGIN_ID,
+					RubySourceIndexer.VERSION_KEY, -1, null);
+			if (currentVersion != RubySourceIndexer.CURRENT_VERSION)
+			{
+				outOfDate = true;
+			}
+			for (File stubDir : stubDirs)
+			{
+				jobs.add(indexCoreStubs(stubDir));
+			}
+			for (IPath pathToIndex : pathsToIndex)
+			{
+				Job job = indexFiles(pathToIndex.toFile().toURI());
+				if (job != null)
+				{
+					jobs.add(job);
+				}
+			}
 			pm.beginTask(Messages.CoreStubber_IndexingRuby, jobs.size() * 1000);
 			for (Job job : jobs)
 			{
@@ -208,6 +260,17 @@ public class CoreStubber extends Job
 						}
 					}
 					pm.done();
+					// Store current version of index in prefs so we can force re-index if indexer changes
+					IEclipsePreferences prefs = new InstanceScope().getNode(RubyCorePlugin.PLUGIN_ID);
+					prefs.putInt(RubySourceIndexer.VERSION_KEY, RubySourceIndexer.CURRENT_VERSION);
+					try
+					{
+						prefs.flush();
+					}
+					catch (BackingStoreException e)
+					{
+						RubyCorePlugin.log(e);
+					}
 				}
 			});
 			t.start();
@@ -311,82 +374,57 @@ public class CoreStubber extends Job
 		return false;
 	}
 
+	/**
+	 * @deprecated Use getRubyCoreIndex(IProject)
+	 * @return
+	 */
 	public static Index getRubyCoreIndex()
 	{
-		File stubDir = getRubyCoreStubDir();
-		if (stubDir == null)
-		{
-			return null;
-		}
-		return IndexManager.getInstance().getIndex(stubDir.toURI());
+		return getRubyCoreIndex(null);
 	}
 
-	protected static File getRubyCoreStubDir()
+	protected static File getRubyCoreStubDir(IProject project)
 	{
-		String rubyVersion = ProcessUtil.outputForCommand(getRubyExecutable(), null, ShellExecutable.getEnvironment(),
-				VERSION_SWITCH);
+		String rubyVersion = RubyLaunchingPlugin.getRubyVersionForProject(project);
 		if (rubyVersion == null)
 		{
 			return null;
 		}
+		return getRubyCoreStubDir(rubyVersion);
+	}
+
+	protected static File getRubyCoreStubDir(String rubyVersion)
+	{
+		// TODO Maybe convert ruby version string into a more readable string, not integer hash code!
 		// Store core stubs based on ruby version string...
 		IPath outputPath = RubyCorePlugin.getDefault().getStateLocation()
-				.append(Integer.toString(rubyVersion.hashCode())).append(RUBY_EXE);
+				.append(Integer.toString(rubyVersion.hashCode())).append(CORE_STUBBER_VERSION);
 		return outputPath.toFile();
 	}
 
-	private static String getRubyExecutable()
-	{
-		IPath ruby = RubyLaunchingPlugin.rubyExecutablePath(null);
-		if (ruby != null)
-		{
-			return ruby.toOSString();
-		}
-		return RUBY_EXE;
-	}
-
-	protected List<Job> indexGems()
+	protected List<Job> indexGems(IProject project)
 	{
 		List<Job> jobs = new ArrayList<Job>();
-		for (IPath gemPath : getGemPaths())
+		for (IPath gemPath : RubyLaunchingPlugin.getGemPaths(project))
 		{
 			jobs.add(indexFiles(gemPath.toFile().toURI()));
 		}
 		return jobs;
 	}
 
+	/**
+	 * @deprecated use getGemPaths(IProject)
+	 * @return
+	 */
 	public static Set<IPath> getGemPaths()
 	{
-		IPath gemCommand = ExecutableUtil.find(GEM_COMMAND, true, null);
-		String command = GEM_COMMAND;
-		if (gemCommand != null)
-		{
-			command = gemCommand.toOSString();
-		}
-		// FIXME Not finding my user gem path on Windows...
-		String gemEnvOutput = ProcessUtil.outputForCommand(command, null, ShellExecutable.getEnvironment(),
-				"env", "gempath"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (gemEnvOutput == null)
-		{
-			return Collections.emptySet();
-		}
-		Set<IPath> paths = new HashSet<IPath>();
-		String[] gemPaths = gemEnvOutput.split(File.pathSeparator);
-		if (gemPaths != null)
-		{
-			for (String gemPath : gemPaths)
-			{
-				IPath gemsPath = new Path(gemPath).append("gems"); //$NON-NLS-1$
-				paths.add(gemsPath);
-			}
-		}
-		return paths;
+		return RubyLaunchingPlugin.getGemPaths(null);
 	}
 
-	protected List<Job> indexStdLib()
+	protected List<Job> indexStdLib(Set<IPath> uniqueLoadPaths)
 	{
 		List<Job> jobs = new ArrayList<Job>();
-		for (IPath loadpath : getLoadpaths())
+		for (IPath loadpath : uniqueLoadPaths)
 		{
 			Job job = indexFiles(loadpath.toFile().toURI());
 			if (job != null)
@@ -397,27 +435,13 @@ public class CoreStubber extends Job
 		return jobs;
 	}
 
+	/**
+	 * @deprecated use getLoadPaths(IProject)
+	 * @return
+	 */
 	public static Set<IPath> getLoadpaths()
 	{
-		String rawLoadPathOutput = ProcessUtil.outputForCommand(getRubyExecutable(), null,
-				ShellExecutable.getEnvironment(), "-e", "puts $:"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (rawLoadPathOutput == null)
-		{
-			return Collections.emptySet();
-		}
-		Set<IPath> paths = new HashSet<IPath>();
-		String[] loadpaths = rawLoadPathOutput.split("\r\n|\r|\n"); //$NON-NLS-1$
-		if (loadpaths != null)
-		{
-			// TODO What about when one loadpath is a parent of another, just filter to parent?
-			for (String loadpath : loadpaths)
-			{
-				if (loadpath.equals(".")) //$NON-NLS-1$
-					continue;
-				paths.add(new Path(loadpath));
-			}
-		}
-		return paths;
+		return RubyLaunchingPlugin.getLoadpaths(null);
 	}
 
 	protected Job indexCoreStubs(File outputDir)
@@ -425,12 +449,13 @@ public class CoreStubber extends Job
 		return indexFiles(Messages.CoreStubber_IndexingRubyCore, outputDir.toURI());
 	}
 
-	protected void generateCoreStubs(File outputDir, File finishMarker) throws IOException
+	protected void generateCoreStubs(IPath rubyExe, File outputDir, File finishMarker) throws IOException
 	{
+		// FIXME Need to be able to version this file? This file has changed...
 		URL url = FileLocator.find(RubyCorePlugin.getDefault().getBundle(), new Path(CORE_STUBBER_PATH), null);
 		File stubberScript = ResourceUtil.resourcePathToFile(url);
 
-		IStatus stubberResult = ProcessUtil.runInBackground(getRubyExecutable(), null,
+		IStatus stubberResult = ProcessUtil.runInBackground(rubyExe.toOSString(), null,
 				ShellExecutable.getEnvironment(), stubberScript.getAbsolutePath(), outputDir.getAbsolutePath());
 		if (stubberResult == null || !stubberResult.isOK())
 		{
@@ -477,7 +502,15 @@ public class CoreStubber extends Job
 		@Override
 		protected Set<IFileStore> filterFiles(long indexLastModified, Set<IFileStore> files)
 		{
-			Set<IFileStore> firstPass = super.filterFiles(indexLastModified, files);
+			Set<IFileStore> firstPass;
+			if (outOfDate)
+			{
+				firstPass = files;
+			}
+			else
+			{
+				firstPass = super.filterFiles(indexLastModified, files);
+			}
 			if (firstPass == null || firstPass.isEmpty())
 			{
 				return firstPass;
@@ -497,6 +530,66 @@ public class CoreStubber extends Job
 			}
 			return filtered;
 		}
+	}
+
+	public static Collection<Index> getStdLibIndices(IProject iProject)
+	{
+		Collection<Index> indices = new ArrayList<Index>();
+		for (IPath path : getUniqueLoadpaths(iProject))
+		{
+			indices.add(IndexManager.getInstance().getIndex(path.toFile().toURI()));
+		}
+		return indices;
+	}
+
+	/**
+	 * Takes the loadpaths and removes any paths that are subpaths of another entry. i.e. If we have /usr/local/ruby/1.8
+	 * and /usr/local/ruby/1.8/site_ruby, the latter will be removed. This is primarily used to avoid indexing subdirs
+	 * multiple times.
+	 * 
+	 * @return
+	 */
+	private static Collection<IPath> getUniqueLoadpaths(IProject project)
+	{
+		List<IPath> dupe = new ArrayList<IPath>(RubyLaunchingPlugin.getLoadpaths(project));
+		Collections.sort(dupe, new Comparator<IPath>()
+		{
+			public int compare(IPath p1, IPath p2)
+			{
+				return p1.segmentCount() - p2.segmentCount();
+			}
+		});
+		Set<IPath> uniques = new HashSet<IPath>();
+		for (IPath current : dupe)
+		{
+			boolean add = true;
+			if (!uniques.isEmpty())
+			{
+				for (IPath unique : uniques)
+				{
+					if (unique.isPrefixOf(current))
+					{
+						add = false;
+						break;
+					}
+				}
+			}
+			if (add)
+			{
+				uniques.add(current);
+			}
+		}
+		return uniques;
+	}
+
+	public static Index getRubyCoreIndex(IProject project)
+	{
+		File stubDir = getRubyCoreStubDir(project);
+		if (stubDir == null)
+		{
+			return null;
+		}
+		return IndexManager.getInstance().getIndex(stubDir.toURI());
 	}
 
 }

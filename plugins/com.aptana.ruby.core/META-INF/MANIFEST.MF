@@ -18,6 +18,7 @@ Export-Package: com.aptana.ruby.core,
  com.aptana.ruby.core.ast,
  com.aptana.ruby.core.codeassist,
  com.aptana.ruby.core.index,
+ com.aptana.ruby.core.inference,
  com.aptana.ruby.internal.core;x-friends:="com.aptana.scripting",
  com.aptana.ruby.internal.core.index;x-friends:="com.aptana.editor.erb"
 Eclipse-ExtensibleAPI: true

@@ -31,6 +31,14 @@ def print_type(klass)
   klass.included_modules.each {|mod| f << "  include #{mod.to_s}\n" unless mod.to_s == "Kernel" && klass.to_s != "Object"}
   f << "\n"
 
+  # constants
+  # FIXME 1.8 doesn't take inherit argument for constants call!
+  (klass.constants(false) rescue klass.constants).sort_by {|c| c.to_s }.each do |constant_name|
+    constant_val = eval("#{klass}").const_get(constant_name.to_sym) rescue nil
+    f << "  #{constant_name} = #{constant_val}\n"
+  end
+  f << "\n"
+
   klass.methods(false).sort_by {|m| m.to_s }.each do |method_name|
     method = eval("#{klass}").method(method_name) rescue nil
     f << print_method(klass, method, method_name.to_s, true)
@@ -152,12 +160,12 @@ get_classes.each do |klass|
     f << "STDERR = IO.new\n"
     f << "ENV = {}\n"
     f << "NIL = nil\n"
-    f << "VERSION = ''\n"
-    f << "RUBY_PATCHLEVEL = 123\n"
-    f << "RUBY_COPYRIGHT = 'ruby - Copyright (C) 1993-2009 Yukihiro Matsumoto'\n"
+    f << "VERSION = '#{VERSION}'\n" if defined?(VERSION)
+    f << "RUBY_PATCHLEVEL = #{RUBY_PATCHLEVEL}\n" if defined?(RUBY_PATCHLEVEL)
+    f << "RUBY_COPYRIGHT = '#{RUBY_COPYRIGHT}'\n" if defined?(RUBY_COPYRIGHT)
     f << "TOPLEVEL_BINDING = Binding.new\n"
-    f << "RUBY_VERSION = '1.8.7'\n"
-    f << "RUBY_PLATFORM = ''\n"
-    f << "PLATFORM = ''\n"
+    f << "RUBY_VERSION = '#{RUBY_VERSION}'\n" if defined?(RUBY_VERSION)
+    f << "RUBY_PLATFORM = '#{RUBY_PLATFORM}'\n" if defined?(RUBY_PLATFORM)
+    f << "PLATFORM = '#{PLATFORM}'\n" if defined?(PLATFORM)
   end
 end

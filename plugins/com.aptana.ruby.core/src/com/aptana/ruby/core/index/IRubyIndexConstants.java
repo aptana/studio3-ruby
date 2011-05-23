@@ -33,4 +33,6 @@ public interface IRubyIndexConstants
 	public static final char MODULE_SUFFIX = 'M';
 	
 	public static final String OBJECT = "Object"; //$NON-NLS-1$
+
+	public static final String NAMESPACE_DELIMETER = "::"; //$NON-NLS-1$
 }
