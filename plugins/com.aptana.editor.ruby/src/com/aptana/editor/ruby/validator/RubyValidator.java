@@ -123,7 +123,8 @@ public class RubyValidator implements IValidator
 			}
 		};
 		parser.setWarnings(warnings);
-		LexerSource lexerSource = LexerSource.getSource(path.getPath(), new StringReader(source), config);
+		LexerSource lexerSource = LexerSource.getSource(
+				path == null ? "filename" : path.getPath(), new StringReader(source), config); //$NON-NLS-1$
 		try
 		{
 			parser.parse(config, lexerSource);

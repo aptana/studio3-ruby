@@ -2,13 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: com.aptana.editor.ruby;singleton:=true
-Bundle-Version: 3.0.0.qualifier
+Bundle-Version: 3.0.2.qualifier
 Bundle-Activator: com.aptana.editor.ruby.RubyEditorPlugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources,
  org.eclipse.core.filesystem,
  com.aptana.core,
+ com.aptana.index.core,
  com.aptana.parsing,
  org.jrubyparser,
  com.aptana.ruby.core,
@@ -20,8 +21,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.ide,
  com.aptana.editor.common,
  com.aptana.theme,
- com.aptana.ui;bundle-version="3.0.0",
- org.eclipse.ui.workbench.texteditor
+ com.aptana.ui,
+ org.eclipse.ui.workbench.texteditor,
+ org.jruby,
+ com.aptana.scripting
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

@@ -7,6 +7,8 @@
  */
 package com.aptana.ruby.core;
 
+import java.util.List;
+
 import com.aptana.parsing.ast.IParseNode;
 
 public interface IRubyElement extends IParseNode
@@ -29,4 +31,8 @@ public interface IRubyElement extends IParseNode
 	public String getName();
 
 	public short getNodeType();
+
+	public IRubyElement[] getChildrenOfType(int type);
+
+	public List<IRubyElement> getChildrenOfTypeRecursive(int type);
 }
