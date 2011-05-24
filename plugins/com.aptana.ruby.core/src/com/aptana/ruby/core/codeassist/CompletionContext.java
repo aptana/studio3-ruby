@@ -8,6 +8,7 @@
 package com.aptana.ruby.core.codeassist;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -475,6 +476,11 @@ public class CompletionContext
 
 	public Set<String> getLocalsInScope()
 	{
+		if (getRootNode() == null)
+		{
+			return Collections.emptySet();
+		}
+
 		Set<String> locals = new TreeSet<String>();
 		Node enclosingMethod = new ClosestSpanningNodeLocator().find(getRootNode(), getOffset(), new INodeAcceptor()
 		{
@@ -515,5 +521,10 @@ public class CompletionContext
 	public Collection<ITypeGuess> inferReceiver()
 	{
 		return new TypeInferrer().infer(getRootNode(), getReceiver());
+	}
+
+	public boolean isNotParseable()
+	{
+		return getRootNode() == null;
 	}
 }

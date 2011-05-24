@@ -24,6 +24,7 @@ import org.jrubyparser.ast.ClassVarNode;
 import org.jrubyparser.ast.Colon2Node;
 import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.INameNode;
+import org.jrubyparser.ast.InstVarNode;
 import org.jrubyparser.ast.LocalAsgnNode;
 import org.jrubyparser.ast.LocalVarNode;
 import org.jrubyparser.ast.Node;
@@ -168,7 +169,7 @@ public class TypeInferrer implements ITypeInferrer
 			case LOCALVARNODE:
 				return inferLocal(rootNode, (LocalVarNode) toInfer);
 			case INSTVARNODE:
-				return inferInstance(rootNode, (LocalVarNode) toInfer);
+				return inferInstance(rootNode, (InstVarNode) toInfer);
 			case CLASSVARNODE:
 				return inferClassVar(rootNode, (ClassVarNode) toInfer);
 			case COLON2NODE:
@@ -179,7 +180,7 @@ public class TypeInferrer implements ITypeInferrer
 		return createSet("Object");
 	}
 
-	private Collection<ITypeGuess> inferInstance(Node rootNode, LocalVarNode toInfer)
+	private Collection<ITypeGuess> inferInstance(Node rootNode, InstVarNode toInfer)
 	{
 		return inferClassOrInstanceVar(rootNode, toInfer, NodeType.INSTASGNNODE);
 	}

@@ -83,6 +83,15 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	private static final String METHOD_PROPOSALS_FOR_TYPE_EVENT = RubyEditorPlugin.PLUGIN_ID
 			+ "/perf/content_assist/type_methods"; //$NON-NLS-1$
 
+	/**
+	 * Static list of ruby keywords
+	 */
+	@SuppressWarnings("nls")
+	private static final String[] KEYWORDS = new String[] { "alias", "and", "BEGIN", "begin", "break", "case", "class",
+			"def", "defined", "do", "else", "elsif", "END", "end", "ensure", "false", "for", "if", "in", "module",
+			"next", "nil", "not", "or", "redo", "rescue", "retry", "return", "self", "super", "then", "true", "undef",
+			"unless", "until", "when", "while", "yield" };
+
 	private CompletionContext fContext;
 
 	public RubyContentAssistProcessor(AbstractThemeableEditor editor)
@@ -122,6 +131,11 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			if (fContext.inComment() || fContext.getPartialPrefix().endsWith(":")) //$NON-NLS-1$
 			{
 				return new ICompletionProposal[0];
+			}
+			else if (fContext.isNotParseable())
+			{
+
+				proposals.addAll(suggestKeywords());
 			}
 			else if (fContext.emptyPrefix())
 			{
@@ -187,6 +201,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			}
 			else if (fContext.isMethodInvokationOrLocal())
 			{
+				proposals.addAll(suggestKeywords());
 				// JDT suggests locals, then methods
 				proposals.addAll(suggestLocalVariables());
 				proposals.addAll(suggestMethodsForEnclosingType());
@@ -203,6 +218,20 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		{
 			fContext = null;
 		}
+	}
+
+	private Collection<? extends ICompletionProposal> suggestKeywords()
+	{
+		List<ICompletionProposal> keywords = new ArrayList<ICompletionProposal>();
+		String prefix = fContext.getPartialPrefix();
+		for (String keyword : KEYWORDS)
+		{
+			if (keyword.startsWith(prefix))
+			{
+				keywords.add(createProposal(keyword, null));
+			}
+		}
+		return keywords;
 	}
 
 	private boolean receiverIsType()
