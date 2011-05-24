@@ -172,7 +172,17 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		visitChildren(visited);
 		SourcePosition position = visited.getPosition();
 		Node bodyNode = visited.getBodyNode();
-		int bodyEndOffset = bodyNode.getPosition().getEndOffset();
+		int bodyEndOffset;
+		if (bodyNode instanceof NilImplicitNode)
+		{
+			// empty 'module' body
+			bodyEndOffset = moduleNode.getEndOffset();
+		}
+		else
+		{
+			bodyEndOffset = bodyNode.getPosition().getEndOffset();
+		}
+
 		builder.checkedPop(moduleNode, bodyEndOffset);
 		moduleNode.setEnd(builder.createTextNode(document, bodyEndOffset, position.getEndOffset()));
 		return null;
