@@ -184,6 +184,8 @@ public class CoreStubber extends Job
 				pathsToIndex.addAll(getUniqueLoadpaths(project));
 				pathsToIndex.addAll(RubyLaunchingPlugin.getGemPaths(project));
 			}
+			// Add "global" ruby
+			rubyExes.add(RubyLaunchingPlugin.rubyExecutablePath(null));
 
 			Set<File> stubDirs = new HashSet<File>();
 			int unit = 50 / rubyExes.size();
@@ -455,7 +457,7 @@ public class CoreStubber extends Job
 		URL url = FileLocator.find(RubyCorePlugin.getDefault().getBundle(), new Path(CORE_STUBBER_PATH), null);
 		File stubberScript = ResourceUtil.resourcePathToFile(url);
 
-		IStatus stubberResult = ProcessUtil.runInBackground(rubyExe.toOSString(), null,
+		IStatus stubberResult = ProcessUtil.runInBackground(rubyExe == null ? "ruby" : rubyExe.toOSString(), null, //$NON-NLS-1$
 				ShellExecutable.getEnvironment(), stubberScript.getAbsolutePath(), outputDir.getAbsolutePath());
 		if (stubberResult == null || !stubberResult.isOK())
 		{
