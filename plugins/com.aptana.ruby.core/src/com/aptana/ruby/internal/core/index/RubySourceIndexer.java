@@ -232,10 +232,16 @@ class RubySourceIndexer implements ISourceElementRequestor
 
 	public void enterMethod(MethodInfo method)
 	{
-		TypeInfo info = typeStack.pop();
-		String simpleName = getSimpleName(info.name);
-		String[] enclosingTypes = getEnclosingTypeNames(info.name);
-		typeStack.push(info);
+		// TODO Use Toplevel, not Object?
+		String simpleName = IRubyIndexConstants.OBJECT;
+		String[] enclosingTypes = new String[0];
+		if (!typeStack.isEmpty())
+		{
+			TypeInfo info = typeStack.pop();
+			simpleName = getSimpleName(info.name);
+			enclosingTypes = getEnclosingTypeNames(info.name);
+			typeStack.push(info);
+		}
 		addIndex(
 				IRubyIndexConstants.METHOD_DECL,
 				createMethodDefKey(method.name, simpleName, enclosingTypes, method.visibility, method.isClassLevel,
