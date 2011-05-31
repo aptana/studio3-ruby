@@ -167,15 +167,15 @@
       <context
             name="%context.debug.name"
             description="%context.debug.description"
-            id="com.aptana.ruby.debug.ui.ruby.debugging"
+            id="com.aptana.ruby.debug.ui.debugging"
             parentId="org.eclipse.debug.ui.debugging">
       </context>
    </extension>
    <extension
          point="org.eclipse.debug.ui.debugModelContextBindings">
       <modelContextBinding
-            debugModelId="org.rubypeople.rdt.debug"
-            contextId="com.aptana.ruby.debug.ui.ruby.debugging">
+            debugModelId="com.aptana.ruby.debug"
+            contextId="com.aptana.ruby.debug.ui.debugging">
       </modelContextBinding>
    </extension>
    <extension
@@ -321,5 +321,40 @@
               style="push">
         </command>
      </menuContribution>
+  </extension>
+  <extension
+        point="org.eclipse.debug.ui.contextViewBindings">
+     <contextViewBinding
+           autoOpen="true"
+           contextId="com.aptana.ruby.debug.ui.debugging"
+           viewId="org.eclipse.debug.ui.DebugView">
+     </contextViewBinding>
+     <contextViewBinding
+           autoOpen="true"
+           contextId="com.aptana.ruby.debug.ui.debugging"
+           viewId="org.eclipse.debug.ui.VariableView">
+     </contextViewBinding>
+     <contextViewBinding
+           autoOpen="true"
+           contextId="com.aptana.ruby.debug.ui.debugging"
+           viewId="org.eclipse.debug.ui.ExpressionView">
+     </contextViewBinding>
+  </extension>
+  <extension
+        point="com.aptana.editor.common.textHovers">
+     <hover
+           class="com.aptana.ruby.internal.debug.ui.RubyDebugHover"
+           id="com.aptana.ruby.debug.ui.hover"
+           label="%hover.label">
+        <contentType
+              type="com.aptana.contenttype.ruby">
+        </contentType>
+        <enablement>
+          <systemTest
+                property="com.aptana.ruby.debug.ui.debuggerActive"
+                value="true">
+          </systemTest>
+        </enablement>
+     </hover>
   </extension>
 </plugin>

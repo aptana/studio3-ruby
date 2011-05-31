@@ -1,5 +1,6 @@
 package com.aptana.ruby.ui;
 
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -57,4 +58,13 @@ public class RubyUIPlugin extends AbstractUIPlugin
 		return PLUGIN_ID;
 	}
 
+	@Override
+	protected void initializeImageRegistry(ImageRegistry reg)
+	{
+		for (String image : IRubyUIConstants.ALL_IMAGES)
+		{
+			reg.put(image, imageDescriptorFromPlugin(PLUGIN_ID, image));
+		}
+		super.initializeImageRegistry(reg);
+	}
 }

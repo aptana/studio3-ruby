@@ -2,6 +2,7 @@ package com.aptana.ruby.internal.debug.core.model;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
+
 import com.aptana.ruby.debug.core.model.IRubyValue;
 
 /**
@@ -43,6 +44,10 @@ public class RubyValue extends RubyDebugElement implements IRubyValue
 		else if (type != null && type.equals("Symbol")) //$NON-NLS-1$
 		{
 			this.valueString = ':' + this.valueString;
+		}
+		if (type == null && "nil".equals(this.valueString)) //$NON-NLS-1$
+		{
+			type = "NilClass"; //$NON-NLS-1$
 		}
 		this.owner = owner;
 		this.hasChildren = hasChildren;
