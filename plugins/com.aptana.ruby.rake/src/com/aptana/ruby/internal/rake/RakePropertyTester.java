@@ -19,7 +19,6 @@ public class RakePropertyTester extends PropertyTester
 	{
 	}
 
-	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue)
 	{
 		if (!(receiver instanceof IResource))

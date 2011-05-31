@@ -196,7 +196,6 @@ public class RakeTasksHelper implements IRakeHelper
 		return StringUtil.EMPTY;
 	}
 
-	@Override
 	public IStatus runRake(IProject project, IProgressMonitor monitor, String... arguments)
 	{
 		try

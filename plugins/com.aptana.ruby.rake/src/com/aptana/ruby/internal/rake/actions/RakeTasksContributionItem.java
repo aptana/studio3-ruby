@@ -275,7 +275,6 @@ public class RakeTasksContributionItem extends ContributionItem implements IWork
 		return part;
 	}
 
-	@Override
 	public void initialize(IServiceLocator serviceLocator)
 	{
 		this.serviceLocator = serviceLocator;
