@@ -1,5 +1,6 @@
 package com.aptana.editor.erb.html;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +21,7 @@ import com.aptana.index.core.AbstractFileIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.parsing.ParserPoolFactory;
 import com.aptana.parsing.ast.IParseNode;
+import com.aptana.preview.Activator;
 import com.aptana.ruby.internal.core.index.RubyFileIndexingParticipant;
 
 public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipant
@@ -91,6 +93,10 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 			sub.worked(5);
 			RubyFileIndexingParticipant rfip = new RubyFileIndexingParticipant();
 			rfip.indexSource(index, rubyContents, store, sub.newChild(45));
+		}
+		catch (Exception e)
+		{
+			Activator.log(MessageFormat.format(Messages.RHTMLFileIndexingParticipant_ERR_Indexing, store.getName()), e);
 		}
 		finally
 		{

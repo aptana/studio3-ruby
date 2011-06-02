@@ -269,7 +269,7 @@ public class RubyCodeResolver extends CodeResolver
 			return (RubyScript) ParserPoolFactory.parse(IRubyConstants.CONTENT_TYPE_RUBY,
 					IOUtil.read(store.openInputStream(EFS.NONE, new NullProgressMonitor())));
 		}
-		catch (CoreException e)
+		catch (Exception e)
 		{
 			RubyCorePlugin.log(e);
 		}
