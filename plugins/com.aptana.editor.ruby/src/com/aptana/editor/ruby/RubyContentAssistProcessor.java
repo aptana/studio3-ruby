@@ -93,16 +93,6 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		super(editor);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.CommonContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
-	 */
-	@Override
-	public char[] getCompletionProposalAutoActivationCharacters()
-	{
-		return new char[] { '.', '$', '@', ':' };
-	}
-
 	protected java.util.Collection<? extends ICompletionProposal> addRubleCAProposals(ITextViewer viewer, int offset,
 			Ruby ruby, ContentAssistElement ce)
 	{
@@ -823,6 +813,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		{
 			proposal.setFileLocation(location);
 		}
+		proposal.setTriggerCharacters(getProposalTriggerCharacters());
 		return proposal;
 	}
 
@@ -908,5 +899,14 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			return simpleName;
 		}
 		return namespace + NAMESPACE_DELIMITER + simpleName;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.common.CommonContentAssistProcessor#getPreferenceNodeQualifier()
+	 */
+	protected String getPreferenceNodeQualifier()
+	{
+		return RubyEditorPlugin.PLUGIN_ID;
 	}
 }
