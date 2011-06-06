@@ -26,37 +26,45 @@ import com.aptana.editor.html.parsing.HTMLParseState;
  * @author Max Stepanov
  */
 @SuppressWarnings("restriction")
-public class RHTMLEditor extends HTMLEditor
-{
+public class RHTMLEditor extends HTMLEditor {
+
 	/*
 	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.AbstractThemeableEditor#initializeEditor()
+	 * @see com.aptana.editor.html.HTMLEditor#initializeEditor()
 	 */
 	@Override
-	protected void initializeEditor()
-	{
+	protected void initializeEditor() {
 		super.initializeEditor();
 
 		setPreferenceStore(getChainedPreferenceStore());
 		setSourceViewerConfiguration(new RHTMLSourceViewerConfiguration(getPreferenceStore(), this));
-		setDocumentProvider(new RHTMLDocumentProvider());
+		setDocumentProvider(Activator.getDefault().getRHTMLDocumentProvider());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.html.HTMLEditor#installOpenTagCloser()
+	 */
 	@Override
-	protected void installOpenTagCloser()
-	{
+	protected void installOpenTagCloser() {
 		new ERBOpenTagCloser(getSourceViewer()).install();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.html.HTMLEditor#createFileService()
+	 */
 	@Override
-	protected FileService createFileService()
-	{
+	protected FileService createFileService() {
 		return new FileService(IERBConstants.CONTENT_TYPE_HTML_ERB, new HTMLParseState());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.html.HTMLEditor#createOutlinePage()
+	 */
 	@Override
-	protected CommonOutlinePage createOutlinePage()
-	{
+	protected CommonOutlinePage createOutlinePage() {
 		CommonOutlinePage outline = super.createOutlinePage();
 		outline.setContentProvider(new RHTMLOutlineContentProvider());
 		outline.setLabelProvider(new RHTMLOutlineLabelProvider(getFileService().getParseState()));
@@ -64,9 +72,12 @@ public class RHTMLEditor extends HTMLEditor
 		return outline;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.html.HTMLEditor#getPairMatchingCharacters()
+	 */
 	@Override
-	protected char[] getPairMatchingCharacters()
-	{
+	protected char[] getPairMatchingCharacters() {
 		char[] orig = super.getPairMatchingCharacters();
 		char[] modified = new char[orig.length + 2];
 		System.arraycopy(orig, 0, modified, 0, orig.length);
@@ -75,9 +86,8 @@ public class RHTMLEditor extends HTMLEditor
 		return modified;
 	}
 
-	public static IPreferenceStore getChainedPreferenceStore()
-	{
-		return new ChainedPreferenceStore(new IPreferenceStore[] { Activator.getDefault().getPreferenceStore(),
-				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
+	public static IPreferenceStore getChainedPreferenceStore() {
+		return new ChainedPreferenceStore(new IPreferenceStore[] { Activator.getDefault().getPreferenceStore(), CommonEditorPlugin.getDefault().getPreferenceStore(),
+				EditorsPlugin.getDefault().getPreferenceStore() });
 	}
 }

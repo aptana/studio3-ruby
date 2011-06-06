@@ -57,7 +57,7 @@ public class RubySourceEditor extends AbstractThemeableEditor
 		setPreferenceStore(getChainedPreferenceStore());
 
 		setSourceViewerConfiguration(new RubySourceViewerConfiguration(getPreferenceStore(), this));
-		setDocumentProvider(new RubyDocumentProvider());
+		setDocumentProvider(RubyEditorPlugin.getDefault().getRubyDocumentProvider());
 	}
 
 	public static IPreferenceStore getChainedPreferenceStore()

@@ -13,6 +13,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -26,6 +27,9 @@ public class RubyEditorPlugin extends AbstractUIPlugin
 
 	// The shared instance
 	private static RubyEditorPlugin plugin;
+	
+	private IDocumentProvider rubyDocumentProvider;
+
 
 	/**
 	 * The constructor
@@ -95,4 +99,18 @@ public class RubyEditorPlugin extends AbstractUIPlugin
 	{
 		return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
+	
+	/**
+	 * Returns Ruby document provider
+	 * @return
+	 */
+	public synchronized IDocumentProvider getRubyDocumentProvider()
+	{
+		if (rubyDocumentProvider == null)
+		{
+			rubyDocumentProvider = new RubyDocumentProvider();
+		}
+		return rubyDocumentProvider;
+	}
+
 }

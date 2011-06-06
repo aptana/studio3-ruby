@@ -9,6 +9,7 @@
 package com.aptana.editor.erb.xml;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
+import com.aptana.editor.erb.Activator;
 
 /**
  * @author Max Stepanov
@@ -25,6 +26,6 @@ public class RXMLEditor extends AbstractThemeableEditor
 		super.initializeEditor();
 
 		setSourceViewerConfiguration(new RXMLSourceViewerConfiguration(getPreferenceStore(), this));
-		setDocumentProvider(new RXMLDocumentProvider());
+		setDocumentProvider(Activator.getDefault().getRXMLDocumentProvider());
 	}
 }

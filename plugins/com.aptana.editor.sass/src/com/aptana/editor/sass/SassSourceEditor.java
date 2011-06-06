@@ -31,7 +31,7 @@ public class SassSourceEditor extends AbstractThemeableEditor
 		setPreferenceStore(getChainedPreferenceStore());
 
 		setSourceViewerConfiguration(new SassSourceViewerConfiguration(getPreferenceStore(), this));
-		setDocumentProvider(new SassDocumentProvider());
+		setDocumentProvider(Activator.getDefault().getSassDocumentProvider());
 	}
 
 	public static IPreferenceStore getChainedPreferenceStore()
