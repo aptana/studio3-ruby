@@ -5,7 +5,7 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby;
+package com.aptana.editor.ruby.internal.contentassist;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -38,6 +38,7 @@ import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonContentAssistProcessor;
 import com.aptana.editor.common.contentassist.CommonCompletionProposal;
+import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.QueryResult;
 import com.aptana.index.core.SearchPattern;
