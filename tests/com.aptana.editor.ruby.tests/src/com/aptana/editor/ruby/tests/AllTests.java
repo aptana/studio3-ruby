@@ -20,8 +20,8 @@ public class AllTests
 	{
 		TestSuite suite = new TestSuite("Test for com.aptana.editor.ruby.tests");
 		// $JUnit-BEGIN$
-		suite.addTestSuite(RubyEditorTests.class);
-		suite.addTestSuite(RubyCATests.class);
+		suite.addTest(RubyEditorTests.suite());
+		suite.addTest(RubyCATests.suite());
 		// $JUnit-END$
 		return suite;
 	}
