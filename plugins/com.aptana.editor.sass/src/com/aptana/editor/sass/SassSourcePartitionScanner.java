@@ -9,10 +9,12 @@ package com.aptana.editor.sass;
 
 import com.aptana.editor.common.text.rules.SourceConfigurationPartitionScanner;
 
-public class SassSourcePartitionScanner extends SourceConfigurationPartitionScanner {
-	
-	public SassSourcePartitionScanner() {
+public class SassSourcePartitionScanner extends SourceConfigurationPartitionScanner
+{
+
+	public SassSourcePartitionScanner()
+	{
 		super(SassSourceConfiguration.getDefault());
 	}
-	
+
 }

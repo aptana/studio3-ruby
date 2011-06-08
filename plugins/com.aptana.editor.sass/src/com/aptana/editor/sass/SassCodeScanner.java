@@ -18,6 +18,7 @@ import java.util.StringTokenizer;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IWordDetector;
+import org.eclipse.jface.text.rules.WordRule;
 
 import com.aptana.editor.common.text.rules.CharacterMapRule;
 import com.aptana.editor.common.text.rules.ExtendedWordRule;
@@ -47,6 +48,23 @@ public class SassCodeScanner extends CSSCodeScanner
 		};
 		rules.add(1, variableRule);
 		return rules;
+	}
+
+	@SuppressWarnings("nls")
+	@Override
+	protected void addAtWords(WordRule wordRule)
+	{
+		super.addAtWords(wordRule);
+		wordRule.addWord("@mixin", createToken("keyword.control.at-rule.mixin.sass"));
+		wordRule.addWord("@include", createToken("keyword.control.at-rule.include.sass"));
+		wordRule.addWord("@function", createToken("keyword.control.at-rule.function.sass"));
+		wordRule.addWord("@while", createToken("keyword.control.at-rule.while.sass"));
+		wordRule.addWord("@each", createToken("keyword.control.at-rule.each.sass"));
+		wordRule.addWord("@for", createToken("keyword.control.at-rule.for.sass"));
+		wordRule.addWord("@if", createToken("keyword.control.at-rule.if.sass"));
+		wordRule.addWord("@warn", createToken("keyword.control.at-rule.warn.sass"));
+		wordRule.addWord("@debug", createToken("keyword.control.at-rule.debug.sass"));
+		wordRule.addWord("@extend", createToken("keyword.control.at-rule.extend.sass"));
 	}
 
 	@Override
@@ -96,7 +114,7 @@ public class SassCodeScanner extends CSSCodeScanner
 
 		public boolean isWordStart(char c)
 		{
-			return c == '!' || c == '=' || c == '+';
+			return c == '!' || c == '$';
 		}
 	}
 }
