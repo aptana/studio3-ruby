@@ -54,7 +54,7 @@ public class RHTMLSourcePartitionScannerTest extends TestCase
 		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 156); // '%'
 		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 157); // '>'
 		// back to html
-		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 158); // '<'html
+		assertContentType(HTMLSourceConfiguration.HTML_TAG_CLOSE, source, 158); // '<'html
 		// a different ruby start switch
 		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 205); // '<'
 		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 207); // %'='
