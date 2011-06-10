@@ -19,6 +19,8 @@ public class AllTests
 	{
 		TestSuite suite = new TestSuite("Tests for com.aptana.editor.erb.html"); //$NON-NLS-1$
 		// $JUnit-BEGIN$
+		suite.addTestSuite(RHTMLSourcePartitionScannerTest.class);
+		suite.addTestSuite(RHTMLParserTest.class);
 		suite.addTestSuite(RHTMLContentDescriberTest.class);
 		suite.addTestSuite(ERBOpenTagCloserTest.class);
 		suite.addTestSuite(RHTMLEditorTest.class);

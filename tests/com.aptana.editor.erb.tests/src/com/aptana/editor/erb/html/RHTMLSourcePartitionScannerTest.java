@@ -5,7 +5,7 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.erb;
+package com.aptana.editor.erb.html;
 
 import junit.framework.TestCase;
 
@@ -15,6 +15,7 @@ import org.eclipse.jface.text.IDocument;
 import com.aptana.editor.common.ExtendedFastPartitioner;
 import com.aptana.editor.common.TextUtils;
 import com.aptana.editor.common.text.rules.CompositePartitionScanner;
+import com.aptana.editor.erb.ERBPartitionerSwitchStrategy;
 import com.aptana.editor.html.HTMLSourceConfiguration;
 import com.aptana.editor.ruby.RubySourceConfiguration;
 
