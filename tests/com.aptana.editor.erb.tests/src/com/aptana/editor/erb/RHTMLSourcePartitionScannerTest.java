@@ -68,6 +68,100 @@ public class RHTMLSourcePartitionScannerTest extends TestCase
 		assertContentType(HTMLSourceConfiguration.DEFAULT, source, 221); // '\n'
 	}
 
+	public void testSplitTag()
+	{
+		String source = "<body onload='alert()' <%= Time.now %> id='body'>"; //$NON-NLS-1$
+		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 0); // '<'body
+		// ruby start switch
+		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 23); // '<'
+		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 24); // '%'
+		// inline Ruby inside the script
+		assertContentType(RubySourceConfiguration.DEFAULT, source, 26); // ' 'Time
+		assertContentType(RubySourceConfiguration.DEFAULT, source, 35); // now' '
+		// ruby end switch
+		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 36); // '%'
+		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 37); // '>'
+		// back to body
+		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 38); // ' 'id
+		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 39); // 'i'd=
+	}
+
+	public void testSplitAttribute()
+	{
+		String source = "<body class=' <%= Time.now %> ' id='body'>"; //$NON-NLS-1$
+		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 0); // '<'body
+		// ruby start switch
+		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 14); // '<'
+		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 15); // '%'
+		// inline Ruby inside the script
+		assertContentType(RubySourceConfiguration.DEFAULT, source, 17); // ' 'Time
+		assertContentType(RubySourceConfiguration.DEFAULT, source, 26); // now' '
+		// ruby end switch
+		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 27); // '%'
+		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 28); // '>'
+		// back to body
+		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 29); // %>' ''
+		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 32); // 'i'd=
+	}
+
+	public void testBetweenTags()
+	{
+		String source = "<body class=''><%= Time.now %></div>"; //$NON-NLS-1$
+		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 0); // '<'body
+		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 14); // '>'
+		// ruby start switch
+		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 15); // '<'
+		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 16); // '%'
+		// inline Ruby inside the script
+		assertContentType(RubySourceConfiguration.DEFAULT, source, 18); // ' 'Time
+		assertContentType(RubySourceConfiguration.DEFAULT, source, 27); // now' '
+		// ruby end switch
+		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 28); // '%'
+		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 29); // '>'
+		// div
+		assertContentType(HTMLSourceConfiguration.HTML_TAG_CLOSE, source, 30); // %>'<'
+	}
+
+	public void testAfterTagBeforeSpace()
+	{
+		String source = "<body class=''><%= Time.now %> </div>"; //$NON-NLS-1$
+		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 0); // '<'body
+		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 14); // '>'
+		// ruby start switch
+		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 15); // '<'
+		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 16); // '%'
+		// inline Ruby inside the script
+		assertContentType(RubySourceConfiguration.DEFAULT, source, 18); // ' 'Time
+		assertContentType(RubySourceConfiguration.DEFAULT, source, 27); // now' '
+		// ruby end switch
+		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 28); // '%'
+		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 29); // '>'
+		// space
+		assertContentType(HTMLSourceConfiguration.DEFAULT, source, 30); // ' '
+		// div
+		assertContentType(HTMLSourceConfiguration.HTML_TAG_CLOSE, source, 31); // %>'<'
+	}
+
+	public void testAfterSpaceBeforeTag()
+	{
+		String source = "<body class=''> <%= Time.now %></div>"; //$NON-NLS-1$
+		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 0); // '<'body
+		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 14); // '>'
+		// space
+		assertContentType(HTMLSourceConfiguration.DEFAULT, source, 15); // ' '
+		// ruby start switch
+		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 16); // '<'
+		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 17); // '%'
+		// inline Ruby inside the script
+		assertContentType(RubySourceConfiguration.DEFAULT, source, 19); // ' 'Time
+		assertContentType(RubySourceConfiguration.DEFAULT, source, 28); // now' '
+		// ruby end switch
+		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 29); // '%'
+		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 30); // '>'
+		// div
+		assertContentType(HTMLSourceConfiguration.HTML_TAG_CLOSE, source, 31); // %>'<'
+	}
+
 	private void assertContentType(String contentType, String code, int offset)
 	{
 		assertEquals("Content type doesn't match expectations for: " + code.charAt(offset), contentType, //$NON-NLS-1$
