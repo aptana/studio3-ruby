@@ -89,7 +89,7 @@ public class RHTMLTagScannerTest extends AbstractTokenScannerTestCase {
 		scanner.setRange(document, 33, src.length()-33);
 		assertToken(getToken("string.quoted.single.html"), 33, 1);
 		assertToken(Token.WHITESPACE, 34, 1);
-		assertToken(getToken("entity.other.attribute-name.html"), 35, 2);
+		assertToken(getToken("entity.other.attribute-name.id.html"), 35, 2);
 		assertToken(getToken("punctuation.separator.key-value.html"), 37, 1);
 		assertToken(getToken("string.quoted.single.html"), 38, 4);
 		assertToken(getToken("punctuation.definition.tag.end.html"), 42, 1);
