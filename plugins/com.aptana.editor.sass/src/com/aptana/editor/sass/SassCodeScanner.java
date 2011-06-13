@@ -15,9 +15,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IRule;
+import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
+import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WordRule;
 
 import com.aptana.editor.common.text.rules.CharacterMapRule;
@@ -29,6 +32,8 @@ import com.aptana.editor.css.CSSCodeScanner;
  */
 public class SassCodeScanner extends CSSCodeScanner
 {
+
+	private IToken lastToken;
 
 	@Override
 	protected List<IRule> createRules()
@@ -65,6 +70,30 @@ public class SassCodeScanner extends CSSCodeScanner
 		wordRule.addWord("@warn", createToken("keyword.control.at-rule.warn.sass"));
 		wordRule.addWord("@debug", createToken("keyword.control.at-rule.debug.sass"));
 		wordRule.addWord("@extend", createToken("keyword.control.at-rule.extend.sass"));
+	}
+
+	@Override
+	public IToken nextToken()
+	{
+		IToken token = super.nextToken();
+		if (token.isWhitespace())
+		{
+			return token;
+		}
+		if (token.getData() instanceof String && ((String) token.getData()).endsWith(".css"))
+		{
+			String cssScopeName = ((String) token.getData());
+			String sassScopeName = cssScopeName.substring(0, cssScopeName.length() - 3) + "sass";
+			token = new Token(sassScopeName);
+		}
+		if (lastToken != null
+				&& ("keyword.control.at-rule.mixin.sass".equals(lastToken.getData()) || "keyword.control.at-rule.include.sass"
+						.equals(lastToken.getData())))
+		{
+			token = new Token("entity.name.function.sass");
+		}
+		lastToken = token;
+		return token;
 	}
 
 	@Override
@@ -114,7 +143,15 @@ public class SassCodeScanner extends CSSCodeScanner
 
 		public boolean isWordStart(char c)
 		{
-			return c == '!' || c == '$';
+			// Old SASS used !, = and + as prefixes for variables and mixins, keep them in for now
+			return c == '!' || c == '$' || c == '=' || c == '+';
 		}
+	}
+
+	@Override
+	public void setRange(IDocument document, int offset, int length)
+	{
+		this.lastToken = null;
+		super.setRange(document, offset, length);
 	}
 }
