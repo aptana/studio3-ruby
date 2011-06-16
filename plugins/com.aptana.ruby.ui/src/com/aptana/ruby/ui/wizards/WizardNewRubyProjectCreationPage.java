@@ -122,7 +122,6 @@ public class WizardNewRubyProjectCreationPage extends WizardPage
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		createProjectNameGroup(composite);
-
 		// create Location section
 		createDestinationLocationArea(composite);
 
@@ -131,6 +130,8 @@ public class WizardNewRubyProjectCreationPage extends WizardPage
 
 		// Scale the button based on the rest of the dialog
 		setButtonLayoutData(browseButton);
+
+		updateProjectName(getProjectNameFieldValue());
 
 		setPageComplete(validatePage());
 		// Show description on opening
