@@ -10,6 +10,7 @@ package com.aptana.editor.erb.html;
 import junit.framework.TestCase;
 
 import com.aptana.editor.erb.html.parsing.RHTMLParser;
+import com.aptana.editor.html.IHTMLConstants;
 import com.aptana.editor.html.parsing.HTMLParseState;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.ruby.core.IRubyConstants;
@@ -64,10 +65,10 @@ public class RHTMLParserTest extends TestCase
 		assertEquals(1, children.length);
 		assertEquals(2, children[0].getNodeType()); // HTMLElementNode
 		children = children[0].getChildren(); // <em></em><%= %>
-		assertEquals(2, children.length);
-		assertEquals(2, children[0].getNodeType()); // HTMLElementNode
-		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[1].getLanguage());
-		children = children[0].getChildren(); // <%= %>
+		assertEquals(3, children.length);
+		assertEquals(2, children[1].getNodeType()); // HTMLElementNode
+		assertEquals(IHTMLConstants.CONTENT_TYPE_HTML, children[1].getLanguage());
+		children = children[1].getChildren(); // <%= %>
 		assertEquals(1, children.length);
 		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[0].getLanguage());
 	}
