@@ -57,9 +57,10 @@ public class SassCodeScanner extends CSSCodeScanner
 
 	@SuppressWarnings("nls")
 	@Override
-	protected void addAtWords(WordRule wordRule)
+	protected WordRule createAtWordsRule()
 	{
-		super.addAtWords(wordRule);
+		WordRule wordRule = super.createAtWordsRule();
+
 		wordRule.addWord("@mixin", createToken("keyword.control.at-rule.mixin.sass"));
 		wordRule.addWord("@include", createToken("keyword.control.at-rule.include.sass"));
 		wordRule.addWord("@function", createToken("keyword.control.at-rule.function.sass"));
@@ -70,6 +71,8 @@ public class SassCodeScanner extends CSSCodeScanner
 		wordRule.addWord("@warn", createToken("keyword.control.at-rule.warn.sass"));
 		wordRule.addWord("@debug", createToken("keyword.control.at-rule.debug.sass"));
 		wordRule.addWord("@extend", createToken("keyword.control.at-rule.extend.sass"));
+
+		return wordRule;
 	}
 
 	@Override
@@ -97,9 +100,9 @@ public class SassCodeScanner extends CSSCodeScanner
 	}
 
 	@Override
-	protected CharacterMapRule createPunctuationRules()
+	protected CharacterMapRule createPunctuatorsRule()
 	{
-		CharacterMapRule rule = super.createPunctuationRules();
+		CharacterMapRule rule = super.createPunctuatorsRule();
 		// Override equals
 		rule.add('=', createToken("punctuation.definition.entity.sass")); //$NON-NLS-1$
 		return rule;
