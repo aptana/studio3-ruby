@@ -67,7 +67,7 @@ public class RHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider
 	private String getDisplayText(ERBScript script)
 	{
 		StringBuilder text = new StringBuilder();
-		text.append(script.getStartTag()).append(" "); //$NON-NLS-1$
+		text.append(script.getStartTag());
 		String source = new String(fParseState.getSource());
 		// locates the ruby source
 		IRubyScript ruby = script.getScript();
@@ -81,9 +81,9 @@ public class RHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider
 		}
 		else
 		{
-			text.append(source.substring(0, TRIM_TO_LENGTH - 1)).append("..."); //$NON-NLS-1$
+			text.append(source.substring(0, TRIM_TO_LENGTH - 1)).append("... "); //$NON-NLS-1$
 		}
-		text.append(" ").append(script.getEndTag()); //$NON-NLS-1$
+		text.append(script.getEndTag());
 		return text.toString();
 	}
 }
