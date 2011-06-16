@@ -15,6 +15,6 @@ public class RubyDoubleClickStrategy extends CommonDoubleClickStrategy
 	@Override
 	protected boolean isIdentifierPart(char c)
 	{
-		return super.isIdentifierPart(c) || c == '!' || c == '?';
+		return super.isIdentifierPart(c) || c == '!' || c == '?' || c == '@' || c == ':';
 	}
 }
