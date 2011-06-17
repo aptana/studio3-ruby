@@ -40,6 +40,7 @@ import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 
 import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.ExecutableUtil;
+import com.aptana.core.util.ResourceUtil;
 import com.aptana.ruby.debug.core.RubyDebugCorePlugin;
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
 import com.aptana.ruby.internal.debug.core.RubyDebuggerProxy;
@@ -225,8 +226,7 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 				Path.fromPortableString("ruby/sync.rb"), null); //$NON-NLS-1$
 		try
 		{
-			url = FileLocator.toFileURL(url);
-			File file = new File(url.toURI());
+			File file = ResourceUtil.resourcePathToFile(url);
 			arguments.add(MessageFormat.format("-I \"{0}\"", file.getParent())); //$NON-NLS-1$
 			arguments.add("-rsync"); //$NON-NLS-1$
 		}
