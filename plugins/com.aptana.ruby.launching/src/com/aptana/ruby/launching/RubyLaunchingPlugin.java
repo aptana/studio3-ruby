@@ -202,7 +202,7 @@ public class RubyLaunchingPlugin extends Plugin
 
 		if (!rubyToGemPaths.containsKey(rubyPathString))
 		{
-			IPath gemBinPath = ExecutableUtil.find(GEM_COMMAND, true, null, wd);
+			IPath gemBinPath = ExecutableUtil.find(GEM_COMMAND, false, null, wd);
 			String gemCommand = GEM_COMMAND;
 			if (gemBinPath != null)
 			{
@@ -210,8 +210,14 @@ public class RubyLaunchingPlugin extends Plugin
 			}
 			// FIXME Will this actually behave properly with RVM?
 			// FIXME Not finding my user gem path on Windows...
-			String gemEnvOutput = ProcessUtil.outputForCommand(rubyPathString, wd, ShellExecutable.getEnvironment(wd),
+			IStatus status = ProcessUtil.runInBackground(rubyPathString, wd, ShellExecutable.getEnvironment(wd),
 					gemCommand, "env", "gempath"); //$NON-NLS-1$ //$NON-NLS-2$
+			String gemEnvOutput = null;
+			if (status.isOK())
+			{
+				gemEnvOutput = status.getMessage();
+			}
+			
 			if (gemEnvOutput == null)
 			{
 				rubyToGemPaths.put(rubyPathString, null);
