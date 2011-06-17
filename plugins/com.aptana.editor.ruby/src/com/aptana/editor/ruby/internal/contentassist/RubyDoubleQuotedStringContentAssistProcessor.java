@@ -34,21 +34,21 @@ public class RubyDoubleQuotedStringContentAssistProcessor extends CommonContentA
 	private static final Map<String, String> PROPOSALS = new TreeMap<String, String>();
 	static
 	{
-		PROPOSALS.put("\\", "\\nnn Octal <i>nnn</i>"); //$NON-NLS-1$
-		PROPOSALS.put("\\C-", "Control-<i>x</i>"); //$NON-NLS-1$
-		PROPOSALS.put("\\M-", "Meta-<i>x</i>"); //$NON-NLS-1$
-		PROPOSALS.put("\\M-\\C-", "Meta-control-<i>x</i>"); //$NON-NLS-1$
-		PROPOSALS.put("\\a", "Bell/alert (0x07)"); //$NON-NLS-1$
-		PROPOSALS.put("\\b", "Backspace (0x08)"); //$NON-NLS-1$
-		PROPOSALS.put("\\c", "Control-<i>x</i>"); //$NON-NLS-1$
-		PROPOSALS.put("\\e", "Escape (0x1b)"); //$NON-NLS-1$
-		PROPOSALS.put("\\f", "Formfeed (0x0c)"); //$NON-NLS-1$
-		PROPOSALS.put("\\n", "Newline (0x0a)"); //$NON-NLS-1$
-		PROPOSALS.put("\\r", "Return (0x0d)"); //$NON-NLS-1$
-		PROPOSALS.put("\\s", "Space (0x20)"); //$NON-NLS-1$
-		PROPOSALS.put("\\t", "Tab (0x09)"); //$NON-NLS-1$
-		PROPOSALS.put("\\v", "Vertical tab (0x0b)"); //$NON-NLS-1$
-		PROPOSALS.put("\\x", "\\xnn: Hex <i>nn</i>"); //$NON-NLS-1$
+		PROPOSALS.put("\\", "\\nnn Octal <i>nnn</i>"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\C-", "Control-<i>x</i>"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\M-", "Meta-<i>x</i>"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\M-\\C-", "Meta-control-<i>x</i>"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\a", "Bell/alert (0x07)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\b", "Backspace (0x08)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\c", "Control-<i>x</i>"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\e", "Escape (0x1b)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\f", "Formfeed (0x0c)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\n", "Newline (0x0a)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\r", "Return (0x0d)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\s", "Space (0x20)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\t", "Tab (0x09)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\v", "Vertical tab (0x0b)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\x", "\\xnn: Hex <i>nn</i>"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public RubyDoubleQuotedStringContentAssistProcessor(AbstractThemeableEditor editor)

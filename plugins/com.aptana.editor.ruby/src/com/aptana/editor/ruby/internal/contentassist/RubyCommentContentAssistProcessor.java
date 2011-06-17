@@ -22,6 +22,7 @@ import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonContentAssistProcessor;
 import com.aptana.editor.common.contentassist.CommonCompletionProposal;
 
+@SuppressWarnings("nls")
 public class RubyCommentContentAssistProcessor extends CommonContentAssistProcessor
 {
 

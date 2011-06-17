@@ -35,38 +35,38 @@ public class RubyRegexpContentAssistProcessor extends CommonContentAssistProcess
 	static
 	{
 		// FIXME Keep ordering of proposals same as here
-		PROPOSALS.put("$", "End of line"); //$NON-NLS-1$
-		PROPOSALS.put("()", "Grouping"); //$NON-NLS-1$
-		PROPOSALS.put("*", "Zero or more repetitions of preceding"); //$NON-NLS-1$
-		PROPOSALS.put("+", "One or more repetitions of preceding"); //$NON-NLS-1$
-		PROPOSALS.put("?", "At most one repetition of preceding"); //$NON-NLS-1$
-		PROPOSALS.put("[:alnum:]", "Alphanumeric character class"); //$NON-NLS-1$
-		PROPOSALS.put("[:alpha:]", "Uppercase or lowercase letter"); //$NON-NLS-1$
-		PROPOSALS.put("[:blank:]", "Blank and tab"); //$NON-NLS-1$
-		PROPOSALS.put("[:cntrl:]", "Control characters (at least 0x00-0x1f,0x7f)"); //$NON-NLS-1$
-		PROPOSALS.put("[:digit:]", "Digit"); //$NON-NLS-1$
-		PROPOSALS.put("[:graph:]", "Printable character excluding space"); //$NON-NLS-1$
-		PROPOSALS.put("[:lower:]", "Lowercase letter"); //$NON-NLS-1$
-		PROPOSALS.put("[:print:]", "Any printable character (including space)"); //$NON-NLS-1$
-		PROPOSALS.put("[:punct:]", "Printable character excluding space and alp"); //$NON-NLS-1$
-		PROPOSALS.put("[:space:]", "Whitespace (same as \\s)"); //$NON-NLS-1$
-		PROPOSALS.put("[:upper:]", "Uppercase letter"); //$NON-NLS-1$
-		PROPOSALS.put("[:xdigit:]", "Hex digit (0-9, a-f, A-F)"); //$NON-NLS-1$
-		PROPOSALS.put("\\A", "Beginning of string"); //$NON-NLS-1$
-		PROPOSALS.put("\\B", "Non-word boundary"); //$NON-NLS-1$
-		PROPOSALS.put("\\D", "Non-digit character"); //$NON-NLS-1$
-		PROPOSALS.put("\\S", "Non-space character"); //$NON-NLS-1$
-		PROPOSALS.put("\\W", "Neither letter or digit"); //$NON-NLS-1$
-		PROPOSALS.put("\\Z", "End of string (except \\n)"); //$NON-NLS-1$
+		PROPOSALS.put("$", "End of line"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("()", "Grouping"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("*", "Zero or more repetitions of preceding"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("+", "One or more repetitions of preceding"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("?", "At most one repetition of preceding"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("[:alnum:]", "Alphanumeric character class"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("[:alpha:]", "Uppercase or lowercase letter"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("[:blank:]", "Blank and tab"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("[:cntrl:]", "Control characters (at least 0x00-0x1f,0x7f)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("[:digit:]", "Digit"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("[:graph:]", "Printable character excluding space"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("[:lower:]", "Lowercase letter"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("[:print:]", "Any printable character (including space)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("[:punct:]", "Printable character excluding space and alp"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("[:space:]", "Whitespace (same as \\s)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("[:upper:]", "Uppercase letter"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("[:xdigit:]", "Hex digit (0-9, a-f, A-F)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\A", "Beginning of string"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\B", "Non-word boundary"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\D", "Non-digit character"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\S", "Non-space character"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\W", "Neither letter or digit"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\Z", "End of string (except \\n)"); //$NON-NLS-1$ //$NON-NLS-2$
 		PROPOSALS.put(
-				"\\b", "Word boundary (outside range specification); Backspace (0x08) (if in a range specification)"); //$NON-NLS-1$
-		PROPOSALS.put("\\d", "Digit character; same as [0-9]"); //$NON-NLS-1$
-		PROPOSALS.put("\\s", "Space character; same as [ \\t\\n\\r\\f]"); //$NON-NLS-1$
-		PROPOSALS.put("\\w", "Letter or digit; same as [0-9A-Za-z]"); //$NON-NLS-1$
-		PROPOSALS.put("\\z", "End of string"); //$NON-NLS-1$
-		PROPOSALS.put("^", "Start of line"); //$NON-NLS-1$
-		PROPOSALS.put("{m, n}", "At least <i>m</i> and at most <i>n</i> repetitions of the preceding"); //$NON-NLS-1$
-		PROPOSALS.put("|", "Either preceding or next expression may match"); //$NON-NLS-1$
+				"\\b", "Word boundary (outside range specification); Backspace (0x08) (if in a range specification)"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\d", "Digit character; same as [0-9]"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\s", "Space character; same as [ \\t\\n\\r\\f]"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\w", "Letter or digit; same as [0-9A-Za-z]"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("\\z", "End of string"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("^", "Start of line"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("{m, n}", "At least <i>m</i> and at most <i>n</i> repetitions of the preceding"); //$NON-NLS-1$ //$NON-NLS-2$
+		PROPOSALS.put("|", "Either preceding or next expression may match"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public RubyRegexpContentAssistProcessor(AbstractThemeableEditor editor)
