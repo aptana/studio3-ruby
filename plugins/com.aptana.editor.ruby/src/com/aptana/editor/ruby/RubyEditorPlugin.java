@@ -8,13 +8,14 @@
 package com.aptana.editor.ruby;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.osgi.framework.BundleContext;
+
+import com.aptana.core.logging.IdeLog;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -68,16 +69,6 @@ public class RubyEditorPlugin extends AbstractUIPlugin
 		return plugin;
 	}
 
-	public static void log(IStatus s)
-	{
-		getDefault().getLog().log(s);
-	}
-
-	public static void log(Throwable e)
-	{
-		log(new Status(IStatus.ERROR, PLUGIN_ID, e.getMessage(), e));
-	}
-
 	public static Image getImage(String path)
 	{
 		ImageRegistry registry = plugin.getImageRegistry();
@@ -113,4 +104,59 @@ public class RubyEditorPlugin extends AbstractUIPlugin
 		return rubyDocumentProvider;
 	}
 
+	/**
+	 * Log a particular status
+	 * 
+	 * @deprecated Use IdeLog instead
+	 */
+	public static void log(IStatus status)
+	{
+		IdeLog.log(getDefault(), status);
+	}
+
+	/**
+	 * logError
+	 * 
+	 * @param e
+	 * @deprecated Use IdeLog instead
+	 */
+	public static void log(Throwable e)
+	{
+		IdeLog.logError(getDefault(), e.getLocalizedMessage(), e);
+	}
+
+	/**
+	 * logError
+	 * 
+	 * @deprecated Use IdeLog instead
+	 * @param message
+	 * @param e
+	 */
+	public static void logError(String message, Throwable e)
+	{
+		IdeLog.logError(getDefault(), message, e);
+	}
+
+	/**
+	 * logWarning
+	 * 
+	 * @deprecated Use IdeLog instead
+	 * @param message
+	 * @param e
+	 */
+	public static void logWarning(String message, Throwable e)
+	{
+		IdeLog.logWarning(getDefault(), message, e, null);
+	}
+
+	/**
+	 * logInfo
+	 * 
+	 * @deprecated Use IdeLog instead
+	 * @param message
+	 */
+	public static void logInfo(String message)
+	{
+		IdeLog.logInfo(getDefault(), message, null);
+	}
 }
