@@ -83,10 +83,10 @@ public class SassCodeScanner extends CSSCodeScanner
 		{
 			return token;
 		}
-		if (token.getData() instanceof String && ((String) token.getData()).endsWith(".css"))
+		if (token.getData() instanceof String && ((String) token.getData()).contains(".css"))
 		{
 			String cssScopeName = ((String) token.getData());
-			String sassScopeName = cssScopeName.substring(0, cssScopeName.length() - 3) + "sass";
+			String sassScopeName = cssScopeName.replaceAll("\\.css", "\\.sass");
 			token = new Token(sassScopeName);
 		}
 		if (lastToken != null
