@@ -19,7 +19,9 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.eclipse.ui.texteditor.IDocumentProvider;
@@ -27,7 +29,6 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.outline.CommonOutlineItem;
-import com.aptana.editor.common.outline.CommonOutlinePage;
 import com.aptana.editor.common.text.reconciler.IFoldingComputer;
 import com.aptana.editor.ruby.internal.text.RubyFoldingComputer;
 import com.aptana.editor.ruby.outline.RubyOutlineContentProvider;
@@ -46,6 +47,7 @@ public class RubySourceEditor extends AbstractThemeableEditor
 {
 	private static final char[] PAIR_MATCHING_CHARS = new char[] { '(', ')', '{', '}', '[', ']', '`', '`', '\'', '\'',
 			'"', '"', '|', '|', '\u201C', '\u201D', '\u2018', '\u2019' }; // curly double quotes, curly single quotes
+
 	private Map<Annotation, Position> fTagPairOccurrences;
 	private boolean fIncludeBlocks;
 
@@ -72,13 +74,15 @@ public class RubySourceEditor extends AbstractThemeableEditor
 	}
 
 	@Override
-	protected CommonOutlinePage createOutlinePage()
+	public ITreeContentProvider getOutlineContentProvider()
 	{
-		CommonOutlinePage outline = super.createOutlinePage();
-		outline.setContentProvider(new RubyOutlineContentProvider());
-		outline.setLabelProvider(new RubyOutlineLabelProvider());
+		return new RubyOutlineContentProvider();
+	}
 
-		return outline;
+	@Override
+	public ILabelProvider getOutlineLabelProvider()
+	{
+		return new RubyOutlineLabelProvider();
 	}
 
 	@Override
