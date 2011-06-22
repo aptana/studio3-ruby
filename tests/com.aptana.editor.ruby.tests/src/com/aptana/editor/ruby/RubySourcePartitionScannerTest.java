@@ -11,9 +11,14 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentPartitioner;
+import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.eclipse.jface.text.rules.IToken;
+
+import com.aptana.editor.common.CommonEditorPlugin;
+import com.aptana.editor.common.IPartitioningConfiguration;
 
 /**
  * @author Chris
@@ -771,7 +776,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertToken(scanner, RubySourceConfiguration.DEFAULT, 23, 1);
 		assertToken(scanner, RubySourceConfiguration.DEFAULT, 24, 8);
 	}
-	
+
 	/*
 	 * https://aptana.lighthouseapp.com/projects/45260/tickets/372-color-syntax-when-dividing-inline-ruby
 	 */
@@ -794,6 +799,32 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_DOUBLE, code, 48);
 		assertContentType(RubySourceConfiguration.DEFAULT, code, 49);
 		assertContentType(RubySourceConfiguration.DEFAULT, code, 62);
+	}
+
+	public void testBug676() throws Exception
+	{
+		String code = "\"Just an example: %s %d\" \\\n% [1, 9000]";
+
+		IDocument document = new Document(code);
+		RubyDocumentProvider docProvider = new RubyDocumentProvider();
+		IPartitioningConfiguration configuration = docProvider.getPartitioningConfiguration();
+		IDocumentPartitioner partitioner = new FastPartitioner(docProvider.createPartitionScanner(),
+				configuration.getContentTypes());
+		partitioner.connect(document);
+		document.setDocumentPartitioner(partitioner);
+		CommonEditorPlugin.getDefault().getDocumentScopeManager().registerConfiguration(document, configuration);
+
+		ITypedRegion[] partitions = document.computePartitioning(0, code.length());
+		assertEquals(2, partitions.length);
+
+		assertEquals(0, partitions[0].getOffset());
+		assertEquals(24, partitions[0].getLength());
+		assertEquals(RubySourceConfiguration.STRING_DOUBLE, partitions[0].getType());
+
+		assertEquals(24, partitions[1].getOffset());
+		assertEquals(14, partitions[1].getLength());
+		assertEquals(RubySourceConfiguration.DEFAULT, partitions[1].getType());
+
 	}
 
 	private void assertToken(IPartitionTokenScanner scanner, String contentType, int offset, int length)

@@ -37,6 +37,7 @@ import com.aptana.editor.ruby.internal.contentassist.RubyCommentContentAssistPro
 import com.aptana.editor.ruby.internal.contentassist.RubyContentAssistProcessor;
 import com.aptana.editor.ruby.internal.contentassist.RubyDoubleQuotedStringContentAssistProcessor;
 import com.aptana.editor.ruby.internal.contentassist.RubyRegexpContentAssistProcessor;
+import com.aptana.editor.ruby.internal.text.LineContinuationDamagerRepairer;
 import com.aptana.ruby.core.IRubyConstants;
 
 /**
@@ -166,7 +167,7 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 	 */
 	public void setupPresentationReconciler(PresentationReconciler reconciler, ISourceViewer sourceViewer)
 	{
-		DefaultDamagerRepairer dr = new ThemeingDamagerRepairer(getCodeScanner());
+		DefaultDamagerRepairer dr = new LineContinuationDamagerRepairer(getCodeScanner());
 		reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
 		reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
 

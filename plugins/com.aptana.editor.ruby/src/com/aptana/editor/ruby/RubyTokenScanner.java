@@ -11,6 +11,7 @@ import java.io.StringReader;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
@@ -34,7 +35,7 @@ import org.jrubyparser.parser.Tokens;
 public class RubyTokenScanner implements ITokenScanner
 {
 
-	private static final int COMMA = 44;
+	public static final int COMMA = 44;
 	public static final int COLON = 58;
 	public static final int ASSIGNMENT = 61;
 	public static final int QUESTION = 63;
@@ -279,6 +280,27 @@ public class RubyTokenScanner implements ITokenScanner
 			lexerSource = LexerSource.getSource("filename", new StringReader(""), config); //$NON-NLS-1$ //$NON-NLS-2$
 			lexer.setSource(lexerSource);
 		}
+
+		// FIXME If we're resuming after a string/regexp/command, set up lex state to be expression end.
+		if (offset > 0)
+		{
+			try
+			{
+				ITypedRegion region = document.getPartition(offset - 1);
+				if (RubySourceConfiguration.STRING_DOUBLE.equals(region.getType())
+						|| RubySourceConfiguration.STRING_SINGLE.equals(region.getType())
+						|| RubySourceConfiguration.REGULAR_EXPRESSION.equals(region.getType())
+						|| RubySourceConfiguration.COMMAND.equals(region.getType()))
+				{
+					lexer.setLexState(LexState.EXPR_END);
+				}
+			}
+			catch (BadLocationException e)
+			{
+				// ignore
+			}
+		}
+
 		origOffset = offset;
 		origLength = length;
 	}
