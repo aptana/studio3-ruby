@@ -19,6 +19,7 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.jrubyparser.ast.Node;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.editor.common.text.hyperlink.IndexQueryingHyperlinkDetector;
 import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.ruby.core.RubyCorePlugin;
@@ -66,7 +67,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		}
 		catch (Exception e)
 		{
-			RubyEditorPlugin.log(e);
+			IdeLog.logError(RubyEditorPlugin.getDefault(), e.getMessage(), e);
 		}
 		try
 		{

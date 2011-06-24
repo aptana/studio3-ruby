@@ -35,6 +35,8 @@ import org.jrubyparser.parser.ParserResult;
 import org.jrubyparser.parser.ParserSupport;
 import org.jrubyparser.parser.Tokens;
 
+import com.aptana.core.logging.IdeLog;
+
 public class RubySourcePartitionScanner implements IPartitionTokenScanner
 {
 
@@ -204,7 +206,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		}
 		catch (IOException e)
 		{
-			RubyEditorPlugin.log(e);
+			IdeLog.logError(RubyEditorPlugin.getDefault(), e.getMessage(), e);
 		}
 		if (!isEOF)
 		{
@@ -213,7 +215,9 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			if (fLength == 0
 					&& (returnValue.getData().equals(RubySourceConfiguration.STRING_DOUBLE) || returnValue.getData()
 							.equals(RubySourceConfiguration.STRING_SINGLE)))
+			{
 				return nextToken();
+			}
 		}
 		return returnValue;
 	}
@@ -650,7 +654,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 				return new Token(fContentType);
 			case Tokens.tSTRING_BEG:
 				String opening = getOpeningString();
-				if ("%".equals(opening)) // space after percent sign, it's an operator
+				if ("%".equals(opening)) // space after percent sign, it's an operator //$NON-NLS-1$
 				{
 					return new Token(fContentType);
 				}

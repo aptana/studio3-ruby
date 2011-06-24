@@ -434,13 +434,13 @@ public class CompletionContext
 		});
 		if (typeNode == null)
 		{
-			return "Object";
+			return "Object"; //$NON-NLS-1$
 		}
 		// Also grab the namespace at this point and prefix it here!
 		String namespace = getNamespace();
 		if (namespace != null && namespace.length() > 0)
 		{
-			return namespace + "::" + ASTUtils.getName(typeNode);
+			return namespace + "::" + ASTUtils.getName(typeNode); //$NON-NLS-1$
 		}
 		return ASTUtils.getName(typeNode);
 	}

@@ -12,11 +12,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.IOUtil;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.html.contentassist.index.HTMLFileIndexingParticipant;
 import com.aptana.editor.html.parsing.HTMLParseState;
-import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.index.core.AbstractFileIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.parsing.ParserPoolFactory;
@@ -61,7 +61,7 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 		}
 		catch (Throwable e)
 		{
-			RubyEditorPlugin.log(e);
+			IdeLog.logError(Activator.getDefault(), e.getMessage(), e);
 		}
 		finally
 		{

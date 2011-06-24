@@ -26,6 +26,8 @@ import org.jrubyparser.parser.ParserResult;
 import org.jrubyparser.parser.ParserSupport;
 import org.jrubyparser.parser.Tokens;
 
+import com.aptana.core.logging.IdeLog;
+
 /**
  * A token scanner which returns integers for ruby tokens. These can later be mapped to colors. Does some smoothing on
  * the tokens to add additional token types that the JRuby parser ignores.
@@ -120,7 +122,7 @@ public class RubyTokenScanner implements ITokenScanner
 		}
 		catch (Exception e)
 		{
-			RubyEditorPlugin.log(e);
+			IdeLog.logError(RubyEditorPlugin.getDefault(), e.getMessage(), e);
 		}
 
 		return returnValue;

@@ -83,17 +83,17 @@ public class SassCodeScanner extends CSSCodeScanner
 		{
 			return token;
 		}
-		if (token.getData() instanceof String && ((String) token.getData()).contains(".css"))
+		if (token.getData() instanceof String && ((String) token.getData()).contains(".css")) //$NON-NLS-1$
 		{
 			String cssScopeName = ((String) token.getData());
-			String sassScopeName = cssScopeName.replaceAll("\\.css", "\\.sass");
+			String sassScopeName = cssScopeName.replaceAll("\\.css", "\\.sass"); //$NON-NLS-1$ //$NON-NLS-2$
 			token = new Token(sassScopeName);
 		}
 		if (lastToken != null
-				&& ("keyword.control.at-rule.mixin.sass".equals(lastToken.getData()) || "keyword.control.at-rule.include.sass"
+				&& ("keyword.control.at-rule.mixin.sass".equals(lastToken.getData()) || "keyword.control.at-rule.include.sass" //$NON-NLS-1$ //$NON-NLS-2$
 						.equals(lastToken.getData())))
 		{
-			token = new Token("entity.name.function.sass");
+			token = new Token("entity.name.function.sass"); //$NON-NLS-1$
 		}
 		lastToken = token;
 		return token;
