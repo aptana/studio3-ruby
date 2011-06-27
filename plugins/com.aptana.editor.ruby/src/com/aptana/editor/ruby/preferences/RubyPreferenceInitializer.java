@@ -29,6 +29,9 @@ public class RubyPreferenceInitializer extends AbstractPreferenceInitializer
 				com.aptana.editor.common.contentassist.IPreferenceConstants.COMPLETION_PROPOSAL_ACTIVATION_CHARACTERS,
 				".$@:"); //$NON-NLS-1$
 
+		// mark occurrences
+		prefs.putBoolean(com.aptana.editor.common.preferences.IPreferenceConstants.EDITOR_MARK_OCCURRENCES, true);
+
 		// Check if we previously set preference to use global defaults
 		IEclipsePreferences instanceScopePref = new InstanceScope().getNode(RubyEditorPlugin.PLUGIN_ID);
 		if (!instanceScopePref.getBoolean(IPreferenceConstants.USE_GLOBAL_DEFAULTS, false))

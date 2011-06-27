@@ -41,11 +41,6 @@ public class RubyPreferencePage extends CommonEditorPreferencePage
 	}
 
 	@Override
-	protected void createMarkOccurrenceOptions(Composite parent)
-	{
-	}
-
-	@Override
 	protected IEclipsePreferences getPluginPreferenceStore()
 	{
 		return new InstanceScope().getNode(RubyEditorPlugin.PLUGIN_ID);

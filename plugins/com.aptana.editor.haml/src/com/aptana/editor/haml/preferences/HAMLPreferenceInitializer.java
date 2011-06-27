@@ -25,6 +25,9 @@ public class HAMLPreferenceInitializer extends AbstractPreferenceInitializer
 		prefs.putBoolean(com.aptana.editor.common.preferences.IPreferenceConstants.EDITOR_ENABLE_FOLDING, true);
 		prefs.putBoolean(IPreferenceConstants.EDITOR_AUTO_INDENT, true);
 
+		// mark occurrences
+		prefs.putBoolean(com.aptana.editor.common.preferences.IPreferenceConstants.EDITOR_MARK_OCCURRENCES, true);
+
 		// Check if we previously set preference to use global defaults
 		IEclipsePreferences instanceScopePref = new InstanceScope().getNode(HAMLEditorPlugin.PLUGIN_ID);
 		if (!instanceScopePref.getBoolean(IPreferenceConstants.USE_GLOBAL_DEFAULTS, false))

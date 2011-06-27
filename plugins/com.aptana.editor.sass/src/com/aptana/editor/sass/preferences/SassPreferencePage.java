@@ -11,7 +11,7 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.widgets.Composite;
+
 import com.aptana.editor.common.preferences.CommonEditorPreferencePage;
 import com.aptana.editor.sass.Activator;
 import com.aptana.editor.sass.SassSourceEditor;
@@ -28,11 +28,6 @@ public class SassPreferencePage extends CommonEditorPreferencePage
 		super();
 		setDescription(Messages.SassPreferencePage_SASS_Page_Title);
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-	}
-
-	@Override
-	protected void createMarkOccurrenceOptions(Composite parent)
-	{
 	}
 
 	@Override
