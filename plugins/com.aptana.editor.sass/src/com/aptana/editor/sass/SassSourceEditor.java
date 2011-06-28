@@ -45,4 +45,14 @@ public class SassSourceEditor extends AbstractThemeableEditor
 	{
 		return new SassFoldingComputer(document);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.common.AbstractThemeableEditor#getPluginPreferenceStore()
+	 */
+	@Override
+	protected IPreferenceStore getPluginPreferenceStore()
+	{
+		return Activator.getDefault().getPreferenceStore();
+	}
 }

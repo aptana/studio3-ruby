@@ -260,6 +260,16 @@ public class RubySourceEditor extends AbstractThemeableEditor
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.common.AbstractThemeableEditor#getPluginPreferenceStore()
+	 */
+	@Override
+	protected IPreferenceStore getPluginPreferenceStore()
+	{
+		return RubyEditorPlugin.getDefault().getPreferenceStore();
+	}
+
 	@Override
 	public IFoldingComputer createFoldingComputer(IDocument document)
 	{

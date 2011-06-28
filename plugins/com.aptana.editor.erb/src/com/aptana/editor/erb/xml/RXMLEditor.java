@@ -8,6 +8,8 @@
 
 package com.aptana.editor.erb.xml;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.erb.Activator;
 
@@ -27,5 +29,15 @@ public class RXMLEditor extends AbstractThemeableEditor
 
 		setSourceViewerConfiguration(new RXMLSourceViewerConfiguration(getPreferenceStore(), this));
 		setDocumentProvider(Activator.getDefault().getRXMLDocumentProvider());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.common.AbstractThemeableEditor#getPluginPreferenceStore()
+	 */
+	@Override
+	protected IPreferenceStore getPluginPreferenceStore()
+	{
+		return Activator.getDefault().getPreferenceStore();
 	}
 }

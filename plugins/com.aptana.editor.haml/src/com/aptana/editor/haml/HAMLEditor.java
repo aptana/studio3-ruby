@@ -18,23 +18,36 @@ import com.aptana.editor.common.text.reconciler.IFoldingComputer;
 import com.aptana.editor.haml.internal.HAMLFoldingComputer;
 
 @SuppressWarnings("restriction")
-public class HAMLEditor extends AbstractThemeableEditor {
-
+public class HAMLEditor extends AbstractThemeableEditor
+{
 	@Override
-	protected void initializeEditor() {
+	protected void initializeEditor()
+	{
 		super.initializeEditor();
 		setPreferenceStore(getChainedPreferenceStore());
 		setSourceViewerConfiguration(new HAMLSourceViewerConfiguration(getPreferenceStore(), this));
 		setDocumentProvider(HAMLEditorPlugin.getDefault().getHAMLDocumentProvider());
 	}
 
-	public static IPreferenceStore getChainedPreferenceStore() {
-		return new ChainedPreferenceStore(new IPreferenceStore[] { HAMLEditorPlugin.getDefault().getPreferenceStore(), CommonEditorPlugin.getDefault().getPreferenceStore(),
-				EditorsPlugin.getDefault().getPreferenceStore() });
+	public static IPreferenceStore getChainedPreferenceStore()
+	{
+		return new ChainedPreferenceStore(new IPreferenceStore[] { HAMLEditorPlugin.getDefault().getPreferenceStore(),
+				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
 	}
 
 	@Override
-	public IFoldingComputer createFoldingComputer(IDocument document) {
+	public IFoldingComputer createFoldingComputer(IDocument document)
+	{
 		return new HAMLFoldingComputer(this, document);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.common.AbstractThemeableEditor#getPluginPreferenceStore()
+	 */
+	@Override
+	protected IPreferenceStore getPluginPreferenceStore()
+	{
+		return HAMLEditorPlugin.getDefault().getPreferenceStore();
 	}
 }
