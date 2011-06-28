@@ -47,7 +47,7 @@ public class RHTMLParser extends CompositeParser
 					if (root == null)
 					{
 						root = new ParseRootNode(IRubyConstants.CONTENT_TYPE_RUBY, new ParseNode[0], startingOffset,
-								startingOffset + source.length());
+								startingOffset + source.length() - 1);
 					}
 					processRubyBlock(root);
 					break;
