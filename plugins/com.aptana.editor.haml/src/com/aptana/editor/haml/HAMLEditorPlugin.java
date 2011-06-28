@@ -8,6 +8,7 @@
 package com.aptana.editor.haml;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -20,6 +21,9 @@ public class HAMLEditorPlugin extends AbstractUIPlugin {
 
 	// The shared instance
 	private static HAMLEditorPlugin plugin;
+	
+	private IDocumentProvider hamlDocumentProvider;
+
 	
 	/**
 	 * The constructor
@@ -52,6 +56,17 @@ public class HAMLEditorPlugin extends AbstractUIPlugin {
 	 */
 	public static HAMLEditorPlugin getDefault() {
 		return plugin;
+	}
+
+	/**
+	 * Returns test document provider
+	 * @return
+	 */
+	public synchronized IDocumentProvider getHAMLDocumentProvider() {
+		if (hamlDocumentProvider == null) {
+			hamlDocumentProvider = new HAMLDocumentProvider();
+		}
+		return hamlDocumentProvider;
 	}
 
 }

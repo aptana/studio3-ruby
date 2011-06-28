@@ -172,7 +172,7 @@ public class RubyParserTest extends TestCase
 		IParseNode result = fParser.parse(fParseState);
 		assertEquals(IRubyElement.SCRIPT, result.getNodeType());
 		assertEquals(0, result.getStartingOffset());
-		assertEquals(59, result.getEndingOffset());
+		assertEquals(58, result.getEndingOffset());
 	}
 
 	public void testCase() throws Exception
@@ -182,7 +182,7 @@ public class RubyParserTest extends TestCase
 
 		IParseNode result = fParser.parse(fParseState);
 		assertEquals(0, result.getStartingOffset());
-		assertEquals(60, result.getEndingOffset());
+		assertEquals(59, result.getEndingOffset());
 	}
 
 	public void testWhile() throws Exception

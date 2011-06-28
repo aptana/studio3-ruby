@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.widgets.Composite;
 
 import com.aptana.editor.common.preferences.CommonEditorPreferencePage;
 import com.aptana.editor.haml.HAMLEditor;
@@ -29,11 +28,6 @@ public class HAMLPreferencePage extends CommonEditorPreferencePage
 		super();
 		setDescription(Messages.HAMLPreferencePage_HAML_Editor_Title);
 		setPreferenceStore(HAMLEditorPlugin.getDefault().getPreferenceStore());
-	}
-
-	@Override
-	protected void createMarkOccurrenceOptions(Composite parent)
-	{
 	}
 
 	@Override

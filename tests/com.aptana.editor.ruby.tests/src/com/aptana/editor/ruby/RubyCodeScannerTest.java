@@ -10,9 +10,14 @@ package com.aptana.editor.ruby;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocumentPartitioner;
+import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
+
+import com.aptana.editor.common.CommonEditorPlugin;
+import com.aptana.editor.common.IPartitioningConfiguration;
 
 public class RubyCodeScannerTest extends TestCase
 {
@@ -53,11 +58,23 @@ public class RubyCodeScannerTest extends TestCase
 
 	private void assertToken(String scope, int offset, int length)
 	{
+		assertToken(getToken(scope), offset, length);
+	}
+
+	private void assertToken(IToken expectedToken, int offset, int length)
+	{
 		// FIXME MErge with AbstractTokenScannerTestCase.assertToken
 		IToken token = scanner.nextToken();
 		assertEquals("Offsets don't match", offset, scanner.getTokenOffset());
 		assertEquals("Lengths don't match", length, scanner.getTokenLength());
-		assertEquals("Token scope doesn't match", scope, token.getData());
+		assertEquals("Token scope/data doesn't match", expectedToken.getData(), token.getData());
+		assertEquals(expectedToken.isWhitespace(), token.isWhitespace());
+		assertEquals(expectedToken.isOther(), token.isOther());
+	}
+
+	private IToken getToken(String scope)
+	{
+		return new Token(scope);
 	}
 
 	public void testNoParensNextIdentifierIsntParameter()
@@ -65,11 +82,11 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def denominator\nmethod_call\nend";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 11); // 'denominator'
-		assertToken("default.ruby", 15, 1); // '\n'
-		assertToken("default.ruby", 16, 11); // 'method_call'
-		assertToken("default.ruby", 27, 1); // '\n'
+		assertToken(Token.WHITESPACE, 15, 1); // '\n'
+		assertToken("", 16, 11); // 'method_call'
+		assertToken(Token.WHITESPACE, 27, 1); // '\n'
 		assertToken("keyword.control.ruby", 28, 3); // 'end'
 	}
 
@@ -78,13 +95,13 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def denominator() 0 end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 11); // 'denominator'
-		assertToken("default.ruby", 15, 1); // '('
-		assertToken("default.ruby", 16, 1); // ')'
-		assertToken("default.ruby", 17, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 15, 1); // '('
+		assertToken("punctuation.definition.parameters.ruby", 16, 1); // ')'
+		assertToken(Token.WHITESPACE, 17, 1); // ' '
 		assertToken("constant.numeric.ruby", 18, 1); // '0'
-		assertToken("default.ruby", 19, 1); // ' '
+		assertToken(Token.WHITESPACE, 19, 1); // ' '
 		assertToken("keyword.control.ruby", 20, 3); // 'end'
 	}
 
@@ -93,14 +110,14 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def <=>(other) 0 end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 3); // '<=>'
-		assertToken("default.ruby", 7, 1); // '('
-		assertToken("variable.parameter.ruby", 8, 5); // 'other'
-		assertToken("default.ruby", 13, 1); // ')'
-		assertToken("default.ruby", 14, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 7, 1); // '('
+		assertToken("variable.parameter.function.ruby", 8, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 13, 1); // ')'
+		assertToken(Token.WHITESPACE, 14, 1); // ' '
 		assertToken("constant.numeric.ruby", 15, 1); // '0'
-		assertToken("default.ruby", 16, 1); // ' '
+		assertToken(Token.WHITESPACE, 16, 1); // ' '
 		assertToken("keyword.control.ruby", 17, 3); // 'end'
 	}
 
@@ -109,20 +126,20 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def %(other) 0.0 || Rational.new end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 1); // '%'
-		assertToken("default.ruby", 5, 1); // '('
-		assertToken("variable.parameter.ruby", 6, 5); // 'other'
-		assertToken("default.ruby", 11, 1); // ')'
-		assertToken("default.ruby", 12, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 5, 1); // '('
+		assertToken("variable.parameter.function.ruby", 6, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 11, 1); // ')'
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
 		assertToken("constant.numeric.ruby", 13, 3); // '0.0'
-		assertToken("default.ruby", 16, 1); // ' '
+		assertToken(Token.WHITESPACE, 16, 1); // ' '
 		assertToken("keyword.operator.logical.ruby", 17, 2); // '||'
-		assertToken("default.ruby", 19, 1); // ' '
+		assertToken(Token.WHITESPACE, 19, 1); // ' '
 		assertToken("support.class.ruby", 20, 8); // 'Rational'
-		assertToken("default.ruby", 28, 1); // '.'
-		assertToken("default.ruby", 29, 3); // 'new'
-		assertToken("default.ruby", 32, 1); // ' '
+		assertToken("punctuation.separator.method.ruby", 28, 1); // '.'
+		assertToken("keyword.other.special-method.ruby", 29, 3); // 'new'
+		assertToken(Token.WHITESPACE, 32, 1); // ' '
 		assertToken("keyword.control.ruby", 33, 3); // 'end'
 	}
 
@@ -131,20 +148,20 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def *(other) 0.0 || Rational.new end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 1); // '*'
-		assertToken("default.ruby", 5, 1); // '('
-		assertToken("variable.parameter.ruby", 6, 5); // 'other'
-		assertToken("default.ruby", 11, 1); // ')'
-		assertToken("default.ruby", 12, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 5, 1); // '('
+		assertToken("variable.parameter.function.ruby", 6, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 11, 1); // ')'
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
 		assertToken("constant.numeric.ruby", 13, 3); // '0.0'
-		assertToken("default.ruby", 16, 1); // ' '
+		assertToken(Token.WHITESPACE, 16, 1); // ' '
 		assertToken("keyword.operator.logical.ruby", 17, 2); // '||'
-		assertToken("default.ruby", 19, 1); // ' '
+		assertToken(Token.WHITESPACE, 19, 1); // ' '
 		assertToken("support.class.ruby", 20, 8); // 'Rational'
-		assertToken("default.ruby", 28, 1); // '.'
-		assertToken("default.ruby", 29, 3); // 'new'
-		assertToken("default.ruby", 32, 1); // ' '
+		assertToken("punctuation.separator.method.ruby", 28, 1); // '.'
+		assertToken("keyword.other.special-method.ruby", 29, 3); // 'new'
+		assertToken(Token.WHITESPACE, 32, 1); // ' '
 		assertToken("keyword.control.ruby", 33, 3); // 'end'
 	}
 
@@ -153,20 +170,20 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def **(other) 0.0 || Rational.new end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 2); // '**'
-		assertToken("default.ruby", 6, 1); // '('
-		assertToken("variable.parameter.ruby", 7, 5); // 'other'
-		assertToken("default.ruby", 12, 1); // ')'
-		assertToken("default.ruby", 13, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 6, 1); // '('
+		assertToken("variable.parameter.function.ruby", 7, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 12, 1); // ')'
+		assertToken(Token.WHITESPACE, 13, 1); // ' '
 		assertToken("constant.numeric.ruby", 14, 3); // '0.0'
-		assertToken("default.ruby", 17, 1); // ' '
+		assertToken(Token.WHITESPACE, 17, 1); // ' '
 		assertToken("keyword.operator.logical.ruby", 18, 2); // '||'
-		assertToken("default.ruby", 20, 1); // ' '
+		assertToken(Token.WHITESPACE, 20, 1); // ' '
 		assertToken("support.class.ruby", 21, 8); // 'Rational'
-		assertToken("default.ruby", 29, 1); // '.'
-		assertToken("default.ruby", 30, 3); // 'new'
-		assertToken("default.ruby", 33, 1); // ' '
+		assertToken("punctuation.separator.method.ruby", 29, 1); // '.'
+		assertToken("keyword.other.special-method.ruby", 30, 3); // 'new'
+		assertToken(Token.WHITESPACE, 33, 1); // ' '
 		assertToken("keyword.control.ruby", 34, 3); // 'end'
 	}
 
@@ -175,20 +192,20 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def +(other) 0.0 || Rational.new end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 1); // '+'
-		assertToken("default.ruby", 5, 1); // '('
-		assertToken("variable.parameter.ruby", 6, 5); // 'other'
-		assertToken("default.ruby", 11, 1); // ')'
-		assertToken("default.ruby", 12, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 5, 1); // '('
+		assertToken("variable.parameter.function.ruby", 6, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 11, 1); // ')'
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
 		assertToken("constant.numeric.ruby", 13, 3); // '0.0'
-		assertToken("default.ruby", 16, 1); // ' '
+		assertToken(Token.WHITESPACE, 16, 1); // ' '
 		assertToken("keyword.operator.logical.ruby", 17, 2); // '||'
-		assertToken("default.ruby", 19, 1); // ' '
+		assertToken(Token.WHITESPACE, 19, 1); // ' '
 		assertToken("support.class.ruby", 20, 8); // 'Rational'
-		assertToken("default.ruby", 28, 1); // '.'
-		assertToken("default.ruby", 29, 3); // 'new'
-		assertToken("default.ruby", 32, 1); // ' '
+		assertToken("punctuation.separator.method.ruby", 28, 1); // '.'
+		assertToken("keyword.other.special-method.ruby", 29, 3); // 'new'
+		assertToken(Token.WHITESPACE, 32, 1); // ' '
 		assertToken("keyword.control.ruby", 33, 3); // 'end'
 	}
 
@@ -197,20 +214,20 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def *(other) 0.0 || Rational.new end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 1); // '-'
-		assertToken("default.ruby", 5, 1); // '('
-		assertToken("variable.parameter.ruby", 6, 5); // 'other'
-		assertToken("default.ruby", 11, 1); // ')'
-		assertToken("default.ruby", 12, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 5, 1); // '('
+		assertToken("variable.parameter.function.ruby", 6, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 11, 1); // ')'
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
 		assertToken("constant.numeric.ruby", 13, 3); // '0.0'
-		assertToken("default.ruby", 16, 1); // ' '
+		assertToken(Token.WHITESPACE, 16, 1); // ' '
 		assertToken("keyword.operator.logical.ruby", 17, 2); // '||'
-		assertToken("default.ruby", 19, 1); // ' '
+		assertToken(Token.WHITESPACE, 19, 1); // ' '
 		assertToken("support.class.ruby", 20, 8); // 'Rational'
-		assertToken("default.ruby", 28, 1); // '.'
-		assertToken("default.ruby", 29, 3); // 'new'
-		assertToken("default.ruby", 32, 1); // ' '
+		assertToken("punctuation.separator.method.ruby", 28, 1); // '.'
+		assertToken("keyword.other.special-method.ruby", 29, 3); // 'new'
+		assertToken(Token.WHITESPACE, 32, 1); // ' '
 		assertToken("keyword.control.ruby", 33, 3); // 'end'
 	}
 
@@ -219,20 +236,20 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def /(other) 0.0 || Rational.new end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 1); // '/'
-		assertToken("default.ruby", 5, 1); // '('
-		assertToken("variable.parameter.ruby", 6, 5); // 'other'
-		assertToken("default.ruby", 11, 1); // ')'
-		assertToken("default.ruby", 12, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 5, 1); // '('
+		assertToken("variable.parameter.function.ruby", 6, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 11, 1); // ')'
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
 		assertToken("constant.numeric.ruby", 13, 3); // '0.0'
-		assertToken("default.ruby", 16, 1); // ' '
+		assertToken(Token.WHITESPACE, 16, 1); // ' '
 		assertToken("keyword.operator.logical.ruby", 17, 2); // '||'
-		assertToken("default.ruby", 19, 1); // ' '
+		assertToken(Token.WHITESPACE, 19, 1); // ' '
 		assertToken("support.class.ruby", 20, 8); // 'Rational'
-		assertToken("default.ruby", 28, 1); // '.'
-		assertToken("default.ruby", 29, 3); // 'new'
-		assertToken("default.ruby", 32, 1); // ' '
+		assertToken("punctuation.separator.method.ruby", 28, 1); // '.'
+		assertToken("keyword.other.special-method.ruby", 29, 3); // 'new'
+		assertToken(Token.WHITESPACE, 32, 1); // ' '
 		assertToken("keyword.control.ruby", 33, 3); // 'end'
 	}
 
@@ -241,14 +258,14 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def ==(other) BOOLEAN end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 2); // '=='
-		assertToken("default.ruby", 6, 1); // '('
-		assertToken("variable.parameter.ruby", 7, 5); // 'other'
-		assertToken("default.ruby", 12, 1); // ')'
-		assertToken("default.ruby", 13, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 6, 1); // '('
+		assertToken("variable.parameter.function.ruby", 7, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 12, 1); // ')'
+		assertToken(Token.WHITESPACE, 13, 1); // ' '
 		assertToken("variable.other.constant.ruby", 14, 7); // 'BOOLEAN'
-		assertToken("default.ruby", 21, 1); // ' '
+		assertToken(Token.WHITESPACE, 21, 1); // ' '
 		assertToken("keyword.control.ruby", 22, 3); // 'end'
 	}
 
@@ -257,14 +274,14 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def ===(other) BOOLEAN end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 3); // '==='
-		assertToken("default.ruby", 7, 1); // '('
-		assertToken("variable.parameter.ruby", 8, 5); // 'other'
-		assertToken("default.ruby", 13, 1); // ')'
-		assertToken("default.ruby", 14, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 7, 1); // '('
+		assertToken("variable.parameter.function.ruby", 8, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 13, 1); // ')'
+		assertToken(Token.WHITESPACE, 14, 1); // ' '
 		assertToken("variable.other.constant.ruby", 15, 7); // 'BOOLEAN'
-		assertToken("default.ruby", 22, 1); // ' '
+		assertToken(Token.WHITESPACE, 22, 1); // ' '
 		assertToken("keyword.control.ruby", 23, 3); // 'end'
 	}
 
@@ -273,14 +290,14 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def >=(other) BOOLEAN end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 2); // '>='
-		assertToken("default.ruby", 6, 1); // '('
-		assertToken("variable.parameter.ruby", 7, 5); // 'other'
-		assertToken("default.ruby", 12, 1); // ')'
-		assertToken("default.ruby", 13, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 6, 1); // '('
+		assertToken("variable.parameter.function.ruby", 7, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 12, 1); // ')'
+		assertToken(Token.WHITESPACE, 13, 1); // ' '
 		assertToken("variable.other.constant.ruby", 14, 7); // 'BOOLEAN'
-		assertToken("default.ruby", 21, 1); // ' '
+		assertToken(Token.WHITESPACE, 21, 1); // ' '
 		assertToken("keyword.control.ruby", 22, 3); // 'end'
 	}
 
@@ -289,14 +306,14 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def <=(other) BOOLEAN end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 2); // '<='
-		assertToken("default.ruby", 6, 1); // '('
-		assertToken("variable.parameter.ruby", 7, 5); // 'other'
-		assertToken("default.ruby", 12, 1); // ')'
-		assertToken("default.ruby", 13, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 6, 1); // '('
+		assertToken("variable.parameter.function.ruby", 7, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 12, 1); // ')'
+		assertToken(Token.WHITESPACE, 13, 1); // ' '
 		assertToken("variable.other.constant.ruby", 14, 7); // 'BOOLEAN'
-		assertToken("default.ruby", 21, 1); // ' '
+		assertToken(Token.WHITESPACE, 21, 1); // ' '
 		assertToken("keyword.control.ruby", 22, 3); // 'end'
 	}
 
@@ -305,14 +322,14 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def <(other) BOOLEAN end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 1); // '<'
-		assertToken("default.ruby", 5, 1); // '('
-		assertToken("variable.parameter.ruby", 6, 5); // 'other'
-		assertToken("default.ruby", 11, 1); // ')'
-		assertToken("default.ruby", 12, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 5, 1); // '('
+		assertToken("variable.parameter.function.ruby", 6, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 11, 1); // ')'
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
 		assertToken("variable.other.constant.ruby", 13, 7); // 'BOOLEAN'
-		assertToken("default.ruby", 20, 1); // ' '
+		assertToken(Token.WHITESPACE, 20, 1); // ' '
 		assertToken("keyword.control.ruby", 21, 3); // 'end'
 	}
 
@@ -321,14 +338,14 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def >(other) BOOLEAN end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 1); // '>'
-		assertToken("default.ruby", 5, 1); // '('
-		assertToken("variable.parameter.ruby", 6, 5); // 'other'
-		assertToken("default.ruby", 11, 1); // ')'
-		assertToken("default.ruby", 12, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 5, 1); // '('
+		assertToken("variable.parameter.function.ruby", 6, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 11, 1); // ')'
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
 		assertToken("variable.other.constant.ruby", 13, 7); // 'BOOLEAN'
-		assertToken("default.ruby", 20, 1); // ' '
+		assertToken(Token.WHITESPACE, 20, 1); // ' '
 		assertToken("keyword.control.ruby", 21, 3); // 'end'
 	}
 
@@ -337,14 +354,14 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def |(other) BOOLEAN end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 1); // '|'
-		assertToken("default.ruby", 5, 1); // '('
-		assertToken("variable.parameter.ruby", 6, 5); // 'other'
-		assertToken("default.ruby", 11, 1); // ')'
-		assertToken("default.ruby", 12, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 5, 1); // '('
+		assertToken("variable.parameter.function.ruby", 6, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 11, 1); // ')'
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
 		assertToken("variable.other.constant.ruby", 13, 7); // 'BOOLEAN'
-		assertToken("default.ruby", 20, 1); // ' '
+		assertToken(Token.WHITESPACE, 20, 1); // ' '
 		assertToken("keyword.control.ruby", 21, 3); // 'end'
 	}
 
@@ -353,18 +370,18 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def &(other) self || other end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 1); // '&'
-		assertToken("default.ruby", 5, 1); // '('
-		assertToken("variable.parameter.ruby", 6, 5); // 'other'
-		assertToken("default.ruby", 11, 1); // ')'
-		assertToken("default.ruby", 12, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 5, 1); // '('
+		assertToken("variable.parameter.function.ruby", 6, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 11, 1); // ')'
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
 		assertToken("variable.language.ruby", 13, 4); // 'self'
-		assertToken("default.ruby", 17, 1); // ' '
+		assertToken(Token.WHITESPACE, 17, 1); // ' '
 		assertToken("keyword.operator.logical.ruby", 18, 2); // '||'
-		assertToken("default.ruby", 20, 1); // ' '
-		assertToken("default.ruby", 21, 5); // 'other'
-		assertToken("default.ruby", 26, 1); // ' '
+		assertToken(Token.WHITESPACE, 20, 1); // ' '
+		assertToken("", 21, 5); // 'other'
+		assertToken(Token.WHITESPACE, 26, 1); // ' '
 		assertToken("keyword.control.ruby", 27, 3); // 'end'
 	}
 
@@ -373,14 +390,14 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def <<(obj) self end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 2); // '<<'
-		assertToken("default.ruby", 6, 1); // '('
-		assertToken("variable.parameter.ruby", 7, 3); // 'obj'
-		assertToken("default.ruby", 10, 1); // ')'
-		assertToken("default.ruby", 11, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 6, 1); // '('
+		assertToken("variable.parameter.function.ruby", 7, 3); // 'obj'
+		assertToken("punctuation.definition.parameters.ruby", 10, 1); // ')'
+		assertToken(Token.WHITESPACE, 11, 1); // ' '
 		assertToken("variable.language.ruby", 12, 4); // 'self'
-		assertToken("default.ruby", 16, 1); // ' '
+		assertToken(Token.WHITESPACE, 16, 1); // ' '
 		assertToken("keyword.control.ruby", 17, 3); // 'end'
 	}
 
@@ -389,13 +406,13 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def +@() self end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 2); // '+@'
-		assertToken("default.ruby", 6, 1); // '('
-		assertToken("default.ruby", 7, 1); // ')'
-		assertToken("default.ruby", 8, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 6, 1); // '('
+		assertToken("punctuation.definition.parameters.ruby", 7, 1); // ')'
+		assertToken(Token.WHITESPACE, 8, 1); // ' '
 		assertToken("variable.language.ruby", 9, 4); // 'self'
-		assertToken("default.ruby", 13, 1); // ' '
+		assertToken(Token.WHITESPACE, 13, 1); // ' '
 		assertToken("keyword.control.ruby", 14, 3); // 'end'
 	}
 
@@ -404,13 +421,13 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def -@() 0 end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 2); // '-@'
-		assertToken("default.ruby", 6, 1); // '('
-		assertToken("default.ruby", 7, 1); // ')'
-		assertToken("default.ruby", 8, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 6, 1); // '('
+		assertToken("punctuation.definition.parameters.ruby", 7, 1); // ')'
+		assertToken(Token.WHITESPACE, 8, 1); // ' '
 		assertToken("constant.numeric.ruby", 9, 1); // '0'
-		assertToken("default.ruby", 10, 1); // ' '
+		assertToken(Token.WHITESPACE, 10, 1); // ' '
 		assertToken("keyword.control.ruby", 11, 3); // 'end'
 	}
 
@@ -419,13 +436,13 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def ~() 0 end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 1); // '~'
-		assertToken("default.ruby", 5, 1); // '('
-		assertToken("default.ruby", 6, 1); // ')'
-		assertToken("default.ruby", 7, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 5, 1); // '('
+		assertToken("punctuation.definition.parameters.ruby", 6, 1); // ')'
+		assertToken(Token.WHITESPACE, 7, 1); // ' '
 		assertToken("constant.numeric.ruby", 8, 1); // '0'
-		assertToken("default.ruby", 9, 1); // ' '
+		assertToken(Token.WHITESPACE, 9, 1); // ' '
 		assertToken("keyword.control.ruby", 10, 3); // 'end'
 	}
 
@@ -434,14 +451,14 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def ^(other) BOOLEAN end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 1); // '^'
-		assertToken("default.ruby", 5, 1); // '('
-		assertToken("variable.parameter.ruby", 6, 5); // 'other'
-		assertToken("default.ruby", 11, 1); // ')'
-		assertToken("default.ruby", 12, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 5, 1); // '('
+		assertToken("variable.parameter.function.ruby", 6, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 11, 1); // ')'
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
 		assertToken("variable.other.constant.ruby", 13, 7); // 'BOOLEAN'
-		assertToken("default.ruby", 20, 1); // ' '
+		assertToken(Token.WHITESPACE, 20, 1); // ' '
 		assertToken("keyword.control.ruby", 21, 3); // 'end'
 	}
 
@@ -450,17 +467,17 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def [](*) at(0) end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 2); // '[]'
-		assertToken("default.ruby", 6, 1); // '('
-		assertToken("variable.parameter.ruby", 7, 1); // '*'
-		assertToken("default.ruby", 8, 1); // ')'
-		assertToken("default.ruby", 9, 1); // ' '
-		assertToken("default.ruby", 10, 2); // 'at'
-		assertToken("default.ruby", 12, 1); // '('
+		assertToken("punctuation.definition.parameters.ruby", 6, 1); // '('
+		assertToken("variable.parameter.function.ruby", 7, 1); // '*'
+		assertToken("punctuation.definition.parameters.ruby", 8, 1); // ')'
+		assertToken(Token.WHITESPACE, 9, 1); // ' '
+		assertToken("", 10, 2); // 'at'
+		assertToken("punctuation.section.function.ruby", 12, 1); // '('
 		assertToken("constant.numeric.ruby", 13, 1); // '0'
-		assertToken("default.ruby", 14, 1); // ')'
-		assertToken("default.ruby", 15, 1); // ' '
+		assertToken("punctuation.section.function.ruby", 14, 1); // ')'
+		assertToken(Token.WHITESPACE, 15, 1); // ' '
 		assertToken("keyword.control.ruby", 16, 3); // 'end'
 	}
 
@@ -469,17 +486,17 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def []=(key, value) value end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 3); // '[]='
-		assertToken("default.ruby", 7, 1); // '('
-		assertToken("variable.parameter.ruby", 8, 3); // 'key'
-		assertToken("default.ruby", 11, 1); // ','
-		assertToken("default.ruby", 12, 1); // ' '
-		assertToken("variable.parameter.ruby", 13, 5); // 'value'
-		assertToken("default.ruby", 18, 1); // ')'
-		assertToken("default.ruby", 19, 1); // ' '
-		assertToken("default.ruby", 20, 5); // 'value'
-		assertToken("default.ruby", 25, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 7, 1); // '('
+		assertToken("variable.parameter.function.ruby", 8, 3); // 'key'
+		assertToken("punctuation.separator.object.ruby", 11, 1); // ','
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
+		assertToken("variable.parameter.function.ruby", 13, 5); // 'value'
+		assertToken("punctuation.definition.parameters.ruby", 18, 1); // ')'
+		assertToken(Token.WHITESPACE, 19, 1); // ' '
+		assertToken("", 20, 5); // 'value'
+		assertToken(Token.WHITESPACE, 25, 1); // ' '
 		assertToken("keyword.control.ruby", 26, 3); // 'end'
 	}
 
@@ -488,13 +505,13 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def next() 0 end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 4); // 'next'
-		assertToken("default.ruby", 8, 1); // '('
-		assertToken("default.ruby", 9, 1); // ')'
-		assertToken("default.ruby", 10, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 8, 1); // '('
+		assertToken("punctuation.definition.parameters.ruby", 9, 1); // ')'
+		assertToken(Token.WHITESPACE, 10, 1); // ' '
 		assertToken("constant.numeric.ruby", 11, 1); // '0'
-		assertToken("default.ruby", 12, 1); // ' '
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
 		assertToken("keyword.control.ruby", 13, 3); // 'end'
 	}
 
@@ -503,14 +520,14 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def begin(n) 0 end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 5); // 'begin'
-		assertToken("default.ruby", 9, 1); // '('
-		assertToken("variable.parameter.ruby", 10, 1); // 'n'
-		assertToken("default.ruby", 11, 1); // ')'
-		assertToken("default.ruby", 12, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 9, 1); // '('
+		assertToken("variable.parameter.function.ruby", 10, 1); // 'n'
+		assertToken("punctuation.definition.parameters.ruby", 11, 1); // ')'
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
 		assertToken("constant.numeric.ruby", 13, 1); // '0'
-		assertToken("default.ruby", 14, 1); // ' '
+		assertToken(Token.WHITESPACE, 14, 1); // ' '
 		assertToken("keyword.control.ruby", 15, 3); // 'end'
 	}
 
@@ -519,14 +536,14 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def end(n) 0 end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 3); // 'end'
-		assertToken("default.ruby", 7, 1); // '('
-		assertToken("variable.parameter.ruby", 8, 1); // 'n'
-		assertToken("default.ruby", 9, 1); // ')'
-		assertToken("default.ruby", 10, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 7, 1); // '('
+		assertToken("variable.parameter.function.ruby", 8, 1); // 'n'
+		assertToken("punctuation.definition.parameters.ruby", 9, 1); // ')'
+		assertToken(Token.WHITESPACE, 10, 1); // ' '
 		assertToken("constant.numeric.ruby", 11, 1); // '0'
-		assertToken("default.ruby", 12, 1); // ' '
+		assertToken(Token.WHITESPACE, 12, 1); // ' '
 		assertToken("keyword.control.ruby", 13, 3); // 'end'
 	}
 
@@ -535,14 +552,14 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "def =~(other) FALSE end";
 		setUpScanner(code);
 		assertToken("keyword.control.def.ruby", 0, 3); // 'def'
-		assertToken("default.ruby", 3, 1); // ' '
+		assertToken(Token.WHITESPACE, 3, 1); // ' '
 		assertToken("entity.name.function.ruby", 4, 2); // '=~'
-		assertToken("default.ruby", 6, 1); // '('
-		assertToken("variable.parameter.ruby", 7, 5); // 'other'
-		assertToken("default.ruby", 12, 1); // ')'
-		assertToken("default.ruby", 13, 1); // ' '
+		assertToken("punctuation.definition.parameters.ruby", 6, 1); // '('
+		assertToken("variable.parameter.function.ruby", 7, 5); // 'other'
+		assertToken("punctuation.definition.parameters.ruby", 12, 1); // ')'
+		assertToken(Token.WHITESPACE, 13, 1); // ' '
 		assertToken("variable.other.constant.ruby", 14, 5); // 'FALSE'
-		assertToken("default.ruby", 19, 1); // ' '
+		assertToken(Token.WHITESPACE, 19, 1); // ' '
 		assertToken("keyword.control.ruby", 20, 3); // 'end'
 	}
 
@@ -551,19 +568,51 @@ public class RubyCodeScannerTest extends TestCase
 		String code = "alias :include? :===\nalias :member? :===";
 		setUpScanner(code);
 		assertToken("keyword.control.ruby", 0, 5); // 'alias'
-		assertToken("default.ruby", 5, 1); // ' '
+		assertToken(Token.WHITESPACE, 5, 1); // ' '
 		assertToken("constant.other.symbol.ruby", 6, 1); // ':'
 		assertToken("constant.other.symbol.ruby", 7, 8); // 'include?'
-		assertToken("default.ruby", 15, 1); // ' '
+		assertToken(Token.WHITESPACE, 15, 1); // ' '
 		assertToken("constant.other.symbol.ruby", 16, 1); // ':'
 		assertToken("constant.other.symbol.ruby", 17, 3); // '==='
-		assertToken("default.ruby", 20, 1); // '\n'
+		assertToken(Token.WHITESPACE, 20, 1); // '\n'
 		assertToken("keyword.control.ruby", 21, 5); // 'alias'
-		assertToken("default.ruby", 26, 1); // ' '
+		assertToken(Token.WHITESPACE, 26, 1); // ' '
 		assertToken("constant.other.symbol.ruby", 27, 1); // ':'
 		assertToken("constant.other.symbol.ruby", 28, 7); // 'member?'
-		assertToken("default.ruby", 35, 1); // ' '
+		assertToken(Token.WHITESPACE, 35, 1); // ' '
 		assertToken("constant.other.symbol.ruby", 36, 1); // ':'
 		assertToken("constant.other.symbol.ruby", 37, 3); // '==='
+	}
+
+	public void testResumeAfterString() throws Exception
+	{
+		String code = "\"Just an example: %s %d\" \\\n% [1, 9000]";
+		Document document = new Document(code);
+
+		partition(document);
+		scanner.setRange(document, 24, 14);
+
+		assertToken(Token.WHITESPACE, 24, 1); //
+		// assertToken(Token.WHITESPACE, 25, 2); // \\n
+		// FIXME For whatever reason, the leading whitespace is getting folded in here...
+		assertToken("keyword.operator.arithmetic.ruby", 25, 3); // '%'
+		assertToken(Token.WHITESPACE, 28, 1); //
+		assertToken("punctuation.section.array.ruby", 29, 1); // '['
+		assertToken("constant.numeric.ruby", 30, 1); // '1'
+		assertToken("punctuation.separator.object.ruby", 31, 1); // ','
+		assertToken(Token.WHITESPACE, 32, 1); //
+		assertToken("constant.numeric.ruby", 33, 4); // '9000'
+		assertToken("punctuation.section.array.ruby", 37, 1); // ']'
+	}
+
+	protected void partition(Document document)
+	{
+		RubyDocumentProvider docProvider = new RubyDocumentProvider();
+		IPartitioningConfiguration configuration = docProvider.getPartitioningConfiguration();
+		IDocumentPartitioner partitioner = new FastPartitioner(docProvider.createPartitionScanner(),
+				configuration.getContentTypes());
+		partitioner.connect(document);
+		document.setDocumentPartitioner(partitioner);
+		CommonEditorPlugin.getDefault().getDocumentScopeManager().registerConfiguration(document, configuration);
 	}
 }

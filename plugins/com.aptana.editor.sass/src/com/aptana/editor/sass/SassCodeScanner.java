@@ -15,9 +15,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IRule;
+import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
+import org.eclipse.jface.text.rules.Token;
+import org.eclipse.jface.text.rules.WordRule;
 
 import com.aptana.editor.common.text.rules.CharacterMapRule;
 import com.aptana.editor.common.text.rules.ExtendedWordRule;
@@ -28,6 +32,8 @@ import com.aptana.editor.css.CSSCodeScanner;
  */
 public class SassCodeScanner extends CSSCodeScanner
 {
+
+	private IToken lastToken;
 
 	@Override
 	protected List<IRule> createRules()
@@ -49,10 +55,54 @@ public class SassCodeScanner extends CSSCodeScanner
 		return rules;
 	}
 
+	@SuppressWarnings("nls")
 	@Override
-	protected CharacterMapRule createPunctuationRules()
+	protected WordRule createAtWordsRule()
 	{
-		CharacterMapRule rule = super.createPunctuationRules();
+		WordRule wordRule = super.createAtWordsRule();
+
+		wordRule.addWord("@mixin", createToken("keyword.control.at-rule.mixin.sass"));
+		wordRule.addWord("@include", createToken("keyword.control.at-rule.include.sass"));
+		wordRule.addWord("@function", createToken("keyword.control.at-rule.function.sass"));
+		wordRule.addWord("@while", createToken("keyword.control.at-rule.while.sass"));
+		wordRule.addWord("@each", createToken("keyword.control.at-rule.each.sass"));
+		wordRule.addWord("@for", createToken("keyword.control.at-rule.for.sass"));
+		wordRule.addWord("@if", createToken("keyword.control.at-rule.if.sass"));
+		wordRule.addWord("@warn", createToken("keyword.control.at-rule.warn.sass"));
+		wordRule.addWord("@debug", createToken("keyword.control.at-rule.debug.sass"));
+		wordRule.addWord("@extend", createToken("keyword.control.at-rule.extend.sass"));
+
+		return wordRule;
+	}
+
+	@Override
+	public IToken nextToken()
+	{
+		IToken token = super.nextToken();
+		if (token.isWhitespace())
+		{
+			return token;
+		}
+		if (token.getData() instanceof String && ((String) token.getData()).contains(".css")) //$NON-NLS-1$
+		{
+			String cssScopeName = ((String) token.getData());
+			String sassScopeName = cssScopeName.replaceAll("\\.css", "\\.sass"); //$NON-NLS-1$ //$NON-NLS-2$
+			token = new Token(sassScopeName);
+		}
+		if (lastToken != null
+				&& ("keyword.control.at-rule.mixin.sass".equals(lastToken.getData()) || "keyword.control.at-rule.include.sass" //$NON-NLS-1$ //$NON-NLS-2$
+						.equals(lastToken.getData())))
+		{
+			token = new Token("entity.name.function.sass"); //$NON-NLS-1$
+		}
+		lastToken = token;
+		return token;
+	}
+
+	@Override
+	protected CharacterMapRule createPunctuatorsRule()
+	{
+		CharacterMapRule rule = super.createPunctuatorsRule();
 		// Override equals
 		rule.add('=', createToken("punctuation.definition.entity.sass")); //$NON-NLS-1$
 		return rule;
@@ -96,7 +146,15 @@ public class SassCodeScanner extends CSSCodeScanner
 
 		public boolean isWordStart(char c)
 		{
-			return c == '!' || c == '=' || c == '+';
+			// Old SASS used !, = and + as prefixes for variables and mixins, keep them in for now
+			return c == '!' || c == '$' || c == '=' || c == '+';
 		}
+	}
+
+	@Override
+	public void setRange(IDocument document, int offset, int length)
+	{
+		this.lastToken = null;
+		super.setRange(document, offset, length);
 	}
 }

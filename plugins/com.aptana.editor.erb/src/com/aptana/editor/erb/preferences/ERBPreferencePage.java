@@ -10,7 +10,6 @@ package com.aptana.editor.erb.preferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.widgets.Composite;
 
 import com.aptana.editor.common.preferences.CommonEditorPreferencePage;
 import com.aptana.editor.erb.Activator;
@@ -22,11 +21,6 @@ public class ERBPreferencePage extends CommonEditorPreferencePage
 	{
 		setDescription(Messages.ERBPreferencePage_ERB_page_title);
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-	}
-
-	@Override
-	protected void createMarkOccurrenceOptions(Composite parent)
-	{
 	}
 
 	@Override

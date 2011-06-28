@@ -57,7 +57,7 @@ public class RHTMLOutlineTest extends TestCase
 
 		Object[] elements = fContentProvider.getElements(fParseState.getParseResult());
 		assertEquals(3, elements.length);
-		assertEquals("<% content_for :styles... %>", fLabelProvider.getText(elements[0]));
+		assertEquals("<% content_for :style... %>", fLabelProvider.getText(elements[0]));
 		assertEquals(Activator.getImage("icons/embedded_code_fragment.png"), fLabelProvider.getImage(elements[0]));
 		assertEquals("style", fLabelProvider.getText(elements[1]));
 		assertEquals(HTMLPlugin.getImage("icons/element.png"),

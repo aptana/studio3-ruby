@@ -13,10 +13,13 @@ package com.aptana.ruby.debug.ui;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -26,9 +29,13 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.core.model.IValue;
+import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.debug.core.sourcelookup.containers.LocalFileStorage;
+import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.IValueDetailListener;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -42,19 +49,31 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 
 import com.aptana.ruby.debug.core.IRubyLineBreakpoint;
+import com.aptana.ruby.debug.core.model.IRubyVariable;
 import com.aptana.ruby.internal.debug.ui.StorageEditorInput;
+import com.aptana.ruby.ui.IRubyUIConstants;
+import com.aptana.ruby.ui.RubyUIPlugin;
 
 /**
  * Renders Ruby debug elements
  */
 public class RubyModelPresentation extends LabelProvider implements IDebugModelPresentation
 {
+
+	protected Map<String, Object> fAttributes = new HashMap<String, Object>(3);
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.debug.ui.IDebugModelPresentation#setAttribute(java.lang.String, java.lang.Object)
 	 */
 	public void setAttribute(String attribute, Object value)
 	{
+		if (value == null)
+		{
+			return;
+		}
+
+		fAttributes.put(attribute, value);
 	}
 
 	/*
@@ -63,6 +82,80 @@ public class RubyModelPresentation extends LabelProvider implements IDebugModelP
 	 */
 	public Image getImage(Object element)
 	{
+		try
+		{
+			if (element instanceof IVariable)
+			{
+				return getVariableImage((IVariable) element);
+			}
+			else if (element instanceof IBreakpoint)
+			{
+				return getBreakpointImage((IBreakpoint) element);
+			}
+			else if (element instanceof IMarker)
+			{
+				IBreakpoint breakpoint = getBreakpoint((IMarker) element);
+				if (breakpoint != null)
+				{
+					return getBreakpointImage(breakpoint);
+				}
+			}
+		}
+		catch (CoreException e)
+		{
+			RubyDebugUIPlugin.logError(e);
+		}
+		return super.getImage(element);
+	}
+
+	/**
+	 * getBreakpointImage
+	 * 
+	 * @param breakpoint
+	 * @return Image
+	 * @throws CoreException
+	 */
+	private Image getBreakpointImage(IBreakpoint breakpoint) throws CoreException
+	{
+		// TODO Handle conditional overlay for condition enabled or hit count
+		if (breakpoint.isEnabled())
+		{
+			return DebugUITools.getImage(org.eclipse.debug.ui.IDebugUIConstants.IMG_OBJS_BREAKPOINT);
+		}
+		return DebugUITools.getImage(org.eclipse.debug.ui.IDebugUIConstants.IMG_OBJS_BREAKPOINT_DISABLED);
+	}
+
+	/**
+	 * getVariableImage
+	 * 
+	 * @param variable
+	 * @return Image
+	 * @throws DebugException
+	 */
+	protected Image getVariableImage(IVariable variable) throws DebugException
+	{
+		if (variable instanceof IRubyVariable)
+		{
+			IRubyVariable rubyVar = (IRubyVariable) variable;
+			if (rubyVar.isConstant())
+			{
+				return RubyUIPlugin.getDefault().getImageRegistry().get(IRubyUIConstants.IMG_OBJS_CONSTANT);
+			}
+			if (rubyVar.isLocal())
+			{
+				// TODO Check to see if this is a complex object and show class image?
+				return RubyUIPlugin.getDefault().getImageRegistry().get(IRubyUIConstants.IMG_OBJS_LOCAL_VARIABLE);
+			}
+			if (rubyVar.isInstance())
+			{
+				return RubyUIPlugin.getDefault().getImageRegistry().get(IRubyUIConstants.IMG_OBJS_INSTANCE_VARIABLE);
+			}
+			if (rubyVar.isStatic())
+			{
+				return RubyUIPlugin.getDefault().getImageRegistry().get(IRubyUIConstants.IMG_OBJS_CLASS_VARIABLE);
+			}
+			return DebugUITools.getImage(org.eclipse.debug.ui.IDebugUIConstants.IMG_OBJS_VARIABLE);
+		}
 		return null;
 	}
 
@@ -72,12 +165,59 @@ public class RubyModelPresentation extends LabelProvider implements IDebugModelP
 	 */
 	public String getText(Object element)
 	{
+		try
+		{
+			/*
+			 * if (element instanceof IStackFrame) { return getStackFrameText((IStackFrame) element); } else if (element
+			 * instanceof IThread) { return getThreadText((IThread) element); } else
+			 */if (element instanceof IBreakpoint)
+			{
+				return getBreakpointText((IBreakpoint) element);
+			}
+			else if (element instanceof IVariable)
+			{
+				return getVariableText((IVariable) element);
+			}
+			else if (element instanceof IValue)
+			{
+				return getValueText((IValue) element);
+			}
+			else if (element instanceof IMarker)
+			{
+				IBreakpoint breakpoint = getBreakpoint((IMarker) element);
+				if (breakpoint != null)
+				{
+					return getBreakpointText(breakpoint);
+				}
+			}
+		}
+		catch (CoreException e)
+		{
+			RubyDebugUIPlugin.logError(e);
+		}
+		return null;
+	}
+
+	/**
+	 * getBreakpoint
+	 * 
+	 * @param marker
+	 * @return IBreakpoint
+	 */
+	private IBreakpoint getBreakpoint(IMarker marker)
+	{
+		return DebugPlugin.getDefault().getBreakpointManager().getBreakpoint(marker);
+	}
+
+	private String getBreakpointText(IBreakpoint element)
+	{
 		if (element instanceof IRubyLineBreakpoint)
 		{
 			try
 			{
 				IRubyLineBreakpoint rlbp = (IRubyLineBreakpoint) element;
-				return MessageFormat.format("{0} [line: {1}]", rlbp.getFilePath().toPortableString(), rlbp.getLineNumber()); //$NON-NLS-1$
+				return MessageFormat.format(
+						"{0} [line: {1}]", rlbp.getFilePath().toPortableString(), rlbp.getLineNumber()); //$NON-NLS-1$
 			}
 			catch (CoreException e)
 			{
@@ -212,5 +352,86 @@ public class RubyModelPresentation extends LabelProvider implements IDebugModelP
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * getVariableText
+	 * 
+	 * @param variable
+	 * @return String
+	 */
+	public String getVariableText(IVariable variable)
+	{
+		StringBuilder sb = new StringBuilder();
+		// Variable type
+		if (showVariableTypeNames())
+		{
+			String typeName = Messages.RubyModelPresentation_UnknownType;
+			try
+			{
+				typeName = variable.getReferenceTypeName();
+			}
+			catch (DebugException e)
+			{
+			}
+			sb.append(typeName).append(' ');
+		}
+
+		// Variable name
+		String varLabel = Messages.RubyModelPresentation_UnknownName;
+		try
+		{
+			varLabel = variable.getName();
+		}
+		catch (DebugException e)
+		{
+		}
+		sb.append(varLabel);
+
+		// Variable value
+		IValue value = null;
+		try
+		{
+			value = variable.getValue();
+		}
+		catch (DebugException e)
+		{
+		}
+		String valueString = Messages.RubyModelPresentation_UnknwonValue;
+		if (value != null)
+		{
+			try
+			{
+				valueString = getValueText(value);
+			}
+			catch (DebugException e)
+			{
+			}
+		}
+		if (valueString.length() != 0)
+		{
+			sb.append(" = "); //$NON-NLS-1$
+			sb.append(valueString);
+		}
+		return sb.toString();
+	}
+
+	protected boolean showVariableTypeNames()
+	{
+		Boolean show = (Boolean) fAttributes.get(DISPLAY_VARIABLE_TYPE_NAMES);
+		show = show == null ? Boolean.FALSE : show;
+		return show.booleanValue();
+	}
+
+	/**
+	 * getValueText
+	 * 
+	 * @param value
+	 * @return String
+	 * @throws DebugException
+	 */
+	protected String getValueText(IValue value) throws DebugException
+	{
+		return value.getValueString();
 	}
 }

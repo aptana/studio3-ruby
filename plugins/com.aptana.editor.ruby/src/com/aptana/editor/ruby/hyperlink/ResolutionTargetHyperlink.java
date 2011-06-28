@@ -19,6 +19,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.ruby.core.codeassist.ResolutionTarget;
 import com.aptana.ui.util.UIUtils;
@@ -68,7 +69,7 @@ public class ResolutionTargetHyperlink implements IHyperlink
 		}
 		catch (CoreException e)
 		{
-			RubyEditorPlugin.log(e);
+			IdeLog.logError(RubyEditorPlugin.getDefault(), e.getMessage(), e);
 		}
 	}
 

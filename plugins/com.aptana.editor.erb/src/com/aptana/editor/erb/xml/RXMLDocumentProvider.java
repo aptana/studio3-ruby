@@ -20,7 +20,7 @@ import com.aptana.editor.xml.XMLSourceConfiguration;
  */
 public class RXMLDocumentProvider extends CompositeDocumentProvider {
 
-	protected RXMLDocumentProvider() {
+	public RXMLDocumentProvider() {
 		super(IERBConstants.CONTENT_TYPE_XML_ERB,
 				XMLSourceConfiguration.getDefault(),
 				RubySourceConfiguration.getDefault(),

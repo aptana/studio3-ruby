@@ -1,5 +1,6 @@
 package com.aptana.editor.erb.html;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -11,15 +12,16 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.IOUtil;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.html.contentassist.index.HTMLFileIndexingParticipant;
 import com.aptana.editor.html.parsing.HTMLParseState;
-import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.index.core.AbstractFileIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.parsing.ParserPoolFactory;
 import com.aptana.parsing.ast.IParseNode;
+import com.aptana.preview.Activator;
 import com.aptana.ruby.internal.core.index.RubyFileIndexingParticipant;
 
 public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipant
@@ -59,7 +61,7 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 		}
 		catch (Throwable e)
 		{
-			RubyEditorPlugin.log(e);
+			IdeLog.logError(Activator.getDefault(), e.getMessage(), e);
 		}
 		finally
 		{
@@ -91,6 +93,10 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 			sub.worked(5);
 			RubyFileIndexingParticipant rfip = new RubyFileIndexingParticipant();
 			rfip.indexSource(index, rubyContents, store, sub.newChild(45));
+		}
+		catch (Exception e)
+		{
+			Activator.log(MessageFormat.format(Messages.RHTMLFileIndexingParticipant_ERR_Indexing, store.getName()), e);
 		}
 		finally
 		{

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.eclipse.core.resources.IProject;
 import org.jrubyparser.CompatVersion;
 import org.jrubyparser.StaticScope;
 import org.jrubyparser.ast.ClassNode;
@@ -50,8 +51,11 @@ public class CompletionContext
 	// Cache of the enclosing scope (typically type node or root) for instance/class vars
 	private Node enclosingScopeNode;
 
-	public CompletionContext(String src, int offset)
+	private IProject project;
+
+	public CompletionContext(IProject project, String src, int offset)
 	{
+		this.project = project;
 		this.src = src;
 		if (offset < 0)
 			offset = 0;
@@ -151,6 +155,8 @@ public class CompletionContext
 						if (partialPrefix == null)
 							partialPrefix = tmpPrefix.toString();
 						tmpPrefix.insert(0, ":");
+						offset = i + 1;
+						setOffset = true;
 						i--;
 					}
 				}
@@ -428,13 +434,13 @@ public class CompletionContext
 		});
 		if (typeNode == null)
 		{
-			return "Object";
+			return "Object"; //$NON-NLS-1$
 		}
 		// Also grab the namespace at this point and prefix it here!
 		String namespace = getNamespace();
 		if (namespace != null && namespace.length() > 0)
 		{
-			return namespace + "::" + ASTUtils.getName(typeNode);
+			return namespace + "::" + ASTUtils.getName(typeNode); //$NON-NLS-1$
 		}
 		return ASTUtils.getName(typeNode);
 	}
@@ -520,11 +526,12 @@ public class CompletionContext
 
 	public Collection<ITypeGuess> inferReceiver()
 	{
-		return new TypeInferrer().infer(getRootNode(), getReceiver());
+		return new TypeInferrer(project).infer(getRootNode(), getReceiver());
 	}
 
 	public boolean isNotParseable()
 	{
 		return getRootNode() == null;
 	}
+
 }

@@ -10,12 +10,9 @@ package com.aptana.editor.ruby.tests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import com.aptana.editor.ruby.RubyCodeScannerTest;
-import com.aptana.editor.ruby.RubyContentAssistTest;
-import com.aptana.editor.ruby.RubyEditorTest;
-import com.aptana.editor.ruby.RubyRegexScannerTest;
-import com.aptana.editor.ruby.RubySourcePartitionScannerTest;
-import com.aptana.editor.ruby.RubyTokenScannerTest;
+import com.aptana.editor.ruby.RubyEditorTests;
+import com.aptana.editor.ruby.internal.contentassist.RubyCATests;
+import com.aptana.editor.ruby.internal.text.rules.InternalTextRulesTests;
 import com.aptana.editor.ruby.outline.RubyOutlineTest;
 
 public class AllTests
@@ -25,13 +22,10 @@ public class AllTests
 	{
 		TestSuite suite = new TestSuite("Test for com.aptana.editor.ruby.tests");
 		// $JUnit-BEGIN$
-		suite.addTestSuite(RubySourcePartitionScannerTest.class);
-		suite.addTestSuite(RubyTokenScannerTest.class);
-		suite.addTestSuite(RubyCodeScannerTest.class);
-		suite.addTestSuite(RubyRegexScannerTest.class);
-		suite.addTestSuite(RubyEditorTest.class);
+		suite.addTest(RubyEditorTests.suite());
+		suite.addTest(RubyCATests.suite());
+		suite.addTest(InternalTextRulesTests.suite());
 		suite.addTestSuite(RubyOutlineTest.class);
-		suite.addTestSuite(RubyContentAssistTest.class);
 		// $JUnit-END$
 		return suite;
 	}

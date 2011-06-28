@@ -20,7 +20,7 @@ import com.aptana.editor.ruby.RubySourceConfiguration;
  */
 public class RHTMLDocumentProvider extends CompositeDocumentProvider {
 
-	protected RHTMLDocumentProvider() {
+	public RHTMLDocumentProvider() {
 		super(IERBConstants.CONTENT_TYPE_HTML_ERB,
 				HTMLSourceConfiguration.getDefault(),
 				RubySourceConfiguration.getDefault(),

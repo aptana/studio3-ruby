@@ -34,7 +34,7 @@ public class RubyParser implements IParser
 	{
 		String source = new String(parseState.getSource());
 		RubyScript root = new RubyScript(parseState.getStartingOffset(), parseState.getStartingOffset()
-				+ source.length());
+				+ source.length() - 1);
 		RubyStructureBuilder builder = new RubyStructureBuilder(root);
 		SourceElementVisitor visitor = new SourceElementVisitor(builder);
 

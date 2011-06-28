@@ -19,4 +19,8 @@ public interface IRubyVariable extends IVariable
 
 	IRubyStackFrame getStackFrame();
 
+	boolean isLocal();
+
+	boolean isInstance();
+
 }

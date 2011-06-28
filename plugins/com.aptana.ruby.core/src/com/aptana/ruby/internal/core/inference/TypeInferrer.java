@@ -7,7 +7,10 @@
  */
 package com.aptana.ruby.internal.core.inference;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,11 +20,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.jrubyparser.CompatVersion;
 import org.jrubyparser.Parser;
 import org.jrubyparser.ast.AssignableNode;
 import org.jrubyparser.ast.ClassVarNode;
 import org.jrubyparser.ast.Colon2Node;
+import org.jrubyparser.ast.ConstDeclNode;
 import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.INameNode;
 import org.jrubyparser.ast.InstVarNode;
@@ -29,20 +38,30 @@ import org.jrubyparser.ast.LocalAsgnNode;
 import org.jrubyparser.ast.LocalVarNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.ast.NodeType;
+import org.jrubyparser.lexer.SyntaxException;
 import org.jrubyparser.parser.ParserConfiguration;
 
+import com.aptana.core.util.StringUtil;
+import com.aptana.index.core.Index;
+import com.aptana.index.core.QueryResult;
+import com.aptana.index.core.SearchPattern;
+import com.aptana.ruby.core.RubyCorePlugin;
 import com.aptana.ruby.core.ast.ASTUtils;
 import com.aptana.ruby.core.ast.ClosestSpanningNodeLocator;
 import com.aptana.ruby.core.ast.FirstPrecursorNodeLocator;
 import com.aptana.ruby.core.ast.INodeAcceptor;
 import com.aptana.ruby.core.ast.OffsetNodeLocator;
 import com.aptana.ruby.core.ast.ScopedNodeLocator;
+import com.aptana.ruby.core.index.IRubyIndexConstants;
+import com.aptana.ruby.core.index.RubyIndexUtil;
 import com.aptana.ruby.core.inference.ITypeGuess;
 import com.aptana.ruby.core.inference.ITypeInferrer;
 
 @SuppressWarnings("nls")
 public class TypeInferrer implements ITypeInferrer
 {
+
+	// TODO Create constants for all the type names
 
 	/**
 	 * Hard-coded mapping from common method names to their possible return types.
@@ -98,6 +117,13 @@ public class TypeInferrer implements ITypeInferrer
 		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("unpack", createSet("Array"));
 	}
 
+	private IProject project;
+
+	public TypeInferrer(IProject project)
+	{
+		this.project = project;
+	}
+
 	private static Set<ITypeGuess> createSet(String... strings)
 	{
 		// TODO Allow for un-equal weighting of types!
@@ -131,8 +157,7 @@ public class TypeInferrer implements ITypeInferrer
 		switch (toInfer.getNodeType())
 		{
 			case CONSTNODE:
-				// FIXME This might be a reference to an actual type, but it also might be a real constant, in which
-				// case we need to find it's assignment and infer type from there.
+				// FIXME Treat this like we do in inferColon2Node where we look for matching constant decl!
 				return createSet(((ConstNode) toInfer).getName());
 			case CALLNODE:
 			case FCALLNODE:
@@ -174,6 +199,17 @@ public class TypeInferrer implements ITypeInferrer
 				return inferClassVar(rootNode, (ClassVarNode) toInfer);
 			case COLON2NODE:
 				return inferColon2Node((Colon2Node) toInfer);
+			case CLASSVARASGNNODE:
+			case CLASSVARDECLNODE:
+			case CONSTDECLNODE:
+			case DASGNNODE:
+			case GLOBALASGNNODE:
+			case INSTASGNNODE:
+			case LOCALASGNNODE:
+			case MULTIPLEASGN19NODE:
+			case MULTIPLEASGNNODE:
+				AssignableNode assignable = (AssignableNode) toInfer;
+				return infer(rootNode, assignable.getValueNode());
 			default:
 				break;
 		}
@@ -247,7 +283,99 @@ public class TypeInferrer implements ITypeInferrer
 
 	private Collection<ITypeGuess> inferColon2Node(Colon2Node toInfer)
 	{
-		return createSet(ASTUtils.getFullyQualifiedName(toInfer));
+		// Break name into constant name, type base name, type namespace. Ugh!
+		String fullName = ASTUtils.getFullyQualifiedName(toInfer);
+		String namespace = StringUtil.EMPTY;
+		String typeName = StringUtil.EMPTY;
+		String constantName = fullName;
+		int namespaceIndex = fullName.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
+		if (namespaceIndex != -1)
+		{
+			typeName = fullName.substring(0, namespaceIndex);
+			constantName = fullName.substring(namespaceIndex + 2);
+
+			namespaceIndex = typeName.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
+			if (namespaceIndex != -1)
+			{
+				namespace = typeName.substring(0, namespaceIndex);
+				typeName = typeName.substring(namespaceIndex + 2);
+			}
+		}
+		// TODO Check the indices to see if this is a constant or a type! If constant, we need to infer that constant
+		// decl!
+		final String key = constantName + IRubyIndexConstants.SEPARATOR + typeName + IRubyIndexConstants.SEPARATOR
+				+ namespace;
+		String matchingDocURI = null;
+		for (Index index : RubyIndexUtil.allIndices(project))
+		{
+			if (index == null)
+			{
+				continue;
+			}
+			List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.CONSTANT_DECL }, key,
+					SearchPattern.EXACT_MATCH | SearchPattern.CASE_SENSITIVE);
+			if (results == null || results.isEmpty())
+			{
+				continue;
+			}
+			for (QueryResult result : results)
+			{
+				// Found a match! Exit early, don't keep searching indices...
+				matchingDocURI = result.getDocuments().iterator().next();
+				break;
+			}
+			if (matchingDocURI != null)
+			{
+				break;
+			}
+		}
+
+		if (matchingDocURI != null)
+		{
+			try
+			{
+				// TODO Move parsing code into one method, and try to use the parser pool
+				IFileStore store = EFS.getStore(URI.create(matchingDocURI));
+				InputStream stream = store.openInputStream(EFS.NONE, new NullProgressMonitor());
+
+				Parser parser = new Parser();
+				Node root = parser.parse(
+						"", new InputStreamReader(stream), new ParserConfiguration(0, CompatVersion.BOTH)); //$NON-NLS-1$
+				if (root == null)
+				{
+					return Collections.emptyList();
+				}
+				final String theConstantName = constantName;
+				List<Node> decls = new ScopedNodeLocator().find(root, new INodeAcceptor()
+				{
+					public boolean accepts(Node node)
+					{
+						if (!(node instanceof ConstDeclNode))
+						{
+							return false;
+						}
+						ConstDeclNode declNode = (ConstDeclNode) node;
+						return declNode.getName().equals(theConstantName);
+					}
+				});
+				if (decls == null || decls.isEmpty())
+				{
+					return Collections.emptyList();
+				}
+				return infer(root, decls.iterator().next());
+			}
+			catch (SyntaxException e)
+			{
+				// ignore if syntax is busted.
+			}
+			catch (CoreException e)
+			{
+				RubyCorePlugin.log(e.getStatus());
+			}
+		}
+
+		// It appears to be a type and not a constant, so just return the actual text as the resulting Type inferred
+		return createSet(fullName);
 	}
 
 	private Collection<ITypeGuess> inferLocal(Node rootNode, LocalVarNode toInfer)
@@ -281,54 +409,56 @@ public class TypeInferrer implements ITypeInferrer
 		if (guesses == null)
 		{
 			// FIXME Grab from content_assist.rb's infer_return_type
-//		    # Ok, we can't cheat. We need to actually try to figure out the return type!
-//		    case method_node.node_type
-//		    when org.jrubyparser.ast.NodeType::CALLNODE
-//		      # Figure out the type of the receiver...
-//		      receiver_types = infer(method_node.getReceiverNode)
-//		      # If method name is "new" return receiver as type
-//		      return receiver_types if method_node.name == "new"
-//		      # TODO grab this method on the receiver type and grab the return type from it
-//		      "Object"
-//		    when org.jrubyparser.ast.NodeType::FCALLNODE, org.jrubyparser.ast.NodeType::VCALLNODE
-//		      # Grab enclosing type, search it's hierarchy for this method, grab it's return type(s)
-//		      type_node = enclosing_type(method_node.position.start_offset)
-//		      methods = ScopedNodeLocator.new.find(type_node) {|node| node.node_type == org.jrubyparser.ast.NodeType::DEFNNODE }
-//		      # FIXME This doesn't take hierarchy of type into account!
-//		      methods = methods.select {|m| m.name == method_node.name } if methods
-//		      return "Object" if methods.nil? or methods.empty?
-//		      
-//		      # Now traverse the method and gather return types
-//		      return_nodes = ScopedNodeLocator.new.find(methods.first) {|node| node.node_type == org.jrubyparser.ast.NodeType::RETURNNODE }
-//		      types = []
-//		      return_nodes.each {|r| types << infer(r.value_node) } if return_nodes
-//		      
-//		      # Get method body as a BlockNode, grab last child, that's the implicit return.
-//		      implicit_return = last_statement(methods.first.body_node)
-//		      if implicit_return
-//		        case implicit_return.node_type
-//		        when org.jrubyparser.ast.NodeType::IFNODE
-//		          types << infer(last_statement(implicit_return.then_body)) if implicit_return.then_body
-//		          types << infer(last_statement(implicit_return.else_body)) if implicit_return.else_body
-//		        when org.jrubyparser.ast.NodeType::CASENODE
-//		          implicit_return.cases.child_nodes.each do |c|
-//		            types << infer(last_statement(c.body_node)) if c
-//		          end
-//		          types << infer(last_statement(implicit_return.else_node)) if implicit_return.else_node       
-//		        when org.jrubyparser.ast.NodeType::RETURNNODE
-//		          # Ignore this because it's picked up in our explicit return traversal
-//		        else
-//		          types << infer(implicit_return)
-//		        end
-//		      end
-//		      return "Object" if types.empty?
-//		      types.flatten!
-//		      types
-//		    else
-//		      # Should never end up here...
-//		      "Object"
-//		    end
-			
+			// # Ok, we can't cheat. We need to actually try to figure out the return type!
+			// case method_node.node_type
+			// when org.jrubyparser.ast.NodeType::CALLNODE
+			// # Figure out the type of the receiver...
+			// receiver_types = infer(method_node.getReceiverNode)
+			// # If method name is "new" return receiver as type
+			// return receiver_types if method_node.name == "new"
+			// # TODO grab this method on the receiver type and grab the return type from it
+			// "Object"
+			// when org.jrubyparser.ast.NodeType::FCALLNODE, org.jrubyparser.ast.NodeType::VCALLNODE
+			// # Grab enclosing type, search it's hierarchy for this method, grab it's return type(s)
+			// type_node = enclosing_type(method_node.position.start_offset)
+			// methods = ScopedNodeLocator.new.find(type_node) {|node| node.node_type ==
+			// org.jrubyparser.ast.NodeType::DEFNNODE }
+			// # FIXME This doesn't take hierarchy of type into account!
+			// methods = methods.select {|m| m.name == method_node.name } if methods
+			// return "Object" if methods.nil? or methods.empty?
+			//
+			// # Now traverse the method and gather return types
+			// return_nodes = ScopedNodeLocator.new.find(methods.first) {|node| node.node_type ==
+			// org.jrubyparser.ast.NodeType::RETURNNODE }
+			// types = []
+			// return_nodes.each {|r| types << infer(r.value_node) } if return_nodes
+			//
+			// # Get method body as a BlockNode, grab last child, that's the implicit return.
+			// implicit_return = last_statement(methods.first.body_node)
+			// if implicit_return
+			// case implicit_return.node_type
+			// when org.jrubyparser.ast.NodeType::IFNODE
+			// types << infer(last_statement(implicit_return.then_body)) if implicit_return.then_body
+			// types << infer(last_statement(implicit_return.else_body)) if implicit_return.else_body
+			// when org.jrubyparser.ast.NodeType::CASENODE
+			// implicit_return.cases.child_nodes.each do |c|
+			// types << infer(last_statement(c.body_node)) if c
+			// end
+			// types << infer(last_statement(implicit_return.else_node)) if implicit_return.else_node
+			// when org.jrubyparser.ast.NodeType::RETURNNODE
+			// # Ignore this because it's picked up in our explicit return traversal
+			// else
+			// types << infer(implicit_return)
+			// end
+			// end
+			// return "Object" if types.empty?
+			// types.flatten!
+			// types
+			// else
+			// # Should never end up here...
+			// "Object"
+			// end
+
 			return Collections.emptySet();
 		}
 		return guesses;

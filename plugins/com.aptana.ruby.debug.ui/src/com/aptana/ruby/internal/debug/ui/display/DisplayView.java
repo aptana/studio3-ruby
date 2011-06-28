@@ -173,19 +173,17 @@ public class DisplayView extends ViewPart implements ITextInputListener, IPerspe
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.part.WorkbenchPart#getAdapter(Class)
 	 */
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class required)
 	{
-
 		if (ITextOperationTarget.class.equals(required))
 		{
 			return fSourceViewer.getTextOperationTarget();
 		}
-
 		if (IFindReplaceTarget.class.equals(required))
 		{
 			return fSourceViewer.getFindReplaceTarget();
 		}
-
 		if (IDataDisplay.class.equals(required))
 		{
 			return fDataDisplay;
@@ -194,7 +192,6 @@ public class DisplayView extends ViewPart implements ITextInputListener, IPerspe
 		{
 			return fSourceViewer;
 		}
-
 		return super.getAdapter(required);
 	}
 

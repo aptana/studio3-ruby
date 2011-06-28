@@ -19,7 +19,6 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -32,7 +31,6 @@ import org.jrubyparser.ast.NodeType;
 
 import com.aptana.core.util.IOUtil;
 import com.aptana.index.core.Index;
-import com.aptana.index.core.IndexManager;
 import com.aptana.index.core.QueryResult;
 import com.aptana.index.core.SearchPattern;
 import com.aptana.parsing.ParserPoolFactory;
@@ -49,10 +47,10 @@ import com.aptana.ruby.core.codeassist.CodeResolver;
 import com.aptana.ruby.core.codeassist.ResolutionTarget;
 import com.aptana.ruby.core.codeassist.ResolveContext;
 import com.aptana.ruby.core.index.IRubyIndexConstants;
+import com.aptana.ruby.core.index.RubyIndexUtil;
 import com.aptana.ruby.core.inference.ITypeGuess;
 import com.aptana.ruby.internal.core.NamedMember;
 import com.aptana.ruby.internal.core.RubyScript;
-import com.aptana.ruby.internal.core.index.CoreStubber;
 import com.aptana.ruby.internal.core.inference.TypeInferrer;
 
 public class RubyCodeResolver extends CodeResolver
@@ -238,25 +236,9 @@ public class RubyCodeResolver extends CodeResolver
 		return getMatchingElementHyperlinks(results, constantName, IRubyElement.CONSTANT);
 	}
 
-	/**
-	 * Returns the full set of indices that we may need to search. Project index, ruby core, ruby std libs, then gems.
-	 * 
-	 * @return
-	 */
-	private List<Index> getAllIndices()
+	private Index getIndex()
 	{
-		List<Index> indices = new ArrayList<Index>();
-		indices.add(getIndex());
-		indices.add(CoreStubber.getRubyCoreIndex());
-		for (IPath path : CoreStubber.getLoadpaths())
-		{
-			indices.add(IndexManager.getInstance().getIndex(path.toFile().toURI()));
-		}
-		for (IPath path : CoreStubber.getGemPaths())
-		{
-			indices.add(IndexManager.getInstance().getIndex(path.toFile().toURI()));
-		}
-		return indices;
+		return RubyIndexUtil.getIndex(getProject());
 	}
 
 	/**
@@ -286,7 +268,7 @@ public class RubyCodeResolver extends CodeResolver
 			return (RubyScript) ParserPoolFactory.parse(IRubyConstants.CONTENT_TYPE_RUBY,
 					IOUtil.read(store.openInputStream(EFS.NONE, new NullProgressMonitor())));
 		}
-		catch (CoreException e)
+		catch (Exception e)
 		{
 			RubyCorePlugin.log(e);
 		}
@@ -300,7 +282,7 @@ public class RubyCodeResolver extends CodeResolver
 		if ("new".equals(methodName)) //$NON-NLS-1$
 		{
 			Node receiver = callNode.getReceiverNode();
-			Collection<ITypeGuess> guesses = new TypeInferrer().infer(getRoot(), receiver);
+			Collection<ITypeGuess> guesses = new TypeInferrer(getProject()).infer(getRoot(), receiver);
 			for (ITypeGuess guess : guesses)
 			{
 				// TODO Find the "initialize" sub-method of the type if it exists!
@@ -324,7 +306,7 @@ public class RubyCodeResolver extends CodeResolver
 		// TODO Handle narrowing by type...
 		List<ResolutionTarget> links = new ArrayList<ResolutionTarget>();
 		// Search all indices
-		for (Index index : getAllIndices())
+		for (Index index : RubyIndexUtil.allIndices(getProject()))
 		{
 			if (index == null)
 			{
@@ -349,7 +331,7 @@ public class RubyCodeResolver extends CodeResolver
 		}
 		List<ResolutionTarget> links = new ArrayList<ResolutionTarget>();
 		// Search all indices
-		for (Index index : getAllIndices())
+		for (Index index : RubyIndexUtil.allIndices(getProject()))
 		{
 			if (index == null)
 			{
@@ -366,10 +348,8 @@ public class RubyCodeResolver extends CodeResolver
 		return links;
 	}
 
-	private Index getIndex()
+	protected IProject getProject()
 	{
-		// Grab the correct index for this context. try and resolve URI to workspace file, grab it's project, then
-		// project index?
 		URI uri = context.getURI();
 		if ("file".equals(uri.getScheme())) //$NON-NLS-1$
 		{
@@ -377,8 +357,7 @@ public class RubyCodeResolver extends CodeResolver
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
 			if (file != null)
 			{
-				IProject project = file.getProject();
-				return IndexManager.getInstance().getIndex(project.getLocationURI());
+				return file.getProject();
 			}
 		}
 

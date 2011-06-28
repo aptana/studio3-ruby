@@ -31,7 +31,7 @@ public class SassSourceEditor extends AbstractThemeableEditor
 		setPreferenceStore(getChainedPreferenceStore());
 
 		setSourceViewerConfiguration(new SassSourceViewerConfiguration(getPreferenceStore(), this));
-		setDocumentProvider(new SassDocumentProvider());
+		setDocumentProvider(Activator.getDefault().getSassDocumentProvider());
 	}
 
 	public static IPreferenceStore getChainedPreferenceStore()
@@ -44,5 +44,15 @@ public class SassSourceEditor extends AbstractThemeableEditor
 	public IFoldingComputer createFoldingComputer(IDocument document)
 	{
 		return new SassFoldingComputer(document);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.common.AbstractThemeableEditor#getPluginPreferenceStore()
+	 */
+	@Override
+	protected IPreferenceStore getPluginPreferenceStore()
+	{
+		return Activator.getDefault().getPreferenceStore();
 	}
 }

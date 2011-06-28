@@ -14,9 +14,9 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 import com.aptana.editor.common.IPartitionScannerSwitchStrategy;
+import com.aptana.editor.common.IPartitionScannerSwitchStrategy.SequenceBypassHandler;
 import com.aptana.editor.common.PartitionScannerSwitchStrategy;
 import com.aptana.editor.common.TextUtils;
-import com.aptana.editor.common.IPartitionScannerSwitchStrategy.SequenceBypassHandler;
 import com.aptana.editor.common.text.rules.CompositeSubPartitionScanner;
 import com.aptana.editor.common.text.rules.ISubPartitionScanner;
 import com.aptana.editor.common.text.rules.SubPartitionScanner;
@@ -98,6 +98,10 @@ public class HAMLSubPartitionScanner extends CompositeSubPartitionScanner {
 	 */
 	@Override
 	public void setLastToken(IToken token) {
+		super.setLastToken(token);
+		if (token == null) {
+			return;
+		}
 		if (!(token.getData() instanceof String)) {
 			current = TYPE_DEFAULT;
 			return;
@@ -105,8 +109,10 @@ public class HAMLSubPartitionScanner extends CompositeSubPartitionScanner {
 		String contentType = (String) token.getData();
 		if (HAMLSourceConfiguration.RUBY_EVALUATION.equals(contentType)) {
 			current = TYPE_RUBY_EVALUATION;
+			super.setLastToken(null);
 		} else if (HAMLSourceConfiguration.RUBY_ATTRIBUTES.equals(contentType)) {
 			current = TYPE_RUBY_ATTRIBUTES;
+			super.setLastToken(null);
 		} else if (HAMLSourceConfiguration.DEFAULT.equals(contentType)
 				|| IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)) {
 			current = TYPE_DEFAULT;

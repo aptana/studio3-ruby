@@ -25,6 +25,12 @@ public class RubyPreferenceInitializer extends AbstractPreferenceInitializer
 		IEclipsePreferences prefs = new DefaultScope().getNode(RubyEditorPlugin.PLUGIN_ID);
 		prefs.putBoolean(IPreferenceConstants.EDITOR_AUTO_INDENT, true);
 		prefs.putBoolean(IPreferenceConstants.EDITOR_ENABLE_FOLDING, true);
+		prefs.put(
+				com.aptana.editor.common.contentassist.IPreferenceConstants.COMPLETION_PROPOSAL_ACTIVATION_CHARACTERS,
+				".$@:"); //$NON-NLS-1$
+
+		// mark occurrences
+		prefs.putBoolean(com.aptana.editor.common.preferences.IPreferenceConstants.EDITOR_MARK_OCCURRENCES, true);
 
 		// Check if we previously set preference to use global defaults
 		IEclipsePreferences instanceScopePref = new InstanceScope().getNode(RubyEditorPlugin.PLUGIN_ID);

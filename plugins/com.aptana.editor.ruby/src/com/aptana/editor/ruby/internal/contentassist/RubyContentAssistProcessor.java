@@ -5,7 +5,7 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.editor.ruby;
+package com.aptana.editor.ruby.internal.contentassist;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.PerformanceStats;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -39,8 +38,8 @@ import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonContentAssistProcessor;
 import com.aptana.editor.common.contentassist.CommonCompletionProposal;
+import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.index.core.Index;
-import com.aptana.index.core.IndexManager;
 import com.aptana.index.core.QueryResult;
 import com.aptana.index.core.SearchPattern;
 import com.aptana.ruby.core.IRubyMethod.Visibility;
@@ -49,15 +48,11 @@ import com.aptana.ruby.core.ast.INodeAcceptor;
 import com.aptana.ruby.core.ast.ScopedNodeLocator;
 import com.aptana.ruby.core.codeassist.CompletionContext;
 import com.aptana.ruby.core.index.IRubyIndexConstants;
+import com.aptana.ruby.core.index.RubyIndexUtil;
 import com.aptana.ruby.core.inference.ITypeGuess;
-import com.aptana.ruby.internal.core.index.CoreStubber;
-import com.aptana.ruby.launching.RubyLaunchingPlugin;
 import com.aptana.scripting.model.ContentAssistElement;
 
 /**
- * All the heavy lifting is actually done by the content assist implementation in the ruby ruble. This class just exists
- * to set auto-activation on '.' for now.
- * 
  * @author cwilliams
  */
 public class RubyContentAssistProcessor extends CommonContentAssistProcessor
@@ -99,16 +94,6 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		super(editor);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.CommonContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
-	 */
-	@Override
-	public char[] getCompletionProposalAutoActivationCharacters()
-	{
-		return new char[] { '.', '$', '@', ':' };
-	}
-
 	protected java.util.Collection<? extends ICompletionProposal> addRubleCAProposals(ITextViewer viewer, int offset,
 			Ruby ruby, ContentAssistElement ce)
 	{
@@ -125,7 +110,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			boolean autoActivated)
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
-		fContext = new CompletionContext(viewer.getDocument().get(), offset - 1);
+		fContext = new CompletionContext(getProject(), viewer.getDocument().get(), offset - 1);
 		try
 		{
 			if (fContext.inComment() || fContext.getPartialPrefix().endsWith(":")) //$NON-NLS-1$
@@ -181,23 +166,11 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 					proposals.addAll(suggestConstantsInNamespace());
 				}
 
-				// Search for all methods on type name before last delim
-				proposals.addAll(suggestMethodsOnType());
+				proposals.addAll(suggestMethodsOnReceiver());
 			}
 			else if (fContext.isExplicitMethodInvokation())
 			{
-				// Infer type of receiver, then suggest methods on that type
-				Collection<ITypeGuess> guesses = fContext.inferReceiver();
-				Set<String> typeNames = new HashSet<String>();
-				for (ITypeGuess guess : guesses)
-				{
-					typeNames.add(guess.getType());
-				}
-				// Based on what the receiver is (if it's a type name) we should toggle instance/singleton
-				// methods!
-				boolean includeInstance = !receiverIsType();
-				proposals.addAll(suggestMethodsForType(typeNames, includeInstance, false));
-				// TODO Add "new"
+				proposals.addAll(suggestMethodsOnReceiver());
 			}
 			else if (fContext.isMethodInvokationOrLocal())
 			{
@@ -220,6 +193,21 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		}
 	}
 
+	private Collection<? extends ICompletionProposal> suggestMethodsOnReceiver()
+	{
+		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
+		Collection<ITypeGuess> guesses = fContext.inferReceiver();
+		Set<String> typeNames = new HashSet<String>();
+		for (ITypeGuess guess : guesses)
+		{
+			typeNames.add(guess.getType());
+		}
+		// Based on what the receiver is (if it's a type name) we should toggle instance/singleton
+		// methods!
+		proposals.addAll(suggestMethodsForType(typeNames, !receiverIsType(), false));
+		return proposals;
+	}
+
 	private Collection<? extends ICompletionProposal> suggestKeywords()
 	{
 		List<ICompletionProposal> keywords = new ArrayList<ICompletionProposal>();
@@ -239,10 +227,46 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		Node receiver = fContext.getReceiver();
 		if (receiver instanceof Colon3Node)
 		{
-			// TODO We can do one better and actually search index to see if a type by this name exists...
-			return true;
+			// FIXME If the receiver as text equals the inferred type, then it's a type... That's probably way
+			// quicker...
+			String fullName = ASTUtils.getFullyQualifiedName(receiver);
+			String namespace = StringUtil.EMPTY;
+			String typeName = StringUtil.EMPTY;
+			String constantName = fullName;
+			int namespaceIndex = fullName.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
+			if (namespaceIndex != -1)
+			{
+				typeName = fullName.substring(0, namespaceIndex);
+				constantName = fullName.substring(namespaceIndex + 2);
+
+				namespaceIndex = typeName.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
+				if (namespaceIndex != -1)
+				{
+					namespace = typeName.substring(0, namespaceIndex);
+					typeName = typeName.substring(namespaceIndex + 2);
+				}
+			}
+			// Check the indices to see if this is a constant or a type! If constant, we need to infer that
+			// constant decl!
+			final String key = constantName + IRubyIndexConstants.SEPARATOR + typeName + IRubyIndexConstants.SEPARATOR
+					+ namespace;
+			for (Index index : RubyIndexUtil.allIndices(getProject()))
+			{
+				if (index == null)
+				{
+					continue;
+				}
+				List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.CONSTANT_DECL }, key,
+						SearchPattern.EXACT_MATCH | SearchPattern.CASE_SENSITIVE);
+				if (results == null || results.isEmpty())
+				{
+					continue;
+				}
+				// Found at least one match, assume that the receiver isn't a constant...
+				return false;
+			}
 		}
-		return false;
+		return true;
 	}
 
 	/**
@@ -275,22 +299,13 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		return uniques;
 	}
 
-	protected Collection<? extends ICompletionProposal> suggestMethodsOnType()
-	{
-		String fullPrefix = fContext.getFullPrefix();
-		String possibleType = fullPrefix.substring(0, fullPrefix.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER));
-		Set<String> typeNames = new HashSet<String>();
-		typeNames.add(possibleType);
-		return suggestMethodsForType(typeNames, false, false);
-	}
-
 	/**
 	 * Suggests possible types that live under a namespace matching the full prefix.
 	 * 
 	 * @return
 	 */
 	@SuppressWarnings("nls")
-	protected Collection<? extends ICompletionProposal> suggestTypesInNamespace()
+	private Collection<? extends ICompletionProposal> suggestTypesInNamespace()
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 		String fullPrefix = fContext.getFullPrefix();
@@ -298,7 +313,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		String key = "^[^/]+?" + IRubyIndexConstants.SEPARATOR + namespace + "[^/]*?" + IRubyIndexConstants.SEPARATOR
 				+ ".+$";
 		Map<String, Boolean> proposalToIsClass = new HashMap<String, Boolean>();
-		for (Index index : allIndices())
+		for (Index index : RubyIndexUtil.allIndices(getProject()))
 		{
 			if (index == null)
 			{
@@ -357,7 +372,8 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	 * 
 	 * @return
 	 */
-	protected Collection<? extends ICompletionProposal> suggestConstantsInNamespace()
+	@SuppressWarnings("nls")
+	private Collection<? extends ICompletionProposal> suggestConstantsInNamespace()
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 		String fullPrefix = fContext.getFullPrefix();
@@ -376,7 +392,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		}
 		String key = "^" + fContext.getPartialPrefix() + "[^/]*?" + IRubyIndexConstants.SEPARATOR + typeName
 				+ IRubyIndexConstants.SEPARATOR + namespace + "[^/]*$";
-		for (Index index : allIndices())
+		for (Index index : RubyIndexUtil.allIndices(getProject()))
 		{
 			if (index == null)
 			{
@@ -580,7 +596,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		// Followed by whatever number of args
 		keyBuilder.append("[^/]*$");
 		final String key = keyBuilder.toString();
-		for (Index index : allIndices())
+		for (Index index : RubyIndexUtil.allIndices(getProject()))
 		{
 			if (index == null)
 			{
@@ -700,7 +716,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 		Set<String> globalNames = new TreeSet<String>();
-		for (Index index : allIndices())
+		for (Index index : RubyIndexUtil.allIndices(getProject()))
 		{
 			if (index == null)
 			{
@@ -729,7 +745,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 		Set<String> typeKeys = new TreeSet<String>();
-		for (Index index : allIndices())
+		for (Index index : RubyIndexUtil.allIndices(getProject()))
 		{
 			if (index == null)
 			{
@@ -798,37 +814,13 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		{
 			proposal.setFileLocation(location);
 		}
+		proposal.setTriggerCharacters(getProposalTriggerCharacters());
 		return proposal;
-	}
-
-	private synchronized Collection<Index> allIndices()
-	{
-		Collection<Index> indices = new ArrayList<Index>();
-		indices.add(getIndex());
-		indices.add(CoreStubber.getRubyCoreIndex(getProject()));
-		indices.addAll(getStdLibIndices());
-		indices.addAll(getGemIndices());
-		return indices;
-	}
-
-	protected Collection<Index> getStdLibIndices()
-	{
-		return CoreStubber.getStdLibIndices(getProject());
-	}
-
-	protected Collection<Index> getGemIndices()
-	{
-		Collection<Index> indices = new ArrayList<Index>();
-		for (IPath path : RubyLaunchingPlugin.getGemPaths(getProject()))
-		{
-			indices.add(IndexManager.getInstance().getIndex(path.toFile().toURI()));
-		}
-		return indices;
 	}
 
 	// Actually generate the list of super types and return them all, so we can query up the hierarchy for methods!
 	@SuppressWarnings("nls")
-	protected Set<String> calculateSuperTypes(String typeName)
+	private Set<String> calculateSuperTypes(String typeName)
 	{
 		Set<String> typeNames = new HashSet<String>();
 		if (typeName == null)
@@ -855,7 +847,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		final String key = "^[^/]*" + IRubyIndexConstants.SEPARATOR + "[^/]*" + IRubyIndexConstants.SEPARATOR
 				+ simpleName + IRubyIndexConstants.SEPARATOR + namespace + IRubyIndexConstants.SEPARATOR + ".*$";
 		// Take the type name and find all the super types and included modules
-		for (Index index : allIndices())
+		for (Index index : RubyIndexUtil.allIndices(getProject()))
 		{
 			if (index == null)
 			{
@@ -908,5 +900,14 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			return simpleName;
 		}
 		return namespace + NAMESPACE_DELIMITER + simpleName;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.common.CommonContentAssistProcessor#getPreferenceNodeQualifier()
+	 */
+	protected String getPreferenceNodeQualifier()
+	{
+		return RubyEditorPlugin.PLUGIN_ID;
 	}
 }

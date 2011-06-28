@@ -9,11 +9,12 @@
 package com.aptana.editor.erb.html;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
 import com.aptana.editor.common.CommonEditorPlugin;
-import com.aptana.editor.common.outline.CommonOutlinePage;
 import com.aptana.editor.common.parsing.FileService;
 import com.aptana.editor.erb.Activator;
 import com.aptana.editor.erb.IERBConstants;
@@ -28,9 +29,10 @@ import com.aptana.editor.html.parsing.HTMLParseState;
 @SuppressWarnings("restriction")
 public class RHTMLEditor extends HTMLEditor
 {
+
 	/*
 	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.AbstractThemeableEditor#initializeEditor()
+	 * @see com.aptana.editor.html.HTMLEditor#initializeEditor()
 	 */
 	@Override
 	protected void initializeEditor()
@@ -39,15 +41,23 @@ public class RHTMLEditor extends HTMLEditor
 
 		setPreferenceStore(getChainedPreferenceStore());
 		setSourceViewerConfiguration(new RHTMLSourceViewerConfiguration(getPreferenceStore(), this));
-		setDocumentProvider(new RHTMLDocumentProvider());
+		setDocumentProvider(Activator.getDefault().getRHTMLDocumentProvider());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.html.HTMLEditor#installOpenTagCloser()
+	 */
 	@Override
 	protected void installOpenTagCloser()
 	{
 		new ERBOpenTagCloser(getSourceViewer()).install();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.html.HTMLEditor#createFileService()
+	 */
 	@Override
 	protected FileService createFileService()
 	{
@@ -55,15 +65,21 @@ public class RHTMLEditor extends HTMLEditor
 	}
 
 	@Override
-	protected CommonOutlinePage createOutlinePage()
+	public ITreeContentProvider getOutlineContentProvider()
 	{
-		CommonOutlinePage outline = super.createOutlinePage();
-		outline.setContentProvider(new RHTMLOutlineContentProvider());
-		outline.setLabelProvider(new RHTMLOutlineLabelProvider(getFileService().getParseState()));
-
-		return outline;
+		return new RHTMLOutlineContentProvider();
 	}
 
+	@Override
+	public ILabelProvider getOutlineLabelProvider()
+	{
+		return new RHTMLOutlineLabelProvider(getFileService().getParseState());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.html.HTMLEditor#getPairMatchingCharacters()
+	 */
 	@Override
 	protected char[] getPairMatchingCharacters()
 	{

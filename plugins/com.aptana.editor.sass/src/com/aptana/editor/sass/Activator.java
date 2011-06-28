@@ -8,6 +8,7 @@
 package com.aptana.editor.sass;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -20,6 +21,9 @@ public class Activator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static Activator plugin;
+	
+	private IDocumentProvider sassDocumentProvider;
+
 	
 	/**
 	 * The constructor
@@ -52,6 +56,17 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
+	}
+
+	/**
+	 * Returns Sass document provider
+	 * @return
+	 */
+	public synchronized IDocumentProvider getSassDocumentProvider() {
+		if (sassDocumentProvider == null) {
+			sassDocumentProvider = new SassDocumentProvider();
+		}
+		return sassDocumentProvider;
 	}
 
 }

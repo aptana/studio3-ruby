@@ -10,7 +10,11 @@ package com.aptana.editor.erb;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.osgi.framework.BundleContext;
+
+import com.aptana.editor.erb.html.RHTMLDocumentProvider;
+import com.aptana.editor.erb.xml.RXMLDocumentProvider;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -22,7 +26,11 @@ public class Activator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static Activator plugin;
-	
+
+	private IDocumentProvider rxmlDocumentProvider;
+	private IDocumentProvider rhtmlDocumentProvider;
+
+
 	/**
 	 * The constructor
 	 */
@@ -68,4 +76,27 @@ public class Activator extends AbstractUIPlugin {
 		}
 		return getDefault().getImageRegistry().get(string);
 	}
+	
+	/**
+	 * Returns RXML document provider
+	 * @return
+	 */
+	public synchronized IDocumentProvider getRXMLDocumentProvider() {
+		if (rxmlDocumentProvider == null) {
+			rxmlDocumentProvider = new RXMLDocumentProvider();
+		}
+		return rxmlDocumentProvider;
+	}
+
+	/**
+	 * Returns RHTML document provider
+	 * @return
+	 */
+	public synchronized IDocumentProvider getRHTMLDocumentProvider() {
+		if (rhtmlDocumentProvider == null) {
+			rhtmlDocumentProvider = new RHTMLDocumentProvider();
+		}
+		return rhtmlDocumentProvider;
+	}
+
 }

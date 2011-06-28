@@ -70,9 +70,9 @@ public class RubyVariable extends RubyDebugElement implements IRubyVariable
 	/**
 	 * @see org.eclipse.debug.core.model.IVariable#getReferenceTypeName()
 	 */
-	public String getReferenceTypeName()
+	public String getReferenceTypeName() throws DebugException
 	{
-		return "RefTypeName"; //$NON-NLS-1$
+		return getValue().getReferenceTypeName();
 	}
 
 	/**
@@ -146,15 +146,15 @@ public class RubyVariable extends RubyDebugElement implements IRubyVariable
 	public boolean verifyValue(String expression) throws DebugException
 	{
 		// TODO Parse with a ruby parser and make sure we get back some value...
-//		try
-//		{
-//			RubyParser parser = new RubyParser();
-//			parser.parse(expression);
-//		}
-//		catch (SyntaxException e)
-//		{
-//			return false;
-//		}
+		// try
+		// {
+		// RubyParser parser = new RubyParser();
+		// parser.parse(expression);
+		// }
+		// catch (SyntaxException e)
+		// {
+		// return false;
+		// }
 		return true;
 	}
 

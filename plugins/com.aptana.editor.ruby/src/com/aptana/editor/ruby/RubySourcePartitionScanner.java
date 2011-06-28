@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
@@ -33,6 +34,8 @@ import org.jrubyparser.parser.ParserConfiguration;
 import org.jrubyparser.parser.ParserResult;
 import org.jrubyparser.parser.ParserSupport;
 import org.jrubyparser.parser.Tokens;
+
+import com.aptana.core.logging.IdeLog;
 
 public class RubySourcePartitionScanner implements IPartitionTokenScanner
 {
@@ -81,7 +84,8 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			myOffset = partitionOffset;
 			length += diff;
 			this.fContentType = contentType;
-			if (this.fContentType.equals(RubySourceConfiguration.SINGLE_LINE_COMMENT) || this.fContentType.equals(IDocument.DEFAULT_CONTENT_TYPE))
+			if (this.fContentType.equals(RubySourceConfiguration.SINGLE_LINE_COMMENT)
+					|| this.fContentType.equals(IDocument.DEFAULT_CONTENT_TYPE))
 				this.fContentType = RubySourceConfiguration.DEFAULT;
 			// FIXME What if a heredoc with dynamic code inside is broken? contents will start with "}" rather than
 			// expected
@@ -100,6 +104,27 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			lexerSource = LexerSource.getSource(DEFAULT_FILENAME, new StringReader(""), config); //$NON-NLS-1$
 			lexer.setSource(lexerSource);
 		}
+
+		// FIXME If we're resuming after a string/regexp/command, set up lex state to be expression end.
+		if (partitionOffset > 0)
+		{
+			try
+			{
+				ITypedRegion region = document.getPartition(partitionOffset - 1);
+				if (RubySourceConfiguration.STRING_DOUBLE.equals(region.getType())
+						|| RubySourceConfiguration.STRING_SINGLE.equals(region.getType())
+						|| RubySourceConfiguration.REGULAR_EXPRESSION.equals(region.getType())
+						|| RubySourceConfiguration.COMMAND.equals(region.getType()))
+				{
+					lexer.setLexState(LexState.EXPR_END);
+				}
+			}
+			catch (BadLocationException e)
+			{
+				// ignore
+			}
+		}
+
 		origOffset = myOffset;
 		origLength = length;
 	}
@@ -166,7 +191,8 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			if (se.getMessage().equals("embedded document meets end of file")) { //$NON-NLS-1$
 				return handleUnterminedMultilineComment(se);
 			}
-			else if (se.getPid().equals(PID.STRING_MARKER_MISSING) || se.getPid().equals(PID.STRING_HITS_EOF)) {
+			else if (se.getPid().equals(PID.STRING_MARKER_MISSING) || se.getPid().equals(PID.STRING_HITS_EOF))
+			{
 				return handleUnterminatedString(se);
 			}
 
@@ -180,7 +206,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		}
 		catch (IOException e)
 		{
-			RubyEditorPlugin.log(e);
+			IdeLog.logError(RubyEditorPlugin.getDefault(), e.getMessage(), e);
 		}
 		if (!isEOF)
 		{
@@ -189,7 +215,9 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			if (fLength == 0
 					&& (returnValue.getData().equals(RubySourceConfiguration.STRING_DOUBLE) || returnValue.getData()
 							.equals(RubySourceConfiguration.STRING_SINGLE)))
+			{
 				return nextToken();
+			}
 		}
 		return returnValue;
 	}
@@ -625,7 +653,12 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			case Tokens.tSTRING_CONTENT:
 				return new Token(fContentType);
 			case Tokens.tSTRING_BEG:
-				fOpeningString = getOpeningString();
+				String opening = getOpeningString();
+				if ("%".equals(opening)) // space after percent sign, it's an operator //$NON-NLS-1$
+				{
+					return new Token(fContentType);
+				}
+				fOpeningString = opening;
 				fContentType = RubySourceConfiguration.STRING_DOUBLE;
 				if (fOpeningString.equals("'") || fOpeningString.startsWith("%q")) { //$NON-NLS-1$//$NON-NLS-2$
 					inSingleQuote = true;
@@ -686,7 +719,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 				{
 					nextCharOffset++;
 					c = fContents.charAt(++charAt);
-				}				
+				}
 				if (fContents.length() <= charAt + 1)
 				{
 					return new Token(RubySourceConfiguration.DEFAULT);
@@ -710,7 +743,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 						push(new QueuedToken(new Token(RubySourceConfiguration.STRING_DOUBLE), nextCharOffset - 1, 1));
 						fContentType = RubySourceConfiguration.STRING_DOUBLE;
 					}
-				}				
+				}
 				return new Token(RubySourceConfiguration.DEFAULT);
 			default:
 				return new Token(fContentType);

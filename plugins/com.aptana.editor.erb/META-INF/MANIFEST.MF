@@ -2,14 +2,16 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: com.aptana.editor.erb;singleton:=true
-Bundle-Version: 3.0.2.qualifier
+Bundle-Version: 3.0.3.qualifier
 Bundle-Activator: com.aptana.editor.erb.Activator
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.filesystem,
  org.eclipse.jface.text,
  org.eclipse.ui,
  org.eclipse.ui.editors,
  org.eclipse.ui.views,
+ com.aptana.core;bundle-version="3.0.3",
  com.aptana.editor.common,
  com.aptana.editor.xml,
  com.aptana.editor.ruby,
@@ -18,10 +20,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.aptana.editor.js,
  com.aptana.parsing,
  beaver,
- com.aptana.core,
  org.jrubyparser;bundle-version="1.0.0",
- org.eclipse.core.filesystem;bundle-version="1.0.0",
- com.aptana.index.core;bundle-version="3.0.0",
+ com.aptana.index.core,
  com.aptana.ruby.core
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy

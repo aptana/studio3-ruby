@@ -164,7 +164,7 @@ class RubySourceIndexer implements ISourceElementRequestor
 		// FIXME Create a special key for the constructor
 		addIndex(
 				IRubyIndexConstants.CONSTRUCTOR_DECL,
-				createMethodDefKey("initialize", getSimpleName(constructor.name),
+				createMethodDefKey("initialize", getSimpleName(constructor.name), //$NON-NLS-1$
 						new String[] { getNamespace(constructor.name) }, Visibility.PUBLIC, true,
 						constructor.parameterNames.length));
 	}

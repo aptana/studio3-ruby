@@ -15,6 +15,8 @@ import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
 import org.jrubyparser.parser.Tokens;
 
+import com.aptana.core.util.StringUtil;
+
 public class RubyCodeScanner implements ITokenScanner
 {
 
@@ -74,47 +76,47 @@ public class RubyCodeScanner implements ITokenScanner
 					if (nextIsClassName)
 					{
 						nextIsClassName = false;
-						return getToken("entity.name.type.class.ruby"); //$NON-NLS-1$
+						return getToken(IRubyScopeConstants.CLASS_NAME);
 					}
-					return getToken("variable.language.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.LANGUAGE_VARIABLE);
 				case Tokens.kNIL:
 				case Tokens.kTRUE:
 				case Tokens.kFALSE:
-					return getToken("constant.language.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.LANGUAGE_CONSTANT);
 				case Tokens.kAND:
 				case Tokens.kNOT:
 				case Tokens.kOR:
-					return getToken("keyword.operator.logical.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.OPERATOR_KEYWORD);
 				case Tokens.kDO_BLOCK:
 				case Tokens.kDO:
 					lookForBlock = true;
-					return getToken("keyword.control.start-block.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.DO_KEYWORD);
 				case Tokens.kCLASS:
 					nextAreArgs = false;
 					nextIsClassName = true;
-					return getToken("keyword.control.class.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.CLASS_KEYWORD);
 				case Tokens.kMODULE:
 					nextAreArgs = false;
 					nextIsModuleName = true;
-					return getToken("keyword.control.module.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.MODULE_KEYWORD);
 				case Tokens.kDEF:
 					nextAreArgs = false;
 					nextIsMethodName = true;
-					return getToken("keyword.control.def.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.DEF_KEYWORD);
 				default:
 					if (nextIsMethodName)
 					{
 						nextIsMethodName = false;
 						nextAreArgs = true;
-						return getToken("entity.name.function.ruby"); //$NON-NLS-1$
+						return getToken(IRubyScopeConstants.FUNCTION_NAME);
 					}
-					return getToken("keyword.control.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.CONTROL_KEYWORD);
 			}
 		}
 		switch (data.intValue())
 		{
 			case RubyTokenScanner.ASSIGNMENT:
-				return getToken("keyword.operator.assignment.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.OPERATOR_ASSIGNMENT);
 			case Tokens.tCMP: /* <=> */
 			case Tokens.tMATCH: /* =~ */
 			case Tokens.tNMATCH: /* !~ */
@@ -129,13 +131,13 @@ public class RubyCodeScanner implements ITokenScanner
 				{
 					nextIsMethodName = false;
 					nextAreArgs = true;
-					return getToken("entity.name.function.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.FUNCTION_NAME);
 				}
-				return getToken("keyword.operator.comparison.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.OPERATOR_COMPARISON);
 			case Tokens.tSTAR:
 				if (nextAreArgs) // could be un-named rest arg
 				{
-					return getToken("variable.parameter.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.FUNCTION_PARAMETER);
 				}
 				// intentionally fall-through
 			case Tokens.tAMPER:
@@ -149,9 +151,9 @@ public class RubyCodeScanner implements ITokenScanner
 				{
 					nextIsMethodName = false;
 					nextAreArgs = true;
-					return getToken("entity.name.function.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.FUNCTION_NAME);
 				}
-				return getToken("keyword.operator.arithmetic.ruby"); //$NON-NLS-1$			
+				return getToken(IRubyScopeConstants.OPERATOR_ARITHMETIC);
 			case Tokens.tANDOP:
 			case Tokens.tAMPER2: // &
 			case Tokens.tTILDE:
@@ -163,9 +165,9 @@ public class RubyCodeScanner implements ITokenScanner
 				{
 					nextIsMethodName = false;
 					nextAreArgs = true;
-					return getToken("entity.name.function.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.FUNCTION_NAME);
 				}
-				return getToken("keyword.operator.logical.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.OPERATOR_LOGICAL);
 			case Tokens.tAREF:
 			case Tokens.tASET:
 			case Tokens.tUPLUS:
@@ -173,96 +175,125 @@ public class RubyCodeScanner implements ITokenScanner
 			case Tokens.tUMINUS_NUM:
 				nextIsMethodName = false;
 				nextAreArgs = true;
-				return getToken("entity.name.function.ruby"); //$NON-NLS-1$			
+				return getToken(IRubyScopeConstants.FUNCTION_NAME);
 			case Tokens.tPIPE:
 				if (lookForBlock)
 				{
 					inPipe = !inPipe;
 					if (!inPipe)
 						lookForBlock = false;
-					return getToken("default.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.VARIABLE_SEPARATOR);
 				}
 				if (nextIsMethodName)
 				{
 					nextIsMethodName = false;
 					nextAreArgs = true;
-					return getToken("entity.name.function.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.FUNCTION_NAME);
 				}
-				return getToken("keyword.operator.logical.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.OPERATOR_LOGICAL);
+			case Tokens.tLPAREN:
+			case Tokens.tLPAREN2:
+				if (nextAreArgs)
+				{
+					return getToken(IRubyScopeConstants.FUNCTION_DEF_PAREN);
+				}
+				return getToken(IRubyScopeConstants.PAREN);
 			case Tokens.tLBRACE:
 				lookForBlock = true;
-				return getToken("default.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.SCOPE_PUNCTUATION);
+			case Tokens.tLBRACK:
+			case Tokens.tRBRACK:
+				return getToken(IRubyScopeConstants.ARRAY_PUNCTUATION);
+			case Tokens.tLCURLY:
+			case Tokens.tRCURLY:
+				return getToken(IRubyScopeConstants.SCOPE_PUNCTUATION);
+			case RubyTokenScanner.COMMA:
+				return getToken(IRubyScopeConstants.COMMA);
 			case Tokens.tRPAREN:
-				nextAreArgs = false;
-				return getToken("default.ruby"); //$NON-NLS-1$
+				if (nextAreArgs)
+				{
+					nextAreArgs = false;
+					return getToken(IRubyScopeConstants.FUNCTION_DEF_PAREN);
+				}
+				return getToken(IRubyScopeConstants.PAREN);
 			case Tokens.tLSHFT:
 				if (nextIsClassName)
 				{
-					return getToken("entity.name.type.class.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.CLASS_NAME);
 				}
 				if (nextIsMethodName)
 				{
 					nextIsMethodName = false;
 					nextAreArgs = true;
-					return getToken("entity.name.function.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.FUNCTION_NAME);
 				}
-				return getToken("keyword.operator.assignment.augmented.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.AUGMENTED_ASSIGNMENT);
 			case Tokens.tOP_ASGN:
-				return getToken("keyword.operator.assignment.augmented.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.AUGMENTED_ASSIGNMENT);
 			case Tokens.tASSOC:
-				return getToken("punctuation.separator.key-value"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.HASH_SEPARATOR);
 			case RubyTokenScanner.CHARACTER:
-				return getToken("character.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.CHARACTER);
 			case Tokens.tCOLON2:
 			case Tokens.tCOLON3:
-				return getToken("punctuation.separator.inheritance.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.INHERITANCE_PUNCTUATION);
 			case Tokens.tFLOAT:
 			case Tokens.tINTEGER:
-				return getToken("constant.numeric.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.NUMERIC);
 			case Tokens.tSYMBEG:
-				return getToken("constant.other.symbol.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.SYMBOL);
 			case Tokens.tGVAR:
-				return getToken("variable.other.readwrite.global.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.GLOBAL_VARIABLE);
 			case Tokens.tIVAR:
-				return getToken("variable.other.readwrite.instance.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.INSTANCE_VARIABLE);
 			case Tokens.tCVAR:
-				return getToken("variable.other.readwrite.class.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.CLASS_VARIABLE);
 			case Tokens.tCONSTANT:
 				if (nextIsModuleName)
 				{
 					nextIsModuleName = false;
-					return getToken("entity.name.type.module.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.MODULE_NAME);
 				}
 				if (nextIsClassName)
 				{
 					nextIsClassName = false;
-					return getToken("entity.name.type.class.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.CLASS_NAME);
 				}
 				int nextToken = peek();
 				if (nextToken == Tokens.tCOLON2 || nextToken == Tokens.tDOT)
 				{
-					return getToken("support.class.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.SUPPORT_CLASS);
 				}
-				return getToken("variable.other.constant.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.CONSTANT_OTHER);
 			case Tokens.yyErrorCode:
-				return getToken("error.ruby"); //$NON-NLS-1$
+				return getToken(IRubyScopeConstants.ERROR);
+			case Tokens.tWHITESPACE:
+				return Token.WHITESPACE;
+			case Tokens.tDOT:
+				return getToken(IRubyScopeConstants.SEPARATOR_METHOD);
 			case Tokens.tIDENTIFIER:
 			case Tokens.tFID:
 				if (nextIsMethodName)
 				{
 					nextIsMethodName = false;
 					nextAreArgs = true;
-					return getToken("entity.name.function.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.FUNCTION_NAME);
 				}
 				if (nextAreArgs)
 				{
-					return getToken("variable.parameter.ruby"); //$NON-NLS-1$
+					return getToken(IRubyScopeConstants.FUNCTION_PARAMETER);
 				}
 				if (lookForBlock && inPipe)
-					return getToken("variable.other.block.ruby"); //$NON-NLS-1$
+				{
+					return getToken(IRubyScopeConstants.BLOCK_VARIABLE);
+				}
+				if ("new".equals(getSourceForCurrentToken())) //$NON-NLS-1$
+				{
+					return getToken(IRubyScopeConstants.SPECIAL_METHOD);
+				}
 				// intentionally fall through
 			default:
-				return getToken("default.ruby"); //$NON-NLS-1$
+				return getToken(StringUtil.EMPTY);
 		}
 	}
 
@@ -270,14 +301,25 @@ public class RubyCodeScanner implements ITokenScanner
 	protected boolean isNewline(Integer data)
 	{
 		if (data.intValue() == RubyTokenScanner.NEWLINE)
+		{
 			return true;
+		}
 		if (data.intValue() != Tokens.tWHITESPACE)
+		{
 			return false;
+		}
 		// make sure it's actually a newline
-		String tokenSrc = fScanner.getSource(fOffset - fOrigOffset, fLength);
+		String tokenSrc = getSourceForCurrentToken();
 		if (tokenSrc == null)
+		{
 			return false;
+		}
 		return tokenSrc.equals("\r\n") || tokenSrc.equals("\n") || tokenSrc.equals("\r");
+	}
+
+	private String getSourceForCurrentToken()
+	{
+		return fScanner.getSource(fOffset - fOrigOffset, fLength);
 	}
 
 	protected IToken getToken(String tokenName)
