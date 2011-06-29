@@ -270,7 +270,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 				return false;
 			}
 		}
-		return true;
+		return false;
 	}
 
 	/**
