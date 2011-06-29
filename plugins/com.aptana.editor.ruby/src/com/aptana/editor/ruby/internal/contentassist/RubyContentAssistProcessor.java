@@ -504,6 +504,8 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			ClassNode classNode = (ClassNode) enclosing;
 			Set<String> allTypes = new HashSet<String>();
 			Node superNode = classNode.getSuperNode();
+			// Need to also include suggestions against index normally!
+			allTypes.add(enclosingTypeName);
 			String superTypeName = IRubyIndexConstants.OBJECT;
 			if (superNode != null)
 			{
@@ -534,6 +536,14 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 				stats.endRun();
 				stats = null;
 			}
+		}
+		else
+		{
+			// Module/Toplevel...
+			Set<String> allTypes = new HashSet<String>();
+			// Need to also include suggestions against index normally!
+			allTypes.add(enclosingTypeName);
+			proposals.addAll(suggestMethodsForType(allTypes, true, true));
 		}
 		return proposals;
 	}
@@ -879,7 +889,8 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		trace(MessageFormat.format("Supertypes of {0}: {1}", typeName, typeNames));
 		trace(MessageFormat.format("Included modules: {0}", moduleNames));
 		// Now grab all the supertypes of these super types! RECURSION!!!!1!1!
-		for (String superType : typeNames)
+		Set<String> typeNamesCopy = new HashSet<String>(typeNames);
+		for (String superType : typeNamesCopy)
 		{
 			typeNames.addAll(calculateSuperTypes(superType));
 		}
