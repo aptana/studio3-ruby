@@ -200,10 +200,14 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		Set<String> typeNames = new HashSet<String>();
 		for (ITypeGuess guess : guesses)
 		{
-			typeNames.add(guess.getType());
+			String typeName = guess.getType();
+			typeNames.add(typeName);
+			// Include supertypes
+			typeNames.addAll(calculateSuperTypes(typeName));
 		}
 		// Based on what the receiver is (if it's a type name) we should toggle instance/singleton
 		// methods!
+		// FIXME If receiver looks to be a class name/constant, include constructor in proposals!
 		proposals.addAll(suggestMethodsForType(typeNames, !receiverIsType(), false));
 		return proposals;
 	}
