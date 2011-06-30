@@ -16,7 +16,7 @@ import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.parsing.FileService;
-import com.aptana.editor.erb.Activator;
+import com.aptana.editor.erb.ERBEditorPlugin;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.erb.html.outline.RHTMLOutlineContentProvider;
 import com.aptana.editor.erb.html.outline.RHTMLOutlineLabelProvider;
@@ -41,7 +41,7 @@ public class RHTMLEditor extends HTMLEditor
 
 		setPreferenceStore(getChainedPreferenceStore());
 		setSourceViewerConfiguration(new RHTMLSourceViewerConfiguration(getPreferenceStore(), this));
-		setDocumentProvider(Activator.getDefault().getRHTMLDocumentProvider());
+		setDocumentProvider(ERBEditorPlugin.getDefault().getRHTMLDocumentProvider());
 	}
 
 	/*
@@ -93,7 +93,7 @@ public class RHTMLEditor extends HTMLEditor
 
 	public static IPreferenceStore getChainedPreferenceStore()
 	{
-		return new ChainedPreferenceStore(new IPreferenceStore[] { Activator.getDefault().getPreferenceStore(),
+		return new ChainedPreferenceStore(new IPreferenceStore[] { ERBEditorPlugin.getDefault().getPreferenceStore(),
 				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
 	}
 }

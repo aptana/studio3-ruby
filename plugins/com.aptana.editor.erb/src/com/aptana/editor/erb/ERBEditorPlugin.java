@@ -19,13 +19,13 @@ import com.aptana.editor.erb.xml.RXMLDocumentProvider;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends AbstractUIPlugin {
+public class ERBEditorPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.aptana.editor.erb"; //$NON-NLS-1$
 
 	// The shared instance
-	private static Activator plugin;
+	private static ERBEditorPlugin plugin;
 
 	private IDocumentProvider rxmlDocumentProvider;
 	private IDocumentProvider rhtmlDocumentProvider;
@@ -34,7 +34,7 @@ public class Activator extends AbstractUIPlugin {
 	/**
 	 * The constructor
 	 */
-	public Activator() {
+	public ERBEditorPlugin() {
 	}
 
 	/*
@@ -60,7 +60,7 @@ public class Activator extends AbstractUIPlugin {
 	 *
 	 * @return the shared instance
 	 */
-	public static Activator getDefault() {
+	public static ERBEditorPlugin getDefault() {
 		return plugin;
 	}
 

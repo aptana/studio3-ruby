@@ -23,7 +23,7 @@ import com.aptana.editor.common.scripting.QualifiedContentType;
 import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
 import com.aptana.editor.common.text.rules.CompositePartitionScanner;
 import com.aptana.editor.css.ICSSConstants;
-import com.aptana.editor.erb.Activator;
+import com.aptana.editor.erb.ERBEditorPlugin;
 import com.aptana.editor.erb.ERBPartitionerSwitchStrategy;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.html.HTMLSourceConfiguration;
@@ -117,7 +117,7 @@ public class RHTMLSourceViewerConfiguration extends CompositeSourceViewerConfigu
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType)
 	{
-		return new IAutoEditStrategy[] { new RubyRegexpAutoIndentStrategy(contentType, this, sourceViewer, Activator
+		return new IAutoEditStrategy[] { new RubyRegexpAutoIndentStrategy(contentType, this, sourceViewer, ERBEditorPlugin
 				.getDefault().getPreferenceStore()) };
 	}
 

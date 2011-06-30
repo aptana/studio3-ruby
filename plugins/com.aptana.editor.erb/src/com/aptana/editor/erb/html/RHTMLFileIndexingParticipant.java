@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.SubMonitor;
 
 import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.IOUtil;
+import com.aptana.editor.erb.ERBEditorPlugin;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.html.contentassist.index.HTMLFileIndexingParticipant;
 import com.aptana.editor.html.parsing.HTMLParseState;
@@ -21,7 +22,6 @@ import com.aptana.index.core.AbstractFileIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.parsing.ParserPoolFactory;
 import com.aptana.parsing.ast.IParseNode;
-import com.aptana.preview.Activator;
 import com.aptana.ruby.internal.core.index.RubyFileIndexingParticipant;
 
 public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipant
@@ -61,7 +61,7 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 		}
 		catch (Throwable e)
 		{
-			IdeLog.logError(Activator.getDefault(), e.getMessage(), e);
+			IdeLog.logError(ERBEditorPlugin.getDefault(), e.getMessage(), e);
 		}
 		finally
 		{
@@ -96,7 +96,8 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 		}
 		catch (Exception e)
 		{
-			Activator.log(MessageFormat.format(Messages.RHTMLFileIndexingParticipant_ERR_Indexing, store.getName()), e);
+			IdeLog.logError(ERBEditorPlugin.getDefault(),
+					MessageFormat.format(Messages.RHTMLFileIndexingParticipant_ERR_Indexing, store.getName()), e);
 		}
 		finally
 		{

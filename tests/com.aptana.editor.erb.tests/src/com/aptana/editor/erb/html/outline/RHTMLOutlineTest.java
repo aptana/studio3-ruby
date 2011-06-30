@@ -9,7 +9,7 @@ package com.aptana.editor.erb.html.outline;
 
 import junit.framework.TestCase;
 
-import com.aptana.editor.erb.Activator;
+import com.aptana.editor.erb.ERBEditorPlugin;
 import com.aptana.editor.erb.html.parsing.RHTMLParser;
 import com.aptana.editor.html.HTMLPlugin;
 import com.aptana.editor.html.parsing.HTMLParseState;
@@ -58,11 +58,11 @@ public class RHTMLOutlineTest extends TestCase
 		Object[] elements = fContentProvider.getElements(fParseState.getParseResult());
 		assertEquals(3, elements.length);
 		assertEquals("<% content_for :style... %>", fLabelProvider.getText(elements[0]));
-		assertEquals(Activator.getImage("icons/embedded_code_fragment.png"), fLabelProvider.getImage(elements[0]));
+		assertEquals(ERBEditorPlugin.getImage("icons/embedded_code_fragment.png"), fLabelProvider.getImage(elements[0]));
 		assertEquals("style", fLabelProvider.getText(elements[1]));
 		assertEquals(HTMLPlugin.getImage("icons/element.png"),
 				fLabelProvider.getImage(elements[1]));
 		assertEquals("<% end %>", fLabelProvider.getText(elements[2]));
-		assertEquals(Activator.getImage("icons/embedded_code_fragment.png"), fLabelProvider.getImage(elements[2]));
+		assertEquals(ERBEditorPlugin.getImage("icons/embedded_code_fragment.png"), fLabelProvider.getImage(elements[2]));
 	}
 }

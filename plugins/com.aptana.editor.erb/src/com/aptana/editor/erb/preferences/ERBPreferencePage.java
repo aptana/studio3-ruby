@@ -12,7 +12,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.aptana.editor.common.preferences.CommonEditorPreferencePage;
-import com.aptana.editor.erb.Activator;
+import com.aptana.editor.erb.ERBEditorPlugin;
 import com.aptana.editor.erb.html.RHTMLEditor;
 
 public class ERBPreferencePage extends CommonEditorPreferencePage
@@ -20,7 +20,7 @@ public class ERBPreferencePage extends CommonEditorPreferencePage
 	public ERBPreferencePage()
 	{
 		setDescription(Messages.ERBPreferencePage_ERB_page_title);
-		setPreferenceStore(Activator.getDefault().getPreferenceStore());
+		setPreferenceStore(ERBEditorPlugin.getDefault().getPreferenceStore());
 	}
 
 	@Override
@@ -32,7 +32,7 @@ public class ERBPreferencePage extends CommonEditorPreferencePage
 	@Override
 	protected IEclipsePreferences getPluginPreferenceStore()
 	{
-		return new InstanceScope().getNode(Activator.PLUGIN_ID);
+		return new InstanceScope().getNode(ERBEditorPlugin.PLUGIN_ID);
 	}
 
 }

@@ -12,7 +12,7 @@ import java.util.StringTokenizer;
 import org.eclipse.swt.graphics.Image;
 
 import com.aptana.editor.common.outline.CommonOutlineItem;
-import com.aptana.editor.erb.Activator;
+import com.aptana.editor.erb.ERBEditorPlugin;
 import com.aptana.editor.erb.html.parsing.ERBScript;
 import com.aptana.editor.html.outline.HTMLOutlineLabelProvider;
 import com.aptana.editor.ruby.outline.RubyOutlineLabelProvider;
@@ -24,7 +24,7 @@ import com.aptana.ruby.core.IRubyScript;
 public class RHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider
 {
 
-	private static final Image ERB_ICON = Activator.getImage("icons/embedded_code_fragment.png"); //$NON-NLS-1$
+	private static final Image ERB_ICON = ERBEditorPlugin.getImage("icons/embedded_code_fragment.png"); //$NON-NLS-1$
 
 	private static final int TRIM_TO_LENGTH = 20;
 
