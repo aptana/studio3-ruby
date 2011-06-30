@@ -132,16 +132,21 @@ public class CompletionContext
 			{
 				isMethodInvokation = true;
 				if (partialPrefix == null)
+				{
 					this.partialPrefix = tmpPrefix.toString();
-				if (offset - 1 == i)
-				{
-					offset = i;
 				}
-				else
+				if (!setOffset)
 				{
-					offset = i - 1;
+					if (offset - 1 == i)
+					{
+						offset = i;
+					}
+					else
+					{
+						offset = i - 1;
+					}
+					setOffset = true;
 				}
-				setOffset = true;
 			}
 			else if (curChar == ':')
 			{
@@ -155,8 +160,11 @@ public class CompletionContext
 						if (partialPrefix == null)
 							partialPrefix = tmpPrefix.toString();
 						tmpPrefix.insert(0, ":");
-						offset = i + 1;
-						setOffset = true;
+						if (!setOffset)
+						{
+							offset = i + 1;
+							setOffset = true;
+						}
 						i--;
 					}
 				}

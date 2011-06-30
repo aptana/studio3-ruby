@@ -30,6 +30,7 @@ import org.jrubyparser.ast.ClassNode;
 import org.jrubyparser.ast.ClassVarAsgnNode;
 import org.jrubyparser.ast.ClassVarDeclNode;
 import org.jrubyparser.ast.Colon3Node;
+import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.InstAsgnNode;
 import org.jrubyparser.ast.MethodDefNode;
 import org.jrubyparser.ast.Node;
@@ -207,8 +208,13 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		}
 		// Based on what the receiver is (if it's a type name) we should toggle instance/singleton
 		// methods!
-		// FIXME If receiver looks to be a class name/constant, include constructor in proposals!
-		proposals.addAll(suggestMethodsForType(typeNames, !receiverIsType(), false));
+		boolean receiverIsType = receiverIsType();
+		proposals.addAll(suggestMethodsForType(typeNames, !receiverIsType, false));
+		if (receiverIsType)
+		{
+			// TODO Insert the class name as the "location"?
+			proposals.add(createProposal("new", RubyEditorPlugin.getImage(PUBLIC_METHOD_IMAGE))); //$NON-NLS-1$
+		}
 		return proposals;
 	}
 
@@ -228,15 +234,16 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 
 	private boolean receiverIsType()
 	{
+		String constantName = null;
+		String namespace = StringUtil.EMPTY;
+		String typeName = StringUtil.EMPTY;
 		Node receiver = fContext.getReceiver();
-		if (receiver instanceof Colon3Node)
+		if (receiver instanceof Colon3Node || receiver instanceof ConstNode)
 		{
 			// FIXME If the receiver as text equals the inferred type, then it's a type... That's probably way
 			// quicker...
 			String fullName = ASTUtils.getFullyQualifiedName(receiver);
-			String namespace = StringUtil.EMPTY;
-			String typeName = StringUtil.EMPTY;
-			String constantName = fullName;
+			constantName = fullName;
 			int namespaceIndex = fullName.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
 			if (namespaceIndex != -1)
 			{
@@ -250,27 +257,32 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 					typeName = typeName.substring(namespaceIndex + 2);
 				}
 			}
-			// Check the indices to see if this is a constant or a type! If constant, we need to infer that
-			// constant decl!
-			final String key = constantName + IRubyIndexConstants.SEPARATOR + typeName + IRubyIndexConstants.SEPARATOR
-					+ namespace;
-			for (Index index : RubyIndexUtil.allIndices(getProject()))
-			{
-				if (index == null)
-				{
-					continue;
-				}
-				List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.CONSTANT_DECL }, key,
-						SearchPattern.EXACT_MATCH | SearchPattern.CASE_SENSITIVE);
-				if (results == null || results.isEmpty())
-				{
-					continue;
-				}
-				// Found at least one match, assume that the receiver isn't a constant...
-				return false;
-			}
 		}
-		return false;
+		else
+		{
+			return false;
+		}
+
+		// Check the indices to see if this is a constant or a type! If constant, we need to infer that
+		// constant decl!
+		final String key = constantName + IRubyIndexConstants.SEPARATOR + typeName + IRubyIndexConstants.SEPARATOR
+				+ namespace;
+		for (Index index : RubyIndexUtil.allIndices(getProject()))
+		{
+			if (index == null)
+			{
+				continue;
+			}
+			List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.CONSTANT_DECL }, key,
+					SearchPattern.EXACT_MATCH | SearchPattern.CASE_SENSITIVE);
+			if (results == null || results.isEmpty())
+			{
+				continue;
+			}
+			// Found at least one match, assume that the receiver isn't a constant...
+			return false;
+		}
+		return true;
 	}
 
 	/**
