@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: com.aptana.editor.sass;singleton:=true
 Bundle-Version: 3.0.2.qualifier
-Bundle-Activator: com.aptana.editor.sass.Activator
+Bundle-Activator: com.aptana.editor.sass.SassPlugin
 Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy

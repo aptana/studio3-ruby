@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.aptana.editor.common.preferences.CommonEditorPreferencePage;
-import com.aptana.editor.sass.Activator;
+import com.aptana.editor.sass.SassPlugin;
 import com.aptana.editor.sass.SassSourceEditor;
 
 public class SassPreferencePage extends CommonEditorPreferencePage
@@ -27,13 +27,13 @@ public class SassPreferencePage extends CommonEditorPreferencePage
 	{
 		super();
 		setDescription(Messages.SassPreferencePage_SASS_Page_Title);
-		setPreferenceStore(Activator.getDefault().getPreferenceStore());
+		setPreferenceStore(SassPlugin.getDefault().getPreferenceStore());
 	}
 
 	@Override
 	protected IEclipsePreferences getPluginPreferenceStore()
 	{
-		return new InstanceScope().getNode(Activator.PLUGIN_ID);
+		return new InstanceScope().getNode(SassPlugin.PLUGIN_ID);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class SassPreferencePage extends CommonEditorPreferencePage
 	@Override
 	protected IEclipsePreferences getDefaultPluginPreferenceStore()
 	{
-		return new DefaultScope().getNode(Activator.PLUGIN_ID);
+		return new DefaultScope().getNode(SassPlugin.PLUGIN_ID);
 	}
 
 	@Override
