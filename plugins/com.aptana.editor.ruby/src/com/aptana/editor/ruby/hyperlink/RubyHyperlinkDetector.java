@@ -18,6 +18,7 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.jrubyparser.ast.Node;
+import org.jrubyparser.lexer.SyntaxException;
 
 import com.aptana.core.logging.IdeLog;
 import com.aptana.editor.common.text.hyperlink.IndexQueryingHyperlinkDetector;
@@ -64,6 +65,10 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 					hyperlinks.add(new ResolutionTargetHyperlink(srcRegion, target));
 				}
 			}
+		}
+		catch (SyntaxException se)
+		{
+			// ignore
 		}
 		catch (Exception e)
 		{

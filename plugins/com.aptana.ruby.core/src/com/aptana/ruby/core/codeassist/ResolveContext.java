@@ -17,6 +17,7 @@ import java.util.List;
 import org.jrubyparser.CompatVersion;
 import org.jrubyparser.Parser;
 import org.jrubyparser.ast.Node;
+import org.jrubyparser.lexer.SyntaxException;
 import org.jrubyparser.parser.ParserConfiguration;
 
 import com.aptana.ruby.core.ast.OffsetNodeLocator;
@@ -38,7 +39,7 @@ public class ResolveContext
 		this.offset = offset;
 	}
 
-	public synchronized Node getAST()
+	public synchronized Node getAST() throws SyntaxException
 	{
 		if (root == null)
 		{
@@ -50,11 +51,18 @@ public class ResolveContext
 		return root;
 	}
 
-	public synchronized Node getSelectedNode()
+	public synchronized Node getSelectedNode() throws SyntaxException
 	{
 		if (atOffset == null)
 		{
-			atOffset = new OffsetNodeLocator().find(getAST(), offset);
+			try
+			{
+				atOffset = new OffsetNodeLocator().find(getAST(), offset);
+			}
+			catch (SyntaxException se)
+			{
+				// ignore
+			}
 		}
 		return atOffset;
 	}

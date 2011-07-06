@@ -28,6 +28,7 @@ import org.jrubyparser.ast.Colon2Node;
 import org.jrubyparser.ast.INameNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.ast.NodeType;
+import org.jrubyparser.lexer.SyntaxException;
 
 import com.aptana.core.util.IOUtil;
 import com.aptana.index.core.Index;
@@ -57,12 +58,12 @@ public class RubyCodeResolver extends CodeResolver
 {
 
 	private static final String NAMESPACE_DELIMITER = "::"; //$NON-NLS-1$
-	private ResolveContext context;
+	private ResolveContext fContext;
 
 	@Override
 	public void resolve(ResolveContext context)
 	{
-		this.context = context;
+		this.fContext = context;
 		try
 		{
 			Node atOffset = context.getSelectedNode();
@@ -100,9 +101,13 @@ public class RubyCodeResolver extends CodeResolver
 					break;
 			}
 		}
+		catch (SyntaxException se)
+		{
+			// ignore
+		}
 		finally
 		{
-			this.context = null;
+			this.fContext = null;
 		}
 	}
 
@@ -110,7 +115,7 @@ public class RubyCodeResolver extends CodeResolver
 	{
 		if (targets != null)
 		{
-			context.addResolved(targets);
+			fContext.addResolved(targets);
 		}
 	}
 
@@ -176,7 +181,7 @@ public class RubyCodeResolver extends CodeResolver
 		if (decl != null)
 		{
 			List<ResolutionTarget> links = new ArrayList<ResolutionTarget>();
-			links.add(new ResolutionTarget(this.context.getURI(), new Range(decl.getPosition().getStartOffset(), decl
+			links.add(new ResolutionTarget(this.fContext.getURI(), new Range(decl.getPosition().getStartOffset(), decl
 					.getPosition().getEndOffset())));
 			return links;
 		}
@@ -296,9 +301,9 @@ public class RubyCodeResolver extends CodeResolver
 		return links;
 	}
 
-	private Node getRoot()
+	private Node getRoot() throws SyntaxException
 	{
-		return context.getAST();
+		return fContext.getAST();
 	}
 
 	private Collection<ResolutionTarget> findMethods(String methodName)
@@ -350,7 +355,7 @@ public class RubyCodeResolver extends CodeResolver
 
 	protected IProject getProject()
 	{
-		URI uri = context.getURI();
+		URI uri = fContext.getURI();
 		if ("file".equals(uri.getScheme())) //$NON-NLS-1$
 		{
 			IPath path = Path.fromOSString(uri.getPath());
