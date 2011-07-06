@@ -60,7 +60,10 @@
       <extension
          point="com.aptana.index.core.fileIndexingParticipants">
       <fileIndexingParticipant
-            class="com.aptana.ruby.internal.core.index.RubyFileIndexingParticipant">
+            class="com.aptana.ruby.internal.core.index.RubyFileIndexingParticipant"
+            id="com.aptana.editor.ruby.indexer"
+            name="Ruby Indexer"
+            priority="50">
          <contentTypeBinding
                contentTypeId="com.aptana.contenttype.ruby">
          </contentTypeBinding>

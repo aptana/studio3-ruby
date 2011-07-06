@@ -494,11 +494,11 @@ public class CoreStubber extends Job
 			super(message, outputDir);
 		}
 
-		protected Map<IFileStoreIndexingParticipant, Set<IFileStore>> mapParticipantsToFiles(Set<IFileStore> fileStores)
+		protected List<Map.Entry<IFileStoreIndexingParticipant, Set<IFileStore>>> mapParticipantsToFiles(Set<IFileStore> fileStores)
 		{
 			Map<IFileStoreIndexingParticipant, Set<IFileStore>> map = new HashMap<IFileStoreIndexingParticipant, Set<IFileStore>>();
 			map.put(new RubyFileIndexingParticipant(), fileStores);
-			return map;
+			return new ArrayList<Map.Entry<IFileStoreIndexingParticipant, Set<IFileStore>>>(map.entrySet());
 		}
 
 		@Override

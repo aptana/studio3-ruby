@@ -3,13 +3,10 @@ package com.aptana.editor.erb.html;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 
 import com.aptana.core.logging.IdeLog;
@@ -26,22 +23,12 @@ import com.aptana.ruby.internal.core.index.RubyFileIndexingParticipant;
 
 public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipant
 {
-
-	public void index(Set<IFileStore> files, final Index index, IProgressMonitor monitor) throws CoreException
-	{
-		SubMonitor sub = SubMonitor.convert(monitor, files.size() * 100);
-		for (final IFileStore store : files)
-		{
-			if (sub.isCanceled())
-			{
-				throw new CoreException(Status.CANCEL_STATUS);
-			}
-			Thread.yield(); // be nice to other threads, let them get in before each file...
-			indexFileStore(index, store, sub.newChild(100));
-		}
-	}
-
-	private void indexFileStore(final Index index, IFileStore store, IProgressMonitor monitor)
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.index.core.AbstractFileIndexingParticipant#indexFileStore(com.aptana.index.core.Index,
+	 * org.eclipse.core.filesystem.IFileStore, org.eclipse.core.runtime.IProgressMonitor)
+	 */
+	protected void indexFileStore(final Index index, IFileStore store, IProgressMonitor monitor)
 	{
 		SubMonitor sub = SubMonitor.convert(monitor, 100);
 		try
