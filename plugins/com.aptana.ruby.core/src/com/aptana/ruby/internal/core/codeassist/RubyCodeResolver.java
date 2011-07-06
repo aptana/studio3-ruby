@@ -31,6 +31,7 @@ import org.jrubyparser.ast.INameNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.ast.NodeType;
 import org.jrubyparser.ast.StrNode;
+import org.jrubyparser.lexer.SyntaxException;
 
 import com.aptana.core.util.IOUtil;
 import com.aptana.index.core.Index;
@@ -110,6 +111,10 @@ public class RubyCodeResolver extends CodeResolver
 					// System.out.println(atOffset);
 					break;
 			}
+		}
+		catch (SyntaxException se)
+		{
+			// ignore
 		}
 		finally
 		{
@@ -307,7 +312,7 @@ public class RubyCodeResolver extends CodeResolver
 		return links;
 	}
 
-	private Node getRoot()
+	private Node getRoot() throws SyntaxException
 	{
 		return fContext.getAST();
 	}
