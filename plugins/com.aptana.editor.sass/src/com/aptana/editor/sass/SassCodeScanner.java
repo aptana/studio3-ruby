@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IRule;
@@ -34,6 +35,7 @@ public class SassCodeScanner extends CSSCodeScanner
 {
 
 	private IToken lastToken;
+	private IDocument _document;
 
 	@Override
 	protected List<IRule> createRules()
@@ -89,14 +91,49 @@ public class SassCodeScanner extends CSSCodeScanner
 			String sassScopeName = cssScopeName.replaceAll("\\.css", "\\.sass"); //$NON-NLS-1$ //$NON-NLS-2$
 			token = new Token(sassScopeName);
 		}
-		if (lastToken != null
+		// FIXME If token is "meta.selector.sass", then it's whitespace. Check if it contains a newline. If so, make it
+		// Token.WHITESPACE if not preceded by a comma!
+		if (lastToken != null && !"punctuation.separator.sass".equals(lastToken.getData()) && //$NON-NLS-1$
+				("meta.selector.sass".equals(token.getData()) || "meta.property-value.sass".equals(token.getData()))) //$NON-NLS-1$ //$NON-NLS-2$
+		{
+			String src = getSource(getTokenOffset(), getTokenLength());
+			if (src.contains("\n") || src.contains("\r")) //$NON-NLS-1$ //$NON-NLS-2$
+			{
+				if ("meta.selector.sass".equals(token.getData())) //$NON-NLS-1$
+				{
+					fInSelector = false;
+				}
+				else if ("meta.property-value.sass".equals(token.getData())) //$NON-NLS-1$
+				{
+					fInPropertyValue = false;
+				}
+				token = Token.WHITESPACE;
+			}
+
+		}
+		else if (lastToken != null
 				&& ("keyword.control.at-rule.mixin.sass".equals(lastToken.getData()) || "keyword.control.at-rule.include.sass" //$NON-NLS-1$ //$NON-NLS-2$
-						.equals(lastToken.getData())))
+				.equals(lastToken.getData())))
 		{
 			token = new Token("entity.name.function.sass"); //$NON-NLS-1$
 		}
-		lastToken = token;
+		if (token.isOther())
+		{
+			lastToken = token;
+		}
 		return token;
+	}
+
+	private String getSource(int tokenOffset, int tokenLength)
+	{
+		try
+		{
+			return _document.get(tokenOffset, tokenLength);
+		}
+		catch (BadLocationException e)
+		{
+			return ""; //$NON-NLS-1$
+		}
 	}
 
 	@Override
@@ -155,6 +192,7 @@ public class SassCodeScanner extends CSSCodeScanner
 	public void setRange(IDocument document, int offset, int length)
 	{
 		this.lastToken = null;
+		this._document = document;
 		super.setRange(document, offset, length);
 	}
 }
