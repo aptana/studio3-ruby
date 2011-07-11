@@ -70,43 +70,47 @@ public class HAMLFoldingComputer implements IFoldingComputer
 
 			// Every new indent level is a possible folding start
 			int indent = findIndent(line);
-			if (indent > indentLevels.peek())
+			if (!indentLevels.isEmpty())
 			{
-				// indent increased, might be a new folding start, add it
-				indentLevels.push(indent);
-				starts.put(indent, offset);
-			}
-			else if (indent == indentLevels.peek())
-			{
-				// same indent level, update folding offset for this indent level (multiple lines at same level)
-				starts.put(indent, offset);
-			}
-			else if (indent < indentLevels.peek())
-			{
-				// indent level decreased, close all levels greater than current indent...
-				while (indent <= indentLevels.peek())
+				int peekedIndent = indentLevels.peek();
+				if (indent > peekedIndent)
 				{
-					int toPop = indentLevels.pop();
-					if (!starts.containsKey(toPop))
-					{
-						continue;
-					}
-					int startingOffset = starts.remove(toPop);
-					IRegion startLine = fDocument.getLineInformationOfOffset(startingOffset);
-					IRegion endLine = fDocument.getLineInformation(currentLine - 1);
-					if (startLine.getOffset() == endLine.getOffset())
-					{
-						continue;
-					}
-					int end = endLine.getOffset() + endLine.getLength() + 1;
-					int posLength = end - startingOffset;
-					if (posLength > 0)
-					{
-						Position position = new Position(startingOffset, posLength);
-						newPositions.put(new ProjectionAnnotation(), position);
-					}
+					// indent increased, might be a new folding start, add it
+					indentLevels.push(indent);
+					starts.put(indent, offset);
 				}
-				starts.put(indent, offset);
+				else if (indent == peekedIndent)
+				{
+					// same indent level, update folding offset for this indent level (multiple lines at same level)
+					starts.put(indent, offset);
+				}
+				else if (indent < peekedIndent)
+				{
+					// indent level decreased, close all levels greater than current indent...
+					while (!indentLevels.isEmpty() && indent <= indentLevels.peek())
+					{
+						int toPop = indentLevels.pop();
+						if (!starts.containsKey(toPop))
+						{
+							continue;
+						}
+						int startingOffset = starts.remove(toPop);
+						IRegion startLine = fDocument.getLineInformationOfOffset(startingOffset);
+						IRegion endLine = fDocument.getLineInformation(currentLine - 1);
+						if (startLine.getOffset() == endLine.getOffset())
+						{
+							continue;
+						}
+						int end = endLine.getOffset() + endLine.getLength() + 1;
+						int posLength = end - startingOffset;
+						if (posLength > 0)
+						{
+							Position position = new Position(startingOffset, posLength);
+							newPositions.put(new ProjectionAnnotation(), position);
+						}
+					}
+					starts.put(indent, offset);
+				}
 			}
 
 			subMonitor.worked(1);
