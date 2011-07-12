@@ -119,6 +119,11 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			{
 				return new ICompletionProposal[0];
 			}
+			// order matters. we can handle symbols even if we can't parse
+			else if (fContext.isSymbol())
+			{
+				proposals.addAll(suggestSymbols());
+			}
 			else if (fContext.isNotParseable())
 			{
 				proposals.addAll(suggestKeywords());
@@ -184,10 +189,6 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 				Collection<? extends ICompletionProposal> wordCompletions = suggestWordCompletions(viewer, offset);
 				wordCompletions = removeDuplicates(proposals, wordCompletions);
 				proposals.addAll(wordCompletions);
-			}
-			else if (fContext.isSymbol())
-			{
-				proposals.addAll(suggestSymbols());
 			}
 			sortByDisplayName(proposals);
 			return proposals.toArray(new ICompletionProposal[proposals.size()]);

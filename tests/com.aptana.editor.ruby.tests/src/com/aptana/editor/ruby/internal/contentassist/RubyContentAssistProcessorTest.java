@@ -163,6 +163,19 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 						"end\n");
 	}
 
+	public void testSymbolsAfterSingleColonBreakingSyntaxInsideHash() throws Exception
+	{
+		String src = "class Shapes\n" + //
+				"  @@shapes = [ :triangle, :rectangle, :circle ]\n" + //
+				"  @shape = {:}\n" + //
+				"end\n"; //
+		assertCompletionCorrect(src, 74, ":triangle", //
+				"class Shapes\n" + //
+						"  @@shapes = [ :triangle, :rectangle, :circle ]\n" + //
+						"  @shape = {:triangle}\n" + //
+						"end\n");
+	}
+
 	// FIXME Implement suggesting instance variables when there's a syntax error, so no AST!
 	// public void testInstanceVariablePreviouslyDeclaredJustAtSigilPrefixWithUnclosedBlockSyntaxErrors() throws
 	// Exception

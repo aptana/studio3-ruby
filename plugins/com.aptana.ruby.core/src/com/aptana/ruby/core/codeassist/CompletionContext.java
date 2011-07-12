@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IProject;
 import org.jrubyparser.CompatVersion;
@@ -129,6 +131,7 @@ public class CompletionContext
 								continue;
 							}
 						}
+						// FIXME this fixes some cases, but doesn't fix unfinished hash, i.e. "{:key => value, :| }
 						// add a letter after to form a symbol if this breaks syntax...
 						if (i + 1 < source.length())
 						{
@@ -572,12 +575,20 @@ public class CompletionContext
 
 	public Set<String> getSymbolsInAST()
 	{
+		Set<String> symbols = new TreeSet<String>();
 		if (getRootNode() == null)
 		{
-			return Collections.emptySet();
+			// Fallback to doing a regexp search on the source
+			Pattern p = Pattern.compile(":(\\w+)\\b"); //$NON-NLS-1$
+			Matcher m = p.matcher(src);
+			while (m.find())
+			{
+				symbols.add(m.group(1));
+			}
+
+			return symbols;
 		}
 
-		Set<String> symbols = new TreeSet<String>();
 		List<Node> symbolNodes = new ScopedNodeLocator().find(getRootNode(), new INodeAcceptor()
 		{
 			public boolean accepts(Node node)
