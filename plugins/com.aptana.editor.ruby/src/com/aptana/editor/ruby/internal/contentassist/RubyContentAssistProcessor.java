@@ -70,6 +70,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	private static final String MODULE_IMAGE = "icons/module_obj.png"; //$NON-NLS-1$
 	private static final String PROTECTED_METHOD_IMAGE = "icons/method_protected_obj.png"; //$NON-NLS-1$
 	private static final String CONSTANT_IMAGE = "icons/constant_obj.png"; //$NON-NLS-1$
+	private static final String SYMBOL_IMAGE = GLOBAL_IMAGE; // FIXME Get an image for symbols!
 
 	/**
 	 * Performance events
@@ -114,13 +115,12 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		fContext = new CompletionContext(getProject(), viewer.getDocument().get(), offset - 1);
 		try
 		{
-			if (fContext.inComment() || fContext.getPartialPrefix().endsWith(":")) //$NON-NLS-1$
+			if (fContext.inComment())
 			{
 				return new ICompletionProposal[0];
 			}
 			else if (fContext.isNotParseable())
 			{
-
 				proposals.addAll(suggestKeywords());
 			}
 			else if (fContext.emptyPrefix())
@@ -185,6 +185,10 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 				wordCompletions = removeDuplicates(proposals, wordCompletions);
 				proposals.addAll(wordCompletions);
 			}
+			else if (fContext.isSymbol())
+			{
+				proposals.addAll(suggestSymbols());
+			}
 			sortByDisplayName(proposals);
 			return proposals.toArray(new ICompletionProposal[proposals.size()]);
 		}
@@ -230,6 +234,19 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			}
 		}
 		return keywords;
+	}
+
+	private Collection<? extends ICompletionProposal> suggestSymbols()
+	{
+		// TODO We currently only suggest symbols in the same file. Should we look at all symbols in the project?
+		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
+		for (String symbolName : fContext.getSymbolsInAST())
+		{
+			CommonCompletionProposal proposal = createProposal(
+					":" + symbolName, RubyEditorPlugin.getImage(SYMBOL_IMAGE)); //$NON-NLS-1$
+			proposals.add(proposal);
+		}
+		return proposals;
 	}
 
 	private boolean receiverIsType()

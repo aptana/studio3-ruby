@@ -137,6 +137,32 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 				"class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    puts @\n  end\nend", 73, "@counter", "class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    puts @counter\n  end\nend"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	public void testAPSTUD2903() throws Exception
+	{
+		String src = "class Shapes\n" + //
+				"  @@shapes = [ :triangle, :rectangle, :circle ]\n" + //
+				"  @shape = :tri\n" + //
+				"end\n"; //
+		assertCompletionCorrect(src, 76, ":triangle", //
+				"class Shapes\n" + //
+				"  @@shapes = [ :triangle, :rectangle, :circle ]\n" + //
+				"  @shape = :triangle\n" + //
+				"end\n");
+	}
+
+	public void testSymbolsAfterSingleColonBreakingSyntax() throws Exception
+	{
+		String src = "class Shapes\n" + //
+				"  @@shapes = [ :triangle, :rectangle, :circle ]\n" + //
+				"  @shape = :\n" + //
+				"end\n"; //
+		assertCompletionCorrect(src, 73, ":triangle", //
+				"class Shapes\n" + //
+						"  @@shapes = [ :triangle, :rectangle, :circle ]\n" + //
+						"  @shape = :triangle\n" + //
+						"end\n");
+	}
+
 	// FIXME Implement suggesting instance variables when there's a syntax error, so no AST!
 	// public void testInstanceVariablePreviouslyDeclaredJustAtSigilPrefixWithUnclosedBlockSyntaxErrors() throws
 	// Exception
