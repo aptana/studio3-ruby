@@ -32,6 +32,7 @@ import org.jrubyparser.ast.DefsNode;
 import org.jrubyparser.ast.FCallNode;
 import org.jrubyparser.ast.GlobalAsgnNode;
 import org.jrubyparser.ast.GlobalVarNode;
+import org.jrubyparser.ast.HashNode;
 import org.jrubyparser.ast.InstAsgnNode;
 import org.jrubyparser.ast.InstVarNode;
 import org.jrubyparser.ast.IterNode;
@@ -50,9 +51,10 @@ import org.jrubyparser.ast.UnnamedRestArgNode;
 import org.jrubyparser.ast.VCallNode;
 import org.jrubyparser.ast.YieldNode;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.core.IRubyMethod;
-import com.aptana.ruby.core.ISourceElementRequestor;
 import com.aptana.ruby.core.IRubyMethod.Visibility;
+import com.aptana.ruby.core.ISourceElementRequestor;
 import com.aptana.ruby.core.ISourceElementRequestor.FieldInfo;
 import com.aptana.ruby.core.ISourceElementRequestor.MethodInfo;
 import com.aptana.ruby.core.ISourceElementRequestor.TypeInfo;
@@ -64,6 +66,14 @@ import com.aptana.ruby.core.ISourceElementRequestor.TypeInfo;
 public class SourceElementVisitor extends InOrderVisitor
 {
 
+	private static final String CLASS_ATTRIBUTE = "class_attribute"; //$NON-NLS-1$
+	private static final String CATTR_ACCESSOR = "cattr_accessor"; //$NON-NLS-1$
+	private static final String CATTR_READER = "cattr_reader"; //$NON-NLS-1$
+	private static final String CATTR_WRITER = "cattr_writer"; //$NON-NLS-1$
+	private static final String BELONGS_TO = "belongs_to"; //$NON-NLS-1$
+	private static final String HAS_ONE = "has_one"; //$NON-NLS-1$
+	private static final String HAS_MANY = "has_many"; //$NON-NLS-1$
+	private static final String DELEGATE = "delegate"; //$NON-NLS-1$
 	private static final String EXTEND = "extend"; //$NON-NLS-1$
 	private static final String OBJECT = "Object"; //$NON-NLS-1$
 	private static final String CONSTRUCTOR_NAME = "initialize"; //$NON-NLS-1$
@@ -362,122 +372,389 @@ public class SourceElementVisitor extends InOrderVisitor
 	{
 		List<String> arguments = ASTUtils.getArgumentsFromFunctionCall(iVisited);
 		String name = iVisited.getName();
-		if (name.equals(REQUIRE) || name.equals(LOAD))
+		if (REQUIRE.equals(name) || LOAD.equals(name))
 		{
 			addImport(iVisited);
 		}
 		// Handle "extend", which acts like "include" but for instances. If this is done in class_eval, treat the same
-		else if (name.equals(EXTEND))
+		else if (EXTEND.equals(name))
 		{
 			// Collect included mixins
 			includeModule(iVisited);
 		}
-		else if (name.equals(INCLUDE))
+		else if (INCLUDE.equals(name))
 		{
 			// Collect included mixins
 			includeModule(iVisited);
 		}
-		else if (name.equals(PUBLIC))
+		else if (PUBLIC.equals(name))
 		{
 			for (String methodName : arguments)
 			{
 				requestor.acceptMethodVisibilityChange(methodName, convertVisibility(Visibility.PUBLIC));
 			}
 		}
-		else if (name.equals(PRIVATE))
+		else if (PRIVATE.equals(name))
 		{
 			for (String methodName : arguments)
 			{
 				requestor.acceptMethodVisibilityChange(methodName, convertVisibility(Visibility.PRIVATE));
 			}
 		}
-		else if (name.equals(PROTECTED))
+		else if (PROTECTED.equals(name))
 		{
 			for (String methodName : arguments)
 			{
 				requestor.acceptMethodVisibilityChange(methodName, convertVisibility(Visibility.PROTECTED));
 			}
 		}
-		else if (name.equals(MODULE_FUNCTION))
+		else if (MODULE_FUNCTION.equals(name))
 		{
 			for (String methodName : arguments)
 			{
 				requestor.acceptModuleFunction(methodName);
 			}
 		}
-		else if (name.equals(ALIAS_METHOD))
+		else if (ALIAS_METHOD.equals(name))
 		{
 			String newName = arguments.get(0).substring(1);
 			int nameStart = iVisited.getPosition().getStartOffset() + name.length() + 2;
 			addAliasMethod(newName, iVisited.getPosition().getStartOffset(), iVisited.getPosition().getEndOffset(),
 					nameStart);
 		}
-		if (name.equals(ATTR) || name.equals(ATTR_ACCESSOR) || name.equals(ATTR_READER) || name.equals(ATTR_WRITER))
+		// delegate method idiom from Rails 3.x
+		else if (DELEGATE.equals(name))
+		{
+			addDelegatedMethods(iVisited);
+		}
+		// class attribute method idiom from Rails 3.x
+		else if (CLASS_ATTRIBUTE.equals(name))
 		{
 			List<Node> nodes = ASTUtils.getArgumentNodesFromFunctionCall(iVisited);
-			if (name.equals(ATTR))
-			{
-				addReadMethod(arguments.get(0), nodes.get(0));
-				if (arguments.size() == 2 && arguments.get(1).equals("true")) //$NON-NLS-1$
-				{
-					Node node = nodes.get(0);
-					int start = node.getPosition().getEndOffset() + 2;
-					addWriteMethod(arguments.get(0), start, start + arguments.get(1).length() - 1);
-				}
-			}
-			else if (name.equals(ATTR_ACCESSOR))
-			{
-				int size = arguments.size();
-				for (int i = 0; i < size; ++i)
-				{
-					addReadMethod(arguments.get(i), nodes.get(i));
-				}
-				for (int i = 0; i < size; ++i)
-				{
-					addWriteMethod(arguments.get(i), nodes.get(i));
-				}
-			}
-			else if (name.equals(ATTR_READER))
-			{
-				int size = arguments.size();
-				for (int i = 0; i < size; ++i)
-				{
-					addReadMethod(arguments.get(i), nodes.get(i));
-				}
-			}
-			else if (name.equals(ATTR_WRITER))
-			{
-				int size = arguments.size();
-				for (int i = 0; i < size; ++i)
-				{
-					addWriteMethod(arguments.get(i), nodes.get(i));
-				}
-			}
-
-			FieldInfo field;
-			Node node;
-			int size = nodes.size();
+			int size = arguments.size();
 			for (int i = 0; i < size; ++i)
 			{
-				node = nodes.get(i);
-
-				field = new FieldInfo();
-				field.declarationStart = node.getPosition().getStartOffset() + 1;
-				String argName = arguments.get(i);
-				if (argName.startsWith(":")) //$NON-NLS-1$
+				// FIXME Check last arg if it's a hash, check :instance_writer value...
+				Node node = nodes.get(i);
+				if (node instanceof HashNode)
 				{
-					argName = argName.substring(1);
+					continue;
 				}
-				field.name = "@" + argName; //$NON-NLS-1$
-				field.nameSourceStart = node.getPosition().getStartOffset() + 1;
-				field.nameSourceEnd = node.getPosition().getEndOffset() - 1;
-				requestor.enterField(field);
-				requestor.exitField(node.getPosition().getEndOffset() - 1);
+				String arg = arguments.get(i);
+				// Add instance query method
+				MethodInfo info = createPublicMethod(dropLeadingColon(arg) + "?", node); //$NON-NLS-1$
+				requestor.enterMethod(info);
+				requestor.exitMethod(node.getPosition().getEndOffset() - 1);
+				// Singleton query method
+				info = createPublicMethod(dropLeadingColon(arg) + "?", node); //$NON-NLS-1$
+				info.isClassLevel = true;
+				requestor.enterMethod(info);
+				requestor.exitMethod(node.getPosition().getEndOffset() - 1);
+				// Singleton read/write methods
+				addClassLevelReadMethod(arg, node);
+				addClassLevelWriteMethod(arg, node);
+				// Instance read/write methods
+				addReadMethod(arg, node);
+				// FIXME Check :instance_writer hash value in arg list! if not there, assume true
+				addWriteMethod(arg, node);
+			}
+		}
+		// Rails relationships...
+		else if (HAS_MANY.equals(name))
+		{
+			addHasManyAssociationMethods(iVisited, arguments.get(0));
+		}
+		else if (HAS_ONE.equals(name))
+		{
+			addHasOneAssociationMethods(iVisited, arguments.get(0));
+		}
+		else if (BELONGS_TO.equals(name))
+		{
+			// Adds the same methods as has_one...
+			addHasOneAssociationMethods(iVisited, arguments.get(0));
+		}
+		// class level attributes
+		else if (CATTR_ACCESSOR.equals(name) || CATTR_READER.equals(name) || CATTR_WRITER.equals(name))
+		{
+			boolean addRead = false;
+			boolean addInstanceRead = true;
+			boolean addWrite = false;
+			boolean addInstanceWrite = true;
+			if (CATTR_ACCESSOR.equals(name))
+			{
+				addRead = true;
+				addWrite = true;
+			}
+			else if (CATTR_READER.equals(name))
+			{
+				addRead = true;
+			}
+			else if (CATTR_WRITER.equals(name))
+			{
+				addWrite = true;
+			}
+
+			List<Node> nodes = ASTUtils.getArgumentNodesFromFunctionCall(iVisited);
+			// Check if last node is hash, if so look for special key/value pairs to not generate instance methods...
+			Node lastNode = nodes.get(nodes.size() - 1);
+			if (lastNode instanceof HashNode)
+			{
+				HashNode hash = (HashNode) lastNode;
+				ListNode hashValues = hash.getListNode();
+				for (int x = 0; x < hashValues.size(); x += 2)
+				{
+					Node key = hashValues.get(x);
+					Node value = hashValues.get(x + 1);
+					if ("false".equals(ASTUtils.getStringRepresentation(value))) //$NON-NLS-1$
+					{
+						if (":instance_writer".equals(ASTUtils.getStringRepresentation(key))) //$NON-NLS-1$
+						{
+							addInstanceWrite = false;
+						}
+						else if (":instance_reader".equals(ASTUtils.getStringRepresentation(key))) //$NON-NLS-1$
+						{
+							addInstanceRead = false;
+						}
+					}
+				}
+			}
+
+			int size = arguments.size();
+			for (int i = 0; i < size; ++i)
+			{
+				Node node = nodes.get(i);
+				// Skip last hash, if provided...
+				if (node instanceof HashNode)
+				{
+					continue;
+				}
+				String arg = arguments.get(i);
+				if (addRead)
+				{
+					addClassLevelReadMethod(arg, node);
+					if (addInstanceRead)
+					{
+						addReadMethod(arg, node);
+					}
+				}
+				if (addWrite)
+				{
+					addClassLevelWriteMethod(arg, node);
+					if (addInstanceWrite)
+					{
+						addWriteMethod(arg, node);
+					}
+				}
+				addClassVar(arg, node);
+			}
+		}
+		// Instance level attributes
+		else if (ATTR.equals(name) || ATTR_ACCESSOR.equals(name) || ATTR_READER.equals(name)
+				|| ATTR_WRITER.equals(name))
+		{
+			List<Node> nodes = ASTUtils.getArgumentNodesFromFunctionCall(iVisited);
+			boolean addRead = false;
+			boolean addWrite = false;
+			if (ATTR_ACCESSOR.equals(name))
+			{
+				addRead = true;
+				addWrite = true;
+			}
+			else if (ATTR_READER.equals(name))
+			{
+				addRead = true;
+			}
+			else if (ATTR_WRITER.equals(name))
+			{
+				addWrite = true;
+			}
+			if (ATTR.equals(name))
+			{
+				addRead = true;
+				// Add write if second arg is "true"
+				if (arguments.size() == 2 && "true".equals(arguments.get(1))) //$NON-NLS-1$
+				{
+					addWrite = true;
+				}
+			}
+
+			int size = arguments.size();
+			for (int i = 0; i < size; ++i)
+			{
+				// Only handle first arg for attr if using old second arg boolean call!
+				if (ATTR.equals(name) && addWrite && i > 0)
+				{
+					break;
+				}
+
+				Node node = nodes.get(i);
+				String arg = arguments.get(i);
+				if (addRead)
+				{
+					addReadMethod(arg, node);
+				}
+				if (addWrite)
+				{
+					addWriteMethod(arg, node);
+				}
+				addInstanceVar(arg, node);
 			}
 		}
 		requestor.acceptMethodReference(name, arguments.size(), iVisited.getPosition().getStartOffset());
 
 		return super.visitFCallNode(iVisited);
+	}
+
+	private void addInstanceVar(String arg, Node node)
+	{
+		FieldInfo field = new FieldInfo();
+		field.declarationStart = node.getPosition().getStartOffset();
+		String argName = dropLeadingColon(arg);
+		field.name = "@" + argName; //$NON-NLS-1$
+		field.nameSourceStart = node.getPosition().getStartOffset();
+		field.nameSourceEnd = node.getPosition().getEndOffset() - 1;
+		requestor.enterField(field);
+		requestor.exitField(node.getPosition().getEndOffset() - 1);
+	}
+
+	private MethodInfo createPublicMethod(String methodName, Node node)
+	{
+		MethodInfo info = new MethodInfo();
+		info.declarationStart = node.getPosition().getStartOffset();
+		info.name = methodName;
+		info.nameSourceStart = node.getPosition().getStartOffset();
+		info.nameSourceEnd = node.getPosition().getEndOffset() - 1;
+		info.visibility = IRubyMethod.Visibility.PUBLIC;
+		info.parameterNames = new String[0];
+		return info;
+	}
+
+	private void addClassVar(String arg, Node node)
+	{
+		FieldInfo field = new FieldInfo();
+		field.name = "@@" + dropLeadingColon(arg); //$NON-NLS-1$
+		field.declarationStart = node.getPosition().getStartOffset();
+		field.nameSourceStart = node.getPosition().getStartOffset();
+		int end = node.getPosition().getStartOffset() + field.name.length() - 2; // subtract the @@
+		field.nameSourceEnd = end;
+		requestor.enterField(field);
+		requestor.exitField(end);
+	}
+
+	@SuppressWarnings("nls")
+	protected void addHasManyAssociationMethods(FCallNode iVisited, String association)
+	{
+		// http://api.rubyonrails.org/classes/ActiveRecord/Associations/ClassMethods.html#method-i-has_many
+		String firstArg = dropLeadingColon(association);
+		Node argsNode = iVisited.getArgsNode();
+		Node firstArgNode = argsNode.childNodes().iterator().next();
+		// FIXME Add "force_reload = false" as param
+		addReadMethod(firstArg, firstArgNode);
+		// FIXME take in "objects" arg as param
+		addReadMethod(firstArg + "=", firstArgNode);
+		// FIXME Singularize the firstArg for these last two methods!
+		// addReadMethod(firstArg + "_ids", firstArgNode);
+		// FIXME Add "ids" as param
+		// addReadMethod(firstArg + "_ids=", firstArgNode);
+	}
+
+	@SuppressWarnings("nls")
+	protected void addHasOneAssociationMethods(FCallNode iVisited, String association)
+	{
+		// http://api.rubyonrails.org/classes/ActiveRecord/Associations/ClassMethods.html#method-i-has_one
+		String firstArg = dropLeadingColon(association);
+		Node argsNode = iVisited.getArgsNode();
+		Node firstArgNode = argsNode.childNodes().iterator().next();
+		// FIXME Add "force_reload = false" as param
+		addReadMethod(firstArg, firstArgNode);
+		// FIXME take in "associate" arg as param
+		addReadMethod(firstArg + "=", firstArgNode);
+		// FIXME Add "attributes = {}" as param
+		addReadMethod("build_" + firstArg, firstArgNode);
+		// FIXME Add "attributes = {}" as param
+		addReadMethod("create_" + firstArg, firstArgNode);
+	}
+
+	private String dropLeadingColon(String association)
+	{
+		if (association.startsWith(":")) //$NON-NLS-1$
+		{
+			return association.substring(1);
+		}
+		return association;
+	}
+
+	protected void addDelegatedMethods(FCallNode iVisited)
+	{
+		List<Node> nodes = ASTUtils.getArgumentNodesFromFunctionCall(iVisited);
+
+		String prefix = StringUtil.EMPTY;
+		String to = StringUtil.EMPTY;
+		boolean useToForPrefix = false;
+
+		Node lastNode = nodes.get(nodes.size() - 1);
+		if (lastNode instanceof HashNode)
+		{
+			HashNode hash = (HashNode) lastNode;
+			ListNode hashValues = hash.getListNode();
+			for (int x = 0; x < hashValues.size(); x += 2)
+			{
+				Node key = hashValues.get(x);
+				Node value = hashValues.get(x + 1);
+				if (":to".equals(ASTUtils.getStringRepresentation(key))) //$NON-NLS-1$
+				{
+					to = ASTUtils.getStringRepresentation(value);
+				}
+				else if (":prefix".equals(ASTUtils.getStringRepresentation(key))) //$NON-NLS-1$
+				{
+					String blah = ASTUtils.getStringRepresentation(value);
+					if ("true".equals(blah)) //$NON-NLS-1$
+					{
+						useToForPrefix = true;
+					}
+					else
+					{
+						prefix = dropLeadingColon(blah);
+					}
+				}
+			}
+		}
+		if (useToForPrefix)
+		{
+			prefix = dropLeadingColon(to);
+		}
+
+		if (prefix.length() > 0)
+		{
+			prefix = prefix + "_"; //$NON-NLS-1$
+		}
+
+		for (Node arg : nodes)
+		{
+			// skip the :to hash
+			if (arg instanceof HashNode)
+			{
+				continue;
+			}
+			String methodName = prefix + dropLeadingColon(ASTUtils.getStringRepresentation(arg));
+
+			int start = arg.getPosition().getStartOffset();
+			int end = arg.getPosition().getEndOffset() - 1;
+
+			MethodInfo method = new MethodInfo();
+			// TODO Use the visibility for the original method that this is aliasing?
+			Visibility visibility = getCurrentVisibility();
+			method.declarationStart = start;
+			method.isClassLevel = inSingletonClass;
+			method.name = methodName;
+			method.visibility = convertVisibility(visibility);
+			method.nameSourceStart = start;
+			method.nameSourceEnd = end;
+			// TODO Use the parameters of the original method
+			method.parameterNames = new String[0];
+			requestor.enterMethod(method);
+			requestor.exitMethod(end);
+		}
 	}
 
 	@Override
@@ -703,12 +980,9 @@ public class SourceElementVisitor extends InOrderVisitor
 		requestor.exitMethod(end);
 	}
 
-	private void addReadMethod(String argument, Node node)
+	private MethodInfo createReadMethod(String argument, Node node)
 	{
-		if (argument.startsWith(":")) //$NON-NLS-1$
-		{
-			argument = argument.substring(1);
-		}
+		argument = dropLeadingColon(argument);
 		MethodInfo info = new MethodInfo();
 		info.declarationStart = node.getPosition().getStartOffset();
 		info.name = argument;
@@ -716,8 +990,34 @@ public class SourceElementVisitor extends InOrderVisitor
 		info.nameSourceEnd = node.getPosition().getEndOffset() - 1;
 		info.visibility = IRubyMethod.Visibility.PUBLIC;
 		info.parameterNames = new String[0];
+		return info;
+	}
+
+	private void addReadMethod(String argument, Node node)
+	{
+		requestor.enterMethod(createReadMethod(argument, node));
+		requestor.exitMethod(node.getPosition().getEndOffset() - 1);
+	}
+
+	private void addClassLevelReadMethod(String argument, Node node)
+	{
+		MethodInfo info = createReadMethod(argument, node);
+		info.isClassLevel = true;
 		requestor.enterMethod(info);
 		requestor.exitMethod(node.getPosition().getEndOffset() - 1);
+	}
+
+	private MethodInfo createWriteMethod(String argument, int start, int end)
+	{
+		argument = dropLeadingColon(argument);
+		MethodInfo info = new MethodInfo();
+		info.declarationStart = start;
+		info.name = argument + "="; //$NON-NLS-1$
+		info.nameSourceStart = start;
+		info.nameSourceEnd = end;
+		info.visibility = IRubyMethod.Visibility.PUBLIC;
+		info.parameterNames = new String[] { "new_value" }; //$NON-NLS-1$
+		return info;
 	}
 
 	private void addWriteMethod(String argument, Node node)
@@ -727,17 +1027,17 @@ public class SourceElementVisitor extends InOrderVisitor
 
 	private void addWriteMethod(String argument, int start, int end)
 	{
-		if (argument.startsWith(":")) //$NON-NLS-1$
-		{
-			argument = argument.substring(1);
-		}
-		MethodInfo info = new MethodInfo();
-		info.declarationStart = start;
-		info.name = argument + "="; //$NON-NLS-1$
-		info.nameSourceStart = start;
-		info.nameSourceEnd = end;
-		info.visibility = IRubyMethod.Visibility.PUBLIC;
-		info.parameterNames = new String[] { "new_value" }; //$NON-NLS-1$
+		MethodInfo info = createWriteMethod(argument, start, end);
+		requestor.enterMethod(info);
+		requestor.exitMethod(end);
+	}
+
+	private void addClassLevelWriteMethod(String argument, Node node)
+	{
+		int start = node.getPosition().getStartOffset();
+		int end = node.getPosition().getEndOffset() - 1;
+		MethodInfo info = createWriteMethod(argument, start, end);
+		info.isClassLevel = true;
 		requestor.enterMethod(info);
 		requestor.exitMethod(end);
 	}

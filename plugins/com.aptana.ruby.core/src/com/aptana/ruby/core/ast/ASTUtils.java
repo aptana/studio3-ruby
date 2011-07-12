@@ -16,7 +16,6 @@ import java.util.List;
 import org.jrubyparser.StaticScope;
 import org.jrubyparser.ast.ArgsNode;
 import org.jrubyparser.ast.ArgumentNode;
-import org.jrubyparser.ast.ArrayNode;
 import org.jrubyparser.ast.CallNode;
 import org.jrubyparser.ast.ClassNode;
 import org.jrubyparser.ast.Colon2Node;
@@ -37,7 +36,6 @@ import org.jrubyparser.ast.MultipleAsgnNode;
 import org.jrubyparser.ast.NilNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.ast.SelfNode;
-import org.jrubyparser.ast.SplatNode;
 import org.jrubyparser.ast.StrNode;
 import org.jrubyparser.ast.SymbolNode;
 import org.jrubyparser.ast.TrueNode;
@@ -120,17 +118,11 @@ public class ASTUtils
 		Node argsNode = iVisited.getArgsNode();
 
 		Iterator<Node> iter = null;
-		if (argsNode instanceof SplatNode)
+		if (argsNode != null)
 		{
-			SplatNode splat = (SplatNode) argsNode;
-			iter = splat.childNodes().iterator();
+			iter = argsNode.childNodes().iterator();
 		}
-		else if (argsNode instanceof ArrayNode)
-		{
-			ArrayNode arrayNode = (ArrayNode) iVisited.getArgsNode();
-			iter = arrayNode.childNodes().iterator();
-		}
-		else if (argsNode == null)
+		else
 		{
 			// block?
 			Node iterNode = null;
