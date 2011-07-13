@@ -5,7 +5,6 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-
 package com.aptana.editor.haml;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -17,7 +16,6 @@ import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.SimpleSourceViewerConfiguration;
 import com.aptana.editor.common.TextUtils;
-import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
 import com.aptana.editor.haml.internal.RubyAttributesSourceConfiguration;
 import com.aptana.editor.ruby.RubySourceConfiguration;
 
@@ -59,7 +57,7 @@ public class HAMLSourceViewerConfiguration extends SimpleSourceViewerConfigurati
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType)
 	{
-		return new IAutoEditStrategy[] { new RubyRegexpAutoIndentStrategy(contentType, this, sourceViewer,
+		return new IAutoEditStrategy[] { new HAMLAutoIndentStrategy(contentType, this, sourceViewer,
 				HAMLEditorPlugin.getDefault().getPreferenceStore()) };
 	}
 
