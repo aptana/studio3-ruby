@@ -131,14 +131,17 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 			{
 				IStorageEditorInput storageInput = (IStorageEditorInput) editorInput;
 				IPath path = storageInput.getStorage().getFullPath();
-				File file = path.toFile();
-				if (!file.exists())
+				if (path != null)
 				{
-					// path might be relative to workspace root
-					IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-					file = iFile.getLocation().toFile();
+					File file = path.toFile();
+					if (!file.exists())
+					{
+						// path might be relative to workspace root
+						IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+						file = iFile.getLocation().toFile();
+					}
+					store = EFS.getStore(file.toURI());
 				}
-				store = EFS.getStore(file.toURI());
 			}
 			if (store == null)
 			{
