@@ -4,6 +4,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import com.aptana.editor.haml.HAMLPartitionTest;
 import com.aptana.editor.haml.internal.HAMLFoldingComputerTest;
 
 public class HAMLEditorTests extends TestCase
@@ -14,6 +15,7 @@ public class HAMLEditorTests extends TestCase
 		TestSuite suite = new TestSuite(HAMLEditorTests.class.getName());
 		// $JUnit-BEGIN$
 		suite.addTestSuite(HAMLFoldingComputerTest.class);
+		suite.addTestSuite(HAMLPartitionTest.class);
 		// $JUnit-END$
 		return suite;
 	}
