@@ -26,7 +26,8 @@ import com.aptana.editor.ruby.RubySourceConfiguration;
 /**
  * @author Max Stepanov
  */
-public class HAMLSubPartitionScanner extends CompositeSubPartitionScanner {
+public class HAMLSubPartitionScanner extends CompositeSubPartitionScanner
+{
 
 	private static final int TYPE_RUBY_EVALUATION = 1;
 	private static final int TYPE_RUBY_ATTRIBUTES = 2;
@@ -37,34 +38,48 @@ public class HAMLSubPartitionScanner extends CompositeSubPartitionScanner {
 	private static final char COMMA = ',';
 	private static final char VERTICAL = '|';
 
-	private static final SequenceBypassHandler RUBY_BYPASS_HANDLER = new SequenceBypassHandler() {
-		public boolean bypassSequence(ICharacterScanner characterScanner, char[] sequenceFound) {
-			if (characterScanner.getColumn() > 0) {
+	private static final SequenceBypassHandler RUBY_BYPASS_HANDLER = new SequenceBypassHandler()
+	{
+		public boolean bypassSequence(ICharacterScanner characterScanner, char[] sequenceFound)
+		{
+			if (characterScanner.getColumn() > 0)
+			{
 				characterScanner.unread();
 				int c = characterScanner.read();
-				if (COMMA == c) {
+				if (COMMA == c)
+				{
 					return true;
-				} else if (VERTICAL == c) {
+				}
+				else if (VERTICAL == c)
+				{
 					char[][] newLineSequences = TextUtils.rsort(characterScanner.getLegalLineDelimiters());
 					int index = 0;
-					try {
+					try
+					{
 						// skip found sequence
-						for (; index < sequenceFound.length; ++index) {
+						for (; index < sequenceFound.length; ++index)
+						{
 							characterScanner.read();
 						}
 						// search for newline, remember previous character to compare with vertical
 						int previous = 0;
-						while ((c = characterScanner.read()) != ICharacterScanner.EOF) {
+						while ((c = characterScanner.read()) != ICharacterScanner.EOF)
+						{
 							++index;
-							for (char[] sequence : newLineSequences) {
-								if (c == sequence[0] && TextUtils.sequenceDetected(characterScanner, sequence, false)) {
+							for (char[] sequence : newLineSequences)
+							{
+								if (c == sequence[0] && TextUtils.sequenceDetected(characterScanner, sequence, false))
+								{
 									return (VERTICAL == previous);
 								}
 							}
 							previous = c;
 						}
-					} finally {
-						for (int j = index; j > 0; --j) {
+					}
+					finally
+					{
+						for (int j = index; j > 0; --j)
+						{
 							characterScanner.unread();
 						}
 					}
@@ -78,18 +93,16 @@ public class HAMLSubPartitionScanner extends CompositeSubPartitionScanner {
 	/**
 	 *
 	 */
-	public HAMLSubPartitionScanner() {
-		super(
-			new ISubPartitionScanner[] {
+	public HAMLSubPartitionScanner()
+	{
+		super(new ISubPartitionScanner[] {
 				new SubPartitionScanner(HAMLSourceConfiguration.getDefault().getPartitioningRules(),
 						HAMLSourceConfiguration.CONTENT_TYPES, new Token(HAMLSourceConfiguration.DEFAULT)),
 				RubySourceConfiguration.getDefault().createSubPartitionScanner(),
-				RubyAttributesSourceConfiguration.getDefault().createSubPartitionScanner()
-			},
-			new IPartitionScannerSwitchStrategy[] {
-				new PartitionScannerSwitchStrategy(RUBY_EVALUATION_SWITCH_SEQUENCES, RUBY_BYPASS_HANDLER),
-				new PartitionScannerSwitchStrategy(RUBY_ATTRIBUTES_SWITCH_SEQUENCES)
-			});
+				RubyAttributesSourceConfiguration.getDefault().createSubPartitionScanner() },
+				new IPartitionScannerSwitchStrategy[] {
+						new PartitionScannerSwitchStrategy(RUBY_EVALUATION_SWITCH_SEQUENCES, RUBY_BYPASS_HANDLER),
+						new PartitionScannerSwitchStrategy(RUBY_ATTRIBUTES_SWITCH_SEQUENCES) });
 	}
 
 	/*
@@ -97,28 +110,40 @@ public class HAMLSubPartitionScanner extends CompositeSubPartitionScanner {
 	 * @see com.aptana.editor.common.CompositeSubPartitionScanner#setLastToken(org.eclipse.jface.text.rules.IToken)
 	 */
 	@Override
-	public void setLastToken(IToken token) {
+	public void setLastToken(IToken token)
+	{
 		super.setLastToken(token);
-		if (token == null) {
+		if (token == null)
+		{
 			return;
 		}
-		if (!(token.getData() instanceof String)) {
+		if (!(token.getData() instanceof String))
+		{
 			current = TYPE_DEFAULT;
 			return;
 		}
 		String contentType = (String) token.getData();
-		if (HAMLSourceConfiguration.RUBY_EVALUATION.equals(contentType)) {
+		if (HAMLSourceConfiguration.RUBY_EVALUATION.equals(contentType))
+		{
 			current = TYPE_RUBY_EVALUATION;
 			super.setLastToken(null);
-		} else if (HAMLSourceConfiguration.RUBY_ATTRIBUTES.equals(contentType)) {
+		}
+		else if (HAMLSourceConfiguration.RUBY_ATTRIBUTES.equals(contentType))
+		{
 			current = TYPE_RUBY_ATTRIBUTES;
 			super.setLastToken(null);
-		} else if (HAMLSourceConfiguration.DEFAULT.equals(contentType)
-				|| IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)) {
+		}
+		else if (HAMLSourceConfiguration.DEFAULT.equals(contentType)
+				|| IDocument.DEFAULT_CONTENT_TYPE.equals(contentType))
+		{
 			current = TYPE_DEFAULT;
-		} else {
-			for (int i = 0; i < subPartitionScanners.length; ++i) {
-				if (subPartitionScanners[i].hasContentType(contentType)) {
+		}
+		else
+		{
+			for (int i = 0; i < subPartitionScanners.length; ++i)
+			{
+				if (subPartitionScanners[i].hasContentType(contentType))
+				{
 					current = i;
 					break;
 				}
