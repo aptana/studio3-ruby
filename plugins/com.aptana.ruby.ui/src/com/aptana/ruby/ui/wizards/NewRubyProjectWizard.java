@@ -39,6 +39,7 @@ import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 import com.aptana.core.build.UnifiedBuilder;
 import com.aptana.git.ui.CloneJob;
+import com.aptana.projects.WebProjectNature;
 import com.aptana.ruby.core.RubyProjectNature;
 import com.aptana.ruby.ui.RubyUIPlugin;
 
@@ -202,7 +203,7 @@ public class NewRubyProjectWizard extends BasicNewResourceWizard implements IExe
 
 	protected String[] getNatureIds()
 	{
-		return new String[] { RubyProjectNature.ID };
+		return new String[] { RubyProjectNature.ID, WebProjectNature.ID };
 	}
 
 	private void doGitClone(final IProjectDescription overridingDescription) throws CoreException
