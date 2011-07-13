@@ -54,7 +54,7 @@ public class HAMLAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 			{
 				// Remove the tag/filter and check if there is content after. If there is, we only want to indent if
 				// it's a block
-				String contentWithoutTagFilter = lineContent.replaceAll(TAG_OR_FILTER_ONLY, ""); //$NON-NLS-1$
+				String contentWithoutTagFilter = lineContent.replaceAll(TAG_OR_FILTER_ONLY, StringUtil.EMPTY);
 				if (StringUtil.isEmpty(contentWithoutTagFilter) || BLOCK.matcher(contentWithoutTagFilter).matches())
 				{
 
