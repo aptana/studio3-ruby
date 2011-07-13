@@ -277,7 +277,7 @@ public class RubySourceEditor extends AbstractThemeableEditor
 	}
 
 	@Override
-	protected String getContentTypeId()
+	protected String getFileServiceContentTypeId()
 	{
 		return IRubyConstants.CONTENT_TYPE_RUBY;
 	}
