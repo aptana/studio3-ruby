@@ -108,6 +108,9 @@ public abstract class RubyContentAssistTestCase extends TestCase
 		if (fViewer == null)
 		{
 			fViewer = new TextViewer(new Shell(), SWT.NONE);
+		}
+		if (!getDocument().equals(fViewer.getDocument()))
+		{
 			fViewer.setDocument(getDocument());
 		}
 		return fViewer;
