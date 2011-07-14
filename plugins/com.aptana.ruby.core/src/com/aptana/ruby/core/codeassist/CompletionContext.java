@@ -380,7 +380,7 @@ public class CompletionContext
 		return spanner instanceof ClassNode || spanner instanceof ModuleNode;
 	}
 
-	synchronized Node getRootNode()
+	public synchronized Node getRootNode()
 	{
 		if (fRootNode != null)
 			return fRootNode;

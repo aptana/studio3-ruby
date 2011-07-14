@@ -1,5 +1,10 @@
 package com.aptana.editor.ruby.internal.contentassist;
 
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -20,6 +25,7 @@ public abstract class RubyContentAssistTestCase extends TestCase
 
 	private CommonContentAssistProcessor fProcessor;
 	private Document fDocument;
+	private ITextViewer fViewer;
 
 	@Override
 	protected void setUp() throws Exception
@@ -38,6 +44,7 @@ public abstract class RubyContentAssistTestCase extends TestCase
 		finally
 		{
 			fProcessor = null;
+			fViewer = null;
 			fDocument = null;
 			super.tearDown();
 		}
@@ -55,13 +62,6 @@ public abstract class RubyContentAssistTestCase extends TestCase
 		return null;
 	}
 
-	protected ITextViewer createTextViewer(IDocument fDocument)
-	{
-		ITextViewer viewer = new TextViewer(new Shell(), SWT.NONE);
-		viewer.setDocument(fDocument);
-		return viewer;
-	}
-
 	protected void assertCompletionCorrect(String document, int offset, String proposalToSelect, String postCompletion)
 			throws Exception
 	{
@@ -71,12 +71,7 @@ public abstract class RubyContentAssistTestCase extends TestCase
 	protected void assertCompletionCorrect(String document, int offset, char trigger, int proposalCount,
 			String proposalToSelect, String postCompletion, Point point)
 	{
-		fDocument = new Document(document);
-		ITextViewer viewer = createTextViewer(fDocument);
-
-		fProcessor = createContentAssistProcessor(null);
-
-		ICompletionProposal[] proposals = fProcessor.computeCompletionProposals(viewer, offset, trigger, false);
+		ICompletionProposal[] proposals = computeProposals(document, offset, trigger);
 		if (proposalCount >= 0)
 		{
 			assertEquals(proposalCount, proposals.length);
@@ -91,7 +86,7 @@ public abstract class RubyContentAssistTestCase extends TestCase
 				ICompletionProposalExtension2 ext2 = (ICompletionProposalExtension2) closeProposal;
 				assertTrue("Selected proposal doesn't validate against document",
 						ext2.validate(fDocument, offset, null));
-				ext2.apply(viewer, trigger, SWT.NONE, offset);
+				ext2.apply(getViewer(), trigger, SWT.NONE, offset);
 			}
 			else
 			{
@@ -102,10 +97,33 @@ public abstract class RubyContentAssistTestCase extends TestCase
 
 		if (point != null)
 		{
-			Point p = viewer.getSelectedRange();
+			Point p = getViewer().getSelectedRange();
 			assertEquals(point.x, p.x);
 			assertEquals(point.y, p.y);
 		}
+	}
+
+	protected synchronized ITextViewer getViewer()
+	{
+		if (fViewer == null)
+		{
+			fViewer = new TextViewer(new Shell(), SWT.NONE);
+			fViewer.setDocument(getDocument());
+		}
+		return fViewer;
+	}
+
+	protected ICompletionProposal[] computeProposals(String document, int offset)
+	{
+		return computeProposals(document, offset, '\t');
+	}
+
+	protected ICompletionProposal[] computeProposals(String document, int offset, char trigger)
+	{
+		fDocument = new Document(document);
+		fProcessor = createContentAssistProcessor(null);
+
+		return fProcessor.computeCompletionProposals(getViewer(), offset, trigger, false);
 	}
 
 	protected abstract CommonContentAssistProcessor createContentAssistProcessor(RubySourceEditor editor);
@@ -113,5 +131,42 @@ public abstract class RubyContentAssistTestCase extends TestCase
 	protected IDocument getDocument()
 	{
 		return fDocument;
+	}
+
+	/**
+	 * Tests if the proposals list contains a set of proposals using specific display names.
+	 * 
+	 * @param proposals
+	 * @param displayNames
+	 */
+	protected void assertDoesntContain(ICompletionProposal[] proposals, String... displayNames)
+	{
+		Set<String> uniqueDisplayNames = new HashSet<String>(Arrays.asList(displayNames));
+		for (ICompletionProposal proposal : proposals)
+		{
+			if (uniqueDisplayNames.contains(proposal.getDisplayString()))
+			{
+				fail(MessageFormat.format("Proposals contain an entry with disallowed display string: {0}",
+						proposal.getDisplayString()));
+			}
+		}
+	}
+
+	protected void assertContains(ICompletionProposal[] proposals, String... displayNames)
+	{
+		Set<String> uniqueDisplayNames = new HashSet<String>(Arrays.asList(displayNames));
+		for (ICompletionProposal proposal : proposals)
+		{
+			if (uniqueDisplayNames.contains(proposal.getDisplayString()))
+			{
+				uniqueDisplayNames.remove(proposal.getDisplayString());
+			}
+		}
+
+		if (!uniqueDisplayNames.isEmpty())
+		{
+			fail(MessageFormat.format("Proposals do not contain an entry for expected display string(s): {0}",
+					uniqueDisplayNames));
+		}
 	}
 }
