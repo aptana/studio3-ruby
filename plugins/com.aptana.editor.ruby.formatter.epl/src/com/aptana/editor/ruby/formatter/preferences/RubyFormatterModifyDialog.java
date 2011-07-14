@@ -31,6 +31,8 @@ public class RubyFormatterModifyDialog extends FormatterModifyDialog
 		addTabPage(Messages.RubyFormatterModifyDialog_indentationTabTitle, new RubyFormatterIndentationTabPage(this));
 		addTabPage(Messages.RubyFormatterModifyDialog_blanksTabTitle, new RubyFormatterBlankLinesPage(this));
 		addTabPage(Messages.RubyFormatterModifyDialog_commentsTabTitle, new RubyFormatterCommentsPage(this));
+		addTabPage(com.aptana.formatter.ui.preferences.Messages.FormatterModifyDialog_OffOnTags,
+				new RubyFormatterOffOnPage(this));
 	}
 
 }

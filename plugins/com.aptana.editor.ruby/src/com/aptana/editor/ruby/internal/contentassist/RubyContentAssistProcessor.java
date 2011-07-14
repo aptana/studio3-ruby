@@ -33,7 +33,9 @@ import org.jrubyparser.ast.Colon3Node;
 import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.InstAsgnNode;
 import org.jrubyparser.ast.MethodDefNode;
+import org.jrubyparser.ast.ModuleNode;
 import org.jrubyparser.ast.Node;
+import org.jrubyparser.ast.RootNode;
 
 import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.AbstractThemeableEditor;
@@ -45,6 +47,7 @@ import com.aptana.index.core.QueryResult;
 import com.aptana.index.core.SearchPattern;
 import com.aptana.ruby.core.IRubyMethod.Visibility;
 import com.aptana.ruby.core.ast.ASTUtils;
+import com.aptana.ruby.core.ast.ClosestSpanningNodeLocator;
 import com.aptana.ruby.core.ast.INodeAcceptor;
 import com.aptana.ruby.core.ast.ScopedNodeLocator;
 import com.aptana.ruby.core.codeassist.CompletionContext;
@@ -285,7 +288,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		// constant decl!
 		final String key = constantName + IRubyIndexConstants.SEPARATOR + typeName + IRubyIndexConstants.SEPARATOR
 				+ namespace;
-		for (Index index : RubyIndexUtil.allIndices(getProject()))
+		for (Index index : allIndicesForProject())
 		{
 			if (index == null)
 			{
@@ -347,7 +350,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		String key = "^[^/]+?" + IRubyIndexConstants.SEPARATOR + namespace + "[^/]*?" + IRubyIndexConstants.SEPARATOR
 				+ ".+$";
 		Map<String, Boolean> proposalToIsClass = new HashMap<String, Boolean>();
-		for (Index index : RubyIndexUtil.allIndices(getProject()))
+		for (Index index : allIndicesForProject())
 		{
 			if (index == null)
 			{
@@ -426,7 +429,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		}
 		String key = "^" + fContext.getPartialPrefix() + "[^/]*?" + IRubyIndexConstants.SEPARATOR + typeName
 				+ IRubyIndexConstants.SEPARATOR + namespace + "[^/]*$";
-		for (Index index : RubyIndexUtil.allIndices(getProject()))
+		for (Index index : allIndicesForProject())
 		{
 			if (index == null)
 			{
@@ -461,7 +464,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		});
 	}
 
-	private Collection<? extends ICompletionProposal> suggestWordCompletions(ITextViewer viewer, int offset)
+	protected Collection<? extends ICompletionProposal> suggestWordCompletions(ITextViewer viewer, int offset)
 	{
 		ICompletionProposal[] hippieProposals = new HippieProposalProcessor()
 				.computeCompletionProposals(viewer, offset);
@@ -475,10 +478,15 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	private Collection<? extends ICompletionProposal> suggestLocalVariables()
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
+		String prefix = fContext.getPartialPrefix();
 		for (String localName : fContext.getLocalsInScope())
 		{
-			CommonCompletionProposal proposal = createProposal(localName, RubyEditorPlugin.getImage(LOCAL_VAR_IMAGE));
-			proposals.add(proposal);
+			if (localName.startsWith(prefix))
+			{
+				CommonCompletionProposal proposal = createProposal(localName,
+						RubyEditorPlugin.getImage(LOCAL_VAR_IMAGE));
+				proposals.add(proposal);
+			}
 		}
 		return proposals;
 	}
@@ -510,6 +518,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 		Node enclosing = fContext.getEnclosingTypeNode();
 		String enclosingTypeName = fContext.getEnclosingType();
+		// Use AST for proposals
 		List<Node> methodDefNodes = new ScopedNodeLocator().find(enclosing, new INodeAcceptor()
 		{
 			public boolean accepts(Node node)
@@ -525,17 +534,34 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			{
 				continue;
 			}
+			// Verify method and current location are in same scope...
+			Node enclosingScopeNode = new ClosestSpanningNodeLocator().find(fContext.getRootNode(), methodDefNode
+					.getPosition().getStartOffset(), new INodeAcceptor()
+			{
+
+				public boolean accepts(Node node)
+				{
+					return node instanceof ClassNode || node instanceof ModuleNode || node instanceof RootNode;
+				}
+			});
+			if (!enclosingScopeNode.equals(enclosing))
+			{
+				continue;
+			}
+
 			CommonCompletionProposal proposal = createProposal(methodName,
 					RubyEditorPlugin.getImage(PUBLIC_METHOD_IMAGE), enclosingTypeName);
 			proposals.add(proposal);
 		}
+
+		// Calculate the type hierarchy
+		Set<String> allTypes = new HashSet<String>();
+		allTypes.add(enclosingTypeName);
 		if (enclosing instanceof ClassNode)
 		{
 			ClassNode classNode = (ClassNode) enclosing;
-			Set<String> allTypes = new HashSet<String>();
 			Node superNode = classNode.getSuperNode();
 			// Need to also include suggestions against index normally!
-			allTypes.add(enclosingTypeName);
 			String superTypeName = IRubyIndexConstants.OBJECT;
 			if (superNode != null)
 			{
@@ -555,26 +581,40 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 				stats.endRun();
 				stats = null;
 			}
-			if (PerformanceStats.isEnabled(METHOD_PROPOSALS_FOR_TYPE_EVENT))
+		}
+		else
+		{
+			// Toplevel or Module
+
+			// Need to suggest methods up the hierarchy too...
+			PerformanceStats stats = null;
+			if (PerformanceStats.isEnabled(CALC_SUPER_TYPE_EVENT))
 			{
-				stats = PerformanceStats.getStats(METHOD_PROPOSALS_FOR_TYPE_EVENT, this);
-				stats.startRun(allTypes.toString());
+				stats = PerformanceStats.getStats(CALC_SUPER_TYPE_EVENT, this);
+				stats.startRun(enclosingTypeName);
 			}
-			proposals.addAll(suggestMethodsForType(allTypes, true, true));
+			allTypes.addAll(calculateSuperTypes(enclosingTypeName));
 			if (stats != null)
 			{
 				stats.endRun();
 				stats = null;
 			}
 		}
-		else
+
+		// Now get method proposals up the hierarchy!
+		PerformanceStats stats = null;
+		if (PerformanceStats.isEnabled(METHOD_PROPOSALS_FOR_TYPE_EVENT))
 		{
-			// Module/Toplevel...
-			Set<String> allTypes = new HashSet<String>();
-			// Need to also include suggestions against index normally!
-			allTypes.add(enclosingTypeName);
-			proposals.addAll(suggestMethodsForType(allTypes, true, true));
+			stats = PerformanceStats.getStats(METHOD_PROPOSALS_FOR_TYPE_EVENT, this);
+			stats.startRun(allTypes.toString());
 		}
+		proposals.addAll(suggestMethodsForType(allTypes, true, true));
+		if (stats != null)
+		{
+			stats.endRun();
+			stats = null;
+		}
+
 		return proposals;
 	}
 
@@ -640,7 +680,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		// Followed by whatever number of args
 		keyBuilder.append("[^/]*$");
 		final String key = keyBuilder.toString();
-		for (Index index : RubyIndexUtil.allIndices(getProject()))
+		for (Index index : allIndicesForProject())
 		{
 			if (index == null)
 			{
@@ -672,6 +712,11 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			}
 		}
 		return proposals;
+	}
+
+	protected Collection<Index> allIndicesForProject()
+	{
+		return RubyIndexUtil.allIndices(getProject());
 	}
 
 	private Visibility getVisibilityFromMethodDefKey(String word)
@@ -760,7 +805,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 		Set<String> globalNames = new TreeSet<String>();
-		for (Index index : RubyIndexUtil.allIndices(getProject()))
+		for (Index index : allIndicesForProject())
 		{
 			if (index == null)
 			{
@@ -789,7 +834,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 		Set<String> typeKeys = new TreeSet<String>();
-		for (Index index : RubyIndexUtil.allIndices(getProject()))
+		for (Index index : allIndicesForProject())
 		{
 			if (index == null)
 			{
@@ -891,7 +936,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		final String key = "^[^/]*" + IRubyIndexConstants.SEPARATOR + "[^/]*" + IRubyIndexConstants.SEPARATOR
 				+ simpleName + IRubyIndexConstants.SEPARATOR + namespace + IRubyIndexConstants.SEPARATOR + ".*$";
 		// Take the type name and find all the super types and included modules
-		for (Index index : RubyIndexUtil.allIndices(getProject()))
+		for (Index index : allIndicesForProject())
 		{
 			if (index == null)
 			{

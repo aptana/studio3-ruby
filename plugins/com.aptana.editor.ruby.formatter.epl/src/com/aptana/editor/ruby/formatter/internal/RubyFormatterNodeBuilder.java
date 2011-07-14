@@ -14,6 +14,7 @@ package com.aptana.editor.ruby.formatter.internal;
 
 import org.jrubyparser.parser.ParserResult;
 
+import com.aptana.editor.ruby.formatter.RubyFormatter;
 import com.aptana.editor.ruby.formatter.internal.nodes.FormatterRootNode;
 import com.aptana.formatter.IFormatterDocument;
 import com.aptana.formatter.nodes.AbstractFormatterNodeBuilder;
@@ -33,6 +34,7 @@ public class RubyFormatterNodeBuilder extends AbstractFormatterNodeBuilder
 		start(root);
 		result.getAST().accept(new RubyFormatterNodeBuilderVisitor(document, this));
 		checkedPop(root, document.getLength());
+		setOffOnRegions(RubyFormatter.collectOffOnRegions(result.getCommentNodes(), document));
 		return root;
 	}
 }
