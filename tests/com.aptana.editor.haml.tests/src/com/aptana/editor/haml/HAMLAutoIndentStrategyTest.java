@@ -20,39 +20,56 @@ import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
 public class HAMLAutoIndentStrategyTest extends TestCase
 {
 
-	public void testTagWithoutTrailingText() throws BadLocationException
+	public void testTagWithoutTrailingTextRetainsCurrentIndentLevel() throws BadLocationException
 	{
 
 		addNewLineAtOffset("%div#collection\n  %div.item%div.description What a cool item!", 27,
-				"%div#collection\n  %div.item\n  \t%div.description What a cool item!");
+				"%div#collection\n  %div.item\n    %div.description What a cool item!");
 	}
 
-	public void testTagWithTrailingText() throws BadLocationException
+	public void testTagWithTrailingTextAddsAutoIndent() throws BadLocationException
 	{
 		addNewLineAtOffset("    %div.description What a cool item!", 38, "    %div.description What a cool item!\n    ");
 	}
 
-	public void testSelfClosingTag() throws BadLocationException
+	public void testSelfClosingTagRetainsCurrentIndentLevel() throws BadLocationException
 	{
 		addNewLineAtOffset("    %meta{'http-equiv' => 'Content-Type', :content => 'text/html'}/", 67,
 				"    %meta{'http-equiv' => 'Content-Type', :content => 'text/html'}/\n    ");
 	}
 
-	public void testBRTag() throws BadLocationException
+	public void testBRTagWithSpacesRetainsCurrentIndentLevel() throws BadLocationException
 	{
 		addNewLineAtOffset("    %br    ", 11, "    %br    \n    ");
 	}
 
-	public void testTagWithBlocks() throws BadLocationException
+	public void testTagWithAttributesAddsAutoIndent() throws BadLocationException
 	{
 		addNewLineAtOffset("    %div{'http-equiv' => 'Content-Type', :content => 'text/html'}", 65,
-				"    %div{'http-equiv' => 'Content-Type', :content => 'text/html'}\n    \t");
+				"    %div{'http-equiv' => 'Content-Type', :content => 'text/html'}\n      ");
+	}
+
+	public void testChildTextOfTagRetainsCurrentLevelIndent() throws BadLocationException
+	{
+		addNewLineAtOffset("%p\n  this is some text", 22, "%p\n  this is some text\n  ");
+	}
+
+	public void testFilterAddsAutoIndent() throws BadLocationException
+	{
+		addNewLineAtOffset(":javascript", 11, ":javascript\n  ");
 	}
 
 	// Adds a newline at given offset, and compares the result with the expected result
 	protected void addNewLineAtOffset(String original, int offset, String expected) throws BadLocationException
 	{
-		RubyRegexpAutoIndentStrategy strategy = new HAMLAutoIndentStrategy("", null, null, null);
+		RubyRegexpAutoIndentStrategy strategy = new HAMLAutoIndentStrategy("", null, null, null)
+		{
+			@Override
+			protected String getIndentString()
+			{
+				return "  ";
+			}
+		};
 		IDocument document = new Document(original);
 
 		// After end of block comment, don't add a star

@@ -27,7 +27,7 @@ public class HAMLAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 	private static final String TAG_OR_FILTER_ONLY = "^\\s*[%:](\\w|\\.|#)+"; //$NON-NLS-1$
 	private static final Pattern BEGIN_WITH_TAG_OR_FILTER = Pattern
 			.compile("^\\s*[%:](?!area|base|br|col|hr|img|input|link|meta|param)(\\w|\\.)+.*$"); //$NON-NLS-1$
-	private static final Pattern BLOCK = Pattern.compile("^\\s*\\{.*\\}\\s*$"); //$NON-NLS-1$
+	private static final Pattern ATTRIBUTE = Pattern.compile("^\\s*\\{.*\\}\\s*$"); //$NON-NLS-1$
 
 	public HAMLAutoIndentStrategy(String contentType, SourceViewerConfiguration configuration,
 			ISourceViewer sourceViewer, IPreferenceStore prefStore)
@@ -48,33 +48,44 @@ public class HAMLAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 		{
 			// Get the line and run a regexp check against it
 			IRegion curLineRegion = d.getLineInformationOfOffset(c.offset);
-			String lineContent = d.get(curLineRegion.getOffset(), c.offset - curLineRegion.getOffset());
+			String lineContent = d.get(curLineRegion.getOffset(), c.offset - curLineRegion.getOffset()).trim();
+			boolean shouldAutoIndent = false;
 
-			if (BEGIN_WITH_TAG_OR_FILTER.matcher(lineContent).matches() && !lineContent.trim().endsWith("/")) //$NON-NLS-1$
+			// check for ruby blocks
+			if (lineContent.startsWith("-") && lineContent.endsWith("|")) //$NON-NLS-1$ //$NON-NLS-2$
+			{
+				shouldAutoIndent = true;
+			}
+			else if (BEGIN_WITH_TAG_OR_FILTER.matcher(lineContent).matches() && !lineContent.endsWith("/")) //$NON-NLS-1$
 			{
 				// Remove the tag/filter and check if there is content after. If there is, we only want to indent if
-				// it's a block
+				// it's an attribute
 				String contentWithoutTagFilter = lineContent.replaceAll(TAG_OR_FILTER_ONLY, StringUtil.EMPTY);
-				if (StringUtil.isEmpty(contentWithoutTagFilter) || BLOCK.matcher(contentWithoutTagFilter).matches())
+				if (StringUtil.isEmpty(contentWithoutTagFilter) || ATTRIBUTE.matcher(contentWithoutTagFilter).matches())
 				{
-
-					String previousLineIndent = getAutoIndentAfterNewLine(d, c);
-					String restOfLine = d.get(c.offset,
-							curLineRegion.getLength() - (c.offset - curLineRegion.getOffset()));
-					String startIndent = newline + previousLineIndent + getIndentString();
-					if (indentAndPushTrailingContentAfterNewlineAndCursor(lineContent, restOfLine))
-					{
-						c.text = startIndent + newline + previousLineIndent;
-					}
-					else
-					{
-						c.text = startIndent;
-					}
-					c.shiftsCaret = false;
-					c.caretOffset = c.offset + startIndent.length();
-					return true;
+					shouldAutoIndent = true;
 				}
 			}
+
+			if (shouldAutoIndent)
+			{
+
+				String previousLineIndent = getAutoIndentAfterNewLine(d, c);
+				String restOfLine = d.get(c.offset, curLineRegion.getLength() - (c.offset - curLineRegion.getOffset()));
+				String startIndent = newline + previousLineIndent + getIndentString();
+				if (indentAndPushTrailingContentAfterNewlineAndCursor(lineContent, restOfLine))
+				{
+					c.text = startIndent + newline + previousLineIndent;
+				}
+				else
+				{
+					c.text = startIndent;
+				}
+				c.shiftsCaret = false;
+				c.caretOffset = c.offset + startIndent.length();
+				return true;
+			}
+
 		}
 		catch (BadLocationException e)
 		{
