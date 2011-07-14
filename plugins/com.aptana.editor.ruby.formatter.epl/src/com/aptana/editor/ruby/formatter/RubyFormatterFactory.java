@@ -48,7 +48,8 @@ public class RubyFormatterFactory extends AbstractScriptFormatterFactory
 			RubyFormatterConstants.LINES_BEFORE_FIRST, RubyFormatterConstants.LINES_BEFORE_MODULE,
 			RubyFormatterConstants.LINES_BEFORE_CLASS, RubyFormatterConstants.LINES_BEFORE_METHOD,
 			RubyFormatterConstants.LINES_PRESERVE, RubyFormatterConstants.WRAP_COMMENTS,
-			RubyFormatterConstants.WRAP_COMMENTS_LENGTH };
+			RubyFormatterConstants.WRAP_COMMENTS_LENGTH, RubyFormatterConstants.FORMATTER_OFF_ON_ENABLED,
+			RubyFormatterConstants.FORMATTER_ON, RubyFormatterConstants.FORMATTER_OFF };
 
 	public PreferenceKey[] getPreferenceKeys()
 	{

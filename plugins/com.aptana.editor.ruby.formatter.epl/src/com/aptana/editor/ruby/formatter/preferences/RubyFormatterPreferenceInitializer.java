@@ -33,7 +33,7 @@ public class RubyFormatterPreferenceInitializer extends AbstractPreferenceInitia
 		store.putBoolean(RubyFormatterConstants.INDENT_CASE, false);
 		store.putBoolean(RubyFormatterConstants.INDENT_WHEN, true);
 		store.putBoolean(RubyFormatterConstants.INDENT_IF, true);
-		//		
+		//
 		store.putInt(RubyFormatterConstants.LINES_FILE_AFTER_REQUIRE, 1);
 		//
 		store.putInt(RubyFormatterConstants.LINES_FILE_BETWEEN_MODULE, 1);
@@ -53,6 +53,10 @@ public class RubyFormatterPreferenceInitializer extends AbstractPreferenceInitia
 		store.put(RubyFormatterConstants.FORMATTER_TAB_CHAR, CodeFormatterConstants.EDITOR);
 		store.put(RubyFormatterConstants.FORMATTER_TAB_SIZE, "2"); //$NON-NLS-1$
 		store.put(RubyFormatterConstants.FORMATTER_INDENTATION_SIZE, "2"); //$NON-NLS-1$
+
+		store.putBoolean(RubyFormatterConstants.FORMATTER_OFF_ON_ENABLED, false);
+		store.put(RubyFormatterConstants.FORMATTER_ON, RubyFormatterConstants.DEFAULT_FORMATTER_ON);
+		store.put(RubyFormatterConstants.FORMATTER_OFF, RubyFormatterConstants.DEFAULT_FORMATTER_OFF);
 
 		try
 		{
