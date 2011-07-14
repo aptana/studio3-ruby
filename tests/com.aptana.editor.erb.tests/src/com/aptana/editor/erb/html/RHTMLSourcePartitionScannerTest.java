@@ -17,6 +17,7 @@ import com.aptana.editor.common.TextUtils;
 import com.aptana.editor.common.text.rules.CompositePartitionScanner;
 import com.aptana.editor.erb.ERBPartitionerSwitchStrategy;
 import com.aptana.editor.html.HTMLSourceConfiguration;
+import com.aptana.editor.js.JSSourceConfiguration;
 import com.aptana.editor.ruby.RubySourceConfiguration;
 
 public class RHTMLSourcePartitionScannerTest extends TestCase
@@ -161,6 +162,34 @@ public class RHTMLSourcePartitionScannerTest extends TestCase
 		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 30); // '>'
 		// div
 		assertContentType(HTMLSourceConfiguration.HTML_TAG_CLOSE, source, 31); // %>'<'
+	}
+
+	public void testJSStringSplit()
+	{
+		String source = "<script>var i=\"x<%= Time.now %>y\";</script>"; //$NON-NLS-1$
+		assertContentType(HTMLSourceConfiguration.HTML_SCRIPT, source, 0); // '<'script
+		assertContentType(HTMLSourceConfiguration.HTML_SCRIPT, source, 7); // '>'
+		// js
+		assertContentType(JSSourceConfiguration.DEFAULT, source, 8); // 'v'
+		assertContentType(JSSourceConfiguration.DEFAULT, source, 13); // '='
+		// js string
+		assertContentType(JSSourceConfiguration.STRING_DOUBLE, source, 14); // '"'
+		assertContentType(JSSourceConfiguration.STRING_DOUBLE, source, 15); // 'x'
+		// PHP start switch
+		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 16); // '<'
+		assertContentType(CompositePartitionScanner.START_SWITCH_TAG, source, 17); // '?'
+		// inline ruby inside the script
+		assertContentType(RubySourceConfiguration.DEFAULT, source, 19); // ' 'Time
+		assertContentType(RubySourceConfiguration.DEFAULT, source, 28); // now' '
+		// ruby end switch
+		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 29); // '?'
+		assertContentType(CompositePartitionScanner.END_SWITCH_TAG, source, 30); // '>'
+		// js string
+		assertContentType(JSSourceConfiguration.STRING_DOUBLE, source, 31); // ?>'y'
+		assertContentType(JSSourceConfiguration.STRING_DOUBLE, source, 32); // ?>y'"'
+		assertContentType(JSSourceConfiguration.DEFAULT, source, 33); // ';'
+		assertContentType(HTMLSourceConfiguration.HTML_TAG_CLOSE, source, 34); // '<'/script
+		assertContentType(HTMLSourceConfiguration.HTML_TAG_CLOSE, source, 42); // '>'
 	}
 
 	private void assertContentType(String contentType, String code, int offset)
