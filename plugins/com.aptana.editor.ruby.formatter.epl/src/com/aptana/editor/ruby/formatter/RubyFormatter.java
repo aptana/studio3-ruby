@@ -65,12 +65,9 @@ public class RubyFormatter extends AbstractScriptFormatter
 			RubyFormatterConstants.LINES_BEFORE_MODULE, RubyFormatterConstants.LINES_BEFORE_CLASS,
 			RubyFormatterConstants.LINES_BEFORE_METHOD };
 
-	private final String lineDelimiter;
-
-	public RubyFormatter(String lineDelimiter, Map<String, String> preferences, String mainContentType)
+	public RubyFormatter(String lineSeparator, Map<String, String> preferences, String mainContentType)
 	{
-		super(preferences, mainContentType);
-		this.lineDelimiter = lineDelimiter;
+		super(preferences, mainContentType, lineSeparator);
 	}
 
 	public int detectIndentationLevel(IDocument document, int offset, boolean isSelection,
@@ -319,7 +316,7 @@ public class RubyFormatter extends AbstractScriptFormatter
 		IFormatterContainerNode root = builder.build(result, document);
 		new RubyFormatterNodeRewriter(result).rewrite(root);
 		IFormatterContext context = new RubyFormatterContext(indent);
-		FormatterWriter writer = new FormatterWriter(document, lineDelimiter, createIndentGenerator());
+		FormatterWriter writer = new FormatterWriter(document, lineSeparator, createIndentGenerator());
 		writer.setWrapLength(getInt(RubyFormatterConstants.WRAP_COMMENTS_LENGTH));
 		writer.setLinesPreserve(getInt(RubyFormatterConstants.LINES_PRESERVE));
 		root.accept(context, writer);
