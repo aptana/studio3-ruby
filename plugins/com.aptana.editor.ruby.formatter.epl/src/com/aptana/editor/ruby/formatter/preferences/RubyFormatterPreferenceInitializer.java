@@ -10,10 +10,10 @@
 package com.aptana.editor.ruby.formatter.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.osgi.service.prefs.BackingStoreException;
 
+import com.aptana.core.util.EclipseUtil;
 import com.aptana.editor.ruby.formatter.RubyFormatterConstants;
 import com.aptana.editor.ruby.formatter.RubyFormatterPlugin;
 import com.aptana.formatter.epl.FormatterPlugin;
@@ -24,7 +24,7 @@ public class RubyFormatterPreferenceInitializer extends AbstractPreferenceInitia
 
 	public void initializeDefaultPreferences()
 	{
-		IEclipsePreferences store = new DefaultScope().getNode(RubyFormatterPlugin.PLUGIN_ID);
+		IEclipsePreferences store = EclipseUtil.defaultScope().getNode(RubyFormatterPlugin.PLUGIN_ID);
 		//
 		store.putBoolean(RubyFormatterConstants.INDENT_CLASS, true);
 		store.putBoolean(RubyFormatterConstants.INDENT_MODULE, true);

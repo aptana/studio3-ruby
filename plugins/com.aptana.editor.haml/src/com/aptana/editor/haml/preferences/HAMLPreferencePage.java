@@ -9,9 +9,9 @@ package com.aptana.editor.haml.preferences;
 
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 
+import com.aptana.core.util.EclipseUtil;
 import com.aptana.editor.common.preferences.CommonEditorPreferencePage;
 import com.aptana.editor.haml.HAMLEditor;
 import com.aptana.editor.haml.HAMLEditorPlugin;
@@ -33,7 +33,7 @@ public class HAMLPreferencePage extends CommonEditorPreferencePage
 	@Override
 	protected IEclipsePreferences getPluginPreferenceStore()
 	{
-		return new InstanceScope().getNode(HAMLEditorPlugin.PLUGIN_ID);
+		return EclipseUtil.instanceScope().getNode(HAMLEditorPlugin.PLUGIN_ID);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class HAMLPreferencePage extends CommonEditorPreferencePage
 	@Override
 	protected IEclipsePreferences getDefaultPluginPreferenceStore()
 	{
-		return new DefaultScope().getNode(HAMLEditorPlugin.PLUGIN_ID);
+		return EclipseUtil.defaultScope().getNode(HAMLEditorPlugin.PLUGIN_ID);
 	}
 
 	@Override

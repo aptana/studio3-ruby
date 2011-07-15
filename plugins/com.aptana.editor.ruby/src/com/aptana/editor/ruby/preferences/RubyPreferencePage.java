@@ -9,7 +9,6 @@ package com.aptana.editor.ruby.preferences;
 
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -17,6 +16,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import com.aptana.core.util.EclipseUtil;
 import com.aptana.editor.common.preferences.CommonEditorPreferencePage;
 import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.editor.ruby.RubySourceEditor;
@@ -43,7 +43,7 @@ public class RubyPreferencePage extends CommonEditorPreferencePage
 	@Override
 	protected IEclipsePreferences getPluginPreferenceStore()
 	{
-		return new InstanceScope().getNode(RubyEditorPlugin.PLUGIN_ID);
+		return EclipseUtil.instanceScope().getNode(RubyEditorPlugin.PLUGIN_ID);
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class RubyPreferencePage extends CommonEditorPreferencePage
 	@Override
 	protected IEclipsePreferences getDefaultPluginPreferenceStore()
 	{
-		return new DefaultScope().getNode(RubyEditorPlugin.PLUGIN_ID);
+		return EclipseUtil.defaultScope().getNode(RubyEditorPlugin.PLUGIN_ID);
 	}
 
 	@Override
