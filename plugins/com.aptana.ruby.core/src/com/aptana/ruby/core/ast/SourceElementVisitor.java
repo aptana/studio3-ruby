@@ -237,7 +237,10 @@ public class SourceElementVisitor extends InOrderVisitor
 		pushVisibility(Visibility.PUBLIC);
 
 		TypeInfo typeInfo = createTypeInfo(iVisited.getCPath());
-		typeInfo.declarationStart = iVisited.getPosition().getStartOffset();
+
+		// count back from name, since preceding comment can incorrectly affect the start position!
+		typeInfo.declarationStart = iVisited.getCPath().getPosition().getStartOffset() - 6;
+
 		if (!typeInfo.name.equals(OBJECT))
 		{
 			Node superNode = iVisited.getSuperNode();
@@ -810,7 +813,8 @@ public class SourceElementVisitor extends InOrderVisitor
 		pushVisibility(Visibility.PUBLIC);
 
 		TypeInfo typeInfo = createTypeInfo(iVisited.getCPath());
-		typeInfo.declarationStart = iVisited.getPosition().getStartOffset();
+		// count back from name, since preceding comment can incorrectly affect the start position!
+		typeInfo.declarationStart = iVisited.getCPath().getPosition().getStartOffset() - 7;
 		typeInfo.superclass = MODULE;
 		typeInfo.isModule = true;
 		typeName = typeInfo.name;

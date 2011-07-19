@@ -619,6 +619,35 @@ public class SourceElementVisitorTest extends TestCase
 		assertType(fRequestor.types.get(0), "Chris", false, 0, 6, 10);
 	}
 
+	public void testModulePositionWithPrecedingComment() throws Exception
+	{
+		String source = "# comment\n" + //
+				"\n" + //
+				"module Outer\n" + //
+				"  class Inner\n" + //
+				"  end\n" + //
+				"end\n"; //
+		parseAndVisit(source);
+
+		assertEquals(2, fRequestor.types.size());
+		assertType(fRequestor.types.get(0), "Outer", true, 11, 18, 22);
+		assertType(fRequestor.types.get(1), "Inner", false, 26, 32, 36);
+	}
+
+	public void testClassPositionWithPrecedingComment() throws Exception
+	{
+		String source = "# comment\n" + //
+				"\n" + //
+				"class Outer\n" + //
+				"             \n" + //
+				"     \n" + //
+				"end\n"; //
+		parseAndVisit(source);
+
+		assertEquals(1, fRequestor.types.size());
+		assertType(fRequestor.types.get(0), "Outer", false, 11, 17, 21);
+	}
+
 	protected void assertType(TypeInfo typeInfo, String expectedTypeName, boolean isModule, int start, int nameStart,
 			int nameEnd)
 	{
