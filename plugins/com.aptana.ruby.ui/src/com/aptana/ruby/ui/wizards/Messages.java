@@ -27,6 +27,7 @@ public class Messages extends NLS
 	public static String WizardNewProjectCreationPage_GenerateAppGroupLabel;
 	public static String WizardNewProjectCreationPage_nameLabel;
 	public static String WizardNewProjectCreationPage_NoGeneratorText;
+	public static String WizardNewProjectCreationPage_NoGeneratorText2;
 	public static String WizardNewProjectCreationPage_projectNameEmpty;
 	public static String WizardNewProjectCreationPage_projectExistsMessage;
 	public static String ProjectLocationSelectionDialog_locationLabel;

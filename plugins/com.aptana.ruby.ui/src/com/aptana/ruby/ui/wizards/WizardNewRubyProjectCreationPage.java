@@ -56,11 +56,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.ide.IIDEHelpContextIds;
 import org.eclipse.ui.internal.ide.dialogs.IDEResourceInfoUtils;
 
+import com.aptana.projects.internal.wizards.IWizardProjectCreationPage;
+
 /**
  * TODO Extract common code between this and our Web project wizard!
  */
 @SuppressWarnings("restriction")
-public class WizardNewRubyProjectCreationPage extends WizardPage
+public class WizardNewRubyProjectCreationPage extends WizardPage implements IWizardProjectCreationPage
 {
 
 	// initial value stores
@@ -105,6 +107,16 @@ public class WizardNewRubyProjectCreationPage extends WizardPage
 	{
 		super(pageName);
 		setPageComplete(false);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.wizard.WizardPage#canFlipToNextPage()
+	 */
+	@Override
+	public boolean canFlipToNextPage()
+	{
+		return super.canFlipToNextPage() && noGenerator.getSelection();
 	}
 
 	/**
@@ -171,7 +183,8 @@ public class WizardNewRubyProjectCreationPage extends WizardPage
 
 			protected boolean isDefault()
 			{
-				return locationIsDefault();
+				String defaultLocation = Platform.getLocation().append(getProjectNameFieldValue()).toOSString();
+				return Path.fromOSString(locationPathField.getText()).toOSString().equals(defaultLocation);
 			};
 		};
 		GridData data = new GridData(GridData.FILL_HORIZONTAL);
@@ -316,7 +329,7 @@ public class WizardNewRubyProjectCreationPage extends WizardPage
 
 	protected String checkValidGitLocation()
 	{
-		if (!cloneFromGit())
+		if (!isCloneFromGit())
 			return null;
 		String locationFieldContents = gitLocation.getText();
 		if (locationFieldContents.length() == 0)
@@ -423,9 +436,25 @@ public class WizardNewRubyProjectCreationPage extends WizardPage
 		createGitLocationComposite(projectGenerationControls);
 
 		noGenerator = new Button(projectGenerationControls, SWT.RADIO);
-		noGenerator.setText(Messages.WizardNewProjectCreationPage_NoGeneratorText);
-
+		if (getWizard().getPage(NewRubyProjectWizard.TEMPLATE_SELECTION_PAGE_NAME) != null)
+		{
+			// we have a project-templates page
+			noGenerator.setText(Messages.WizardNewProjectCreationPage_NoGeneratorText2);
+		}
+		else
+		{
+			noGenerator.setText(Messages.WizardNewProjectCreationPage_NoGeneratorText);
+		}
 		noGenerator.setSelection(true);
+
+		noGenerator.addSelectionListener(new SelectionAdapter()
+		{
+			public void widgetSelected(SelectionEvent e)
+			{
+				// Trigger a buttons update. This is important for the enablement and disablement of the 'Next' button.
+				WizardNewRubyProjectCreationPage.this.getContainer().updateButtons();
+			}
+		});
 	}
 
 	private void createGitLocationComposite(Composite parent)
@@ -498,7 +527,11 @@ public class WizardNewRubyProjectCreationPage extends WizardPage
 	 */
 	public IPath getLocationPath()
 	{
-		return new Path(locationPathField.getText());
+		if (useDefaults())
+		{
+			return Platform.getLocation();
+		}
+		return Path.fromOSString(locationPathField.getText());
 	}
 
 	/**
@@ -677,20 +710,37 @@ public class WizardNewRubyProjectCreationPage extends WizardPage
 		}
 	}
 
-	public boolean cloneFromGit()
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.projects.internal.wizards.IWizardProjectCreationPage#isCloneFromGit()
+	 */
+	public boolean isCloneFromGit()
 	{
 		return gitCloneGenerate.getSelection();
 	}
 
-	public String gitCloneURI()
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.projects.internal.wizards.IWizardProjectCreationPage#getCloneURI()
+	 */
+	public String getCloneURI()
 	{
 		return gitLocation.getText().trim();
 	}
 
-	public boolean locationIsDefault()
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.projects.internal.wizards.IWizardProjectCreationPage#useDefaults()
+	 */
+	public boolean useDefaults()
 	{
-		String defaultLocation = Platform.getLocation().append(getProjectNameFieldValue()).toOSString();
-		return getLocationPath().toOSString().equals(defaultLocation);
+		// IPath platformDefaultLocation = Platform.getLocation();
+		// getLocationPath().toOSString();
+		// String defaultLocation = Platform.getLocation().append(getProjectNameFieldValue()).toOSString();
+		// return getLocationPath().toOSString().equals(defaultLocation);
+		IPath platformDefaultLocation = Platform.getLocation();
+		IPath selectedPath = Path.fromOSString(locationPathField.getText().trim());
+		return platformDefaultLocation.isPrefixOf(selectedPath);
 	}
 
 	protected void selectGitCloneGeneration()
@@ -769,4 +819,5 @@ public class WizardNewRubyProjectCreationPage extends WizardPage
 		abstract protected boolean isDefault();
 
 	}
+
 }

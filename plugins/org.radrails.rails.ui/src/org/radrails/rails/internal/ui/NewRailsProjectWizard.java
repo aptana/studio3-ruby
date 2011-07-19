@@ -24,19 +24,24 @@ import org.radrails.rails.core.RailsCorePlugin;
 import org.radrails.rails.core.RailsProjectNature;
 
 import com.aptana.core.ShellExecutable;
+import com.aptana.core.projects.templates.TemplateType;
 import com.aptana.ruby.core.RubyProjectNature;
 import com.aptana.ruby.ui.wizards.NewRubyProjectWizard;
 import com.aptana.ruby.ui.wizards.WizardNewRubyProjectCreationPage;
 import com.aptana.terminal.views.TerminalView;
 
+/**
+ * Rails project wizard
+ * 
+ * @author cwilliams, sgibly
+ */
 public class NewRailsProjectWizard extends NewRubyProjectWizard
 {
 
-	public NewRailsProjectWizard()
-	{
-		super();
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.ruby.ui.wizards.NewRubyProjectWizard#createMainPage()
+	 */
 	@Override
 	protected WizardNewRubyProjectCreationPage createMainPage()
 	{
@@ -55,10 +60,19 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 		setWindowTitle(Messages.NewRailsProject_windowTitle);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.ruby.ui.wizards.NewRubyProjectWizard#getProjectNatures()
+	 */
 	@Override
-	protected String[] getNatureIds()
+	protected String[] getProjectNatures()
 	{
 		return new String[] { RailsProjectNature.ID, RubyProjectNature.ID };
+	}
+
+	protected TemplateType[] getTemplateTypes()
+	{
+		return new TemplateType[] { TemplateType.RAILS };
 	}
 
 	@Override
@@ -88,7 +102,8 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 	private void runGenerator()
 	{
 		// Pop open a confirmation dialog if the project already has a config/environment.rb file!
-		File projectFile = getProject().getLocation().toFile();
+		final IProject project = mainPage.getProjectHandle();
+		File projectFile = project.getLocation().toFile();
 		File env = new File(projectFile, "config" + File.separator + "environment.rb"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (env.exists())
 		{
@@ -96,7 +111,6 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 					Messages.NewProjectWizard_ContentsAlreadyExist_Msg))
 				return;
 		}
-		final IProject project = getProject();
 		Job job = new UIJob(Messages.NewProjectWizard_JobTitle)
 		{
 			@Override
