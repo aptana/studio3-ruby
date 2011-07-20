@@ -47,6 +47,7 @@ public class RubyAttributesSourceConfiguration implements IPartitioningConfigura
 	public final static String STRING_SINGLE = PREFIX + "string_single"; //$NON-NLS-1$
 
 	public static final String[] CONTENT_TYPES = new String[] { DEFAULT, STRING_SINGLE, STRING_DOUBLE };
+	public static final String[] SPELLING_CONTENT_TYPES = new String[] { STRING_SINGLE, STRING_DOUBLE };
 
 	private static RubyAttributesSourceConfiguration instance;
 
@@ -62,10 +63,6 @@ public class RubyAttributesSourceConfiguration implements IPartitioningConfigura
 		c.addTranslation(new QualifiedContentType(STRING_SINGLE), new QualifiedContentType(IHAMLConstants.RUBY_ATTRIBUTES_SCOPE, IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
 		c.addTranslation(new QualifiedContentType(STRING_DOUBLE), new QualifiedContentType(IHAMLConstants.RUBY_ATTRIBUTES_SCOPE, IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
 	}
-
-	private RubyCodeScanner codeScanner;
-	private RuleBasedScanner singleQuotedStringScanner;
-	private RuleBasedScanner doubleQuotedStringScanner;
 
 	public static RubyAttributesSourceConfiguration getDefault() {
 		if (instance == null) {
@@ -85,6 +82,13 @@ public class RubyAttributesSourceConfiguration implements IPartitioningConfigura
 	 */
 	public String[] getContentTypes() {
 		return CONTENT_TYPES;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getSpellingContentTypes()
+	 */
+	public String[] getSpellingContentTypes() {
+		return SPELLING_CONTENT_TYPES;
 	}
 
 	/* (non-Javadoc)
@@ -144,25 +148,18 @@ public class RubyAttributesSourceConfiguration implements IPartitioningConfigura
 	}
 
 	private ITokenScanner getCodeScanner() {
-		if (codeScanner == null) {
-			codeScanner = new RubyCodeScanner();
-		}
-		return codeScanner;
+		return new RubyCodeScanner();
 	}
 
 	private ITokenScanner getSingleQuotedStringScanner() {
-		if (singleQuotedStringScanner == null) {
-			singleQuotedStringScanner = new RuleBasedScanner();
-			singleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
-		}
+		RuleBasedScanner singleQuotedStringScanner = new RuleBasedScanner();
+		singleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
 		return singleQuotedStringScanner;
 	}
 
 	private ITokenScanner getDoubleQuotedStringScanner() {
-		if (doubleQuotedStringScanner == null) {
-			doubleQuotedStringScanner = new RuleBasedScanner();
-			doubleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
-		}
+		RuleBasedScanner doubleQuotedStringScanner = new RuleBasedScanner();
+		doubleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
 		return doubleQuotedStringScanner;
 	}
 
