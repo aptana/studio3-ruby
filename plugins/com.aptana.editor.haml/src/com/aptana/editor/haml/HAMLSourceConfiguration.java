@@ -26,6 +26,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
+import com.aptana.editor.common.CommonUtil;
 import com.aptana.editor.common.IPartitioningConfiguration;
 import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.TextUtils;
@@ -74,14 +75,14 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 			{ IHAMLConstants.CONTENT_TYPE_HAML, IRubyConstants.CONTENT_TYPE_RUBY } };
 
 	private final IPredicateRule[] partitioningRules = new IPredicateRule[] {
-			new HAMLSingleLineRule("/", new Token(HTML_COMMENT)), //$NON-NLS-1$
-			new HAMLSingleLineRule("-#", new Token(HAML_COMMENT)), //$NON-NLS-1$
-			new HAMLSingleLineRule("!!!", new Token(DOCTYPE)), //$NON-NLS-1$
-			new HAMLEscapeRule(new Token("")), //$NON-NLS-1$
-			new SingleLineRule("#{", "}", new Token(INTERPOLATION)), //$NON-NLS-1$ //$NON-NLS-2$
-			new HAMLElementRule(new Token(ELEMENT)), new RubyEvaluationElementRule(new Token(RUBY_EVALUATION)), new SingleCharacterRule('{', new Token(RUBY_ATTRIBUTES)),
-			new SingleCharacterRule('}', new Token(RUBY_ATTRIBUTES_CLOSE)), new SingleLineRule("[", "]", new Token(OBJECT)), //$NON-NLS-1$ //$NON-NLS-2$
-			new MultiLineRule("(", ")", new Token(HTML_ATTRIBUTES)), //$NON-NLS-1$ //$NON-NLS-2$
+			new HAMLSingleLineRule("/", getToken(HTML_COMMENT)), //$NON-NLS-1$
+			new HAMLSingleLineRule("-#", getToken(HAML_COMMENT)), //$NON-NLS-1$
+			new HAMLSingleLineRule("!!!", getToken(DOCTYPE)), //$NON-NLS-1$
+			new HAMLEscapeRule(getToken("")), //$NON-NLS-1$
+			new SingleLineRule("#{", "}", getToken(INTERPOLATION)), //$NON-NLS-1$ //$NON-NLS-2$
+			new HAMLElementRule(getToken(ELEMENT)), new RubyEvaluationElementRule(new Token(RUBY_EVALUATION)), new SingleCharacterRule('{', getToken(RUBY_ATTRIBUTES)),
+			new SingleCharacterRule('}', getToken(RUBY_ATTRIBUTES_CLOSE)), new SingleLineRule("[", "]", getToken(OBJECT)), //$NON-NLS-1$ //$NON-NLS-2$
+			new MultiLineRule("(", ")", getToken(HTML_ATTRIBUTES)), //$NON-NLS-1$ //$NON-NLS-2$
 	};
 
 	private static HAMLSourceConfiguration instance;
@@ -336,7 +337,8 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 		return docTypeScanner;
 	}
 
-	private IToken getToken(String name) {
-		return new Token(name);
+	private static IToken getToken(String tokenName) {
+		return CommonUtil.getToken(tokenName);
 	}
+
 }

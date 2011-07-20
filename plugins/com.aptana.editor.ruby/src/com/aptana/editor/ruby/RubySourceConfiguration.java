@@ -19,11 +19,11 @@ import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
-import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
+import com.aptana.editor.common.CommonUtil;
 import com.aptana.editor.common.IPartitioningConfiguration;
 import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.scripting.IContentTypeTranslator;
@@ -65,12 +65,12 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 	private static final String[][] TOP_CONTENT_TYPES = new String[][] { { IRubyConstants.CONTENT_TYPE_RUBY } };
 
 	private final IPredicateRule[] partitioningRules = new IPredicateRule[] {
-			new PartitionerSwitchingIgnoreRule(new EndOfLineRule("#", new Token(SINGLE_LINE_COMMENT))), //$NON-NLS-1$
+			new PartitionerSwitchingIgnoreRule(new EndOfLineRule("#", getToken(SINGLE_LINE_COMMENT))), //$NON-NLS-1$
 			new PartitionerSwitchingIgnoreRule(new MultiLineRule(
-					"=begin", "=end", new Token(MULTI_LINE_COMMENT), (char) 0, true)), //$NON-NLS-1$ //$NON-NLS-2$
-			new SingleLineRule("/", "/", new Token(REGULAR_EXPRESSION), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
-			new SingleLineRule("\"", "\"", new Token(STRING_DOUBLE), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
-			new SingleLineRule("\'", "\'", new Token(STRING_SINGLE), '\\') }; //$NON-NLS-1$ //$NON-NLS-2$
+					"=begin", "=end", getToken(MULTI_LINE_COMMENT), (char) 0, true)), //$NON-NLS-1$ //$NON-NLS-2$
+			new SingleLineRule("/", "/", getToken(REGULAR_EXPRESSION), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
+			new SingleLineRule("\"", "\"", getToken(STRING_DOUBLE), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
+			new SingleLineRule("\'", "\'", getToken(STRING_SINGLE), '\\') }; //$NON-NLS-1$ //$NON-NLS-2$
 
 	private static RubySourceConfiguration instance;
 
@@ -145,7 +145,7 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 	 */
 	public ISubPartitionScanner createSubPartitionScanner()
 	{
-		return new SubPartitionScanner(partitioningRules, CONTENT_TYPES, new Token(DEFAULT));
+		return new SubPartitionScanner(partitioningRules, CONTENT_TYPES, getToken(DEFAULT));
 	}
 
 	/*
@@ -271,8 +271,8 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 		return doubleQuotedStringScanner;
 	}
 
-	private IToken getToken(String tokenName)
+	private static IToken getToken(String tokenName)
 	{
-		return new Token(tokenName);
+		return CommonUtil.getToken(tokenName);
 	}
 }

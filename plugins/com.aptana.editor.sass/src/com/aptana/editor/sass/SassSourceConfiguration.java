@@ -17,11 +17,11 @@ import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
-import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
+import com.aptana.editor.common.CommonUtil;
 import com.aptana.editor.common.IPartitioningConfiguration;
 import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.scripting.IContentTypeTranslator;
@@ -66,10 +66,10 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	private SassSourceConfiguration()
 	{
-		IToken comment = new Token(COMMENT);
+		IToken comment = getToken(COMMENT);
 
-		partitioningRules = new IPredicateRule[] { new SingleLineRule("\"", "\"", new Token(STRING_DOUBLE), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
-				new SingleLineRule("\'", "\'", new Token(STRING_SINGLE), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
+		partitioningRules = new IPredicateRule[] { new SingleLineRule("\"", "\"", getToken(STRING_DOUBLE), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
+				new SingleLineRule("\'", "\'", getToken(STRING_SINGLE), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
 				new EndOfLineRule("/*", comment), //$NON-NLS-1$ // FIXME What about nested comments!
 				new EndOfLineRule("//", comment) //$NON-NLS-1$ // FIXME What about nested comments!
 		};
@@ -104,7 +104,7 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 	 */
 	public ISubPartitionScanner createSubPartitionScanner()
 	{
-		return new SubPartitionScanner(partitioningRules, CONTENT_TYPES, new Token(DEFAULT));
+		return new SubPartitionScanner(partitioningRules, CONTENT_TYPES, getToken(DEFAULT));
 	}
 
 	/*
@@ -177,8 +177,9 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 		return new StringScanner("string.quoted.single.sass"); //$NON-NLS-1$
 	}
 
-	private IToken getToken(String name)
+	private static IToken getToken(String tokenName)
 	{
-		return new Token(name);
+		return CommonUtil.getToken(tokenName);
 	}
+
 }

@@ -17,11 +17,11 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
-import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
+import com.aptana.editor.common.CommonUtil;
 import com.aptana.editor.common.IPartitioningConfiguration;
 import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.scripting.IContentTypeTranslator;
@@ -52,9 +52,9 @@ public class RubyAttributesSourceConfiguration implements IPartitioningConfigura
 	private static RubyAttributesSourceConfiguration instance;
 
 	private final IPredicateRule[] partitioningRules = new IPredicateRule[] {
-			new PartitionerSwitchingIgnoreRule(new SingleLineRule("\"", "\"", new Token(STRING_DOUBLE), '\\')), //$NON-NLS-1$ //$NON-NLS-2$
-			new PartitionerSwitchingIgnoreRule(new SingleLineRule("\'", "\'", new Token(STRING_SINGLE), '\\')), //$NON-NLS-1$ //$NON-NLS-2$
-			new SingleCharacterRule('}', new Token(null))
+			new PartitionerSwitchingIgnoreRule(new SingleLineRule("\"", "\"", getToken(STRING_DOUBLE), '\\')), //$NON-NLS-1$ //$NON-NLS-2$
+			new PartitionerSwitchingIgnoreRule(new SingleLineRule("\'", "\'", getToken(STRING_SINGLE), '\\')), //$NON-NLS-1$ //$NON-NLS-2$
+			new SingleCharacterRule('}', getToken(null))
 	};
 	
 	static {
@@ -102,7 +102,7 @@ public class RubyAttributesSourceConfiguration implements IPartitioningConfigura
 	 * @see com.aptana.editor.common.IPartitioningConfiguration#createSubPartitionScanner()
 	 */
 	public ISubPartitionScanner createSubPartitionScanner() {
-		return new SubPartitionScanner(partitioningRules, CONTENT_TYPES, new Token(DEFAULT));
+		return new SubPartitionScanner(partitioningRules, CONTENT_TYPES, getToken(DEFAULT));
 	}
 
 	/* (non-Javadoc)
@@ -163,8 +163,8 @@ public class RubyAttributesSourceConfiguration implements IPartitioningConfigura
 		return doubleQuotedStringScanner;
 	}
 
-	private IToken getToken(String tokenName) {
-		return new Token(tokenName);
+	private static IToken getToken(String tokenName) {
+		return CommonUtil.getToken(tokenName);
 	}
 
 }
