@@ -7,7 +7,6 @@
  */
 package com.aptana.editor.sass.preferences;
 
-import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.preference.IPreferenceStore;
 
