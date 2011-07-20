@@ -2,6 +2,8 @@ package com.aptana.ruby.debug.ui;
 
 import java.io.File;
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -112,7 +114,7 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 	 * @param part
 	 * @return
 	 */
-	IFileStore getFileStore(IWorkbenchPart part)
+	public IFileStore getFileStore(IWorkbenchPart part)
 	{
 		if (!(part instanceof ITextEditor))
 			return null;
@@ -148,11 +150,12 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 				return null;
 			}
 
-			if (isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY)
-					|| isAssociatedWith(store.getName(), IRubyConstants.CONTENT_TYPE_RUBY_AMBIGUOUS)
-					|| isAssociatedWith(store.getName(), IERBConstants.CONTENT_TYPE_HTML_ERB))
+			for (String contentType : getValidContentTypes())
 			{
-				return store;
+				if (isAssociatedWith(store.getName(), contentType))
+				{
+					return store;
+				}
 			}
 		}
 		catch (CoreException e)
@@ -161,6 +164,15 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 		}
 
 		return null;
+	}
+
+	protected Set<String> getValidContentTypes()
+	{
+		Set<String> set = new HashSet<String>();
+		set.add(IRubyConstants.CONTENT_TYPE_RUBY);
+		set.add(IRubyConstants.CONTENT_TYPE_RUBY_AMBIGUOUS);
+		set.add(IERBConstants.CONTENT_TYPE_HTML_ERB);
+		return set;
 	}
 
 	private boolean isAssociatedWith(String fileName, String contentTypeId)
