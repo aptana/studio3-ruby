@@ -227,7 +227,9 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 		try
 		{
 			File file = ResourceUtil.resourcePathToFile(url);
-			arguments.add(MessageFormat.format("-I \"{0}\"", file.getParent())); //$NON-NLS-1$
+			String filePath = file.getParent();
+			arguments.add("-I"); //$NON-NLS-1$
+			arguments.add(filePath); 
 			arguments.add("-rsync"); //$NON-NLS-1$
 		}
 		catch (Exception e)
