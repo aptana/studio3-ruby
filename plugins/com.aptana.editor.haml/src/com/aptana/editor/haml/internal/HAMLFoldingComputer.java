@@ -67,6 +67,11 @@ public class HAMLFoldingComputer implements IFoldingComputer
 			IRegion lineRegion = fDocument.getLineInformation(currentLine);
 			int offset = lineRegion.getOffset();
 			String line = fDocument.get(offset, lineRegion.getLength());
+			if (line.trim().length() == 0)
+			{
+				// ignore blank lines?
+				continue;
+			}
 
 			// Every new indent level is a possible folding start
 			int indent = findIndent(line);
