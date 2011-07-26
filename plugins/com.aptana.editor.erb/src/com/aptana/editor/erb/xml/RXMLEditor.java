@@ -12,6 +12,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.erb.ERBEditorPlugin;
+import com.aptana.editor.erb.IERBConstants;
 
 /**
  * @author Max Stepanov
@@ -39,5 +40,10 @@ public class RXMLEditor extends AbstractThemeableEditor
 	protected IPreferenceStore getPluginPreferenceStore()
 	{
 		return ERBEditorPlugin.getDefault().getPreferenceStore();
+	}
+
+	protected String getFileServiceContentTypeId()
+	{
+		return IERBConstants.CONTENT_TYPE_XML_ERB;
 	}
 }

@@ -55,4 +55,10 @@ public class SassSourceEditor extends AbstractThemeableEditor
 	{
 		return SassPlugin.getDefault().getPreferenceStore();
 	}
+
+	@Override
+	protected String getFileServiceContentTypeId()
+	{
+		return ISassConstants.CONTENT_TYPE_SASS;
+	}
 }
