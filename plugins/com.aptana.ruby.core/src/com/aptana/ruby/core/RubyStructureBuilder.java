@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.ruby.core.IRubyMethod.Visibility;
 import com.aptana.ruby.internal.core.RubyBlock;
@@ -259,31 +260,94 @@ public class RubyStructureBuilder implements ISourceElementRequestor
 
 	public void exitField(int endOffset)
 	{
+		if (modelStack.isEmpty())
+		{
+			IdeLog.logError(RubyCorePlugin.getDefault(),
+					"AST stack was empty upon exiting field declaration, but should have contained the field.", //$NON-NLS-1$
+					(Throwable) null);
+			return;
+		}
+
 		RubyElement element = modelStack.pop();
+		if (!(element instanceof RubyField))
+		{
+			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected field decl on top of stack, but was: " + element, //$NON-NLS-1$
+					(Throwable) null);
+		}
 		element.setLocation(element.getStartingOffset(), endOffset + 1);
 	}
 
 	public void exitMethod(int endOffset)
 	{
+		if (modelStack.isEmpty())
+		{
+			IdeLog.logError(RubyCorePlugin.getDefault(),
+					"AST stack was empty upon exiting method declaration, but should have contained the method.", //$NON-NLS-1$
+					(Throwable) null);
+			return;
+		}
+
 		RubyElement element = modelStack.pop();
+		if (!(element instanceof RubyMethod))
+		{
+			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected method decl on top of stack, but was: " + element, //$NON-NLS-1$
+					(Throwable) null);
+		}
 		element.setLocation(element.getStartingOffset(), endOffset + 1);
 	}
 
 	public void exitScript(int endOffset)
 	{
+		if (modelStack.isEmpty())
+		{
+			IdeLog.logError(RubyCorePlugin.getDefault(),
+					"AST stack was empty upon exiting script, but should have contained the script.", (Throwable) null); //$NON-NLS-1$
+			return;
+		}
+
 		RubyElement element = modelStack.pop();
+		if (!(element instanceof RubyField))
+		{
+			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected script on top of stack, but was: " + element, //$NON-NLS-1$
+					(Throwable) null);
+		}
 		element.setLocation(element.getStartingOffset(), endOffset + 1);
 	}
 
 	public void exitType(int endOffset)
 	{
+		if (modelStack.isEmpty())
+		{
+			IdeLog.logError(RubyCorePlugin.getDefault(),
+					"AST stack was empty upon exiting type declaration, but should have contained the type.", //$NON-NLS-1$
+					(Throwable) null);
+			return;
+		}
+
 		RubyElement element = modelStack.pop();
+		if (!(element instanceof RubyField))
+		{
+			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected type decl on top of stack, but was: " + element, //$NON-NLS-1$
+					(Throwable) null);
+		}
 		element.setLocation(element.getStartingOffset(), endOffset + 1);
 	}
 
 	public void exitBlock(int endOffset)
 	{
+		if (modelStack.isEmpty())
+		{
+			IdeLog.logError(RubyCorePlugin.getDefault(),
+					"AST stack was empty upon exiting block, but should have contained the block.", (Throwable) null); //$NON-NLS-1$
+			return;
+		}
+
 		RubyElement element = modelStack.pop();
+		if (!(element instanceof RubyField))
+		{
+			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected block on top of stack, but was: " + element, //$NON-NLS-1$
+					(Throwable) null);
+		}
 		element.setLocation(element.getStartingOffset(), endOffset);
 	}
 
