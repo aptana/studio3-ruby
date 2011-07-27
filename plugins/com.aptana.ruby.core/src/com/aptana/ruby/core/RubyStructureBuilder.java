@@ -306,9 +306,10 @@ public class RubyStructureBuilder implements ISourceElementRequestor
 		}
 
 		RubyElement element = modelStack.pop();
-		if (!(element instanceof RubyField))
+		if (!(element instanceof RubyScript))
 		{
-			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected script on top of stack, but was: " + element, //$NON-NLS-1$
+			IdeLog.logError(RubyCorePlugin.getDefault(),
+					"Expected script on top of stack, but was: " + element.getClass().getName(), //$NON-NLS-1$
 					(Throwable) null);
 		}
 		element.setLocation(element.getStartingOffset(), endOffset + 1);
