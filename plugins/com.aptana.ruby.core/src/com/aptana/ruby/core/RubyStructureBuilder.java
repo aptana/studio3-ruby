@@ -332,7 +332,7 @@ public class RubyStructureBuilder implements ISourceElementRequestor
 		}
 
 		RubyElement element = modelStack.pop();
-		if (!(element instanceof RubyField))
+		if (!(element instanceof RubyType))
 		{
 			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected type decl on top of stack, but was: " + element, //$NON-NLS-1$
 					(Throwable) null);
@@ -350,7 +350,7 @@ public class RubyStructureBuilder implements ISourceElementRequestor
 		}
 
 		RubyElement element = modelStack.pop();
-		if (!(element instanceof RubyField))
+		if (!(element instanceof RubyBlock))
 		{
 			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected block on top of stack, but was: " + element, //$NON-NLS-1$
 					(Throwable) null);
