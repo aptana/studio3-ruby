@@ -1,3 +1,10 @@
+/**
+ * Aptana Studio
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
+ * Please see the license.html included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package com.aptana.editor.ruby.validator;
 
 import java.io.File;
@@ -89,12 +96,12 @@ public class RubyValidator implements IValidator
 			public void warn(ID id, SourcePosition position, String message, Object... data)
 			{
 				int length = position.getEndOffset() - position.getStartOffset() + 1;
-				manager.addWarning(message, position.getStartLine(), 0, length, path);
+				manager.createWarning(message, position.getStartLine(), 0, length, path);
 			}
 
 			public void warn(ID id, String fileName, int lineNumber, String message, Object... data)
 			{
-				manager.addWarning(message, lineNumber, 0, 1, path);
+				manager.createWarning(message, lineNumber, 0, 1, path);
 			}
 
 			public boolean isVerbose()
@@ -104,7 +111,7 @@ public class RubyValidator implements IValidator
 
 			public void warn(ID id, String message, Object... data)
 			{
-				manager.addWarning(message, 1, 0, 1, path);
+				manager.createWarning(message, 1, 0, 1, path);
 			}
 
 			public void warning(ID id, String message, Object... data)
@@ -148,7 +155,7 @@ public class RubyValidator implements IValidator
 			{
 				charLineOffset--;
 			}
-			items.add(manager.addError(e.getMessage(), lineNumber, charLineOffset, end - start + 1, path));
+			items.add(manager.createError(e.getMessage(), lineNumber, charLineOffset, end - start + 1, path));
 		}
 
 		return items;
