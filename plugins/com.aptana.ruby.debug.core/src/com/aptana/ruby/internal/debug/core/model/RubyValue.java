@@ -81,7 +81,7 @@ public class RubyValue extends RubyDebugElement implements IRubyValue
 	/**
 	 * @see org.eclipse.debug.core.model.IValue#getVariables()
 	 */
-	public IVariable[] getVariables() throws DebugException
+	public synchronized IVariable[] getVariables() throws DebugException
 	{
 		if (!hasChildren)
 		{

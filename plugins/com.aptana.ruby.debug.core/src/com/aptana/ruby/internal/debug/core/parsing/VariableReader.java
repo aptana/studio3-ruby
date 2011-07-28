@@ -42,7 +42,7 @@ public class VariableReader extends XmlStreamReader
 		return readVariables(stackFrame, null);
 	}
 
-	public RubyVariable[] readVariables(IRubyStackFrame stackFrame, IRubyVariable parent)
+	public synchronized RubyVariable[] readVariables(IRubyStackFrame stackFrame, IRubyVariable parent)
 			throws RubyProcessingException
 	{
 		this.stackFrame = stackFrame;

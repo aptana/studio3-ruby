@@ -6,6 +6,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.IRegisterGroup;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
+
 import com.aptana.ruby.debug.core.model.IEvaluationResult;
 import com.aptana.ruby.debug.core.model.IRubyStackFrame;
 import com.aptana.ruby.internal.debug.core.RubyDebuggerProxy;
@@ -39,7 +40,7 @@ public class RubyStackFrame extends RubyDebugElement implements IRubyStackFrame
 		this.thread = thread;
 	}
 
-	public IVariable[] getVariables() throws DebugException
+	public synchronized IVariable[] getVariables() throws DebugException
 	{
 		if (variables == null)
 		{
@@ -50,7 +51,8 @@ public class RubyStackFrame extends RubyDebugElement implements IRubyStackFrame
 
 	public boolean hasVariables() throws DebugException
 	{
-		return getVariables().length > 0;
+		IVariable[] vars = getVariables();
+		return vars != null && vars.length > 0;
 	}
 
 	public int getLineNumber()

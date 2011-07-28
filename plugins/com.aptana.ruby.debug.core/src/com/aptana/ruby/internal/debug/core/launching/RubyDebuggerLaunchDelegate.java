@@ -75,7 +75,7 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 		IPath rubyExecutablePath = rubyExecutable(configuration);
 		commandList.add(rubyExecutablePath.toOSString());
 		// Arguments to ruby
-		commandList.addAll(interpreterArguments(configuration));
+		commandList.addAll(interpreterArguments(rubyExecutablePath, configuration));
 
 		// Set up debugger
 		String host = configuration.getAttribute(IRubyLaunchConfigurationConstants.ATTR_REMOTE_HOST,
@@ -199,9 +199,18 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 		return locations;
 	}
 
-	private Collection<? extends String> interpreterArguments(ILaunchConfiguration configuration) throws CoreException
+	private Collection<? extends String> interpreterArguments(IPath rubyExecutablePath,
+			ILaunchConfiguration configuration) throws CoreException
 	{
 		List<String> arguments = new ArrayList<String>();
+		// Add special VM args if we're under jruby!
+		String rubyVersion = RubyLaunchingPlugin.getRubyVersion(rubyExecutablePath);
+		if (rubyVersion != null && (rubyVersion.contains("jruby") || rubyVersion.contains("java"))) //$NON-NLS-1$ //$NON-NLS-2$
+		{
+			arguments.add("--debug"); //$NON-NLS-1$
+			arguments.add("-X+O"); //$NON-NLS-1$
+		}
+
 		String interpreterArgs = configuration.getAttribute(IRubyLaunchConfigurationConstants.ATTR_VM_ARGUMENTS,
 				(String) null);
 		if (interpreterArgs != null)
