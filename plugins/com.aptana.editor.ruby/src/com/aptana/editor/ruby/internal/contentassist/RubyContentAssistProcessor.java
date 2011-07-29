@@ -41,6 +41,7 @@ import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonContentAssistProcessor;
 import com.aptana.editor.common.contentassist.CommonCompletionProposal;
+import com.aptana.editor.common.contentassist.CompletionProposalComparator;
 import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.QueryResult;
@@ -1000,4 +1001,18 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	{
 		return RubyEditorPlugin.PLUGIN_ID;
 	}
+
+	/**
+	 * Sorts the completion proposals (by default, by display string). This inclusion is temporary as Ruby may wish to
+	 * pursue another mechanism.
+	 * 
+	 * @param proposals
+	 */
+	protected void sortProposals(ICompletionProposal[] proposals)
+	{
+		// Sort by relevance first, descending, and then alphabetically, ascending
+		Arrays.sort(proposals, CompletionProposalComparator.decending(CompletionProposalComparator.getComparator(
+				CompletionProposalComparator.NameSort, CompletionProposalComparator.TemplateSort)));
+	}
+
 }
