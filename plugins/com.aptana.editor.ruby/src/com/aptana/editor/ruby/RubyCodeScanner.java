@@ -56,8 +56,10 @@ public class RubyCodeScanner implements ITokenScanner
 
 		if (lookForBlock)
 		{
-			if (!inPipe && data.intValue() != Tokens.tPIPE)
+			if (!inPipe && data.intValue() != Tokens.tPIPE && data.intValue() != Tokens.tWHITESPACE)
+			{
 				lookForBlock = false;
+			}
 		}
 
 		if (nextAreArgs && (isNewline(data) || data.intValue() == RubyTokenScanner.SEMICOLON))
@@ -181,7 +183,9 @@ public class RubyCodeScanner implements ITokenScanner
 				{
 					inPipe = !inPipe;
 					if (!inPipe)
+					{
 						lookForBlock = false;
+					}
 					return getToken(IRubyScopeConstants.VARIABLE_SEPARATOR);
 				}
 				if (nextIsMethodName)
