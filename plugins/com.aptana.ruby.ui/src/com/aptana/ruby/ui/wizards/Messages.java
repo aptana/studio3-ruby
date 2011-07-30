@@ -33,6 +33,7 @@ public class Messages extends NLS
 	public static String ProjectLocationSelectionDialog_locationLabel;
 	public static String WizardNewProjectCreationPage_projectLocationEmpty;
 	public static String WizardNewProjectCreationPage_gitLocationEmpty;
+	public static String WizardNewProjectCreationPage_location_has_existing_content_warning;
 
 	static
 	{
