@@ -159,18 +159,18 @@
          point="org.eclipse.ui.commandImages">
       <image
             commandId="com.aptana.editor.ruby.outline.toggle_private"
-            disabledIcon="icons/full/dlcl16/public_co.gif"
-            icon="icons/full/elcl16/public_co.gif">
+            disabledIcon="icons/full/dlcl16/public_co.png"
+            icon="icons/full/elcl16/public_co.png">
       </image>
       <image
             commandId="com.aptana.editor.ruby.outline.toggle_fields"
-            disabledIcon="icons/full/dlcl16/fields_co.gif"
-            icon="icons/full/elcl16/fields_co.gif">
+            disabledIcon="icons/full/dlcl16/fields_co.png"
+            icon="icons/full/elcl16/fields_co.png">
       </image>
       <image
             commandId="com.aptana.editor.ruby.outline.toggle_singleton"
-            disabledIcon="icons/full/dlcl16/static_co.gif"
-            icon="icons/full/elcl16/static_co.gif">
+            disabledIcon="icons/full/dlcl16/static_co.png"
+            icon="icons/full/elcl16/static_co.png">
       </image>
    </extension>
    <extension

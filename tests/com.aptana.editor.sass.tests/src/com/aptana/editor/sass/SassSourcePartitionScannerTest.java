@@ -62,50 +62,50 @@ public class SassSourcePartitionScannerTest extends TestCase
 	public void testPartitioningOfEmittedCommentLine()
 	{
 		String source =
-		// 01234567890123456789012345678901234 5678901234567890
-		  " /* This is Sass comment on one Line\n ";
+		// 0123456789012345678901234567890123456 789
+		" /* This is Sass comment on one Line */\n";
 
 		assertContentType(SassSourceConfiguration.DEFAULT, source, 0);
-		for (int i = 1; i <= 35; i++)
+		for (int i = 1; i < source.length() - 1; i++)
 		{
-			assertContentType(SassSourceConfiguration.COMMENT, source, i);
+			assertContentType(SassSourceConfiguration.MULTI_LINE_COMMENT, source, i);
 		}
-		assertContentType(SassSourceConfiguration.DEFAULT, source, 37);
+		assertContentType(SassSourceConfiguration.DEFAULT, source, source.length() - 1);
 	}
-	
+
 	public void testPartitioningOfSilentCommentLine()
 	{
 		String source =
 		// 01234567890123456789012345678901234 5678901234567890
-		  " // This is Sass comment on one Line\n ";
+		" // This is Sass comment on one Line\n ";
 
 		assertContentType(SassSourceConfiguration.DEFAULT, source, 0);
 		for (int i = 1; i <= 35; i++)
 		{
-			assertContentType(SassSourceConfiguration.COMMENT, source, i);
+			assertContentType(SassSourceConfiguration.SINGLE_LINE_COMMENT, source, i);
 		}
 		assertContentType(SassSourceConfiguration.DEFAULT, source, 37);
 	}
 
-	// TODO Add tests for comments that nest content across multiple lines!
-//	public void testPartitioningOfNestedSilentComment()
-//	{
-//		String source =
-//		// 01234567890123456789012 345678901234567890123456789 0
-//		"/* This is Sass comment\nspanning multiple lines */\n";
-//
-//		for (int i = 0; i <= 48; i++)
-//		{
-//			assertContentType(SassSourceConfiguration.COMMENT, source, i);
-//		}
-//		assertContentType(SassSourceConfiguration.DEFAULT, source, 49);
-//	}
+	public void testPartitioningOfMultiLineComment()
+	{
+		String source = "/**\n" + //
+				" * This is Sass comment\n" + //
+				" * spanning multiple lines\n" + //
+				" */\n";
+
+		for (int i = 0; i < source.length() - 1; i++)
+		{
+			assertContentType(SassSourceConfiguration.MULTI_LINE_COMMENT, source, i);
+		}
+		assertContentType(SassSourceConfiguration.DEFAULT, source, source.length() - 1);
+	}
 
 	public void testPartitioningOfSingleQuotedString()
 	{
 		String source =
 		// 012345678901234567890123456789012345678 901234567890
-		  "' This is a single quoted Sass string'\n";
+		"' This is a single quoted Sass string'\n";
 		for (int i = 0; i <= 37; i++)
 		{
 			assertContentType(SassSourceConfiguration.STRING_SINGLE, source, i);
@@ -130,7 +130,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 	{
 		String source =
 		// 012345678901234567890123456789012345678901234567890 1234 56
-		  "' This is a single quoted Sass string with escape \\' '\n";
+		"' This is a single quoted Sass string with escape \\' '\n";
 
 		for (int i = 0; i <= 53; i++)
 		{
@@ -143,7 +143,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 	{
 		String source =
 		// 012345678901234567890123456789012345678901234567890123456 789 012
-		  "' This is a single quoted Sass string with double quote \" '\n";
+		"' This is a single quoted Sass string with double quote \" '\n";
 
 		for (int i = 0; i <= 58; i++)
 		{
@@ -156,7 +156,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 	{
 		String source =
 		// 0 1234567890123456789012345678901234567 8 901234567890
-		  "\" This is a double quoted Sass string\"\n";
+		"\" This is a double quoted Sass string\"\n";
 		for (int i = 0; i <= 37; i++)
 		{
 			assertContentType(SassSourceConfiguration.STRING_DOUBLE, source, i);
@@ -168,7 +168,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 	{
 		String source =
 		// 0 1 2 34567890123456789012345678901234567 8901234567890
-		  "\"\"\n";
+		"\"\"\n";
 		for (int i = 0; i <= 1; i++)
 		{
 			assertContentType(SassSourceConfiguration.STRING_DOUBLE, source, i);
@@ -180,7 +180,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 	{
 		String source =
 		// 0 12345678901234567890123456789012345678901234567890 1 23 4 5
-		  "\" This is a double quoted Sass string with escape \\\" \"\n";
+		"\" This is a double quoted Sass string with escape \\\" \"\n";
 
 		for (int i = 0; i <= 53; i++)
 		{
@@ -193,7 +193,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 	{
 		String source =
 		// 0 1234567890123456789012345678901234567890123456789012345678 9 01
-		  "\" This is a double quoted Sass string with single quote ' \"\n";
+		"\" This is a double quoted Sass string with single quote ' \"\n";
 
 		for (int i = 0; i <= 58; i++)
 		{
@@ -206,23 +206,23 @@ public class SassSourcePartitionScannerTest extends TestCase
 	{
 		String source =
 		// 012345678901 23456789012 3456789012345678 9012345678 9012345 6 7890
-		  " /* emitted\n // silent\n val = 'single'\n other = \"double\"\n";
+		" /* emitted */\n // silent\n val = 'single'\n other = \"double\"\n";
 
 		assertContentType(SassSourceConfiguration.DEFAULT, source, 0);
-		assertContentType(SassSourceConfiguration.COMMENT, source, 1);
-		assertContentType(SassSourceConfiguration.COMMENT, source, 10);
-		assertContentType(SassSourceConfiguration.DEFAULT, source, 12);
-		assertContentType(SassSourceConfiguration.COMMENT, source, 13);
-		assertContentType(SassSourceConfiguration.COMMENT, source, 21);
-		assertContentType(SassSourceConfiguration.DEFAULT, source, 23);
-		assertContentType(SassSourceConfiguration.DEFAULT, source, 29);
-		assertContentType(SassSourceConfiguration.STRING_SINGLE, source, 30);
-		assertContentType(SassSourceConfiguration.STRING_SINGLE, source, 37);
-		assertContentType(SassSourceConfiguration.DEFAULT, source, 38);
-		assertContentType(SassSourceConfiguration.DEFAULT, source, 47);
-		assertContentType(SassSourceConfiguration.STRING_DOUBLE, source, 48);
-		assertContentType(SassSourceConfiguration.STRING_DOUBLE, source, 55);
-		assertContentType(SassSourceConfiguration.DEFAULT, source, 56);
+		assertContentType(SassSourceConfiguration.MULTI_LINE_COMMENT, source, 1);
+		assertContentType(SassSourceConfiguration.MULTI_LINE_COMMENT, source, 13);
+		assertContentType(SassSourceConfiguration.DEFAULT, source, 15);
+		assertContentType(SassSourceConfiguration.SINGLE_LINE_COMMENT, source, 16);
+		assertContentType(SassSourceConfiguration.SINGLE_LINE_COMMENT, source, 24);
+		assertContentType(SassSourceConfiguration.DEFAULT, source, 26);
+		assertContentType(SassSourceConfiguration.DEFAULT, source, 32);
+		assertContentType(SassSourceConfiguration.STRING_SINGLE, source, 33);
+		assertContentType(SassSourceConfiguration.STRING_SINGLE, source, 40);
+		assertContentType(SassSourceConfiguration.DEFAULT, source, 41);
+		assertContentType(SassSourceConfiguration.DEFAULT, source, 50);
+		assertContentType(SassSourceConfiguration.STRING_DOUBLE, source, 51);
+		assertContentType(SassSourceConfiguration.STRING_DOUBLE, source, 58);
+		assertContentType(SassSourceConfiguration.DEFAULT, source, 59);
 	}
 
 }

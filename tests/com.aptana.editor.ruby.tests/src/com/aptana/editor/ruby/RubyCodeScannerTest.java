@@ -605,6 +605,51 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("punctuation.section.array.ruby", 37, 1); // ']'
 	}
 
+	public void testAPSTUD817()
+	{
+		String code = "def sample(array)\n" + //
+				"  array.each do |element|\n" + //
+				"  end\n" + //
+				"end";
+		setUpScanner(code);
+		// def
+		assertToken("keyword.control.def.ruby", 0, 3);
+		assertToken(Token.WHITESPACE, 3, 1);
+		// sample
+		assertToken("entity.name.function.ruby", 4, 6);
+		// (
+		assertToken("punctuation.definition.parameters.ruby", 10, 1);
+		// array
+		assertToken("variable.parameter.function.ruby", 11, 5);
+		// )
+		assertToken("punctuation.definition.parameters.ruby", 16, 1);
+		assertToken(Token.WHITESPACE, 17, 1);
+		assertToken(Token.WHITESPACE, 18, 2);
+		// array
+		assertToken("", 20, 5);
+		// .
+		assertToken("punctuation.separator.method.ruby", 25, 1);
+		// each
+		assertToken("", 26, 4);
+		assertToken(Token.WHITESPACE, 30, 1);
+		// do
+		assertToken("keyword.control.start-block.ruby", 31, 2);
+		assertToken(Token.WHITESPACE, 33, 1);
+		// |
+		assertToken("punctuation.separator.variable.ruby", 34, 1);
+		// element
+		assertToken("variable.other.block.ruby", 35, 7);
+		// |
+		assertToken("punctuation.separator.variable.ruby", 42, 1);
+		assertToken(Token.WHITESPACE, 43, 1);
+		assertToken(Token.WHITESPACE, 44, 2);
+		// end
+		assertToken("keyword.control.ruby", 46, 3);
+		assertToken(Token.WHITESPACE, 49, 1);
+		// end
+		assertToken("keyword.control.ruby", 50, 3);
+	}
+
 	protected void partition(Document document)
 	{
 		RubyDocumentProvider docProvider = new RubyDocumentProvider();
