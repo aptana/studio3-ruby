@@ -3,17 +3,15 @@ package com.aptana.editor.erb.html;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 
 import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.IOUtil;
+import com.aptana.editor.erb.ERBEditorPlugin;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.html.contentassist.index.HTMLFileIndexingParticipant;
 import com.aptana.editor.html.parsing.HTMLParseState;
@@ -21,27 +19,16 @@ import com.aptana.index.core.AbstractFileIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.parsing.ParserPoolFactory;
 import com.aptana.parsing.ast.IParseNode;
-import com.aptana.preview.Activator;
 import com.aptana.ruby.internal.core.index.RubyFileIndexingParticipant;
 
 public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipant
 {
-
-	public void index(Set<IFileStore> files, final Index index, IProgressMonitor monitor) throws CoreException
-	{
-		SubMonitor sub = SubMonitor.convert(monitor, files.size() * 100);
-		for (final IFileStore store : files)
-		{
-			if (sub.isCanceled())
-			{
-				throw new CoreException(Status.CANCEL_STATUS);
-			}
-			Thread.yield(); // be nice to other threads, let them get in before each file...
-			indexFileStore(index, store, sub.newChild(100));
-		}
-	}
-
-	private void indexFileStore(final Index index, IFileStore store, IProgressMonitor monitor)
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.index.core.AbstractFileIndexingParticipant#indexFileStore(com.aptana.index.core.Index,
+	 * org.eclipse.core.filesystem.IFileStore, org.eclipse.core.runtime.IProgressMonitor)
+	 */
+	protected void indexFileStore(final Index index, IFileStore store, IProgressMonitor monitor)
 	{
 		SubMonitor sub = SubMonitor.convert(monitor, 100);
 		try
@@ -61,7 +48,7 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 		}
 		catch (Throwable e)
 		{
-			IdeLog.logError(Activator.getDefault(), e.getMessage(), e);
+			IdeLog.logError(ERBEditorPlugin.getDefault(), e.getMessage(), e);
 		}
 		finally
 		{
@@ -81,10 +68,9 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 			}
 			HTMLParseState parseState = new HTMLParseState();
 			parseState.setEditState(fileContents, null, 0, 0);
+			parseState.setProgressMonitor(sub.newChild(20));
 
 			IParseNode parseNode = ParserPoolFactory.parse(IERBConstants.CONTENT_TYPE_HTML_ERB, parseState);
-			sub.worked(20);
-
 			HTMLFileIndexingParticipant part = new HTMLFileIndexingParticipant();
 			part.walkAST(index, store, fileContents, parseNode, sub.newChild(30));
 
@@ -96,7 +82,8 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 		}
 		catch (Exception e)
 		{
-			Activator.log(MessageFormat.format(Messages.RHTMLFileIndexingParticipant_ERR_Indexing, store.getName()), e);
+			IdeLog.logError(ERBEditorPlugin.getDefault(),
+					MessageFormat.format(Messages.RHTMLFileIndexingParticipant_ERR_Indexing, store.getName()), e);
 		}
 		finally
 		{

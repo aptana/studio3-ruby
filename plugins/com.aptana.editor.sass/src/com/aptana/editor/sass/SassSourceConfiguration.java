@@ -16,14 +16,13 @@ import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
-import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.SingleLineRule;
-import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
+import com.aptana.editor.common.CommonUtil;
 import com.aptana.editor.common.IPartitioningConfiguration;
 import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.scripting.IContentTypeTranslator;
@@ -53,11 +52,6 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 	private static final String[][] TOP_CONTENT_TYPES = new String[][] { { ISassConstants.CONTENT_TYPE_SASS } };
 
 	private IPredicateRule[] partitioningRules;
-
-	private RuleBasedScanner commentScanner;
-	private RuleBasedScanner doubleQuotedStringScanner;
-	private RuleBasedScanner singleQuotedStringScanner;
-	private SassCodeScanner fCodeScanner;
 
 	private static SassSourceConfiguration instance;
 
@@ -115,7 +109,7 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 	 */
 	public ISubPartitionScanner createSubPartitionScanner()
 	{
-		return new SubPartitionScanner(partitioningRules, CONTENT_TYPES, new Token(DEFAULT));
+		return new SubPartitionScanner(partitioningRules, CONTENT_TYPES, getToken(DEFAULT));
 	}
 
 	/*
@@ -175,11 +169,7 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	private ITokenScanner getCodeScanner()
 	{
-		if (fCodeScanner == null)
-		{
-			fCodeScanner = new SassCodeScanner();
-		}
-		return fCodeScanner;
+		return new SassCodeScanner();
 	}
 
 	private ITokenScanner getSingleLineCommentScanner()
@@ -194,24 +184,17 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	private ITokenScanner getDoubleQuotedStringScanner()
 	{
-		if (doubleQuotedStringScanner == null)
-		{
-			doubleQuotedStringScanner = new StringScanner("string.quoted.double.sass"); //$NON-NLS-1$
-		}
-		return doubleQuotedStringScanner;
+		return new StringScanner("string.quoted.double.sass"); //$NON-NLS-1$
 	}
 
 	private ITokenScanner getSingleQuotedStringScanner()
 	{
-		if (singleQuotedStringScanner == null)
-		{
-			singleQuotedStringScanner = new StringScanner("string.quoted.single.sass"); //$NON-NLS-1$
-		}
-		return singleQuotedStringScanner;
+		return new StringScanner("string.quoted.single.sass"); //$NON-NLS-1$
 	}
 
-	private IToken getToken(String name)
+	private static IToken getToken(String tokenName)
 	{
-		return new Token(name);
+		return CommonUtil.getToken(tokenName);
 	}
+
 }

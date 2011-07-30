@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IProject;
 import org.jrubyparser.CompatVersion;
@@ -22,6 +24,7 @@ import org.jrubyparser.ast.MethodDefNode;
 import org.jrubyparser.ast.ModuleNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.ast.RootNode;
+import org.jrubyparser.ast.SymbolNode;
 import org.jrubyparser.parser.ParserResult;
 
 import com.aptana.ruby.core.RubyCorePlugin;
@@ -31,6 +34,7 @@ import com.aptana.ruby.core.ast.ClosestSpanningNodeLocator;
 import com.aptana.ruby.core.ast.INodeAcceptor;
 import com.aptana.ruby.core.ast.NamespaceVisitor;
 import com.aptana.ruby.core.ast.OffsetNodeLocator;
+import com.aptana.ruby.core.ast.ScopedNodeLocator;
 import com.aptana.ruby.core.inference.ITypeGuess;
 import com.aptana.ruby.internal.core.inference.TypeInferrer;
 
@@ -58,7 +62,9 @@ public class CompletionContext
 		this.project = project;
 		this.src = src;
 		if (offset < 0)
+		{
 			offset = 0;
+		}
 		this.offset = offset;
 		replaceStart = offset + 1;
 		try
@@ -125,6 +131,20 @@ public class CompletionContext
 								continue;
 							}
 						}
+						// FIXME this fixes some cases, but doesn't fix unfinished hash, i.e. "{:key => value, :| }
+						// add a letter after to form a symbol if this breaks syntax...
+						if (i + 1 < source.length())
+						{
+							char next = source.charAt(i + 1);
+							if (!Character.isLetterOrDigit(next))
+							{
+								source.insert(i + 1, 's'); // insert an s so we generate a fake ":s" symbol
+							}
+						}
+						else
+						{
+							source.insert(i + 1, 's'); // insert an s so we generate a fake ":s" symbol
+						}
 						break;
 				}
 			}
@@ -132,16 +152,21 @@ public class CompletionContext
 			{
 				isMethodInvokation = true;
 				if (partialPrefix == null)
+				{
 					this.partialPrefix = tmpPrefix.toString();
-				if (offset - 1 == i)
-				{
-					offset = i;
 				}
-				else
+				if (!setOffset)
 				{
-					offset = i - 1;
+					if (offset - 1 == i)
+					{
+						offset = i;
+					}
+					else
+					{
+						offset = i - 1;
+					}
+					setOffset = true;
 				}
-				setOffset = true;
 			}
 			else if (curChar == ':')
 			{
@@ -153,10 +178,15 @@ public class CompletionContext
 					{
 						isAfterDoubleSemiColon = true;
 						if (partialPrefix == null)
+						{
 							partialPrefix = tmpPrefix.toString();
+						}
 						tmpPrefix.insert(0, ":");
-						offset = i + 1;
-						setOffset = true;
+						if (!setOffset)
+						{
+							offset = i + 1;
+							setOffset = true;
+						}
 						i--;
 					}
 				}
@@ -175,9 +205,13 @@ public class CompletionContext
 		}
 		this.fullPrefix = tmpPrefix.toString();
 		if (partialPrefix == null)
+		{
 			partialPrefix = fullPrefix;
+		}
 		if (partialPrefix != null)
+		{
 			replaceStart -= partialPrefix.length();
+		}
 		this.correctedSource = source.toString();
 		// TODO For memory's sake, don't store corrected source if it's the same as original!
 
@@ -346,7 +380,7 @@ public class CompletionContext
 		return spanner instanceof ClassNode || spanner instanceof ModuleNode;
 	}
 
-	synchronized Node getRootNode()
+	public synchronized Node getRootNode()
 	{
 		if (fRootNode != null)
 			return fRootNode;
@@ -532,6 +566,47 @@ public class CompletionContext
 	public boolean isNotParseable()
 	{
 		return getRootNode() == null;
+	}
+
+	public boolean isSymbol()
+	{
+		return getPartialPrefix().startsWith(":"); //$NON-NLS-1$
+	}
+
+	public Set<String> getSymbolsInAST()
+	{
+		Set<String> symbols = new TreeSet<String>();
+		if (getRootNode() == null)
+		{
+			// Fallback to doing a regexp search on the source
+			Pattern p = Pattern.compile(":(\\w+)\\b"); //$NON-NLS-1$
+			Matcher m = p.matcher(src);
+			while (m.find())
+			{
+				symbols.add(m.group(1));
+			}
+
+			return symbols;
+		}
+
+		List<Node> symbolNodes = new ScopedNodeLocator().find(getRootNode(), new INodeAcceptor()
+		{
+			public boolean accepts(Node node)
+			{
+				return node instanceof SymbolNode;
+			}
+		});
+		for (Node node : symbolNodes)
+		{
+			// Remove the "symbol" at current offset since that's what we're invoking on!
+			if (node.getPosition().getStartOffset() <= getOffset() && node.getPosition().getEndOffset() >= getOffset())
+			{
+				continue;
+			}
+			SymbolNode symbolNode = (SymbolNode) node;
+			symbols.add(symbolNode.getName());
+		}
+		return symbols;
 	}
 
 }

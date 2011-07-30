@@ -15,13 +15,11 @@ import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
 import com.aptana.editor.common.CommonEditorPlugin;
-import com.aptana.editor.common.parsing.FileService;
-import com.aptana.editor.erb.Activator;
+import com.aptana.editor.erb.ERBEditorPlugin;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.erb.html.outline.RHTMLOutlineContentProvider;
 import com.aptana.editor.erb.html.outline.RHTMLOutlineLabelProvider;
 import com.aptana.editor.html.HTMLEditor;
-import com.aptana.editor.html.parsing.HTMLParseState;
 
 /**
  * @author Max Stepanov
@@ -41,7 +39,7 @@ public class RHTMLEditor extends HTMLEditor
 
 		setPreferenceStore(getChainedPreferenceStore());
 		setSourceViewerConfiguration(new RHTMLSourceViewerConfiguration(getPreferenceStore(), this));
-		setDocumentProvider(Activator.getDefault().getRHTMLDocumentProvider());
+		setDocumentProvider(ERBEditorPlugin.getDefault().getRHTMLDocumentProvider());
 	}
 
 	/*
@@ -54,14 +52,10 @@ public class RHTMLEditor extends HTMLEditor
 		new ERBOpenTagCloser(getSourceViewer()).install();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.editor.html.HTMLEditor#createFileService()
-	 */
 	@Override
-	protected FileService createFileService()
+	protected String getFileServiceContentTypeId()
 	{
-		return new FileService(IERBConstants.CONTENT_TYPE_HTML_ERB, new HTMLParseState());
+		return IERBConstants.CONTENT_TYPE_HTML_ERB;
 	}
 
 	@Override
@@ -93,7 +87,7 @@ public class RHTMLEditor extends HTMLEditor
 
 	public static IPreferenceStore getChainedPreferenceStore()
 	{
-		return new ChainedPreferenceStore(new IPreferenceStore[] { Activator.getDefault().getPreferenceStore(),
+		return new ChainedPreferenceStore(new IPreferenceStore[] { ERBEditorPlugin.getDefault().getPreferenceStore(),
 				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
 	}
 }

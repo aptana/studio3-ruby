@@ -53,4 +53,11 @@ public interface RubyFormatterConstants
 
 	public static final String WRAP_COMMENTS = FORMATTER_ID + ".wrap.comments"; //$NON-NLS-1$
 	public static final String WRAP_COMMENTS_LENGTH = FORMATTER_ID + ".wrap.comments.length"; //$NON-NLS-1$
+
+	// OFF/ON
+	public static final String FORMATTER_OFF_ON_ENABLED = FORMATTER_ID + ".formatter.on.off.enabled"; //$NON-NLS-1$
+	public static final String FORMATTER_ON = FORMATTER_ID + ".formatter.on"; //$NON-NLS-1$
+	public static final String FORMATTER_OFF = FORMATTER_ID + ".formatter.off"; //$NON-NLS-1$
+	public static final String DEFAULT_FORMATTER_OFF = "@formatter:off"; //$NON-NLS-1$
+	public static final String DEFAULT_FORMATTER_ON = "@formatter:on"; //$NON-NLS-1$
 }

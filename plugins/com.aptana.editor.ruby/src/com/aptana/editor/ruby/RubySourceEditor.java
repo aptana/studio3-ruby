@@ -275,4 +275,10 @@ public class RubySourceEditor extends AbstractThemeableEditor
 	{
 		return new RubyFoldingComputer(this, document);
 	}
+
+	@Override
+	protected String getFileServiceContentTypeId()
+	{
+		return IRubyConstants.CONTENT_TYPE_RUBY;
+	}
 }

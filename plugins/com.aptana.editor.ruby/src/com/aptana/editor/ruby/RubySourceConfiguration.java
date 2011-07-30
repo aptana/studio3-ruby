@@ -19,11 +19,11 @@ import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
-import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
+import com.aptana.editor.common.CommonUtil;
 import com.aptana.editor.common.IPartitioningConfiguration;
 import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.scripting.IContentTypeTranslator;
@@ -59,24 +59,18 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 
 	public static final String[] CONTENT_TYPES = new String[] { DEFAULT, SINGLE_LINE_COMMENT, MULTI_LINE_COMMENT,
 			REGULAR_EXPRESSION, COMMAND, STRING_SINGLE, STRING_DOUBLE };
+	private static final String[] SPELLING_CONTENT_TYPES = new String[] { SINGLE_LINE_COMMENT, MULTI_LINE_COMMENT,
+			STRING_SINGLE, STRING_DOUBLE };
 
 	private static final String[][] TOP_CONTENT_TYPES = new String[][] { { IRubyConstants.CONTENT_TYPE_RUBY } };
 
 	private final IPredicateRule[] partitioningRules = new IPredicateRule[] {
-			new PartitionerSwitchingIgnoreRule(new EndOfLineRule("#", new Token(SINGLE_LINE_COMMENT))), //$NON-NLS-1$
+			new PartitionerSwitchingIgnoreRule(new EndOfLineRule("#", getToken(SINGLE_LINE_COMMENT))), //$NON-NLS-1$
 			new PartitionerSwitchingIgnoreRule(new MultiLineRule(
-					"=begin", "=end", new Token(MULTI_LINE_COMMENT), (char) 0, true)), //$NON-NLS-1$ //$NON-NLS-2$
-			new SingleLineRule("/", "/", new Token(REGULAR_EXPRESSION), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
-			new SingleLineRule("\"", "\"", new Token(STRING_DOUBLE), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
-			new SingleLineRule("\'", "\'", new Token(STRING_SINGLE), '\\') }; //$NON-NLS-1$ //$NON-NLS-2$
-
-	private RubyCodeScanner codeScanner;
-	private RuleBasedScanner singleLineCommentScanner;
-	private RuleBasedScanner multiLineCommentScanner;
-	private RubyRegexpScanner regexpScanner;
-	private RuleBasedScanner commandScanner;
-	private RuleBasedScanner singleQuotedStringScanner;
-	private RuleBasedScanner doubleQuotedStringScanner;
+					"=begin", "=end", getToken(MULTI_LINE_COMMENT), (char) 0, true)), //$NON-NLS-1$ //$NON-NLS-2$
+			new SingleLineRule("/", "/", getToken(REGULAR_EXPRESSION), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
+			new SingleLineRule("\"", "\"", getToken(STRING_DOUBLE), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
+			new SingleLineRule("\'", "\'", getToken(STRING_SINGLE), '\\') }; //$NON-NLS-1$ //$NON-NLS-2$
 
 	private static RubySourceConfiguration instance;
 
@@ -128,6 +122,14 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 		return TOP_CONTENT_TYPES;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getSpellingContentTypes()
+	 */
+	public String[] getSpellingContentTypes()
+	{
+		return SPELLING_CONTENT_TYPES;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see com.aptana.editor.common.IPartitioningConfiguration#getPartitioningRules()
@@ -143,7 +145,7 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 	 */
 	public ISubPartitionScanner createSubPartitionScanner()
 	{
-		return new SubPartitionScanner(partitioningRules, CONTENT_TYPES, new Token(DEFAULT));
+		return new SubPartitionScanner(partitioningRules, CONTENT_TYPES, getToken(DEFAULT));
 	}
 
 	/*
@@ -230,72 +232,47 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 
 	private ITokenScanner getCodeScanner()
 	{
-		if (codeScanner == null)
-		{
-			codeScanner = new RubyCodeScanner();
-		}
-		return codeScanner;
+		return new RubyCodeScanner();
 	}
 
 	private ITokenScanner getMultiLineCommentScanner()
 	{
-		if (multiLineCommentScanner == null)
-		{
-			multiLineCommentScanner = new CommentScanner(getToken(IRubyConstants.BLOCK_COMMENT_SCOPE));
-		}
-		return multiLineCommentScanner;
+		return new CommentScanner(getToken(IRubyConstants.BLOCK_COMMENT_SCOPE));
 	}
 
 	private ITokenScanner getSingleLineCommentScanner()
 	{
-		if (singleLineCommentScanner == null)
-		{
-			singleLineCommentScanner = new CommentScanner(getToken(IRubyConstants.LINE_COMMENT_SCOPE));
-		}
-		return singleLineCommentScanner;
+		return new CommentScanner(getToken(IRubyConstants.LINE_COMMENT_SCOPE));
 	}
 
 	private ITokenScanner getRegexpScanner()
 	{
-		if (regexpScanner == null)
-		{
-			regexpScanner = new RubyRegexpScanner();
-		}
-		return regexpScanner;
+		return new RubyRegexpScanner();
 	}
 
 	private ITokenScanner getCommandScanner()
 	{
-		if (commandScanner == null)
-		{
-			commandScanner = new RuleBasedScanner();
-			commandScanner.setDefaultReturnToken(getToken("string.interpolated.ruby")); //$NON-NLS-1$
-		}
+		RuleBasedScanner commandScanner = new RuleBasedScanner();
+		commandScanner.setDefaultReturnToken(getToken("string.interpolated.ruby")); //$NON-NLS-1$
 		return commandScanner;
 	}
 
 	private ITokenScanner getSingleQuotedStringScanner()
 	{
-		if (singleQuotedStringScanner == null)
-		{
-			singleQuotedStringScanner = new RuleBasedScanner();
-			singleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
-		}
+		RuleBasedScanner singleQuotedStringScanner = new RuleBasedScanner();
+		singleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
 		return singleQuotedStringScanner;
 	}
 
 	private ITokenScanner getDoubleQuotedStringScanner()
 	{
-		if (doubleQuotedStringScanner == null)
-		{
-			doubleQuotedStringScanner = new RuleBasedScanner();
-			doubleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
-		}
+		RuleBasedScanner doubleQuotedStringScanner = new RuleBasedScanner();
+		doubleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
 		return doubleQuotedStringScanner;
 	}
 
-	private IToken getToken(String tokenName)
+	private static IToken getToken(String tokenName)
 	{
-		return new Token(tokenName);
+		return CommonUtil.getToken(tokenName);
 	}
 }

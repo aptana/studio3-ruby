@@ -8,10 +8,10 @@
 package com.aptana.editor.erb.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
-import com.aptana.editor.erb.Activator;
+import com.aptana.core.util.EclipseUtil;
+import com.aptana.editor.erb.ERBEditorPlugin;
 
 public class PreferenceInitializer extends AbstractPreferenceInitializer
 {
@@ -19,7 +19,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer
 	@Override
 	public void initializeDefaultPreferences()
 	{
-		IEclipsePreferences prefs = (new DefaultScope()).getNode(Activator.PLUGIN_ID);
+		IEclipsePreferences prefs = (EclipseUtil.defaultScope()).getNode(ERBEditorPlugin.PLUGIN_ID);
 		prefs.putBoolean(com.aptana.editor.common.preferences.IPreferenceConstants.EDITOR_AUTO_INDENT, true);
 		prefs.putBoolean(com.aptana.editor.common.preferences.IPreferenceConstants.EDITOR_ENABLE_FOLDING, true);
 

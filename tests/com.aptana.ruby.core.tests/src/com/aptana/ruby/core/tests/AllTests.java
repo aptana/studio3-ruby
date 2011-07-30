@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import com.aptana.ruby.core.RubyParserTest;
+import com.aptana.ruby.core.ast.SourceElementVisitorTest;
 
 public class AllTests extends TestCase
 {
@@ -14,6 +15,7 @@ public class AllTests extends TestCase
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		// $JUnit-BEGIN$
 		suite.addTestSuite(RubyParserTest.class);
+		suite.addTestSuite(SourceElementVisitorTest.class);
 		// $JUnit-END$
 		return suite;
 	}

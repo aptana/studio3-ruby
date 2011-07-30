@@ -42,7 +42,7 @@ public class SassSourceViewerConfiguration extends SimpleSourceViewerConfigurati
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType)
 	{
-		return new IAutoEditStrategy[] { new RubyRegexpAutoIndentStrategy(contentType, this, sourceViewer, Activator
+		return new IAutoEditStrategy[] { new RubyRegexpAutoIndentStrategy(contentType, this, sourceViewer, SassPlugin
 				.getDefault().getPreferenceStore()) };
 	}
 }

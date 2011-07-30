@@ -31,12 +31,12 @@ public class SassSourceEditor extends AbstractThemeableEditor
 		setPreferenceStore(getChainedPreferenceStore());
 
 		setSourceViewerConfiguration(new SassSourceViewerConfiguration(getPreferenceStore(), this));
-		setDocumentProvider(Activator.getDefault().getSassDocumentProvider());
+		setDocumentProvider(SassPlugin.getDefault().getSassDocumentProvider());
 	}
 
 	public static IPreferenceStore getChainedPreferenceStore()
 	{
-		return new ChainedPreferenceStore(new IPreferenceStore[] { Activator.getDefault().getPreferenceStore(),
+		return new ChainedPreferenceStore(new IPreferenceStore[] { SassPlugin.getDefault().getPreferenceStore(),
 				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
 	}
 
@@ -53,6 +53,12 @@ public class SassSourceEditor extends AbstractThemeableEditor
 	@Override
 	protected IPreferenceStore getPluginPreferenceStore()
 	{
-		return Activator.getDefault().getPreferenceStore();
+		return SassPlugin.getDefault().getPreferenceStore();
+	}
+
+	@Override
+	protected String getFileServiceContentTypeId()
+	{
+		return ISassConstants.CONTENT_TYPE_SASS;
 	}
 }

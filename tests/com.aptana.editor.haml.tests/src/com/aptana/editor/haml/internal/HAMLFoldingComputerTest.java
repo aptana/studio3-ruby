@@ -25,6 +25,19 @@ public class HAMLFoldingComputerTest extends TestCase
 		super.tearDown();
 	}
 
+	protected IFoldingComputer createFolder(String src)
+	{
+		folder = new HAMLFoldingComputer(null, new Document(src))
+		{
+			@Override
+			protected int getTabSize()
+			{
+				return 4;
+			}
+		};
+		return folder;
+	}
+
 	public void testFoldingByIndent() throws Exception
 	{
 		String src = "!!! Strict\n" + //
@@ -71,16 +84,39 @@ public class HAMLFoldingComputerTest extends TestCase
 		assertTrue(positions.contains(new Position(105, 45)));
 	}
 
-	protected IFoldingComputer createFolder(String src)
+	public void testAPSTUD3038DoesntOfferFoldingForBlankLinesThatChangeIndentLevel() throws Exception
 	{
-		folder = new HAMLFoldingComputer(null, new Document(src))
-		{
-			@Override
-			protected int getTabSize()
-			{
-				return 4;
-			}
-		};
-		return folder;
+		String src = "%div#collection\n" + //
+				"  %div.item\n" + //
+				"    %div.description What a cool item!\n" + //
+				"    \n" + //
+				"    \n" + //
+				"    \n" + //
+				"      \n" + //
+				"    %div{'http-equiv' => 'Content-Type', :content => 'text/html'}"; //
+		folder = createFolder(src);
+		Map<ProjectionAnnotation, Position> annotations = folder.emitFoldingRegions(false, new NullProgressMonitor());
+		Collection<Position> positions = annotations.values();
+		assertEquals(2, positions.size());
+		assertTrue(positions.contains(new Position(0, 154)));
+		assertTrue(positions.contains(new Position(16, 138)));
+		// Make sure we don't have the bad position
+		assertFalse(positions.contains(new Position(77, 12)));
+	}
+
+	public void testEmptyLineWithChangedIndentDoesntAffectFolding() throws Exception
+	{
+		String src = "!!! Strict\n" + //
+				"%html \n" + // fold_start 1
+				"  %head \n" + // fold_start 2
+				"    %meta{ :http-equiv => 'Content-Type', :content => 'text/html;charset=utf-8' } \n" + //
+				"  \n" + // empty line with indent level changed, should be ignored
+				"    %title= $title_for_layout"; //
+		folder = createFolder(src);
+		Map<ProjectionAnnotation, Position> annotations = folder.emitFoldingRegions(false, new NullProgressMonitor());
+		Collection<Position> positions = annotations.values();
+		assertEquals(2, positions.size());
+		assertTrue(positions.contains(new Position(11, src.length() - 11)));
+		assertTrue(positions.contains(new Position(18, src.length() - 18)));
 	}
 }

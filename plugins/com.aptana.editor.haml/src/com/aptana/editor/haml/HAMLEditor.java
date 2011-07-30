@@ -50,4 +50,9 @@ public class HAMLEditor extends AbstractThemeableEditor
 	{
 		return HAMLEditorPlugin.getDefault().getPreferenceStore();
 	}
+
+	protected String getFileServiceContentTypeId()
+	{
+		return IHAMLConstants.CONTENT_TYPE_HAML;
+	}
 }

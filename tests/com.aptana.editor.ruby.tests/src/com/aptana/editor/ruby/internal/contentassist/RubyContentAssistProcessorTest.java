@@ -1,12 +1,65 @@
 package com.aptana.editor.ruby.internal.contentassist;
 
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+
 import com.aptana.editor.ruby.RubySourceEditor;
+import com.aptana.index.core.Index;
+import com.aptana.index.core.IndexManager;
+import com.aptana.ruby.core.index.IRubyIndexConstants;
 
 public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 {
+	private List<Index> indicesforTesting;
+
 	protected RubyContentAssistProcessor createContentAssistProcessor(RubySourceEditor editor)
 	{
-		return new RubyContentAssistProcessor(editor);
+		return new RubyContentAssistProcessor(editor)
+		{
+			@Override
+			protected Collection<? extends ICompletionProposal> suggestWordCompletions(ITextViewer viewer, int offset)
+			{
+				// For test purposes, ignore word completions!
+				return new ArrayList<ICompletionProposal>();
+			}
+
+			@Override
+			protected Collection<Index> allIndicesForProject()
+			{
+				return indicesforTesting;
+			}
+		};
+	}
+
+	@Override
+	protected void setUp() throws Exception
+	{
+		super.setUp();
+
+		indicesforTesting = new ArrayList<Index>();
+	}
+
+	@Override
+	protected void tearDown() throws Exception
+	{
+		try
+		{
+			if (indicesforTesting == null)
+			{
+				indicesforTesting.clear();
+				indicesforTesting = null;
+			}
+		}
+		finally
+		{
+			super.tearDown();
+		}
 	}
 
 	public void testDefKeyword() throws Exception
@@ -137,6 +190,123 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 				"class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    puts @\n  end\nend", 73, "@counter", "class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    puts @counter\n  end\nend"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	public void testAPSTUD2903() throws Exception
+	{
+		String src = "class Shapes\n" + //
+				"  @@shapes = [ :triangle, :rectangle, :circle ]\n" + //
+				"  @shape = :tri\n" + //
+				"end\n"; //
+		assertCompletionCorrect(src, 76, ":triangle", //
+				"class Shapes\n" + //
+						"  @@shapes = [ :triangle, :rectangle, :circle ]\n" + //
+						"  @shape = :triangle\n" + //
+						"end\n");
+	}
+
+	public void testSymbolsAfterSingleColonBreakingSyntax() throws Exception
+	{
+		String src = "class Shapes\n" + //
+				"  @@shapes = [ :triangle, :rectangle, :circle ]\n" + //
+				"  @shape = :\n" + //
+				"end\n"; //
+		assertCompletionCorrect(src, 73, ":triangle", //
+				"class Shapes\n" + //
+						"  @@shapes = [ :triangle, :rectangle, :circle ]\n" + //
+						"  @shape = :triangle\n" + //
+						"end\n");
+	}
+
+	public void testSymbolsAfterSingleColonBreakingSyntaxInsideHash() throws Exception
+	{
+		String src = "class Shapes\n" + //
+				"  @@shapes = [ :triangle, :rectangle, :circle ]\n" + //
+				"  @shape = {:}\n" + //
+				"end\n"; //
+		assertCompletionCorrect(src, 74, ":triangle", //
+				"class Shapes\n" + //
+						"  @@shapes = [ :triangle, :rectangle, :circle ]\n" + //
+						"  @shape = {:triangle}\n" + //
+						"end\n");
+	}
+
+	public void testDoesntSuggestLocalsNotMatchingPrefix() throws Exception
+	{
+		String src = "def run(test)\n" + //
+				"  if test.nil?\n" + //
+				"    pu\n" + //
+				"  end\n" + //
+				"end\n"; //
+
+		ICompletionProposal[] proposals = computeProposals(src, 35);
+		assertDoesntContain(proposals, "run", "test");
+	}
+
+	public void testSuggestsKernelMethodsInTopLevel() throws Exception
+	{
+		Index testIndex = getTestIndex();
+		// Add a fake entry for Kernel.puts
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "puts/Kernel//P/S/1", new URI("kernel.rb"));
+		indicesforTesting.add(testIndex);
+
+		String src = "pu";
+
+		assertCompletionCorrect(src, 2, "puts", "puts");
+	}
+
+	protected Index getTestIndex()
+	{
+		// generate a tmp dir URI location for our fake index...
+		String tmpDir = System.getProperty("java.io.tmpdir");
+		File caIndexDir = new File(tmpDir, "ruby_ca_core" + System.currentTimeMillis());
+		caIndexDir.deleteOnExit();
+		return IndexManager.getInstance().getIndex(caIndexDir.toURI());
+	}
+
+	public void testDoesntSuggestMethodsDefinedInTypesScopeWhenInTopLevel() throws Exception
+	{
+		String src = "module Chris\n" + //
+				"  def chris_method\n" + //
+				"  end\n" + //
+				"end\n" + //
+				"ch"; //
+
+		ICompletionProposal[] proposals = computeProposals(src, src.length() - 1);
+		assertDoesntContain(proposals, "chris_method");
+	}
+
+	public void testDoesSuggestMethodsDefinedInTopLevelWhenInTopLevel() throws Exception
+	{
+		String src = "def chris_method\n" + //
+				"end\n" + //
+				"ch"; //
+
+		assertCompletionCorrect(src, 23, "chris_method", "def chris_method\n" + //
+				"end\n" + //
+				"chris_method");
+	}
+
+	public void testSuggestSingletonMethodsOnClassName() throws Exception
+	{
+		Index testIndex = getTestIndex();
+		// Add a fake entry for File.expand_path
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "expand_path/File//P/S/1", new URI("file.rb"));
+		indicesforTesting.add(testIndex);
+
+		String src = "File.";
+
+		assertCompletionCorrect(src, 5, "expand_path", "File.expand_path");
+	}
+
+	public void testSymbolsInSameFile() throws Exception
+	{
+		String src = "SYMBOLS = [:triangle, :circle, :rectangle]\n" + //
+				"symbol = :";
+
+		ICompletionProposal[] proposals = computeProposals(src, 53);
+		assertEquals(3, proposals.length);
+		assertContains(proposals, ":triangle", ":circle", ":rectangle");
+	}
+
 	// FIXME Implement suggesting instance variables when there's a syntax error, so no AST!
 	// public void testInstanceVariablePreviouslyDeclaredJustAtSigilPrefixWithUnclosedBlockSyntaxErrors() throws
 	// Exception
@@ -145,15 +315,32 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 	//				"class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    puts @", 73, "@counter", "class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    puts @counter"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	// }
 
-	// public void testEvenQueryMethodProposalOnFixnumInstanceVariableWithNoSyntaxErrors() throws Exception
-	// {
-	// assertCompletionCorrect(
-	//				"class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    @counter.\n  end\nend", 76, "even?", "class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    @counter.even?\n  end\nend"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	// }
+	public void testEvenQueryMethodProposalOnFixnumInstanceVariableRightAfterPeriod() throws Exception
+	{
+		Index testIndex = getTestIndex();
+		// Add a fake entry for Fixnum#even?
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "even?/Fixnum//P/I/0", new URI("fixnum.rb"));
+		indicesforTesting.add(testIndex);
+
+		assertCompletionCorrect("class Chris\n" + //
+				"  def initialize\n" + //
+				"    @counter = 1\n" + //
+				"  end\n" + //
+				"  def to_s\n" + //
+				"    @counter.\n" + //
+				"  end\n" + //
+				"end", //
+				76, "even?", //
+				"class Chris\n" + //
+						"  def initialize\n" + //
+						"    @counter = 1\n" + //
+						"  end\n" + //
+						"  def to_s\n" + //
+						"    @counter.even?\n" + //
+						"  end\n" + //
+						"end");
+	}
 
 	// TODO Test pre-defined globals
 	// TODO Test class variables
-	// TODO Test core classes/modules
-	// TODO Test classes in files inside the same project
-	// TODO Test classes inside gems
 }

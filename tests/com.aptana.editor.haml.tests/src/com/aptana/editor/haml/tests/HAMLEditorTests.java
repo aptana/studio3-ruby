@@ -4,6 +4,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import com.aptana.editor.haml.HAMLAutoIndentStrategyTest;
 import com.aptana.editor.haml.HAMLPartitionTest;
 import com.aptana.editor.haml.internal.HAMLFoldingComputerTest;
 
@@ -16,6 +17,7 @@ public class HAMLEditorTests extends TestCase
 		// $JUnit-BEGIN$
 		suite.addTestSuite(HAMLFoldingComputerTest.class);
 		suite.addTestSuite(HAMLPartitionTest.class);
+		suite.addTestSuite(HAMLAutoIndentStrategyTest.class);
 		// $JUnit-END$
 		return suite;
 	}

@@ -7,6 +7,7 @@
  */
 package com.aptana.ruby.internal.core.codeassist;
 
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,9 +26,11 @@ import org.eclipse.core.runtime.Path;
 import org.jrubyparser.ast.CallNode;
 import org.jrubyparser.ast.Colon2MethodNode;
 import org.jrubyparser.ast.Colon2Node;
+import org.jrubyparser.ast.FCallNode;
 import org.jrubyparser.ast.INameNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.ast.NodeType;
+import org.jrubyparser.ast.StrNode;
 import org.jrubyparser.lexer.SyntaxException;
 
 import com.aptana.core.util.IOUtil;
@@ -41,6 +44,7 @@ import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.IRubyElement;
 import com.aptana.ruby.core.RubyCorePlugin;
 import com.aptana.ruby.core.ast.ASTUtils;
+import com.aptana.ruby.core.ast.ClosestSpanningNodeLocator;
 import com.aptana.ruby.core.ast.FirstPrecursorNodeLocator;
 import com.aptana.ruby.core.ast.INodeAcceptor;
 import com.aptana.ruby.core.ast.NamespaceVisitor;
@@ -53,10 +57,14 @@ import com.aptana.ruby.core.inference.ITypeGuess;
 import com.aptana.ruby.internal.core.NamedMember;
 import com.aptana.ruby.internal.core.RubyScript;
 import com.aptana.ruby.internal.core.inference.TypeInferrer;
+import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
 public class RubyCodeResolver extends CodeResolver
 {
 
+	private static final String RB_SUFFIX = ".rb"; //$NON-NLS-1$
+	private static final String LOAD = "load"; //$NON-NLS-1$
+	private static final String REQUIRE = "require"; //$NON-NLS-1$
 	private static final String NAMESPACE_DELIMITER = "::"; //$NON-NLS-1$
 	private ResolveContext fContext;
 
@@ -95,6 +103,9 @@ public class RubyCodeResolver extends CodeResolver
 					break;
 				case CLASSVARNODE:
 					addAll(classVariableDeclaration(atOffset));
+					break;
+				case STRNODE:
+					addAll(requireOrLoad(atOffset));
 					break;
 				default:
 					// System.out.println(atOffset);
@@ -397,6 +408,70 @@ public class RubyCodeResolver extends CodeResolver
 				}
 			}
 		}
+		return links;
+	}
+
+	/**
+	 * Generate hyperlinks for a require/load string.
+	 * 
+	 * @param atOffset
+	 * @return
+	 */
+	private Collection<ResolutionTarget> requireOrLoad(Node atOffset)
+	{
+		// First check if we're actually calling require or load!
+		Node spanningMethod = new ClosestSpanningNodeLocator().find(getRoot(), atOffset.getPosition().getStartOffset(),
+				new INodeAcceptor()
+				{
+
+					public boolean accepts(Node node)
+					{
+						return NodeType.FCALLNODE == node.getNodeType();
+					}
+				});
+		if (spanningMethod == null)
+		{
+			return Collections.emptyList();
+		}
+		String methodName = ((FCallNode) spanningMethod).getName();
+		if (!REQUIRE.equals(methodName) && !LOAD.equals(methodName))
+		{
+			return Collections.emptyList();
+		}
+
+		// OK, string is argument to require/load. Let's resolve it to a file...
+		StrNode string = (StrNode) atOffset;
+		String value = string.getValue();
+		if (!value.endsWith(RB_SUFFIX))
+		{
+			value = value + RB_SUFFIX;
+		}
+
+		List<ResolutionTarget> links = new ArrayList<ResolutionTarget>();
+		// Grab the list of loadpaths and search them for the relative path in the require!
+		for (IPath path : RubyLaunchingPlugin.getLoadpaths(getProject()))
+		{
+			IPath possible = path.append(value);
+			if (possible.toFile().exists())
+			{
+				links.add(new ResolutionTarget(possible.toFile().toURI(), new Range(0, 0)));
+				return links;
+			}
+		}
+		// Not on our normal loadpath, try to see if it's inside one of the gems...
+		for (IPath path : RubyLaunchingPlugin.getGemPaths(getProject()))
+		{
+			// FIXME Can't we shortcut by matching up the first portion of path to gem name somehow?
+			for (File gemDir : path.toFile().listFiles())
+			{
+				IPath possible = Path.fromOSString(gemDir.getAbsolutePath()).append("lib").append(value); //$NON-NLS-1$
+				if (possible.toFile().exists())
+				{
+					links.add(new ResolutionTarget(possible.toFile().toURI(), new Range(0, 0)));
+				}
+			}
+		}
+
 		return links;
 	}
 

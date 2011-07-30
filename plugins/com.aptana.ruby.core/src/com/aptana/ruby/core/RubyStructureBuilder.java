@@ -168,6 +168,12 @@ public class RubyStructureBuilder implements ISourceElementRequestor
 
 	public void enterField(FieldInfo fieldInfo)
 	{
+		// ignore fields with empty names
+		if (fieldInfo == null || fieldInfo.name == null || fieldInfo.name.length() == 0)
+		{
+			return;
+		}
+
 		RubyField handle;
 		RubyElement parent = getCurrentType();
 		if (fieldInfo.name.startsWith("@@")) //$NON-NLS-1$

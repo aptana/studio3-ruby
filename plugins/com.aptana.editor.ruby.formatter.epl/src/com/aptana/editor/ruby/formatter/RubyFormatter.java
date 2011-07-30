@@ -13,9 +13,13 @@
 package com.aptana.editor.ruby.formatter;
 
 import java.io.StringReader;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.formatter.IFormattingContext;
 import org.eclipse.osgi.util.NLS;
@@ -23,6 +27,7 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.jrubyparser.CompatVersion;
+import org.jrubyparser.ast.CommentNode;
 import org.jrubyparser.parser.ParserResult;
 
 import com.aptana.editor.ruby.RubyEditorPlugin;
@@ -35,6 +40,7 @@ import com.aptana.formatter.FormatterIndentDetector;
 import com.aptana.formatter.FormatterUtils;
 import com.aptana.formatter.FormatterWriter;
 import com.aptana.formatter.IFormatterContext;
+import com.aptana.formatter.IFormatterDocument;
 import com.aptana.formatter.epl.FormatterPlugin;
 import com.aptana.formatter.nodes.IFormatterContainerNode;
 import com.aptana.formatter.ui.FormatterException;
@@ -59,12 +65,9 @@ public class RubyFormatter extends AbstractScriptFormatter
 			RubyFormatterConstants.LINES_BEFORE_MODULE, RubyFormatterConstants.LINES_BEFORE_CLASS,
 			RubyFormatterConstants.LINES_BEFORE_METHOD };
 
-	private final String lineDelimiter;
-
-	public RubyFormatter(String lineDelimiter, Map<String, String> preferences, String mainContentType)
+	public RubyFormatter(String lineSeparator, Map<String, String> preferences, String mainContentType)
 	{
-		super(preferences, mainContentType);
-		this.lineDelimiter = lineDelimiter;
+		super(preferences, mainContentType, lineSeparator);
 	}
 
 	public int detectIndentationLevel(IDocument document, int offset, boolean isSelection,
@@ -313,12 +316,22 @@ public class RubyFormatter extends AbstractScriptFormatter
 		IFormatterContainerNode root = builder.build(result, document);
 		new RubyFormatterNodeRewriter(result).rewrite(root);
 		IFormatterContext context = new RubyFormatterContext(indent);
-		FormatterWriter writer = new FormatterWriter(document, lineDelimiter, createIndentGenerator());
+		FormatterWriter writer = new FormatterWriter(document, lineSeparator, createIndentGenerator());
 		writer.setWrapLength(getInt(RubyFormatterConstants.WRAP_COMMENTS_LENGTH));
 		writer.setLinesPreserve(getInt(RubyFormatterConstants.LINES_PRESERVE));
 		root.accept(context, writer);
 		writer.flush(context);
 		String output = writer.getOutput();
+		List<IRegion> offOnRegions = builder.getOffOnRegions();
+		if (offOnRegions != null && !offOnRegions.isEmpty())
+		{
+			// We re-parse the output to extract its On-Off regions, so we will be able to compute the offsets and
+			// adjust it.
+			List<IRegion> outputOnOffRegions = getOutputOnOffRegions(output,
+					getString(RubyFormatterConstants.FORMATTER_OFF), getString(RubyFormatterConstants.FORMATTER_ON),
+					document);
+			output = FormatterUtils.applyOffOnRegions(input, output, offOnRegions, outputOnOffRegions);
+		}
 		if (isSelection)
 		{
 			output = leftTrim(output, spacesCount);
@@ -339,6 +352,59 @@ public class RubyFormatter extends AbstractScriptFormatter
 		}
 		document.setInt(RubyFormatterConstants.FORMATTER_TAB_SIZE, getInt(RubyFormatterConstants.FORMATTER_TAB_SIZE));
 		document.setBoolean(RubyFormatterConstants.WRAP_COMMENTS, getBoolean(RubyFormatterConstants.WRAP_COMMENTS));
+
+		// Formatter OFF/ON
+		document.setBoolean(RubyFormatterConstants.FORMATTER_OFF_ON_ENABLED,
+				getBoolean(RubyFormatterConstants.FORMATTER_OFF_ON_ENABLED));
+		document.setString(RubyFormatterConstants.FORMATTER_ON, getString(RubyFormatterConstants.FORMATTER_ON));
+		document.setString(RubyFormatterConstants.FORMATTER_OFF, getString(RubyFormatterConstants.FORMATTER_OFF));
+
 		return document;
+	}
+
+	// Collect and return the regions that will be excluded from formatting (between the 'OFF' and 'ON' tags).
+	private List<IRegion> getOutputOnOffRegions(String output, String formatterOffPattern, String formatterOnPattern,
+			IFormatterDocument document)
+	{
+		IParser parser = super.checkoutParser();
+		RubySourceParser sourceParser = getSourceParser(parser);
+		ParserResult result = sourceParser.parse(output);
+		checkinParser(parser);
+		if (result != null && !(result instanceof NullParserResult))
+		{
+			return collectOffOnRegions(result.getCommentNodes(), document);
+		}
+		return null;
+	}
+
+	/**
+	 * Resolves the formatter's Off-On regions.<br>
+	 * The method will try to collect the 'Off' and 'On' tags and set the regions that will be ignored when formatting.<br>
+	 * 
+	 * @param commentNodes
+	 * @param document
+	 * @return A list of regions (may be null)
+	 */
+	public static List<IRegion> collectOffOnRegions(List<CommentNode> commentNodes, IFormatterDocument document)
+	{
+		if (!document.getBoolean(RubyFormatterConstants.FORMATTER_OFF_ON_ENABLED) || commentNodes == null)
+		{
+			return null;
+		}
+		LinkedHashMap<Integer, String> commentsMap = new LinkedHashMap<Integer, String>(commentNodes.size());
+		for (CommentNode comment : commentNodes)
+		{
+			int start = comment.getPosition().getStartOffset();
+			commentsMap.put(start, comment.getContent());
+		}
+		// Generate the OFF/ON regions
+		if (!commentsMap.isEmpty())
+		{
+			Pattern onPattern = Pattern.compile(Pattern.quote(document.getString(RubyFormatterConstants.FORMATTER_ON)));
+			Pattern offPattern = Pattern
+					.compile(Pattern.quote(document.getString(RubyFormatterConstants.FORMATTER_OFF)));
+			return FormatterUtils.resolveOnOffRegions(commentsMap, onPattern, offPattern, document.getLength() - 1);
+		}
+		return null;
 	}
 }

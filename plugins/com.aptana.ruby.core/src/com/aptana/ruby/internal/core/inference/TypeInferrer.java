@@ -28,16 +28,19 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.jrubyparser.CompatVersion;
 import org.jrubyparser.Parser;
 import org.jrubyparser.ast.AssignableNode;
+import org.jrubyparser.ast.CallNode;
 import org.jrubyparser.ast.ClassVarNode;
 import org.jrubyparser.ast.Colon2Node;
 import org.jrubyparser.ast.ConstDeclNode;
 import org.jrubyparser.ast.ConstNode;
+import org.jrubyparser.ast.DefnNode;
 import org.jrubyparser.ast.INameNode;
 import org.jrubyparser.ast.InstVarNode;
 import org.jrubyparser.ast.LocalAsgnNode;
 import org.jrubyparser.ast.LocalVarNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.ast.NodeType;
+import org.jrubyparser.ast.ReturnNode;
 import org.jrubyparser.lexer.SyntaxException;
 import org.jrubyparser.parser.ParserConfiguration;
 
@@ -162,7 +165,7 @@ public class TypeInferrer implements ITypeInferrer
 			case CALLNODE:
 			case FCALLNODE:
 			case VCALLNODE:
-				return inferMethod((INameNode) toInfer);
+				return inferMethod(rootNode, (INameNode) toInfer);
 			case SYMBOLNODE:
 			case DSYMBOLNODE:
 				return createSet("Symbol");
@@ -398,9 +401,9 @@ public class TypeInferrer implements ITypeInferrer
 		return createSet("Object");
 	}
 
-	private Collection<ITypeGuess> inferMethod(INameNode toInfer)
+	private Collection<ITypeGuess> inferMethod(Node rootNode, INameNode toInfer)
 	{
-		String methodName = toInfer.getName();
+		final String methodName = toInfer.getName();
 		if (methodName.endsWith("?"))
 		{
 			return createSet("TrueClass", "FalseClass");
@@ -408,57 +411,62 @@ public class TypeInferrer implements ITypeInferrer
 		Collection<ITypeGuess> guesses = TYPICAL_METHOD_RETURN_TYPE_NAMES.get(methodName);
 		if (guesses == null)
 		{
-			// FIXME Grab from content_assist.rb's infer_return_type
-			// # Ok, we can't cheat. We need to actually try to figure out the return type!
-			// case method_node.node_type
-			// when org.jrubyparser.ast.NodeType::CALLNODE
-			// # Figure out the type of the receiver...
-			// receiver_types = infer(method_node.getReceiverNode)
-			// # If method name is "new" return receiver as type
-			// return receiver_types if method_node.name == "new"
-			// # TODO grab this method on the receiver type and grab the return type from it
-			// "Object"
-			// when org.jrubyparser.ast.NodeType::FCALLNODE, org.jrubyparser.ast.NodeType::VCALLNODE
-			// # Grab enclosing type, search it's hierarchy for this method, grab it's return type(s)
-			// type_node = enclosing_type(method_node.position.start_offset)
-			// methods = ScopedNodeLocator.new.find(type_node) {|node| node.node_type ==
-			// org.jrubyparser.ast.NodeType::DEFNNODE }
-			// # FIXME This doesn't take hierarchy of type into account!
-			// methods = methods.select {|m| m.name == method_node.name } if methods
-			// return "Object" if methods.nil? or methods.empty?
-			//
-			// # Now traverse the method and gather return types
-			// return_nodes = ScopedNodeLocator.new.find(methods.first) {|node| node.node_type ==
-			// org.jrubyparser.ast.NodeType::RETURNNODE }
-			// types = []
-			// return_nodes.each {|r| types << infer(r.value_node) } if return_nodes
-			//
-			// # Get method body as a BlockNode, grab last child, that's the implicit return.
-			// implicit_return = last_statement(methods.first.body_node)
-			// if implicit_return
-			// case implicit_return.node_type
-			// when org.jrubyparser.ast.NodeType::IFNODE
-			// types << infer(last_statement(implicit_return.then_body)) if implicit_return.then_body
-			// types << infer(last_statement(implicit_return.else_body)) if implicit_return.else_body
-			// when org.jrubyparser.ast.NodeType::CASENODE
-			// implicit_return.cases.child_nodes.each do |c|
-			// types << infer(last_statement(c.body_node)) if c
-			// end
-			// types << infer(last_statement(implicit_return.else_node)) if implicit_return.else_node
-			// when org.jrubyparser.ast.NodeType::RETURNNODE
-			// # Ignore this because it's picked up in our explicit return traversal
-			// else
-			// types << infer(implicit_return)
-			// end
-			// end
-			// return "Object" if types.empty?
-			// types.flatten!
-			// types
-			// else
-			// # Should never end up here...
-			// "Object"
-			// end
+			if (toInfer instanceof CallNode)
+			{
+				if ("new".equals(methodName))
+				{
+					Node receiver = ((CallNode) toInfer).getReceiverNode();
+					return infer(rootNode, receiver);
+				}
+				// else
+				// {
+				// FIXME We need to gather the return type of the method if receiver is a method
+				// }
+			}
+			else
+			{
+				Node enclosingType = enclosingType(rootNode, ((Node) toInfer).getPosition().getStartOffset());
+				List<Node> methods = new ScopedNodeLocator().find(enclosingType, new INodeAcceptor()
+				{
 
+					public boolean accepts(Node node)
+					{
+						return NodeType.DEFNNODE == node.getNodeType()
+								&& methodName.equals(((DefnNode) node).getName());
+					}
+				});
+				if (!methods.isEmpty())
+				{
+					List<Node> returnNodes = new ScopedNodeLocator().find(enclosingType, new INodeAcceptor()
+					{
+
+						public boolean accepts(Node node)
+						{
+							return NodeType.RETURNNODE == node.getNodeType();
+						}
+					});
+					if (!returnNodes.isEmpty())
+					{
+						for (Node returnNode : returnNodes)
+						{
+							ReturnNode blah = (ReturnNode) returnNode;
+							guesses.addAll(infer(rootNode, blah.getValueNode()));
+						}
+					}
+					// # Get method body as a BlockNode, grab last child, that's the implicit return.
+					// implicit_return = last_statement(methods.first.body_node)
+					// if implicit_return
+					// case implicit_return.node_type
+					// when org.jrubyparser.ast.NodeType::IFNODE
+					// types << infer(last_statement(implicit_return.then_body)) if implicit_return.then_body
+					// types << infer(last_statement(implicit_return.else_body)) if implicit_return.else_body
+					// when org.jrubyparser.ast.NodeType::CASENODE
+					// implicit_return.cases.child_nodes.each do |c|
+					// types << infer(last_statement(c.body_node)) if c
+					// end
+					// types << infer(last_statement(implicit_return.else_node)) if implicit_return.else_node
+				}
+			}
 			return Collections.emptySet();
 		}
 		return guesses;

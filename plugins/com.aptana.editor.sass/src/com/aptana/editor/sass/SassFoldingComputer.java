@@ -107,7 +107,7 @@ public class SassFoldingComputer implements IFoldingComputer
 		}
 		catch (BadLocationException e)
 		{
-			Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e));
+			SassPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, SassPlugin.PLUGIN_ID, e.getMessage(), e));
 		}
 		finally
 		{
