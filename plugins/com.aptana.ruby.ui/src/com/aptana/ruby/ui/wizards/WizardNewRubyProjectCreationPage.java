@@ -35,6 +35,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.ModifyEvent;
@@ -62,6 +64,7 @@ import org.eclipse.ui.internal.ide.dialogs.IDEResourceInfoUtils;
 import com.aptana.core.util.StringUtil;
 import com.aptana.projects.internal.wizards.IWizardProjectCreationPage;
 import com.aptana.ui.util.SWTUtils;
+import com.aptana.ui.util.UIUtils;
 
 /**
  * TODO Extract common code between this and our Web project wizard!
@@ -236,12 +239,24 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 
 	private void createWarningArea(Composite composite)
 	{
-		Font font = new Font(composite.getDisplay(), SWTUtils.italicizedFont(getFont()));
+		final Font font = new Font(composite.getDisplay(), SWTUtils.italicizedFont(getFont()));
 
 		warningLabel = new Label(composite, SWT.WRAP);
 		warningLabel.setLayoutData(GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false)
 				.create());
 		warningLabel.setFont(font);
+		warningLabel.setForeground(UIUtils.getDisplay().getSystemColor(SWT.COLOR_RED));
+
+		composite.addDisposeListener(new DisposeListener()
+		{
+			public void widgetDisposed(DisposeEvent e)
+			{
+				if (font != null && !font.isDisposed())
+				{
+					font.dispose();
+				}
+			}
+		});
 	}
 
 	/**
@@ -725,6 +740,7 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 			if (files != null && files.length > 0)
 			{
 				warningLabel.setText(Messages.WizardNewProjectCreationPage_location_has_existing_content_warning);
+				warningLabel.getParent().layout(true);
 			}
 		}
 
