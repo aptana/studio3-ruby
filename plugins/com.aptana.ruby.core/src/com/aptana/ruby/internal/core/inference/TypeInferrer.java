@@ -447,6 +447,7 @@ public class TypeInferrer implements ITypeInferrer
 					});
 					if (!returnNodes.isEmpty())
 					{
+						guesses = new ArrayList<ITypeGuess>();
 						for (Node returnNode : returnNodes)
 						{
 							ReturnNode blah = (ReturnNode) returnNode;
