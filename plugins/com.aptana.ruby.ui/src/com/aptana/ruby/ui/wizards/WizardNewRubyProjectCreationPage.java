@@ -14,6 +14,7 @@
  *******************************************************************************/
 package com.aptana.ruby.ui.wizards;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
@@ -28,11 +29,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.ModifyEvent;
@@ -41,6 +45,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -56,7 +61,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.ide.IIDEHelpContextIds;
 import org.eclipse.ui.internal.ide.dialogs.IDEResourceInfoUtils;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.projects.internal.wizards.IWizardProjectCreationPage;
+import com.aptana.ui.util.SWTUtils;
+import com.aptana.ui.util.UIUtils;
 
 /**
  * TODO Extract common code between this and our Web project wizard!
@@ -91,6 +99,7 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 	private Group projectGenerationGroup;
 	private StackLayout projectGenerationStackLayout;
 	private Composite projectGenerationControls;
+	private Label warningLabel;
 
 	// constants
 	private static final int SIZING_TEXT_FIELD_WIDTH = 250;
@@ -136,6 +145,9 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 		createProjectNameGroup(composite);
 		// create Location section
 		createDestinationLocationArea(composite);
+
+		// create warning section
+		createWarningArea(composite);
 
 		// Add the generate app section
 		createGenerateGroup(composite);
@@ -221,6 +233,28 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 			public void modifyText(ModifyEvent e)
 			{
 				reportError(checkValidLocation(), false);
+			}
+		});
+	}
+
+	private void createWarningArea(Composite composite)
+	{
+		final Font font = new Font(composite.getDisplay(), SWTUtils.italicizedFont(getFont()));
+
+		warningLabel = new Label(composite, SWT.WRAP);
+		warningLabel.setLayoutData(GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false)
+				.create());
+		warningLabel.setFont(font);
+		warningLabel.setForeground(UIUtils.getDisplay().getSystemColor(SWT.COLOR_RED));
+
+		composite.addDisposeListener(new DisposeListener()
+		{
+			public void widgetDisposed(DisposeEvent e)
+			{
+				if (font != null && !font.isDisposed())
+				{
+					font.dispose();
+				}
 			}
 		});
 	}
@@ -691,6 +725,23 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 		{
 			setErrorMessage(validLocationMessage);
 			return false;
+		}
+
+		if (warningLabel != null)
+		{
+			warningLabel.setText(StringUtil.EMPTY);
+		}
+
+		File locationFile = getLocationPath().toFile();
+
+		if (!useDefaults() && locationFile.exists())
+		{
+			String[] files = locationFile.list();
+			if (files != null && files.length > 0)
+			{
+				warningLabel.setText(Messages.WizardNewProjectCreationPage_location_has_existing_content_warning);
+				warningLabel.getParent().layout(true);
+			}
 		}
 
 		setErrorMessage(null);

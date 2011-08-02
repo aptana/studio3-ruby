@@ -16,6 +16,7 @@ import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
+import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.source.ISourceViewer;
 
@@ -27,6 +28,7 @@ import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.scripting.IContentTypeTranslator;
 import com.aptana.editor.common.scripting.QualifiedContentType;
 import com.aptana.editor.common.text.rules.CommentScanner;
+import com.aptana.editor.common.text.rules.EmptyCommentRule;
 import com.aptana.editor.common.text.rules.ISubPartitionScanner;
 import com.aptana.editor.common.text.rules.SubPartitionScanner;
 import com.aptana.editor.common.text.rules.ThemeingDamagerRepairer;
@@ -41,9 +43,11 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 	public final static String DEFAULT = PREFIX + IDocument.DEFAULT_CONTENT_TYPE;
 	public final static String STRING_SINGLE = PREFIX + "string_single"; //$NON-NLS-1$
 	public final static String STRING_DOUBLE = PREFIX + "string_double"; //$NON-NLS-1$
-	public final static String COMMENT = PREFIX + "comment"; //$NON-NLS-1$
+	public final static String SINGLE_LINE_COMMENT = PREFIX + "singleline_comment"; //$NON-NLS-1$
+	public final static String MULTI_LINE_COMMENT = PREFIX + "multiline_comment"; //$NON-NLS-1$
 
-	public static final String[] CONTENT_TYPES = new String[] { DEFAULT, COMMENT, STRING_SINGLE, STRING_DOUBLE };
+	public static final String[] CONTENT_TYPES = new String[] { DEFAULT, SINGLE_LINE_COMMENT, MULTI_LINE_COMMENT,
+			STRING_SINGLE, STRING_DOUBLE };
 
 	private static final String[][] TOP_CONTENT_TYPES = new String[][] { { ISassConstants.CONTENT_TYPE_SASS } };
 
@@ -66,12 +70,13 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	private SassSourceConfiguration()
 	{
-		IToken comment = getToken(COMMENT);
+		IToken singleLineComment = getToken(SINGLE_LINE_COMMENT);
+		IToken multiLineComment = getToken(MULTI_LINE_COMMENT);
 
 		partitioningRules = new IPredicateRule[] { new SingleLineRule("\"", "\"", getToken(STRING_DOUBLE), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
 				new SingleLineRule("\'", "\'", getToken(STRING_SINGLE), '\\'), //$NON-NLS-1$ //$NON-NLS-2$
-				new EndOfLineRule("/*", comment), //$NON-NLS-1$ // FIXME What about nested comments!
-				new EndOfLineRule("//", comment) //$NON-NLS-1$ // FIXME What about nested comments!
+				new EmptyCommentRule(multiLineComment), new MultiLineRule("/*", "*/", multiLineComment), //$NON-NLS-1$ //$NON-NLS-2$
+				new EndOfLineRule("//", singleLineComment) //$NON-NLS-1$
 		};
 	}
 
@@ -135,9 +140,13 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 		reconciler.setDamager(dr, DEFAULT);
 		reconciler.setRepairer(dr, DEFAULT);
 
-		dr = new ThemeingDamagerRepairer(getCommentScanner());
-		reconciler.setDamager(dr, COMMENT);
-		reconciler.setRepairer(dr, COMMENT);
+		dr = new ThemeingDamagerRepairer(getSingleLineCommentScanner());
+		reconciler.setDamager(dr, SINGLE_LINE_COMMENT);
+		reconciler.setRepairer(dr, SINGLE_LINE_COMMENT);
+
+		dr = new ThemeingDamagerRepairer(getMultiLineCommentScanner());
+		reconciler.setDamager(dr, MULTI_LINE_COMMENT);
+		reconciler.setRepairer(dr, MULTI_LINE_COMMENT);
 
 		dr = new ThemeingDamagerRepairer(getSingleQuotedStringScanner());
 		reconciler.setDamager(dr, STRING_SINGLE);
@@ -150,7 +159,8 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	/*
 	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getContentAssistProcessor(com.aptana.editor.common.AbstractThemeableEditor, java.lang.String)
+	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getContentAssistProcessor(com.aptana.editor.common.
+	 * AbstractThemeableEditor, java.lang.String)
 	 */
 	public IContentAssistProcessor getContentAssistProcessor(AbstractThemeableEditor editor, String contentType)
 	{
@@ -162,9 +172,14 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 		return new SassCodeScanner();
 	}
 
-	private ITokenScanner getCommentScanner()
+	private ITokenScanner getSingleLineCommentScanner()
 	{
-		return new CommentScanner(getToken("comment.sass")); //$NON-NLS-1$
+		return new CommentScanner(getToken("comment.line.sass")); //$NON-NLS-1$
+	}
+
+	private ITokenScanner getMultiLineCommentScanner()
+	{
+		return new CommentScanner(getToken("comment.block.sass")); //$NON-NLS-1$
 	}
 
 	private ITokenScanner getDoubleQuotedStringScanner()

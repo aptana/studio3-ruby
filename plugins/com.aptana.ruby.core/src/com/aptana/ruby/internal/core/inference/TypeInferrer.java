@@ -425,6 +425,7 @@ public class TypeInferrer implements ITypeInferrer
 			}
 			else
 			{
+				guesses = new ArrayList<ITypeGuess>();
 				Node enclosingType = enclosingType(rootNode, ((Node) toInfer).getPosition().getStartOffset());
 				List<Node> methods = new ScopedNodeLocator().find(enclosingType, new INodeAcceptor()
 				{
@@ -437,34 +438,37 @@ public class TypeInferrer implements ITypeInferrer
 				});
 				if (!methods.isEmpty())
 				{
-					List<Node> returnNodes = new ScopedNodeLocator().find(enclosingType, new INodeAcceptor()
+					for (Node methodNode : methods)
 					{
+						List<Node> returnNodes = new ScopedNodeLocator().find(methodNode, new INodeAcceptor()
+						{
 
-						public boolean accepts(Node node)
+							public boolean accepts(Node node)
+							{
+								return NodeType.RETURNNODE == node.getNodeType();
+							}
+						});
+						if (!returnNodes.isEmpty())
 						{
-							return NodeType.RETURNNODE == node.getNodeType();
+							for (Node returnNode : returnNodes)
+							{
+								ReturnNode blah = (ReturnNode) returnNode;
+								guesses.addAll(infer(rootNode, blah.getValueNode()));
+							}
 						}
-					});
-					if (!returnNodes.isEmpty())
-					{
-						for (Node returnNode : returnNodes)
-						{
-							ReturnNode blah = (ReturnNode) returnNode;
-							guesses.addAll(infer(rootNode, blah.getValueNode()));
-						}
+						// # Get method body as a BlockNode, grab last child, that's the implicit return.
+						// implicit_return = last_statement(methods.first.body_node)
+						// if implicit_return
+						// case implicit_return.node_type
+						// when org.jrubyparser.ast.NodeType::IFNODE
+						// types << infer(last_statement(implicit_return.then_body)) if implicit_return.then_body
+						// types << infer(last_statement(implicit_return.else_body)) if implicit_return.else_body
+						// when org.jrubyparser.ast.NodeType::CASENODE
+						// implicit_return.cases.child_nodes.each do |c|
+						// types << infer(last_statement(c.body_node)) if c
+						// end
+						// types << infer(last_statement(implicit_return.else_node)) if implicit_return.else_node
 					}
-					// # Get method body as a BlockNode, grab last child, that's the implicit return.
-					// implicit_return = last_statement(methods.first.body_node)
-					// if implicit_return
-					// case implicit_return.node_type
-					// when org.jrubyparser.ast.NodeType::IFNODE
-					// types << infer(last_statement(implicit_return.then_body)) if implicit_return.then_body
-					// types << infer(last_statement(implicit_return.else_body)) if implicit_return.else_body
-					// when org.jrubyparser.ast.NodeType::CASENODE
-					// implicit_return.cases.child_nodes.each do |c|
-					// types << infer(last_statement(c.body_node)) if c
-					// end
-					// types << infer(last_statement(implicit_return.else_node)) if implicit_return.else_node
 				}
 			}
 			return Collections.emptySet();
