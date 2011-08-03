@@ -28,7 +28,7 @@ public class UITests
 		// $JUnit-BEGIN$
 		suite.addTest(org.radrails.rails.ui.tests.AllTests.suite());
 		suite.addTest(com.aptana.editor.ruby.tests.AllTests.suite());
-		// suite.addTest(com.aptana.editor.ruby.formatter.tests.AllTests.suite());
+		suite.addTest(com.aptana.editor.ruby.formatter.tests.AllTests.suite());
 		suite.addTest(com.aptana.editor.erb.tests.AllTests.suite());
 		suite.addTest(com.aptana.editor.haml.tests.HAMLEditorTests.suite());
 		suite.addTest(com.aptana.editor.sass.tests.AllTests.suite());
