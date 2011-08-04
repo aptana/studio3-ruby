@@ -33,6 +33,7 @@
       <import plugin="com.aptana.ruby.core"/>
       <import plugin="org.radrails.rails.ui" version="3.0.0" match="greaterOrEqual"/>
       <import plugin="com.aptana.editor.ruby.formatter.epl"/>
+      <import plugin="com.aptana.ruby.rake"/>
    </requires>
 
    <plugin
