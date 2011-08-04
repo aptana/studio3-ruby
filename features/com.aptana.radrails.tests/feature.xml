@@ -25,9 +25,14 @@
       <import plugin="org.eclipse.core.runtime" version="3.4.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.jface.text"/>
       <import plugin="org.eclipse.core.resources" version="3.4.0" match="greaterOrEqual"/>
-      <import plugin="com.aptana.editor.ruby"/>
-      <import plugin="com.aptana.editor.sass"/>
       <import plugin="com.aptana.editor.haml"/>
+      <import plugin="com.aptana.scripting"/>
+      <import plugin="com.aptana.editor.ruby" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.aptana.core" version="3.0.0" match="greaterOrEqual"/>
+      <import plugin="com.aptana.editor.sass" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.aptana.ruby.core"/>
+      <import plugin="org.radrails.rails.ui" version="3.0.0" match="greaterOrEqual"/>
+      <import plugin="com.aptana.editor.ruby.formatter.epl"/>
    </requires>
 
    <plugin
@@ -84,9 +89,17 @@
          version="0.0.0"
          fragment="true"
          unpack="false"/>
-         
+
    <plugin
          id="com.aptana.editor.ruby.formatter.tests"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="com.aptana.ruby.rake.tests"
          download-size="0"
          install-size="0"
          version="0.0.0"
