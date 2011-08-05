@@ -67,6 +67,13 @@ public class WizardNewRailsProjectCreationPage extends WizardNewRubyProjectCreat
 		this.projectGenerationControls = projectGenerationControls;
 	}
 
+	@Override
+	protected void selectGitCloneGeneration()
+	{
+		super.selectGitCloneGeneration();
+		runGenerator.setSelection(false);
+	}
+
 	/**
 	 * Returns whether this page's controls currently all contain valid values.
 	 * 
