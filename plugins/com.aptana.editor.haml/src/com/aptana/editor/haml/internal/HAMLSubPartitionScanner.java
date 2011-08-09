@@ -14,7 +14,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 import com.aptana.editor.common.IPartitionScannerSwitchStrategy;
-import com.aptana.editor.common.IPartitionScannerSwitchStrategy.SequenceBypassHandler;
+import com.aptana.editor.common.IPartitionScannerSwitchStrategy.ISequenceBypassHandler;
 import com.aptana.editor.common.PartitionScannerSwitchStrategy;
 import com.aptana.editor.common.TextUtils;
 import com.aptana.editor.common.text.rules.CompositeSubPartitionScanner;
@@ -38,7 +38,7 @@ public class HAMLSubPartitionScanner extends CompositeSubPartitionScanner
 	private static final char COMMA = ',';
 	private static final char VERTICAL = '|';
 
-	private static final SequenceBypassHandler RUBY_BYPASS_HANDLER = new SequenceBypassHandler()
+	private static final ISequenceBypassHandler RUBY_BYPASS_HANDLER = new ISequenceBypassHandler()
 	{
 		public boolean bypassSequence(ICharacterScanner characterScanner, char[] sequenceFound)
 		{
