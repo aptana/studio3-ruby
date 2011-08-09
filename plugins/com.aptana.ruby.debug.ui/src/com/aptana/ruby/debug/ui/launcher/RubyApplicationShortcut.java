@@ -22,6 +22,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
 import com.aptana.ruby.debug.ui.RubyDebugUIPlugin;
 
@@ -52,7 +53,7 @@ public class RubyApplicationShortcut implements ILaunchShortcut
 			}
 			catch (CoreException e)
 			{
-				RubyDebugUIPlugin.logError(e);
+				IdeLog.logError(RubyDebugUIPlugin.getDefault(), e);
 			}
 		}
 	}
@@ -71,7 +72,8 @@ public class RubyApplicationShortcut implements ILaunchShortcut
 		IEditorInput input = editor.getEditorInput();
 		if (input == null)
 		{
-			RubyDebugUIPlugin.logError("Could not retrieve input from editor: " + editor.getTitle(), null); //$NON-NLS-1$
+			IdeLog.logError(RubyDebugUIPlugin.getDefault(),
+					"Could not retrieve input from editor: " + editor.getTitle()); //$NON-NLS-1$
 			return;
 		}
 		if (input instanceof IFileEditorInput)
@@ -84,7 +86,7 @@ public class RubyApplicationShortcut implements ILaunchShortcut
 			}
 			catch (CoreException e)
 			{
-				RubyDebugUIPlugin.logError(e);
+				IdeLog.logError(RubyDebugUIPlugin.getDefault(), e);
 			}
 		}
 		// TODO Allow launching from URIs as long as it's a file we can reach!
@@ -130,15 +132,15 @@ public class RubyApplicationShortcut implements ILaunchShortcut
 					.generateUniqueLaunchConfigurationNameFrom(rubyFile.getName()));
 			// wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_PROJECT_NAME, rubyFile.getProject().getName());
 			wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_FILE_NAME, rubyFile.getLocation().toOSString());
-			wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, RubyApplicationShortcut
-					.getDefaultWorkingDirectory(rubyFile));
+			wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY,
+					RubyApplicationShortcut.getDefaultWorkingDirectory(rubyFile));
 			wc.setAttribute(ILaunchConfiguration.ATTR_SOURCE_LOCATOR_ID,
 					IRubyLaunchConfigurationConstants.ID_RUBY_SOURCE_LOCATOR);
 			config = wc.doSave();
 		}
 		catch (CoreException ce)
 		{
-			RubyDebugUIPlugin.logError(ce);
+			IdeLog.logError(RubyDebugUIPlugin.getDefault(), ce);
 		}
 		return config;
 	}

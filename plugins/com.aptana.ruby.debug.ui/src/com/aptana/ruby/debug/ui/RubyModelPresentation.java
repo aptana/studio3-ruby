@@ -48,6 +48,7 @@ import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.ruby.debug.core.IRubyLineBreakpoint;
 import com.aptana.ruby.debug.core.model.IRubyVariable;
 import com.aptana.ruby.internal.debug.ui.StorageEditorInput;
@@ -103,7 +104,7 @@ public class RubyModelPresentation extends LabelProvider implements IDebugModelP
 		}
 		catch (CoreException e)
 		{
-			RubyDebugUIPlugin.logError(e);
+			IdeLog.logError(RubyDebugUIPlugin.getDefault(), e);
 		}
 		return super.getImage(element);
 	}
@@ -193,7 +194,7 @@ public class RubyModelPresentation extends LabelProvider implements IDebugModelP
 		}
 		catch (CoreException e)
 		{
-			RubyDebugUIPlugin.logError(e);
+			IdeLog.logError(RubyDebugUIPlugin.getDefault(), e);
 		}
 		return null;
 	}

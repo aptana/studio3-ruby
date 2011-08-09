@@ -1,8 +1,5 @@
 package com.aptana.ruby.debug.ui;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -60,33 +57,6 @@ public class RubyDebugUIPlugin extends AbstractUIPlugin
 		return PLUGIN_ID;
 	}
 
-	public static void logError(String msg, Throwable e)
-	{
-		log(new Status(IStatus.ERROR, getPluginId(), msg, e));
-	}
-
-	public static void logError(CoreException e)
-	{
-		log(e.getStatus());
-	}
-
-	public static void logWarning(String warning)
-	{
-		log(new Status(IStatus.WARNING, getPluginId(), warning));
-	}
-
-	public static void logInfo(String string)
-	{
-		if (getDefault() != null && getDefault().isDebugging())
-			log(new Status(IStatus.INFO, getPluginId(), string));
-	}
-
-	public static void trace(String string)
-	{
-		if (getDefault() != null && getDefault().isDebugging())
-			log(new Status(IStatus.OK, getPluginId(), string));
-	}
-
 	@Override
 	protected void initializeImageRegistry(ImageRegistry reg)
 	{
@@ -94,19 +64,8 @@ public class RubyDebugUIPlugin extends AbstractUIPlugin
 		reg.put(IMG_EVIEW_ARGUMENTS_TAB, imageDescriptorFromPlugin(PLUGIN_ID, IMG_EVIEW_ARGUMENTS_TAB));
 	}
 
-	public static void log(IStatus status)
-	{
-		if (getDefault() != null)
-			getDefault().getLog().log(status);
-	}
-
 	public static String getUniqueIdentifier()
 	{
 		return getPluginId();
-	}
-
-	public static void logError(Throwable t)
-	{
-		logError(t.getMessage(), t);
 	}
 }

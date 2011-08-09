@@ -36,6 +36,7 @@ import org.eclipse.ui.IWorkbenchPartConstants;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.part.EditorActionBarContributor;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.ruby.debug.ui.RubyDebugUIPlugin;
 
 /**
@@ -44,121 +45,152 @@ import com.aptana.ruby.debug.ui.RubyDebugUIPlugin;
  * @since 1.0
  */
 @SuppressWarnings("restriction")
-public abstract class AbstractDetailPane implements IDetailPane {
-	
+public abstract class AbstractDetailPane implements IDetailPane
+{
+
 	private String fName;
 	private String fDescription;
 	private String fId;
 	private AbstractRubyBreakpointEditor fEditor;
 	private Set<Integer> fAutoSaveProperties = new HashSet<Integer>();
-	private IWorkbenchPartSite fSite; 
-	
+	private IWorkbenchPartSite fSite;
+
 	// property listeners
 	private ListenerList fListeners = new ListenerList();
 	private Composite fEditorParent;
-	
+
 	/**
 	 * Constructs a detail pane.
 	 * 
-	 * @param name detail pane name
-	 * @param description detail pane description
-	 * @param id detail pane ID
+	 * @param name
+	 *            detail pane name
+	 * @param description
+	 *            detail pane description
+	 * @param id
+	 *            detail pane ID
 	 */
-	public AbstractDetailPane(String name, String description, String id) {
+	public AbstractDetailPane(String name, String description, String id)
+	{
 		fName = name;
 		fDescription = description;
 		fId = id;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.debug.ui.IDetailPane3#addPropertyListener(org.eclipse.ui.IPropertyListener)
 	 */
-	public void addPropertyListener(IPropertyListener listener) {
+	public void addPropertyListener(IPropertyListener listener)
+	{
 		fListeners.add(listener);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.debug.ui.IDetailPane3#removePropertyListener(org.eclipse.ui.IPropertyListener)
 	 */
-	public void removePropertyListener(IPropertyListener listener) {
+	public void removePropertyListener(IPropertyListener listener)
+	{
 		fListeners.remove(listener);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.debug.ui.IDetailPane2#getSelectionProvider()
 	 */
-	public ISelectionProvider getSelectionProvider() {
+	public ISelectionProvider getSelectionProvider()
+	{
 		return null;
 	}
-	
+
 	/**
 	 * Fires a property change to all listeners.
 	 * 
-	 * @param property the property
+	 * @param property
+	 *            the property
 	 */
-	protected void firePropertyChange(int property) {
+	protected void firePropertyChange(int property)
+	{
 		Object[] listeners = fListeners.getListeners();
-		for (int i = 0; i < listeners.length; i++) {
-			((IPropertyListener)listeners[i]).propertyChanged(this, property);
-		}	
+		for (int i = 0; i < listeners.length; i++)
+		{
+			((IPropertyListener) listeners[i]).propertyChanged(this, property);
+		}
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.debug.ui.IDetailPane#init(org.eclipse.ui.IWorkbenchPartSite)
 	 */
-	public void init(IWorkbenchPartSite partSite) {
+	public void init(IWorkbenchPartSite partSite)
+	{
 		fSite = partSite;
 	}
 
-	public String getID() {
+	public String getID()
+	{
 		return fId;
 	}
 
-	public String getName() {
+	public String getName()
+	{
 		return fName;
 	}
 
-	public String getDescription() {
+	public String getDescription()
+	{
 		return fDescription;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.debug.ui.IDetailPane#dispose()
 	 */
-	public void dispose() {
+	public void dispose()
+	{
 		fEditor = null;
 		fSite = null;
 		fListeners.clear();
 		fAutoSaveProperties.clear();
 		fEditorParent.dispose();
-	}	
-	
+	}
+
 	/**
-	 * Adds the given auto save properties to this detail pain. Whenever one of these
-	 * properties changes, the detail pane editor is immediately saved.
+	 * Adds the given auto save properties to this detail pain. Whenever one of these properties changes, the detail
+	 * pane editor is immediately saved.
 	 * 
 	 * @param autosave
 	 */
-	protected void addAutosaveProperties(int[] autosave) {
-		for (int i = 0; i < autosave.length; i++) {
+	protected void addAutosaveProperties(int[] autosave)
+	{
+		for (int i = 0; i < autosave.length; i++)
+		{
 			fAutoSaveProperties.add(new Integer(autosave[i]));
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.debug.ui.IDetailPane#createControl(org.eclipse.swt.widgets.Composite)
 	 */
-	public Control createControl(Composite parent) {
+	public Control createControl(Composite parent)
+	{
 		fEditorParent = SWTFactory.createComposite(parent, 1, 1, GridData.FILL_BOTH);
 		fEditor = createEditor(fEditorParent);
 		fEditor.setMnemonics(false);
-		fEditor.addPropertyListener(new IPropertyListener() {
-			public void propertyChanged(Object source, int propId) {
-				if (fAutoSaveProperties.contains(new Integer(propId))) {
-					try {
+		fEditor.addPropertyListener(new IPropertyListener()
+		{
+			public void propertyChanged(Object source, int propId)
+			{
+				if (fAutoSaveProperties.contains(new Integer(propId)))
+				{
+					try
+					{
 						fEditor.doSave();
 						return;
-					} catch (CoreException e) {
+					}
+					catch (CoreException e)
+					{
 					}
 				}
 				firePropertyChange(IWorkbenchPartConstants.PROP_DIRTY);
@@ -166,80 +198,102 @@ public abstract class AbstractDetailPane implements IDetailPane {
 		});
 		return fEditor.createControl(fEditorParent);
 	}
-	
+
 	/**
 	 * Creates the detail pane specific editor.
 	 * 
-	 * @param parent parent composite
+	 * @param parent
+	 *            parent composite
 	 * @return editor
 	 */
 	protected abstract AbstractRubyBreakpointEditor createEditor(Composite parent);
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.ui.ISaveablePart#doSaveAs()
 	 */
-	public void doSaveAs() {
+	public void doSaveAs()
+	{
 		// do nothing
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.ui.ISaveablePart#isSaveAsAllowed()
 	 */
-	public boolean isSaveAsAllowed() {
+	public boolean isSaveAsAllowed()
+	{
 		return false;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.ui.ISaveablePart#isSaveOnCloseNeeded()
 	 */
-	public boolean isSaveOnCloseNeeded() {
+	public boolean isSaveOnCloseNeeded()
+	{
 		return isDirty() && fEditor.getStatus().isOK();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.debug.ui.IDetailPane#setFocus()
 	 */
-	public boolean setFocus() {
+	public boolean setFocus()
+	{
 		return false;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.ui.ISaveablePart#doSave(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public void doSave(IProgressMonitor monitor) {
+	public void doSave(IProgressMonitor monitor)
+	{
 		IStatusLineManager statusLine = getStatusLine();
-		if (statusLine != null) {
+		if (statusLine != null)
+		{
 			statusLine.setErrorMessage(null);
 		}
-		try {
+		try
+		{
 			fEditor.doSave();
-		} catch (CoreException e) {
-			if (statusLine != null) {
+		}
+		catch (CoreException e)
+		{
+			if (statusLine != null)
+			{
 				statusLine.setErrorMessage(e.getMessage());
 				Display.getCurrent().beep();
-			} else {
-				RubyDebugUIPlugin.log(e.getStatus());
+			}
+			else
+			{
+				IdeLog.logError(RubyDebugUIPlugin.getDefault(), e);
 			}
 		}
 	}
-	
-	private IStatusLineManager getStatusLine() {
+
+	private IStatusLineManager getStatusLine()
+	{
 		// we want to show messages globally hence we
 		// have to go through the active part
-		if (fSite instanceof IViewSite) {
-			IViewSite site= (IViewSite) fSite;
-			IWorkbenchPage page= site.getPage();
-			IWorkbenchPart activePart= page.getActivePart();
+		if (fSite instanceof IViewSite)
+		{
+			IViewSite site = (IViewSite) fSite;
+			IWorkbenchPage page = site.getPage();
+			IWorkbenchPart activePart = page.getActivePart();
 
-			if (activePart instanceof IViewPart) {
-				IViewPart activeViewPart= (IViewPart)activePart;
-				IViewSite activeViewSite= activeViewPart.getViewSite();
+			if (activePart instanceof IViewPart)
+			{
+				IViewPart activeViewPart = (IViewPart) activePart;
+				IViewSite activeViewSite = activeViewPart.getViewSite();
 				return activeViewSite.getActionBars().getStatusLineManager();
 			}
-	
-			if (activePart instanceof IEditorPart) {
-				IEditorPart activeEditorPart= (IEditorPart)activePart;
-				IEditorActionBarContributor contributor= activeEditorPart.getEditorSite().getActionBarContributor();
+
+			if (activePart instanceof IEditorPart)
+			{
+				IEditorPart activeEditorPart = (IEditorPart) activePart;
+				IEditorActionBarContributor contributor = activeEditorPart.getEditorSite().getActionBarContributor();
 				if (contributor instanceof EditorActionBarContributor)
 					return ((EditorActionBarContributor) contributor).getActionBars().getStatusLineManager();
 			}
@@ -247,43 +301,53 @@ public abstract class AbstractDetailPane implements IDetailPane {
 			return site.getActionBars().getStatusLineManager();
 		}
 		return null;
-	}	
+	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.ui.ISaveablePart#isDirty()
 	 */
-	public boolean isDirty() {
+	public boolean isDirty()
+	{
 		return fEditor.isDirty();
 	}
-	
+
 	/**
 	 * Returns the editor associated with this detail pane.
 	 * 
 	 * @return editor
 	 */
-	protected AbstractRubyBreakpointEditor getEditor() {
+	protected AbstractRubyBreakpointEditor getEditor()
+	{
 		return fEditor;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.debug.ui.IDetailPane#display(org.eclipse.jface.viewers.IStructuredSelection)
 	 */
-	public void display(IStructuredSelection selection) {
+	public void display(IStructuredSelection selection)
+	{
 		// clear status line
 		IStatusLineManager statusLine = getStatusLine();
-		if (statusLine != null) {
+		if (statusLine != null)
+		{
 			statusLine.setErrorMessage(null);
 		}
 		AbstractRubyBreakpointEditor editor = getEditor();
 		Object input = null;
-		if (selection != null && selection.size() == 1) {
+		if (selection != null && selection.size() == 1)
+		{
 			input = selection.getFirstElement();
 			// update even if the same in case attributes have changed
 		}
-		try {
+		try
+		{
 			editor.setInput(input);
-		} catch (CoreException e) {
-			RubyDebugUIPlugin.logError(e);
+		}
+		catch (CoreException e)
+		{
+			IdeLog.logError(RubyDebugUIPlugin.getDefault(), e);
 		}
 	}
 

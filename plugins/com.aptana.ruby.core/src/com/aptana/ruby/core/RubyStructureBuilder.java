@@ -269,16 +269,14 @@ public class RubyStructureBuilder implements ISourceElementRequestor
 		if (modelStack.isEmpty())
 		{
 			IdeLog.logError(RubyCorePlugin.getDefault(),
-					"AST stack was empty upon exiting field declaration, but should have contained the field.", //$NON-NLS-1$
-					(Throwable) null);
+					"AST stack was empty upon exiting field declaration, but should have contained the field."); //$NON-NLS-1$
 			return;
 		}
 
 		RubyElement element = modelStack.pop();
 		if (!(element instanceof RubyField))
 		{
-			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected field decl on top of stack, but was: " + element, //$NON-NLS-1$
-					(Throwable) null);
+			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected field decl on top of stack, but was: " + element); //$NON-NLS-1$
 		}
 		element.setLocation(element.getStartingOffset(), endOffset + 1);
 	}
@@ -288,16 +286,14 @@ public class RubyStructureBuilder implements ISourceElementRequestor
 		if (modelStack.isEmpty())
 		{
 			IdeLog.logError(RubyCorePlugin.getDefault(),
-					"AST stack was empty upon exiting method declaration, but should have contained the method.", //$NON-NLS-1$
-					(Throwable) null);
+					"AST stack was empty upon exiting method declaration, but should have contained the method."); //$NON-NLS-1$
 			return;
 		}
 
 		RubyElement element = modelStack.pop();
 		if (!(element instanceof RubyMethod))
 		{
-			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected method decl on top of stack, but was: " + element, //$NON-NLS-1$
-					(Throwable) null);
+			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected method decl on top of stack, but was: " + element); //$NON-NLS-1$
 		}
 		element.setLocation(element.getStartingOffset(), endOffset + 1);
 	}
@@ -307,7 +303,7 @@ public class RubyStructureBuilder implements ISourceElementRequestor
 		if (modelStack.isEmpty())
 		{
 			IdeLog.logError(RubyCorePlugin.getDefault(),
-					"AST stack was empty upon exiting script, but should have contained the script.", (Throwable) null); //$NON-NLS-1$
+					"AST stack was empty upon exiting script, but should have contained the script."); //$NON-NLS-1$
 			return;
 		}
 
@@ -315,8 +311,7 @@ public class RubyStructureBuilder implements ISourceElementRequestor
 		if (!(element instanceof RubyScript))
 		{
 			IdeLog.logError(RubyCorePlugin.getDefault(),
-					"Expected script on top of stack, but was: " + element.getClass().getName(), //$NON-NLS-1$
-					(Throwable) null);
+					"Expected script on top of stack, but was: " + element.getClass().getName()); //$NON-NLS-1$
 		}
 		element.setLocation(element.getStartingOffset(), endOffset + 1);
 	}
@@ -326,16 +321,14 @@ public class RubyStructureBuilder implements ISourceElementRequestor
 		if (modelStack.isEmpty())
 		{
 			IdeLog.logError(RubyCorePlugin.getDefault(),
-					"AST stack was empty upon exiting type declaration, but should have contained the type.", //$NON-NLS-1$
-					(Throwable) null);
+					"AST stack was empty upon exiting type declaration, but should have contained the type."); //$NON-NLS-1$
 			return;
 		}
 
 		RubyElement element = modelStack.pop();
 		if (!(element instanceof RubyType))
 		{
-			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected type decl on top of stack, but was: " + element, //$NON-NLS-1$
-					(Throwable) null);
+			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected type decl on top of stack, but was: " + element); //$NON-NLS-1$
 		}
 		element.setLocation(element.getStartingOffset(), endOffset + 1);
 	}
@@ -345,15 +338,14 @@ public class RubyStructureBuilder implements ISourceElementRequestor
 		if (modelStack.isEmpty())
 		{
 			IdeLog.logError(RubyCorePlugin.getDefault(),
-					"AST stack was empty upon exiting block, but should have contained the block.", (Throwable) null); //$NON-NLS-1$
+					"AST stack was empty upon exiting block, but should have contained the block."); //$NON-NLS-1$
 			return;
 		}
 
 		RubyElement element = modelStack.pop();
 		if (!(element instanceof RubyBlock))
 		{
-			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected block on top of stack, but was: " + element, //$NON-NLS-1$
-					(Throwable) null);
+			IdeLog.logError(RubyCorePlugin.getDefault(), "Expected block on top of stack, but was: " + element); //$NON-NLS-1$
 		}
 		element.setLocation(element.getStartingOffset(), endOffset);
 	}

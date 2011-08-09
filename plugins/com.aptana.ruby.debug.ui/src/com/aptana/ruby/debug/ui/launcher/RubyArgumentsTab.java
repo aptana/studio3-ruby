@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
 import com.aptana.ruby.debug.ui.RubyDebugUIPlugin;
 
@@ -32,8 +33,7 @@ public class RubyArgumentsTab extends AbstractLaunchConfigurationTab
 	{
 		Composite composite = createPageRoot(parent);
 
-		new Label(composite, SWT.NONE)
-				.setText(Messages.RubyArgumentsTab_interpreter_args_box_title);
+		new Label(composite, SWT.NONE).setText(Messages.RubyArgumentsTab_interpreter_args_box_title);
 		interpreterArgsText = new Text(composite, SWT.MULTI | SWT.V_SCROLL | SWT.BORDER);
 		interpreterArgsText.setLayoutData(new GridData(GridData.FILL_BOTH));
 		interpreterArgsText.addModifyListener(new ModifyListener()
@@ -60,8 +60,7 @@ public class RubyArgumentsTab extends AbstractLaunchConfigurationTab
 
 		new Label(composite, SWT.NONE).setText(Messages.RubyArgumentsTab_working_dir);
 		workingDirectorySelector = new DirectorySelector(composite);
-		workingDirectorySelector
-				.setBrowseDialogMessage(Messages.RubyArgumentsTab_working_dir_browser_message);
+		workingDirectorySelector.setBrowseDialogMessage(Messages.RubyArgumentsTab_working_dir_browser_message);
 		workingDirectorySelector.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		workingDirectorySelector.addModifyListener(new ModifyListener()
 		{
@@ -104,8 +103,8 @@ public class RubyArgumentsTab extends AbstractLaunchConfigurationTab
 
 	public void performApply(ILaunchConfigurationWorkingCopy configuration)
 	{
-		configuration.setAttribute(IRubyLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, workingDirectorySelector
-				.getValidatedSelectionText());
+		configuration.setAttribute(IRubyLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY,
+				workingDirectorySelector.getValidatedSelectionText());
 		// TODO Set the args to null if the text is empty
 		configuration.setAttribute(IRubyLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, interpreterArgsText.getText());
 		configuration.setAttribute(IRubyLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, programArgsText.getText());
@@ -151,7 +150,7 @@ public class RubyArgumentsTab extends AbstractLaunchConfigurationTab
 
 	protected void log(Throwable t)
 	{
-		RubyDebugUIPlugin.logError(t.getMessage(), t);
+		IdeLog.logError(RubyDebugUIPlugin.getDefault(), t);
 	}
 
 	public Image getImage()

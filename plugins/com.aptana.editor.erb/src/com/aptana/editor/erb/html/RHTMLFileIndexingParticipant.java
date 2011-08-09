@@ -48,7 +48,7 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 		}
 		catch (Throwable e)
 		{
-			IdeLog.logError(ERBEditorPlugin.getDefault(), e.getMessage(), e);
+			IdeLog.logError(ERBEditorPlugin.getDefault(), e);
 		}
 		finally
 		{

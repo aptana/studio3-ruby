@@ -69,7 +69,7 @@ public class ResolutionTargetHyperlink implements IHyperlink
 		}
 		catch (CoreException e)
 		{
-			IdeLog.logError(RubyEditorPlugin.getDefault(), e.getMessage(), e);
+			IdeLog.logError(RubyEditorPlugin.getDefault(), e);
 		}
 	}
 

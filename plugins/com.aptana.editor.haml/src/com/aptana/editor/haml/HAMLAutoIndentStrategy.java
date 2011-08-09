@@ -89,7 +89,7 @@ public class HAMLAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 		}
 		catch (BadLocationException e)
 		{
-			IdeLog.logError(HAMLEditorPlugin.getDefault(), e.getMessage(), e);
+			IdeLog.logError(HAMLEditorPlugin.getDefault(), e);
 		}
 
 		return false;

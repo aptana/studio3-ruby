@@ -26,6 +26,7 @@ import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.debug.core.IRubyLineBreakpoint;
@@ -160,7 +161,7 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 		}
 		catch (CoreException e)
 		{
-			RubyDebugUIPlugin.logError(e);
+			IdeLog.logError(RubyDebugUIPlugin.getDefault(), e);
 		}
 
 		return null;

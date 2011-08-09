@@ -206,7 +206,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		}
 		catch (IOException e)
 		{
-			IdeLog.logError(RubyEditorPlugin.getDefault(), e.getMessage(), e);
+			IdeLog.logError(RubyEditorPlugin.getDefault(), e);
 		}
 		if (!isEOF)
 		{

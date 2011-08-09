@@ -72,7 +72,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 		}
 		catch (Exception e)
 		{
-			IdeLog.logError(RubyEditorPlugin.getDefault(), e.getMessage(), e);
+			IdeLog.logError(RubyEditorPlugin.getDefault(), e);
 		}
 		try
 		{

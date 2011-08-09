@@ -23,6 +23,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.XMLMemento;
 import org.eclipse.ui.part.ViewPart;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.editor.ruby.RubySourceEditor;
 import com.aptana.editor.ruby.RubySourceViewerConfiguration;
 import com.aptana.ruby.debug.core.model.IEvaluationResult;
@@ -121,7 +122,7 @@ public class DisplayView extends ViewPart implements ITextInputListener, IPerspe
 					}
 					catch (Throwable e)
 					{
-						RubyDebugUIPlugin.logError(e);
+						IdeLog.logError(RubyDebugUIPlugin.getDefault(), e);
 					}
 				}
 			}

@@ -5,6 +5,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.ruby.debug.ui.RubyDebugUIPlugin;
 
 /**
@@ -61,7 +62,7 @@ class DataDisplay implements IDataDisplay
 		}
 		catch (BadLocationException ble)
 		{
-			RubyDebugUIPlugin.logError(ble);
+			IdeLog.logError(RubyDebugUIPlugin.getDefault(), ble);
 		}
 	}
 
@@ -82,7 +83,7 @@ class DataDisplay implements IDataDisplay
 		}
 		catch (BadLocationException ble)
 		{
-			RubyDebugUIPlugin.logError(ble);
+			IdeLog.logError(RubyDebugUIPlugin.getDefault(), ble);
 		}
 		fTextViewer.setSelectedRange(offset + length, 0);
 		fTextViewer.revealRange(offset, length);

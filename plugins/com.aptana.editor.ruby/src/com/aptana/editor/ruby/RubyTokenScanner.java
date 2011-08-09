@@ -122,7 +122,7 @@ public class RubyTokenScanner implements ITokenScanner
 		}
 		catch (Exception e)
 		{
-			IdeLog.logError(RubyEditorPlugin.getDefault(), e.getMessage(), e);
+			IdeLog.logError(RubyEditorPlugin.getDefault(), e);
 		}
 
 		return returnValue;
