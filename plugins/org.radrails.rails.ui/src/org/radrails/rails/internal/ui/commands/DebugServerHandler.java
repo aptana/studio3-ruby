@@ -25,10 +25,15 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
 import org.radrails.rails.ui.RailsUIPlugin;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
 
 public class DebugServerHandler extends RunServerHandler
 {
+
+	private static final String RAILS = "rails"; //$NON-NLS-1$
+	private static final String SERVER = "server"; //$NON-NLS-1$
+	private static final String SCRIPT = "script"; //$NON-NLS-1$
 
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
@@ -53,22 +58,21 @@ public class DebugServerHandler extends RunServerHandler
 		return null;
 	}
 
-	@SuppressWarnings("nls")
 	protected ILaunchConfiguration findOrCreateLaunchConfiguration(IProject railsProject) throws CoreException
 	{
-		String arguments = "";
-		String filename = "";
+		String arguments = StringUtil.EMPTY;
+		String filename = StringUtil.EMPTY;
 		if (scriptServerExists(railsProject))
 		{
-			IFile file = railsProject.getFile(new Path("script").append("server"));
+			IFile file = railsProject.getFile(new Path(SCRIPT).append(SERVER));
 			filename = file.getLocation().toOSString();
-			arguments = "";
+			arguments = StringUtil.EMPTY;
 		}
 		else
 		{
-			IFile file = railsProject.getFile(new Path("script").append("rails"));
+			IFile file = railsProject.getFile(new Path(SCRIPT).append(RAILS));
 			filename = file.getLocation().toOSString();
-			arguments = "server";
+			arguments = SERVER;
 		}
 
 		ILaunchConfigurationType configType = getRubyLaunchConfigType();
@@ -76,10 +80,10 @@ public class DebugServerHandler extends RunServerHandler
 		List<ILaunchConfiguration> candidateConfigs = new ArrayList<ILaunchConfiguration>(configs.length);
 		for (ILaunchConfiguration config : configs)
 		{
-			boolean absoluteFilenamesMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_FILE_NAME, "") //$NON-NLS-1$
-					.equals(filename);
-			boolean argsMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, "") //$NON-NLS-1$
-					.equals(arguments);
+			boolean absoluteFilenamesMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_FILE_NAME,
+					StringUtil.EMPTY).equals(filename);
+			boolean argsMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS,
+					StringUtil.EMPTY).equals(arguments);
 			if (absoluteFilenamesMatch && argsMatch)
 			{
 				candidateConfigs.add(config);

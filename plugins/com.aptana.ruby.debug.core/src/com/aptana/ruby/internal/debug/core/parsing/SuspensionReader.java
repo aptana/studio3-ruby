@@ -6,6 +6,7 @@ import java.text.MessageFormat;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.RubyDebugCorePlugin;
 import com.aptana.ruby.internal.debug.core.BreakpointSuspensionPoint;
 import com.aptana.ruby.internal.debug.core.ExceptionSuspensionPoint;
@@ -43,14 +44,14 @@ public class SuspensionReader extends XmlStreamReader
 		else if (name.equals("exception"))
 		{
 			ExceptionSuspensionPoint exceptionPoint = new ExceptionSuspensionPoint();
-			exceptionPoint.setExceptionMessage(xpp.getAttributeValue("", "message"));
-			exceptionPoint.setExceptionType(xpp.getAttributeValue("", "type"));
+			exceptionPoint.setExceptionMessage(xpp.getAttributeValue(StringUtil.EMPTY, "message"));
+			exceptionPoint.setExceptionType(xpp.getAttributeValue(StringUtil.EMPTY, "type"));
 			suspensionPoint = exceptionPoint;
 		}
 		else if (name.equals("suspended"))
 		{
 			StepSuspensionPoint stepPoint = new StepSuspensionPoint();
-			String frameNoAttribute = xpp.getAttributeValue("", "frames");
+			String frameNoAttribute = xpp.getAttributeValue(StringUtil.EMPTY, "frames");
 			try
 			{
 				stepPoint.setFramesNumber(Integer.parseInt(frameNoAttribute));
@@ -70,15 +71,15 @@ public class SuspensionReader extends XmlStreamReader
 		int line = 0;
 		try
 		{
-			line = Integer.parseInt(xpp.getAttributeValue("", "line"));
+			line = Integer.parseInt(xpp.getAttributeValue(StringUtil.EMPTY, "line"));
 		}
 		catch (NumberFormatException e)
 		{
 			RubyDebugCorePlugin.log(e);
 		}
 		suspensionPoint.setLine(line);
-		suspensionPoint.setFile(xpp.getAttributeValue("", "file"));
-		suspensionPoint.setThreadId(Integer.parseInt(xpp.getAttributeValue("", "threadId")));
+		suspensionPoint.setFile(xpp.getAttributeValue(StringUtil.EMPTY, "file"));
+		suspensionPoint.setThreadId(Integer.parseInt(xpp.getAttributeValue(StringUtil.EMPTY, "threadId")));
 		return true;
 	}
 

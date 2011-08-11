@@ -24,6 +24,7 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WordRule;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.text.rules.CharacterMapRule;
 import com.aptana.editor.common.text.rules.ExtendedWordRule;
 import com.aptana.editor.css.CSSCodeScanner;
@@ -132,7 +133,7 @@ public class SassCodeScanner extends CSSCodeScanner
 		}
 		catch (BadLocationException e)
 		{
-			return ""; //$NON-NLS-1$
+			return StringUtil.EMPTY;
 		}
 	}
 

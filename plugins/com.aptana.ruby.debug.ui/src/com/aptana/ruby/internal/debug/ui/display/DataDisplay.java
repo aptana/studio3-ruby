@@ -6,6 +6,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 
 import com.aptana.core.logging.IdeLog;
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.ui.RubyDebugUIPlugin;
 
 /**
@@ -38,7 +39,7 @@ class DataDisplay implements IDataDisplay
 		IDocument document = getTextViewer().getDocument();
 		if (document != null)
 		{
-			document.set(""); //$NON-NLS-1$
+			document.set(StringUtil.EMPTY);
 		}
 	}
 

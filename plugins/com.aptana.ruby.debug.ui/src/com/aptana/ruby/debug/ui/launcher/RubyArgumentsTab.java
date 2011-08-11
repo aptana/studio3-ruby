@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import com.aptana.core.logging.IdeLog;
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
 import com.aptana.ruby.debug.ui.RubyDebugUIPlugin;
 
@@ -84,12 +85,15 @@ public class RubyArgumentsTab extends AbstractLaunchConfigurationTab
 
 	public void initializeFrom(ILaunchConfiguration configuration)
 	{
-		String workingDirectory = "", interpreterArgs = "", programArgs = ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String workingDirectory = StringUtil.EMPTY, interpreterArgs = StringUtil.EMPTY, programArgs = StringUtil.EMPTY;
 		try
 		{
-			workingDirectory = configuration.getAttribute(IRubyLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, ""); //$NON-NLS-1$
-			interpreterArgs = configuration.getAttribute(IRubyLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, ""); //$NON-NLS-1$
-			programArgs = configuration.getAttribute(IRubyLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, ""); //$NON-NLS-1$
+			workingDirectory = configuration.getAttribute(IRubyLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY,
+					StringUtil.EMPTY);
+			interpreterArgs = configuration.getAttribute(IRubyLaunchConfigurationConstants.ATTR_VM_ARGUMENTS,
+					StringUtil.EMPTY);
+			programArgs = configuration.getAttribute(IRubyLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS,
+					StringUtil.EMPTY);
 		}
 		catch (CoreException e)
 		{
@@ -132,7 +136,7 @@ public class RubyArgumentsTab extends AbstractLaunchConfigurationTab
 		try
 		{
 			String workingDirectory = launchConfig.getAttribute(
-					IRubyLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, ""); //$NON-NLS-1$
+					IRubyLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, StringUtil.EMPTY);
 			if (workingDirectory.length() == 0)
 			{
 				setErrorMessage(Messages.RubyArgumentsTab_working_dir_error_message);

@@ -27,6 +27,8 @@ import org.jrubyparser.ast.RootNode;
 import org.jrubyparser.ast.SymbolNode;
 import org.jrubyparser.parser.ParserResult;
 
+import com.aptana.core.util.StringUtil;
+import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.RubyCorePlugin;
 import com.aptana.ruby.core.RubySourceParser;
 import com.aptana.ruby.core.ast.ASTUtils;
@@ -128,8 +130,8 @@ public class CompletionContext
 								isAfterDoubleSemiColon = true;
 								source.deleteCharAt(i);
 								source.deleteCharAt(i - 1);
-								tmpPrefix.insert(0, "::");
-								partialPrefix = "";
+								tmpPrefix.insert(0, IRubyConstants.NAMESPACE_DELIMETER);
+								partialPrefix = StringUtil.EMPTY;
 								i--;
 								if (offset >= source.length())
 								{

@@ -265,14 +265,14 @@ public class RakeTasksHelper implements IRakeHelper
 		List<ILaunchConfiguration> candidateConfigs = new ArrayList<ILaunchConfiguration>(configs.length);
 		for (ILaunchConfiguration config : configs)
 		{
-			boolean absoluteFilenamesMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_FILE_NAME, "") //$NON-NLS-1$
-					.equals(rakeScriptPath);
+			boolean absoluteFilenamesMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_FILE_NAME,
+					StringUtil.EMPTY).equals(rakeScriptPath);
 			if (!absoluteFilenamesMatch)
 			{
 				continue;
 			}
-			boolean argsMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, "") //$NON-NLS-1$
-					.equals(args.toString());
+			boolean argsMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS,
+					StringUtil.EMPTY).equals(args.toString());
 			if (!argsMatch)
 			{
 				continue;

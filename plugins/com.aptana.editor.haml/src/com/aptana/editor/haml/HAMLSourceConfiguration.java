@@ -24,6 +24,7 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.CommonUtil;
@@ -78,7 +79,7 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 			new HAMLSingleLineRule("/", getToken(HTML_COMMENT)), //$NON-NLS-1$
 			new HAMLSingleLineRule("-#", getToken(HAML_COMMENT)), //$NON-NLS-1$
 			new HAMLSingleLineRule("!!!", getToken(DOCTYPE)), //$NON-NLS-1$
-			new HAMLEscapeRule(getToken("")), //$NON-NLS-1$
+			new HAMLEscapeRule(getToken(StringUtil.EMPTY)),
 			new SingleLineRule("#{", "}", getToken(INTERPOLATION)), //$NON-NLS-1$ //$NON-NLS-2$
 			new HAMLElementRule(getToken(ELEMENT)), new RubyEvaluationElementRule(new Token(RUBY_EVALUATION)), new SingleCharacterRule('{', getToken(RUBY_ATTRIBUTES)),
 			new SingleCharacterRule('}', getToken(RUBY_ATTRIBUTES_CLOSE)), new SingleLineRule("[", "]", getToken(OBJECT)), //$NON-NLS-1$ //$NON-NLS-2$
@@ -242,7 +243,7 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	protected ITokenScanner getRubyEvaluationScanner() {
 		RuleBasedScanner scanner = new RuleBasedScanner();
-		scanner.setDefaultReturnToken(getToken("")); //$NON-NLS-1$
+		scanner.setDefaultReturnToken(getToken(StringUtil.EMPTY));
 		return scanner;
 	}
 

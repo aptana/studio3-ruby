@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.aptana.core.util.StringUtil;
+
 abstract class Inflector
 {
 
@@ -112,7 +114,7 @@ abstract class Inflector
 		Inflector.plural(Pattern.compile("^(ox)$", Pattern.CASE_INSENSITIVE), "$1en"); //$NON-NLS-1$ //$NON-NLS-2$
 		Inflector.plural(Pattern.compile("(quiz)$", Pattern.CASE_INSENSITIVE), "$1zes"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		Inflector.singular(Pattern.compile("s$", Pattern.CASE_INSENSITIVE), ""); //$NON-NLS-1$ //$NON-NLS-2$
+		Inflector.singular(Pattern.compile("s$", Pattern.CASE_INSENSITIVE), StringUtil.EMPTY); //$NON-NLS-1$
 		Inflector.singular(Pattern.compile("(n)ews$", Pattern.CASE_INSENSITIVE), "$1ews"); //$NON-NLS-1$ //$NON-NLS-2$
 		Inflector.singular(Pattern.compile("([ti])a$", Pattern.CASE_INSENSITIVE), "$1um"); //$NON-NLS-1$ //$NON-NLS-2$
 		Inflector.singular(Pattern.compile("((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$", //$NON-NLS-1$

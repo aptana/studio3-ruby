@@ -39,11 +39,6 @@ public class RubyMethodBreakpoint extends RubyLineBreakpoint implements IRubyMet
 	private String fMethodName = null;
 
 	/**
-	 * Used to match type names
-	 */
-//	private Pattern fPattern;
-
-	/**
 	 * Constructs a new unconfigured method breakpoint
 	 */
 	public RubyMethodBreakpoint()
@@ -67,7 +62,6 @@ public class RubyMethodBreakpoint extends RubyLineBreakpoint implements IRubyMet
 				addTypeNameAndHitCount(attributes, typePattern, hitCount);
 				attributes.put(ENTRY, Boolean.valueOf(entry));
 				attributes.put(EXIT, Boolean.valueOf(exit));
-				// attributes.put(SUSPEND_POLICY, new Integer(getDefaultSuspendPolicy()));
 				// set attributes
 				ensureMarker().setAttributes(attributes);
 				register(register);
@@ -75,8 +69,6 @@ public class RubyMethodBreakpoint extends RubyLineBreakpoint implements IRubyMet
 
 		};
 		run(getMarkerRule(resource), wr);
-//		String type = convertToRegularExpression(typePattern);
-//		fPattern = Pattern.compile(type);
 	}
 
 	/**
@@ -89,11 +81,7 @@ public class RubyMethodBreakpoint extends RubyLineBreakpoint implements IRubyMet
 		{
 			attributes.put(METHOD_NAME, methodName);
 		}
-		// if (methodSignature != null) {
-		// attributes.put(METHOD_SIGNATURE, methodSignature);
-		// }
 		fMethodName = methodName;
-		// fMethodSignature= methodSignature;
 	}
 
 	/*
@@ -114,26 +102,5 @@ public class RubyMethodBreakpoint extends RubyLineBreakpoint implements IRubyMet
 	{
 		super.setMarker(marker);
 		fMethodName = marker.getAttribute(METHOD_NAME, null);
-		// fMethodSignature = marker.getAttribute(METHOD_SIGNATURE, null);
-		String typePattern = marker.getAttribute(TYPE_NAME, ""); //$NON-NLS-1$
-		if (typePattern != null)
-		{
-//			fPattern = Pattern.compile(convertToRegularExpression(typePattern));
-		}
 	}
-
-//	/**
-//	 * converts the specified string to one which has been formated to our needs
-//	 * 
-//	 * @param stringMatcherPattern
-//	 *            the initial pattern
-//	 * @return the modified pattern
-//	 */
-//	private String convertToRegularExpression(String stringMatcherPattern)
-//	{
-//		String regex = stringMatcherPattern.replaceAll("\\.", "\\\\."); //$NON-NLS-1$//$NON-NLS-2$
-//		regex = regex.replaceAll("\\*", "\\.\\*"); //$NON-NLS-1$//$NON-NLS-2$
-//		regex = regex.replaceAll("\\$", "\\\\\\$"); //$NON-NLS-1$ //$NON-NLS-2$
-//		return regex;
-//	}
 }

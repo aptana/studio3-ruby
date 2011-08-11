@@ -4,6 +4,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.xmlpull.v1.XmlPullParser;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.RubyDebugCorePlugin;
 import com.aptana.ruby.internal.debug.core.model.RubyProcessingException;
 
@@ -49,9 +50,9 @@ public class LoadResultReader extends XmlStreamReader
 		String name = xpp.getName();
 		if (name.equals("loadResult"))
 		{
-			this.loadResult.setFileName(xpp.getAttributeValue("", "fileName"));
-			this.loadResult.setExceptionType(xpp.getAttributeValue("", "exceptionType"));
-			this.loadResult.setExceptionMessage(xpp.getAttributeValue("", "exceptionMessage"));
+			this.loadResult.setFileName(xpp.getAttributeValue(StringUtil.EMPTY, "fileName"));
+			this.loadResult.setExceptionType(xpp.getAttributeValue(StringUtil.EMPTY, "exceptionType"));
+			this.loadResult.setExceptionMessage(xpp.getAttributeValue(StringUtil.EMPTY, "exceptionMessage"));
 			return true;
 		}
 		return false;

@@ -51,6 +51,7 @@ import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.EclipseUtil;
 import com.aptana.core.util.ProcessUtil;
 import com.aptana.core.util.ResourceUtil;
+import com.aptana.core.util.StringUtil;
 import com.aptana.index.core.IFileStoreIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.IndexContainerJob;
@@ -462,8 +463,10 @@ public class CoreStubber extends Job
 				ShellExecutable.getEnvironment(), stubberScript.getAbsolutePath(), outputDir.getAbsolutePath());
 		if (stubberResult == null || !stubberResult.isOK())
 		{
-			RubyCorePlugin.getDefault().getLog()
-					.log(new Status(IStatus.ERROR, RubyCorePlugin.PLUGIN_ID, (stubberResult == null) ? "" //$NON-NLS-1$
+			RubyCorePlugin
+					.getDefault()
+					.getLog()
+					.log(new Status(IStatus.ERROR, RubyCorePlugin.PLUGIN_ID, (stubberResult == null) ? StringUtil.EMPTY
 							: stubberResult.getMessage(), null));
 		}
 		else

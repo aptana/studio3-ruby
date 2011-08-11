@@ -49,6 +49,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 
 import com.aptana.core.logging.IdeLog;
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.IRubyLineBreakpoint;
 import com.aptana.ruby.debug.core.model.IRubyVariable;
 import com.aptana.ruby.internal.debug.ui.StorageEditorInput;
@@ -235,7 +236,7 @@ public class RubyModelPresentation extends LabelProvider implements IDebugModelP
 	 */
 	public void computeDetail(IValue value, IValueDetailListener listener)
 	{
-		String detail = ""; //$NON-NLS-1$
+		String detail = StringUtil.EMPTY;
 		try
 		{
 			detail = value.getValueString();

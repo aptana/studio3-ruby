@@ -257,7 +257,7 @@ public class ASTUtils
 	{
 		if (node == null)
 		{
-			return ""; //$NON-NLS-1$
+			return StringUtil.EMPTY;
 		}
 		if (node instanceof HashNode)
 		{

@@ -23,6 +23,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 
 import com.aptana.core.logging.IdeLog;
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
 import com.aptana.ruby.debug.ui.RubyDebugUIPlugin;
 
@@ -100,7 +101,8 @@ public class RubyApplicationShortcut implements ILaunchShortcut
 		List<ILaunchConfiguration> candidateConfigs = new ArrayList<ILaunchConfiguration>(configs.length);
 		for (ILaunchConfiguration config : configs)
 		{
-			boolean absoluteFilenamesMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_FILE_NAME, "") //$NON-NLS-1$
+			boolean absoluteFilenamesMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_FILE_NAME,
+					StringUtil.EMPTY)
 					.equals(rubyFile.getLocation().toOSString());
 			if (absoluteFilenamesMatch)
 			{

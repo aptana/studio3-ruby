@@ -20,6 +20,8 @@ import org.jrubyparser.parser.ParserSupport19;
 import org.jrubyparser.parser.Ruby18Parser;
 import org.jrubyparser.parser.Ruby19Parser;
 
+import com.aptana.core.util.StringUtil;
+
 /**
  * @author Chris Williams
  * @author Michael Xia
@@ -93,7 +95,7 @@ public class RubySourceParser
 	{
 		if (fileName == null)
 		{
-			fileName = ""; //$NON-NLS-1$
+			fileName = StringUtil.EMPTY;
 		}
 		if (parser == null)
 		{

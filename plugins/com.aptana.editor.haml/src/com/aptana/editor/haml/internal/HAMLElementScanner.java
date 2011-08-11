@@ -19,6 +19,7 @@ import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.text.rules.SingleCharacterRule;
 import com.aptana.editor.common.text.rules.WhitespaceDetector;
 
@@ -103,7 +104,7 @@ public class HAMLElementScanner extends BufferedRuleBasedScanner
 		{
 			if (fLastToken == null || !PUNCTUATION_DEFINITION_TAG_HAML.equals(fLastToken.getData()))
 			{
-				token = createToken(""); //$NON-NLS-1$
+				token = createToken(StringUtil.EMPTY);
 			}
 		}
 		fLastToken = token;

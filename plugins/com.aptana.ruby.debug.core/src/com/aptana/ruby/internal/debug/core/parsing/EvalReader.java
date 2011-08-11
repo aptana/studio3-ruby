@@ -2,6 +2,7 @@ package com.aptana.ruby.internal.debug.core.parsing;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.RubyDebugCorePlugin;
 import com.aptana.ruby.internal.debug.core.model.RubyProcessingException;
 
@@ -30,14 +31,14 @@ public class EvalReader extends XmlStreamReader
 		boolean result = false;
 		if (xpp.getName().equals("processingException"))
 		{
-			exceptionType = xpp.getAttributeValue("", "type");
-			exceptionMessage = xpp.getAttributeValue("", "message");
+			exceptionType = xpp.getAttributeValue(StringUtil.EMPTY, "type");
+			exceptionMessage = xpp.getAttributeValue(StringUtil.EMPTY, "message");
 			result = true;
 		}
 		else if (xpp.getName().equals("eval"))
 		{
-//			name = xpp.getAttributeValue("", "name");
-			value = xpp.getAttributeValue("", "value");
+			// name = xpp.getAttributeValue(StringUtil.EMPTY, "name");
+			value = xpp.getAttributeValue(StringUtil.EMPTY, "value");
 			result = true;
 		}
 		return result;

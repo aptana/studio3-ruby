@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.RubyDebugCorePlugin;
 import com.aptana.ruby.internal.debug.core.model.RubyStackFrame;
 import com.aptana.ruby.internal.debug.core.model.RubyThread;
@@ -66,9 +67,9 @@ public class FramesReader extends XmlStreamReader
 		}
 		if (name.equals("frame"))
 		{
-			int line = Integer.parseInt(xpp.getAttributeValue("", "line"));
-			int index = Integer.parseInt(xpp.getAttributeValue("", "no"));
-			String file = xpp.getAttributeValue("", "file");
+			int line = Integer.parseInt(xpp.getAttributeValue(StringUtil.EMPTY, "line"));
+			int index = Integer.parseInt(xpp.getAttributeValue(StringUtil.EMPTY, "no"));
+			String file = xpp.getAttributeValue(StringUtil.EMPTY, "file");
 			this.frames.add(new RubyStackFrame(thread, file, line, index));
 			return true;
 		}

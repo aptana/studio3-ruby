@@ -47,6 +47,7 @@ import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.QueryResult;
 import com.aptana.index.core.SearchPattern;
+import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.IRubyMethod.Visibility;
 import com.aptana.ruby.core.ast.ASTUtils;
 import com.aptana.ruby.core.ast.ClosestSpanningNodeLocator;
@@ -822,7 +823,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 
 	private boolean isSingletonMethodInKey(String word)
 	{
-		String[] parts = word.split("" + IRubyIndexConstants.SEPARATOR); //$NON-NLS-1$
+		String[] parts = word.split(Character.toString(IRubyIndexConstants.SEPARATOR));
 		String singletonOrInstance = parts[4];
 		if (singletonOrInstance != null && singletonOrInstance.length() > 0)
 		{
@@ -845,7 +846,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 
 	private Visibility getVisibilityFromMethodDefKey(String word)
 	{
-		String[] parts = word.split("" + IRubyIndexConstants.SEPARATOR); //$NON-NLS-1$
+		String[] parts = word.split(Character.toString(IRubyIndexConstants.SEPARATOR));
 		String namespace = parts[3];
 		if (namespace != null && namespace.length() > 0)
 		{
@@ -865,7 +866,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 
 	private String getTypeNameFromMethodDefKey(String word)
 	{
-		String[] parts = word.split("" + IRubyIndexConstants.SEPARATOR); //$NON-NLS-1$
+		String[] parts = word.split(Character.toString(IRubyIndexConstants.SEPARATOR));
 		String simpleName = parts[1];
 		String namespace = parts[2];
 		if (namespace != null && namespace.length() > 0)
@@ -1026,7 +1027,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		{
 			return typeNames;
 		}
-		if (IRubyIndexConstants.OBJECT.equals(typeName))
+		if (IRubyConstants.OBJECT.equals(typeName))
 		{
 			typeNames.put("Kernel", true);
 			return typeNames;

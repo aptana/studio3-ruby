@@ -2,6 +2,7 @@ package com.aptana.ruby.internal.debug.core.parsing;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.RubyDebugCorePlugin;
 
 @SuppressWarnings("nls")
@@ -40,12 +41,12 @@ public class BreakpointModificationReader extends XmlStreamReader
 		boolean result = false;
 		if (xpp.getName().equals("breakpointAdded"))
 		{
-			no = xpp.getAttributeValue("", "no");
+			no = xpp.getAttributeValue(StringUtil.EMPTY, "no");
 			result = true;
 		}
 		else if (xpp.getName().equals("breakpointDeleted"))
 		{
-			no = xpp.getAttributeValue("", "no");
+			no = xpp.getAttributeValue(StringUtil.EMPTY, "no");
 			result = true;
 		}
 		else if (xpp.getName().equals("error"))

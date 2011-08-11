@@ -27,6 +27,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.aptana.core.logging.IdeLog;
+import com.aptana.core.util.StringUtil;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.debug.core.IRubyLineBreakpoint;
@@ -93,8 +94,7 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 			}
 		}
 		// create line breakpoint (doc line numbers start at 0)
-		RubyDebugModel.createLineBreakpoint(resource, fileName, "", //$NON-NLS-1$
-				++lineNumber, true, null);
+		RubyDebugModel.createLineBreakpoint(resource, fileName, StringUtil.EMPTY, ++lineNumber, true, null);
 	}
 
 	/*

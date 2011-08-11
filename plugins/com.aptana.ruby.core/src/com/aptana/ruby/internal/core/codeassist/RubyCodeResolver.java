@@ -34,6 +34,7 @@ import org.jrubyparser.ast.StrNode;
 import org.jrubyparser.lexer.SyntaxException;
 
 import com.aptana.core.util.IOUtil;
+import com.aptana.core.util.StringUtil;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.QueryResult;
 import com.aptana.index.core.SearchPattern;
@@ -338,7 +339,7 @@ public class RubyCodeResolver extends CodeResolver
 	private Collection<ResolutionTarget> findType(String typeName)
 	{
 		// Handle qualified type name!
-		String namespace = ""; //$NON-NLS-1$
+		String namespace = StringUtil.EMPTY;
 		int separatorIndex = typeName.indexOf(NAMESPACE_DELIMITER);
 		if (separatorIndex != -1)
 		{

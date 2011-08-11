@@ -12,9 +12,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.aptana.core.util.StringUtil;
+
 abstract class ResourceSelector
 {
-	protected final static String EMPTY_STRING = ""; //$NON-NLS-1$
+	protected final static String EMPTY_STRING = StringUtil.EMPTY;
 	protected Composite composite;
 	protected Button browseButton;
 	protected Text textField;

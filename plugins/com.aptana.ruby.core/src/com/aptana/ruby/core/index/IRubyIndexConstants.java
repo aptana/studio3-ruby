@@ -34,7 +34,12 @@ public interface IRubyIndexConstants
 	public static final char CLASS_SUFFIX = 'C';
 	public static final char MODULE_SUFFIX = 'M';
 
-	// TODO Deprecate these and just use the one on IRubyConstants
+	/**
+	 * @deprecated Please use {@link IRubyConstants#OBJECT}
+	 */
 	public static final String OBJECT = IRubyConstants.OBJECT;
+	/**
+	 * @deprecated Please use {@link IRubyConstants#NAMESPACE_DELIMETER}
+	 */
 	public static final String NAMESPACE_DELIMETER = IRubyConstants.NAMESPACE_DELIMETER;
 }

@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.IRubyBreakpoint;
 import com.aptana.ruby.debug.ui.RubyDebugUIPlugin;
 import com.aptana.ruby.internal.debug.ui.propertypages.PropertyPageMessages;
@@ -86,7 +87,7 @@ public class StandardRubyBreakpointEditor extends AbstractRubyBreakpointEditor
 				setDirty(PROP_HIT_COUNT);
 			}
 		});
-		SWTFactory.createLabel(composite, "", 1); // spacer //$NON-NLS-1$
+		SWTFactory.createLabel(composite, StringUtil.EMPTY, 1); // spacer
 		composite.addDisposeListener(new DisposeListener()
 		{
 			public void widgetDisposed(DisposeEvent e)
@@ -131,7 +132,7 @@ public class StandardRubyBreakpointEditor extends AbstractRubyBreakpointEditor
 		fBreakpoint = breakpoint;
 		boolean enabled = false;
 		boolean hasHitCount = false;
-		String text = ""; //$NON-NLS-1$
+		String text = StringUtil.EMPTY;
 		if (breakpoint != null)
 		{
 			enabled = true;
