@@ -27,6 +27,8 @@ import org.jrubyparser.parser.ParserSupport19;
 import org.jrubyparser.parser.Ruby19Parser;
 import org.jrubyparser.parser.RubyParser;
 
+import com.aptana.core.logging.IdeLog;
+import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
 
 /**
@@ -36,8 +38,8 @@ import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
  */
 class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 {
-	public RubyAutoIndentStrategy(String contentType, SourceViewerConfiguration configuration,
-			ISourceViewer sourceViewer, IPreferenceStore prefStore)
+	RubyAutoIndentStrategy(String contentType, SourceViewerConfiguration configuration, ISourceViewer sourceViewer,
+			IPreferenceStore prefStore)
 	{
 		super(contentType, configuration, sourceViewer, prefStore);
 	}
@@ -48,63 +50,60 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 	@Override
 	protected boolean autoIndent(IDocument d, DocumentCommand c)
 	{
-		if (!super.autoIndent(d, c))
-		{
-			try
-			{
-				int p = (c.offset == d.getLength() ? c.offset - 1 : c.offset);
-				int line = d.getLineOfOffset(p);
-				IRegion currentLineRegion = d.getLineInformation(line);
-				int startOfCurrentLine = currentLineRegion.getOffset();
-				String lineString = d.get(startOfCurrentLine, c.offset - startOfCurrentLine);
+		boolean superAutoIndent = super.autoIndent(d, c);
 
-				if (lineString.startsWith("=begin")) //$NON-NLS-1$
-				{
-					// TODO If doesn't start at beginning of line, move to first column?
-					String indent = getIndentString();
-					c.text += indent;
-					c.caretOffset = c.offset + indent.length();
-					c.shiftsCaret = false;
-					c.text += TextUtilities.getDefaultLineDelimiter(d) + "=end"; //$NON-NLS-1$
-					return true;
-				}
-			}
-			catch (BadLocationException e)
-			{
-				// ignore
-			}
+		int p = ((c.offset == d.getLength()) ? c.offset - 1 : c.offset);
+		int line = 0;
+		IRegion currentLineRegion = null;
+		int startOfCurrentLine = 0;
+		String lineString = null;
+		try
+		{
+			line = d.getLineOfOffset(p);
+			currentLineRegion = d.getLineInformation(line);
+			startOfCurrentLine = currentLineRegion.getOffset();
+			lineString = d.get(startOfCurrentLine, c.offset - startOfCurrentLine);
+		}
+		catch (BadLocationException e)
+		{
+			IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to get text of line at offset: " + p, e);
 			return false;
 		}
 
-		// Ruble says we're at an indentation point, this is where we should look for closing with "end"
-		try
+		if (!superAutoIndent)
 		{
-			int p = (c.offset == d.getLength() ? c.offset - 1 : c.offset);
-			int line = d.getLineOfOffset(p);
-			IRegion currentLineRegion = d.getLineInformation(line);
-			int startOfCurrentLine = currentLineRegion.getOffset();
-			String trimmed = getTrimmedLine(d, startOfCurrentLine, c.offset);
-
-			if (trimmed.equals("=begin")) //$NON-NLS-1$
+			if (lineString.startsWith("=begin")) //$NON-NLS-1$
 			{
-				// TODO If doesn't start at beginning of line, move to first column
+				// TODO If doesn't start at beginning of line, move to first column?
 				String indent = getIndentString();
 				c.text += indent;
 				c.caretOffset = c.offset + indent.length();
 				c.shiftsCaret = false;
 				c.text += TextUtilities.getDefaultLineDelimiter(d) + "=end"; //$NON-NLS-1$
+				return true;
 			}
-			// insert closing "end" on new line after an unclosed block
-			if (closeBlock() && unclosedBlock(d, trimmed, c.offset))
-			{
-				String previousLineIndent = getAutoIndentAfterNewLine(d, c);
-				c.text += TextUtilities.getDefaultLineDelimiter(d) + previousLineIndent + BLOCK_CLOSER;
-			}
+
+			return false;
 		}
-		catch (BadLocationException e)
+
+		// Ruble says we're at an indentation point, this is where we should look for closing with "end"
+		String trimmed = lineString.trim();
+		if (trimmed.equals("=begin")) //$NON-NLS-1$
 		{
-			// ignore
+			// TODO If doesn't start at beginning of line, move to first column
+			String indent = getIndentString();
+			c.text += indent;
+			c.caretOffset = c.offset + indent.length();
+			c.shiftsCaret = false;
+			c.text += TextUtilities.getDefaultLineDelimiter(d) + "=end"; //$NON-NLS-1$
 		}
+		// insert closing "end" on new line after an unclosed block
+		if (closeBlock() && unclosedBlock(d, trimmed, c.offset))
+		{
+			String previousLineIndent = getAutoIndentAfterNewLine(d, c);
+			c.text += TextUtilities.getDefaultLineDelimiter(d) + previousLineIndent + BLOCK_CLOSER;
+		}
+
 		return true;
 	}
 
@@ -125,9 +124,11 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 		support.setWarnings(new NullWarnings());
 		RubyParser parser = new Ruby19Parser(support);
 		LexerSource lexerSource = null;
+		StringReader reader = null;
 		try
 		{
-			lexerSource = LexerSource.getSource("", new StringReader(d.get()), config); //$NON-NLS-1$
+			reader = new StringReader(d.get());
+			lexerSource = LexerSource.getSource(StringUtil.EMPTY, reader, config);
 			parser.parse(config, lexerSource);
 		}
 		catch (SyntaxException e)
@@ -136,29 +137,40 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 			{
 				return false;
 			}
+			StringReader reader2 = null;
 			try
 			{
 				StringBuffer buffer = new StringBuffer(d.get());
 				buffer.insert(offset, TextUtilities.getDefaultLineDelimiter(d) + BLOCK_CLOSER);
-				lexerSource = LexerSource.getSource("", new StringReader(buffer.toString()), config); //$NON-NLS-1$
+				reader2 = new StringReader(buffer.toString());
+				lexerSource = LexerSource.getSource(StringUtil.EMPTY, reader2, config);
 				parser.parse(config, lexerSource);
 			}
 			catch (SyntaxException syntaxException)
 			{
 				return false;
 			}
+			finally
+			{
+				if (reader2 != null)
+				{
+					reader2.close();
+				}
+			}
 			return true;
 		}
 		catch (Throwable t)
 		{
-			// ignore whatever odd exceptions that may get thrown here.
+			IdeLog.logError(RubyEditorPlugin.getDefault(), "Got unexpected exception parsing file", t);
+		}
+		finally
+		{
+			if (reader != null)
+			{
+				reader.close();
+			}
 		}
 		return false;
-	}
-
-	private String getTrimmedLine(IDocument d, int start, int offset) throws BadLocationException
-	{
-		return d.get(start, offset - start).trim();
 	}
 
 	@SuppressWarnings("nls")

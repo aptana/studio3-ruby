@@ -89,7 +89,7 @@ public class RubySourceParser
 		return ast;
 	}
 
-	private ParserResult parse(String fileName, Reader content) throws Exception
+	private ParserResult parse(String fileName, Reader content)
 	{
 		if (fileName == null)
 		{

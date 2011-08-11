@@ -14,7 +14,9 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.rules.ITokenScanner;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.editor.common.text.rules.ThemeingDamagerRepairer;
+import com.aptana.editor.ruby.RubyEditorPlugin;
 
 /**
  * Expands the damage region to the previous line if it ends with '\'.
@@ -58,7 +60,8 @@ public class LineContinuationDamagerRepairer extends ThemeingDamagerRepairer
 			}
 			catch (BadLocationException e1)
 			{
-				// ignore
+				IdeLog.logError(RubyEditorPlugin.getDefault(),
+						"Unable to check previous line form '\' continuation, offset: " + e.getOffset(), e1);
 			}
 		}
 		return region;

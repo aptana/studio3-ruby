@@ -41,17 +41,20 @@ import org.jrubyparser.ast.SymbolNode;
 import org.jrubyparser.ast.TrueNode;
 import org.jrubyparser.ast.ZArrayNode;
 
+import com.aptana.core.util.ArrayUtil;
+import com.aptana.core.util.StringUtil;
+
 public class ASTUtils
 {
 
-	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
+	private static final String EMPTY_STRING = StringUtil.EMPTY;
 	private static final String NAMESPACE_DELIMETER = "::"; //$NON-NLS-1$
 
 	public static String[] getArgs(ArgsNode argsNode, StaticScope scope)
 	{
 		if (argsNode == null)
 		{
-			return new String[0];
+			return ArrayUtil.NO_STRINGS;
 		}
 
 		List<String> arguments = getArguments(argsNode.getPre());
@@ -241,7 +244,7 @@ public class ASTUtils
 		try
 		{
 			Method getNameMethod = node.getClass().getMethod("getName", new Class[] {}); //$NON-NLS-1$
-			Object name = getNameMethod.invoke(node, new Object[0]);
+			Object name = getNameMethod.invoke(node, ArrayUtil.NO_OBJECTS);
 			return (String) name;
 		}
 		catch (Exception e)
@@ -294,18 +297,18 @@ public class ASTUtils
 		}
 		if (node instanceof StrNode)
 		{
-			return '"' + ((StrNode) node).getValue().toString() + '"';
+			return '"' + ((StrNode) node).getValue() + '"';
 		}
 		if (node instanceof DStrNode)
 		{
 			List<Node> children = node.childNodes();
 			StringBuilder text = new StringBuilder();
-			text.append("\""); //$NON-NLS-1$
+			text.append('"');
 			for (Node child : children)
 			{
 				text.append(getStringRepresentation(child));
 			}
-			text.append("\""); //$NON-NLS-1$
+			text.append('"');
 			return text.toString();
 		}
 		return node.toString();

@@ -27,6 +27,7 @@ import org.jrubyparser.parser.ParserSupport;
 import org.jrubyparser.parser.Tokens;
 
 import com.aptana.core.logging.IdeLog;
+import com.aptana.core.util.StringUtil;
 
 /**
  * A token scanner which returns integers for ruby tokens. These can later be mapped to colors. Does some smoothing on
@@ -99,6 +100,7 @@ public class RubyTokenScanner implements ITokenScanner
 			if (isEOF)
 			{
 				returnValue = Token.EOF;
+				// TODO Close the lexer's reader
 			}
 			else
 			{
@@ -109,11 +111,11 @@ public class RubyTokenScanner implements ITokenScanner
 		catch (SyntaxException se)
 		{
 			if (lexerSource.getOffset() - origLength == 0)
-				return Token.EOF; // return eof if we hit a problem found at
-			// end of parsing
+			{
+				return Token.EOF; // return eof if we hit a problem found at end of parsing
+			}
 			fTokenLength = getOffset() - fOffset;
-			return token(Tokens.yyErrorCode); // FIXME This should return a
-			// special error token!
+			return token(Tokens.yyErrorCode); // FIXME This should return a special error token!
 		}
 		catch (NumberFormatException nfe)
 		{
@@ -142,7 +144,9 @@ public class RubyTokenScanner implements ITokenScanner
 			{
 				isInSymbol = false; // we're at the end of the symbol
 				if (shouldReturnDefault(i))
+				{
 					return new Token(i);
+				}
 			}
 			return new Token(Tokens.tSYMBEG);
 		}
@@ -181,7 +185,9 @@ public class RubyTokenScanner implements ITokenScanner
 				// case...
 				if ((((fOffset - origOffset) + 1) < fContents.length())
 						&& (fContents.charAt((fOffset - origOffset) + 1) == '?'))
+				{
 					return new Token(CHARACTER);
+				}
 				return new Token(i);
 			default:
 				return new Token(i);
@@ -191,10 +197,14 @@ public class RubyTokenScanner implements ITokenScanner
 	private boolean looksLikeTertiaryConditionalWithNoSpaces()
 	{
 		if (fTokenLength > 1)
+		{
 			return false;
+		}
 		int index = (fOffset - origOffset) - 1;
 		if (index < 0)
+		{
 			return false;
+		}
 		try
 		{
 			char c = fContents.charAt(index);
@@ -224,7 +234,9 @@ public class RubyTokenScanner implements ITokenScanner
 	private boolean isSymbolTerminator(int i)
 	{
 		if (isRealKeyword(i))
+		{
 			return true;
+		}
 		switch (i)
 		{
 			case Tokens.tAREF:
@@ -262,7 +274,9 @@ public class RubyTokenScanner implements ITokenScanner
 	private boolean isRealKeyword(int i)
 	{
 		if (i >= MIN_KEYWORD && i <= MAX_KEYWORD)
+		{
 			return true;
+		}
 		return false;
 	}
 
@@ -273,15 +287,14 @@ public class RubyTokenScanner implements ITokenScanner
 		try
 		{
 			fContents = document.get(offset, length);
-			lexerSource = LexerSource.getSource("filename", new StringReader(fContents), //$NON-NLS-1$
-					config);
-			lexer.setSource(lexerSource);
 		}
 		catch (BadLocationException e)
 		{
-			lexerSource = LexerSource.getSource("filename", new StringReader(""), config); //$NON-NLS-1$ //$NON-NLS-2$
-			lexer.setSource(lexerSource);
+			fContents = StringUtil.EMPTY;
 		}
+		StringReader reader = new StringReader(fContents);
+		lexerSource = LexerSource.getSource("filename", reader, config); //$NON-NLS-1$
+		lexer.setSource(lexerSource);
 
 		// FIXME If we're resuming after a string/regexp/command, set up lex state to be expression end.
 		if (offset > 0)
@@ -299,7 +312,8 @@ public class RubyTokenScanner implements ITokenScanner
 			}
 			catch (BadLocationException e)
 			{
-				// ignore
+				IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to get previous partition at offset: " + offset,
+						e);
 			}
 		}
 
@@ -309,6 +323,7 @@ public class RubyTokenScanner implements ITokenScanner
 
 	protected void reset()
 	{
+		// TODO close the StringReader!
 		lexer.reset();
 		lexer.setState(LexState.EXPR_BEG);
 		lexer.setPreserveSpaces(true);
@@ -320,7 +335,9 @@ public class RubyTokenScanner implements ITokenScanner
 	String getSource(int offset, int length)
 	{
 		if (fContents == null || offset < 0 || (offset + length) > fContents.length())
+		{
 			return null;
+		}
 		return new String(fContents.substring(offset, offset + length));
 	}
 }

@@ -17,6 +17,9 @@ import com.aptana.ruby.core.IRubyScript;
 public class RubyScript extends RubyElement implements IRubyScript
 {
 
+	// TODO Can we move this to some re-usable constant in Parsing plugin?
+	private static final IParseNode[] NO_PARSE_NODES = new IParseNode[0];
+
 	private RubyImportContainer fImportContainer;
 	private List<IParseNode> commentNodes;
 
@@ -45,7 +48,7 @@ public class RubyScript extends RubyElement implements IRubyScript
 	{
 		if (commentNodes == null || commentNodes.isEmpty())
 		{
-			return new IParseNode[0];
+			return NO_PARSE_NODES;
 		}
 		return commentNodes.toArray(new IParseNode[commentNodes.size()]);
 	}

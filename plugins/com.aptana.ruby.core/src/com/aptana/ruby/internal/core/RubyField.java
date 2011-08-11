@@ -13,7 +13,7 @@ import com.aptana.ruby.core.IRubyField;
 public abstract class RubyField extends NamedMember implements IRubyField
 {
 
-	public RubyField(String name, int start, int nameStart, int nameEnd)
+	protected RubyField(String name, int start, int nameStart, int nameEnd)
 	{
 		super(name, start, nameStart, nameEnd);
 	}

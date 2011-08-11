@@ -1,3 +1,10 @@
+/**
+ * Aptana Studio
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
+ * Please see the license.html included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package com.aptana.ruby.core.ast;
 
 import org.jrubyparser.ast.Colon3Node;
@@ -52,7 +59,7 @@ public class NamespaceVisitor extends AbstractNodeLocator
 
 		StringBuilder builder = new StringBuilder();
 		String type = null;
-		while ((type = popType()) != null)
+		while ((type = popType()) != null) // $codepro.audit.disable assignmentInCondition
 		{
 			builder.insert(0, type).insert(0, NAMESPACE_DELIMITER);
 		}

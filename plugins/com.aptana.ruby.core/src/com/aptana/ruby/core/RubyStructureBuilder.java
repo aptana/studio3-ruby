@@ -181,12 +181,12 @@ public class RubyStructureBuilder implements ISourceElementRequestor
 			handle = new RubyClassVariable(fieldInfo.name, fieldInfo.declarationStart, fieldInfo.nameSourceStart,
 					fieldInfo.nameSourceEnd);
 		}
-		else if (fieldInfo.name.startsWith("@")) //$NON-NLS-1$
+		else if (fieldInfo.name.length() > 0 && fieldInfo.name.charAt(0) == '@')
 		{
 			handle = new RubyInstanceVariable(fieldInfo.name, fieldInfo.declarationStart, fieldInfo.nameSourceStart,
 					fieldInfo.nameSourceEnd);
 		}
-		else if (fieldInfo.name.startsWith("$")) //$NON-NLS-1$
+		else if (fieldInfo.name.length() > 0 && fieldInfo.name.charAt(0) == '$')
 		{
 			parent = script;
 			handle = new RubyGlobal(fieldInfo.name, fieldInfo.declarationStart, fieldInfo.nameSourceStart,

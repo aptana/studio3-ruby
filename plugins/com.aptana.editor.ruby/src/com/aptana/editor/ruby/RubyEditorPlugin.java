@@ -32,7 +32,8 @@ public class RubyEditorPlugin extends AbstractUIPlugin
 	/**
 	 * The constructor
 	 */
-	public RubyEditorPlugin()
+	public RubyEditorPlugin() // $codepro.audit.disable
+								// com.instantiations.assist.eclipse.analysis.audit.rule.effectivejava.enforceTheSingletonPropertyWithAPrivateConstructor
 	{
 	}
 
@@ -40,7 +41,7 @@ public class RubyEditorPlugin extends AbstractUIPlugin
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
-	public void start(BundleContext context) throws Exception
+	public void start(BundleContext context) throws Exception // $codepro.audit.disable declaredExceptions
 	{
 		super.start(context);
 		plugin = this;
@@ -50,7 +51,7 @@ public class RubyEditorPlugin extends AbstractUIPlugin
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
 	 */
-	public void stop(BundleContext context) throws Exception
+	public void stop(BundleContext context) throws Exception // $codepro.audit.disable declaredExceptions
 	{
 		plugin = null;
 		super.stop(context);

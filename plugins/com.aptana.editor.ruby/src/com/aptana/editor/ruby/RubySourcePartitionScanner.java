@@ -36,6 +36,7 @@ import org.jrubyparser.parser.ParserSupport;
 import org.jrubyparser.parser.Tokens;
 
 import com.aptana.core.logging.IdeLog;
+import com.aptana.core.util.StringUtil;
 
 public class RubySourcePartitionScanner implements IPartitionTokenScanner
 {
@@ -82,26 +83,33 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			// backtrack to beginning of partition so we don't get in weird
 			// state
 			myOffset = partitionOffset;
-			length += diff;
+			length += diff; // $codepro.audit.disable questionableAssignment
 			this.fContentType = contentType;
 			if (this.fContentType.equals(RubySourceConfiguration.SINGLE_LINE_COMMENT)
 					|| this.fContentType.equals(IDocument.DEFAULT_CONTENT_TYPE))
+			{
 				this.fContentType = RubySourceConfiguration.DEFAULT;
+			}
 			// FIXME What if a heredoc with dynamic code inside is broken? contents will start with "}" rather than
 			// expected
 		}
 		if (myOffset == -1)
+		{
 			myOffset = 0;
+		}
 		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.BOTH);
+		StringReader reader = null;
 		try
 		{
 			fContents = document.get(myOffset, length);
-			lexerSource = LexerSource.getSource(DEFAULT_FILENAME, new StringReader(fContents), config);
+			reader = new StringReader(fContents);
+			lexerSource = LexerSource.getSource(DEFAULT_FILENAME, reader, config);
 			lexer.setSource(lexerSource);
 		}
 		catch (BadLocationException e)
 		{
-			lexerSource = LexerSource.getSource(DEFAULT_FILENAME, new StringReader(""), config); //$NON-NLS-1$
+			reader = new StringReader(StringUtil.EMPTY);
+			lexerSource = LexerSource.getSource(DEFAULT_FILENAME, reader, config);
 			lexer.setSource(lexerSource);
 		}
 
@@ -121,7 +129,8 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			}
 			catch (BadLocationException e)
 			{
-				// ignore
+				IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to get previous partition at offset: " + offset,
+						e);
 			}
 		}
 
@@ -155,6 +164,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			if (isEOF)
 			{
 				returnValue = Token.EOF;
+				// TODO Close the lexer's reader!
 			}
 			else
 			{
@@ -188,7 +198,8 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		}
 		catch (SyntaxException se)
 		{
-			if (se.getMessage().equals("embedded document meets end of file")) { //$NON-NLS-1$
+			if (se.getMessage().equals("embedded document meets end of file")) //$NON-NLS-1$
+			{
 				return handleUnterminedMultilineComment(se);
 			}
 			else if (se.getPid().equals(PID.STRING_MARKER_MISSING) || se.getPid().equals(PID.STRING_HITS_EOF))
@@ -235,7 +246,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 	private IToken handleHeredocInMiddleOfLine() throws IOException
 	{
 		String opening = getOpeningStringToEndOfLine();
-		int endOfMarker = indexOf(opening.trim(), "., +()"); //$NON-NLS-1$
+		int endOfMarker = indexOf(opening.trim(), '.', ',', '+', '(', ')');
 		if (opening.trim().startsWith(HEREDOC_MARKER_PREFIX) && endOfMarker != -1)
 		{
 			adjustOffset(opening);
@@ -261,7 +272,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		}
 		// Need to grab until newline or EOF!
 		String untilEnd = new String(fContents.substring(start));
-		int index = indexOf(untilEnd, "\r\n"); //$NON-NLS-1$
+		int index = indexOf(untilEnd, '\r', '\n'); // $codepro.audit.disable platformSpecificLineSeparator
 		if (index != -1)
 			untilEnd = new String(untilEnd.substring(0, index + 1));
 		return untilEnd;
@@ -300,7 +311,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			IDocument document = new Document(possible);
 			scanner.setRange(document, origOffset, possible.length());
 			IToken token;
-			while (!(token = scanner.nextToken()).isEOF())
+			while (!(token = scanner.nextToken()).isEOF()) // $codepro.audit.disable assignmentInCondition
 			{
 				push(new QueuedToken(token, scanner.getTokenOffset() + fOffset, scanner.getTokenLength()));
 			}
@@ -334,6 +345,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 
 	private void reset()
 	{
+		// TODO Close the lexer's reader!
 		lexer.reset();
 		lexer.setState(LexState.EXPR_BEG);
 		lexer.setPreserveSpaces(true);
@@ -347,10 +359,12 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 	{
 		int index = opening.indexOf(HEREDOC_MARKER_PREFIX);
 		if (index > 0)
+		{
 			setOffset(fOffset + index);
+		}
 	}
 
-	private int indexOf(String opening, String string)
+	private int indexOf(String opening, char... chars)
 	{
 		String trimmed = opening.trim();
 		int diff;
@@ -364,12 +378,13 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			diff = opening.indexOf(trimmed.charAt(0));
 		}
 		int lowest = -1;
-		for (int i = 0; i < string.length(); i++)
+		for (char c : chars)
 		{
-			char c = string.charAt(i);
 			int value = trimmed.indexOf(c);
 			if (value == -1)
+			{
 				continue;
+			}
 			value += diff;
 			if (lowest == -1)
 			{
@@ -377,7 +392,9 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 				continue;
 			}
 			if (value < lowest)
+			{
 				lowest = value;
+			}
 		}
 		return lowest;
 	}
@@ -389,12 +406,13 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		IDocument document = new Document(possible);
 		scanner.setRange(document, 0, possible.length());
 		IToken token;
-		while (!(token = scanner.nextToken()).isEOF())
+		while (!(token = scanner.nextToken()).isEOF()) // $codepro.audit.disable assignmentInCondition
 		{
 			push(new QueuedToken(token, scanner.getTokenOffset() + fOffset + index + 1, scanner.getTokenLength()));
 		}
 		setOffset(fOffset + index + 1 + possible.length());
-		if (scanner.fOpeningString != null && scanner.fOpeningString.endsWith("\n")) { //$NON-NLS-1$
+		if (scanner.fOpeningString != null && scanner.fOpeningString.endsWith("\n")) //$NON-NLS-1$ // $codepro.audit.disable platformSpecificLineSeparator
+		{
 			fOpeningString = scanner.fOpeningString;
 		}
 		else
@@ -430,10 +448,14 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		// read until whitespace or '"'
 		int whitespace = fContents.indexOf(' ', fOffset - origOffset);
 		if (whitespace == -1)
+		{
 			whitespace = Integer.MAX_VALUE;
+		}
 		int doubleQuote = fContents.indexOf('"', fOffset - origOffset);
 		if (doubleQuote == -1)
+		{
 			doubleQuote = Integer.MAX_VALUE;
+		}
 		int end = Math.min(whitespace, doubleQuote);
 		// FIXME If we can't find whitespace or doubleQuote, we are pretty
 		// screwed.
@@ -450,7 +472,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		IDocument document = new Document(possible);
 		scanner.setRange(document, 0, possible.length());
 		IToken token;
-		while (!(token = scanner.nextToken()).isEOF())
+		while (!(token = scanner.nextToken()).isEOF()) // $codepro.audit.disable assignmentInCondition
 		{
 			push(new QueuedToken(token, scanner.getTokenOffset() + (fOffset), scanner.getTokenLength()));
 		}
@@ -469,7 +491,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		IDocument document = new Document(possible);
 		scanner.setRange(document, 0, possible.length());
 		IToken token;
-		while (!(token = scanner.nextToken()).isEOF())
+		while (!(token = scanner.nextToken()).isEOF()) // $codepro.audit.disable assignmentInCondition
 		{
 			push(new QueuedToken(token, scanner.getTokenOffset() + fOffset, scanner.getTokenLength()));
 		}
@@ -489,8 +511,8 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 				boolean allowLeadingWhitespace = true; // TODO: set based on existence of '-' operator
 				while (offset > 0)
 				{
-					char c = possible.charAt(offset - 1);
-					if (c == '\r' || c == '\n')
+					final char c = possible.charAt(offset - 1); // $codepro.audit.disable variableDeclaredInLoop
+					if (c == '\r' || c == '\n') // $codepro.audit.disable platformSpecificLineSeparator
 					{
 						break;
 					}
@@ -537,7 +559,8 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 	private void setLexerPastDynamicSectionOfString() throws IOException
 	{
 		String opening = fOpeningString;
-		if (opening.endsWith("\n")) { //$NON-NLS-1$
+		if (opening.endsWith("\n")) //$NON-NLS-1$ // $codepro.audit.disable platformSpecificLineSeparator
+		{
 			// What about When it should remain <<-!
 			// try searching backwards from fOffset in fContents for <<-opening
 			// or <<opening and take whichever we find
@@ -547,7 +570,9 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			if (lastIndent != -1)
 			{
 				if (lastIndent > fContents.lastIndexOf(HEREDOC_MARKER_PREFIX + opening, fOffset))
+				{
 					heredocStart = INDENTED_HEREDOC_MARKER_PREFIX;
+				}
 			}
 			opening = heredocStart + opening;
 		}
@@ -582,7 +607,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		int start = fOffset - beginning.length();
 		for (int i = 0; i < start; i++)
 		{
-			fakeContents.append(" "); //$NON-NLS-1$
+			fakeContents.append(' ');
 		}
 		fakeContents.append(beginning);
 		if ((fOffset - origOffset) < origLength)
@@ -667,7 +692,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 				else if (fOpeningString.startsWith(HEREDOC_MARKER_PREFIX))
 				{ // here-doc
 					fOpeningString = generateOpeningStringForHeredocMarker(fOpeningString);
-					if (fOpeningString.startsWith("'")) //$NON-NLS-1$
+					if (fOpeningString.length() > 0 && fOpeningString.charAt(0) == '\'')
 					{
 						inSingleQuote = true;
 						fContentType = RubySourceConfiguration.STRING_SINGLE;
@@ -682,7 +707,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			case Tokens.tWORDS_BEG:
 				fOpeningString = getOpeningString();
 				fContentType = RubySourceConfiguration.STRING_SINGLE;
-				if (fOpeningString.startsWith("%") && fOpeningString.length() > 1 //$NON-NLS-1$
+				if (fOpeningString.length() > 1 && fOpeningString.charAt(0) == '%'
 						&& Character.isUpperCase(fOpeningString.charAt(1)))
 				{
 					fContentType = RubySourceConfiguration.STRING_DOUBLE;
@@ -693,8 +718,10 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 				if (insideHeredoc() && !reachedEndOfHeredoc())
 				{
 					String contentTypeToReturn = RubySourceConfiguration.STRING_DOUBLE;
-					if (fOpeningString.startsWith("'")) //$NON-NLS-1$
+					if (fOpeningString.length() > 0 && fOpeningString.charAt(0) == '\'')
+					{
 						contentTypeToReturn = RubySourceConfiguration.STRING_SINGLE;
+					}
 					return new Token(contentTypeToReturn);
 				}
 
@@ -752,7 +779,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 
 	private boolean insideHeredoc()
 	{
-		return fOpeningString != null && fOpeningString.endsWith("\n"); //$NON-NLS-1$
+		return fOpeningString != null && fOpeningString.endsWith("\n"); //$NON-NLS-1$ // $codepro.audit.disable platformSpecificLineSeparator
 	}
 
 	private boolean reachedEndOfHeredoc()
@@ -764,13 +791,13 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 	{
 		if (marker.startsWith(INDENTED_HEREDOC_MARKER_PREFIX))
 		{
-			marker = marker.substring(3);
+			marker = marker.substring(3); // $codepro.audit.disable questionableAssignment
 		}
 		else if (marker.startsWith(HEREDOC_MARKER_PREFIX))
 		{
-			marker = marker.substring(2);
+			marker = marker.substring(2); // $codepro.audit.disable questionableAssignment
 		}
-		return marker + "\n"; //$NON-NLS-1$
+		return marker + "\n"; //$NON-NLS-1$ // $codepro.audit.disable platformSpecificLineSeparator
 	}
 
 	private String getOpeningString()
@@ -803,13 +830,15 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 	private boolean isCommentMultiLine(CommentNode comment)
 	{
 		String src = getSource(fContents, comment);
-		return (src != null && src.startsWith(BEGIN));
+		return src != null && src.startsWith(BEGIN);
 	}
 
 	private String getContentType(CommentNode comment)
 	{
 		if (isCommentMultiLine(comment))
+		{
 			return RubySourceConfiguration.MULTI_LINE_COMMENT;
+		}
 		return RubySourceConfiguration.SINGLE_LINE_COMMENT;
 	}
 
@@ -845,14 +874,22 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 	private static String getSource(String contents, Node node)
 	{
 		if (node == null || contents == null)
+		{
 			return null;
+		}
 		SourcePosition pos = node.getPosition();
 		if (pos == null)
+		{
 			return null;
+		}
 		if (pos.getStartOffset() >= contents.length())
+		{
 			return null; // position is past end of our source
+		}
 		if (pos.getEndOffset() > contents.length())
+		{
 			return null; // end is past end of source
+		}
 		return new String(contents.substring(pos.getStartOffset(), pos.getEndOffset()));
 	}
 
@@ -883,8 +920,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			int lastEndBrace = -1;
 			for (int i = 0; i < input.length(); i++)
 			{
-				char c = input.charAt(i);
-				switch (c)
+				switch (input.charAt(i))
 				{
 					case '$':
 						// don't skip next char if we're in a regexp
@@ -943,8 +979,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 					case '#':
 						// Only add if we're inside a double quote string
 						if (topEquals("\"")) { //$NON-NLS-1$
-							c = input.charAt(i + 1);
-							if (c == '{')
+							if (input.charAt(i + 1) == '{')
 							{
 								push("#{"); //$NON-NLS-1$
 								i++;
@@ -968,7 +1003,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 						break;
 				}
 			}
-			return lastEndBrace < 0 ? -1 : lastEndBrace;
+			return (lastEndBrace < 0) ? -1 : lastEndBrace;
 		}
 
 		private boolean topEquals(String string)
@@ -990,7 +1025,9 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		private String peek()
 		{
 			if (stack.isEmpty())
+			{
 				return null;
+			}
 			return stack.get(stack.size() - 1);
 		}
 	}

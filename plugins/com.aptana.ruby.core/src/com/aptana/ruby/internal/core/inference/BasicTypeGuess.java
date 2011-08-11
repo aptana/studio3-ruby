@@ -45,17 +45,44 @@ public class BasicTypeGuess implements ITypeGuess
 	@Override
 	public int hashCode()
 	{
-		return toString().hashCode();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + confidence;
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj)
 	{
-		if (obj instanceof BasicTypeGuess)
+		if (this == obj)
 		{
-			BasicTypeGuess other = (BasicTypeGuess) obj;
-			return toString().equals(other.toString());
+			return true;
 		}
-		return false;
+		if (obj == null)
+		{
+			return false;
+		}
+		if (!(obj instanceof BasicTypeGuess))
+		{
+			return false;
+		}
+		BasicTypeGuess other = (BasicTypeGuess) obj;
+		if (confidence != other.confidence)
+		{
+			return false;
+		}
+		if (type == null)
+		{
+			if (other.type != null)
+			{
+				return false;
+			}
+		}
+		else if (!type.equals(other.type))
+		{
+			return false;
+		}
+		return true;
 	}
 }

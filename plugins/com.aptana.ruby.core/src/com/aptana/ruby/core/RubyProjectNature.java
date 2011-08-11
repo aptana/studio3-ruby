@@ -28,7 +28,7 @@ public class RubyProjectNature implements IProjectNature
 		ResourceUtil.addBuilder(getProject(), UnifiedBuilder.ID);
 	}
 
-	public void deconfigure() throws CoreException
+	public void deconfigure()
 	{
 	}
 

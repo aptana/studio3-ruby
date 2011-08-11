@@ -45,8 +45,15 @@ public class ResolveContext
 		{
 			Parser parser = new Parser();
 			// TODO Handle fixing common syntax errors as we do in ruble for CA!
-			root = parser
-					.parse(getFileName(), new StringReader(source), new ParserConfiguration(0, CompatVersion.BOTH));
+			StringReader reader = new StringReader(source);
+			try
+			{
+				root = parser.parse(getFileName(), reader, new ParserConfiguration(0, CompatVersion.BOTH));
+			}
+			finally
+			{
+				reader.close();
+			}
 		}
 		return root;
 	}

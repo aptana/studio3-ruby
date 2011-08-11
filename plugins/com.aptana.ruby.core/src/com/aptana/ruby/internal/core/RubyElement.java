@@ -26,7 +26,7 @@ public abstract class RubyElement extends ParseNode implements IRubyElement
 		super(IRubyConstants.CONTENT_TYPE_RUBY);
 	}
 
-	public RubyElement(int start, int end)
+	protected RubyElement(int start, int end)
 	{
 		super(IRubyConstants.CONTENT_TYPE_RUBY);
 		this.setLocation(start, end);

@@ -60,7 +60,7 @@ public class MergingPartitionScanner implements IPartitionTokenScanner
 		}
 
 		IToken token = null;
-		while (!(token = fScanner.nextToken()).isEOF())
+		while (!(token = fScanner.nextToken()).isEOF()) // $codepro.audit.disable assignmentInCondition
 		{
 			if (lastToken != null && token.getData().equals(lastToken.getData()))
 			{

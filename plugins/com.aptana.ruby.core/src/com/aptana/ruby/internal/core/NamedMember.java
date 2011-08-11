@@ -15,7 +15,7 @@ public abstract class NamedMember extends RubyElement implements IRubyMember
 {
 	private INameNode fNameNode;
 
-	public NamedMember(String name, int start, int nameStart, int nameEnd)
+	protected NamedMember(String name, int start, int nameStart, int nameEnd)
 	{
 		super(start, nameEnd);
 		fNameNode = new NameNode(name, nameStart, nameEnd);

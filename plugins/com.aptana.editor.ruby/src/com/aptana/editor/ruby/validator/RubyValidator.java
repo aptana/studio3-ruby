@@ -32,9 +32,11 @@ import org.jrubyparser.parser.Ruby18Parser;
 import org.jrubyparser.parser.Ruby19Parser;
 import org.jrubyparser.parser.RubyParser;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.editor.common.validator.IValidationItem;
 import com.aptana.editor.common.validator.IValidationManager;
 import com.aptana.editor.common.validator.IValidator;
+import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
 public class RubyValidator implements IValidator
@@ -130,8 +132,8 @@ public class RubyValidator implements IValidator
 			}
 		};
 		parser.setWarnings(warnings);
-		LexerSource lexerSource = LexerSource.getSource(
-				path == null ? "filename" : path.getPath(), new StringReader(source), config); //$NON-NLS-1$
+		StringReader reader = new StringReader(source);
+		LexerSource lexerSource = LexerSource.getSource((path == null) ? "filename" : path.getPath(), reader, config); //$NON-NLS-1$
 		try
 		{
 			parser.parse(config, lexerSource);
@@ -150,12 +152,17 @@ public class RubyValidator implements IValidator
 			}
 			catch (BadLocationException ble)
 			{
+				IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to calculate offset of line: " + lineNumber, ble);
 			}
 			if (start == end && end == source.length() && charLineOffset > 0)
 			{
 				charLineOffset--;
 			}
 			items.add(manager.createError(e.getMessage(), lineNumber, charLineOffset, end - start + 1, path));
+		}
+		finally
+		{
+			reader.close();
 		}
 
 		return items;

@@ -66,7 +66,7 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 				}
 			}
 		}
-		catch (SyntaxException se)
+		catch (SyntaxException se) // $codepro.audit.disable emptyCatchClause
 		{
 			// ignore
 		}

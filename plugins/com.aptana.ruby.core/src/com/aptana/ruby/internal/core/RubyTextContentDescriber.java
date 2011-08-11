@@ -23,17 +23,19 @@ public class RubyTextContentDescriber extends TextContentDescriber
 	@Override
 	public int describe(InputStream contents, IContentDescription description) throws IOException
 	{
-		return describe(new InputStreamReader(contents), description);
+		return describe(new InputStreamReader(contents), description); // $codepro.audit.disable closeWhereCreated
 	}
 
 	@Override
 	public int describe(Reader contents, IContentDescription description) throws IOException
 	{
 		int result = super.describe(contents, description);
-		String firstLine = new BufferedReader(contents).readLine();
+		String firstLine = new BufferedReader(contents).readLine(); // $codepro.audit.disable closeWhereCreated
 		// Verify that a shebang line is there
 		if (firstLine.contains("#!") && firstLine.contains("ruby")) //$NON-NLS-1$ //$NON-NLS-2$
+		{
 			return VALID;
+		}
 		// TODO Now try passing a syntax check?!
 		return result;
 	}

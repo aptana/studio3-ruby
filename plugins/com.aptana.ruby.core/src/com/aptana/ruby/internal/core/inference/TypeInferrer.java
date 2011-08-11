@@ -7,6 +7,7 @@
  */
 package com.aptana.ruby.internal.core.inference;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -142,7 +143,16 @@ public class TypeInferrer implements ITypeInferrer
 	public Collection<ITypeGuess> infer(String source, int offset)
 	{
 		Parser parser = new Parser();
-		Node root = parser.parse("", new StringReader(source), new ParserConfiguration(0, CompatVersion.BOTH)); //$NON-NLS-1$
+		StringReader reader = new StringReader(source);
+		Node root = null;
+		try
+		{
+			root = parser.parse(StringUtil.EMPTY, reader, new ParserConfiguration(0, CompatVersion.BOTH));
+		}
+		finally
+		{
+			reader.close();
+		}
 		if (root == null)
 		{
 			return Collections.emptyList();
@@ -335,15 +345,15 @@ public class TypeInferrer implements ITypeInferrer
 
 		if (matchingDocURI != null)
 		{
+			InputStreamReader reader = null;
 			try
 			{
 				// TODO Move parsing code into one method, and try to use the parser pool
 				IFileStore store = EFS.getStore(URI.create(matchingDocURI));
 				InputStream stream = store.openInputStream(EFS.NONE, new NullProgressMonitor());
-
+				reader = new InputStreamReader(stream);
 				Parser parser = new Parser();
-				Node root = parser.parse(
-						"", new InputStreamReader(stream), new ParserConfiguration(0, CompatVersion.BOTH)); //$NON-NLS-1$
+				Node root = parser.parse(StringUtil.EMPTY, reader, new ParserConfiguration(0, CompatVersion.BOTH));
 				if (root == null)
 				{
 					return Collections.emptyList();
@@ -367,13 +377,27 @@ public class TypeInferrer implements ITypeInferrer
 				}
 				return infer(root, decls.iterator().next());
 			}
-			catch (SyntaxException e)
+			catch (SyntaxException e) // $codepro.audit.disable emptyCatchClause
 			{
 				// ignore if syntax is busted.
 			}
 			catch (CoreException e)
 			{
 				RubyCorePlugin.log(e.getStatus());
+			}
+			finally
+			{
+				if (reader != null)
+				{
+					try
+					{
+						reader.close();
+					}
+					catch (IOException e) // $codepro.audit.disable emptyCatchClause
+					{
+						// ignore
+					}
+				}
 			}
 		}
 
