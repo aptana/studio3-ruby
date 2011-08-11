@@ -30,7 +30,11 @@ public class NamespaceVisitor extends AbstractNodeLocator
 		Object obj = super.visitModuleNode(iVisited);
 		if (!done)
 		{
-			popType();
+			// Don't pop if this module ends after offset!
+			if (iVisited.getPosition().getEndOffset() < offset)
+			{
+				popType();
+			}
 		}
 		return obj;
 	}

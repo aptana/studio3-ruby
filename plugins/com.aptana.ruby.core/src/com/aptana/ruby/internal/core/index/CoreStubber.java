@@ -70,7 +70,7 @@ public class CoreStubber extends Job
 	 * A way to version the core stubs. If the core stubber script changes, be sure to bump this so new core stubs are
 	 * created!
 	 */
-	private static final String CORE_STUBBER_VERSION = "2"; //$NON-NLS-1$
+	private static final String CORE_STUBBER_VERSION = "3"; //$NON-NLS-1$
 
 	protected static boolean fgOutOfDate = false;
 

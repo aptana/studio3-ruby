@@ -36,6 +36,7 @@ import com.aptana.ruby.core.ast.NamespaceVisitor;
 import com.aptana.ruby.core.ast.OffsetNodeLocator;
 import com.aptana.ruby.core.ast.ScopedNodeLocator;
 import com.aptana.ruby.core.inference.ITypeGuess;
+import com.aptana.ruby.core.inference.ITypeInferrer;
 import com.aptana.ruby.internal.core.inference.TypeInferrer;
 
 public class CompletionContext
@@ -107,7 +108,9 @@ public class CompletionContext
 							i--;
 						}
 						else
+						{
 							source.deleteCharAt(i);
+						}
 						break;
 					case '.':
 					case '$': // if it breaks syntax, lets fix it
@@ -128,6 +131,10 @@ public class CompletionContext
 								tmpPrefix.insert(0, "::");
 								partialPrefix = "";
 								i--;
+								if (offset >= source.length())
+								{
+									offset = source.length() - 1;
+								}
 								continue;
 							}
 						}
@@ -338,7 +345,7 @@ public class CompletionContext
 				&& (getPartialPrefix().length() > 0 && getPartialPrefix().charAt(0) == '$');
 	}
 
-	public boolean isDoubleSemiColon()
+	public boolean isDoubleColon()
 	{
 		return isAfterDoubleSemiColon && !isMethodInvokation;
 	}
@@ -563,7 +570,12 @@ public class CompletionContext
 
 	public Collection<ITypeGuess> inferReceiver()
 	{
-		return new TypeInferrer(project).infer(getRootNode(), getReceiver());
+		return getTypeInferrer().infer(getRootNode(), getReceiver());
+	}
+
+	protected ITypeInferrer getTypeInferrer()
+	{
+		return new TypeInferrer(project);
 	}
 
 	public boolean isNotParseable()

@@ -1,23 +1,39 @@
 package com.aptana.editor.ruby.internal.contentassist;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
 import com.aptana.editor.ruby.RubySourceEditor;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.IndexManager;
+import com.aptana.ruby.core.codeassist.CompletionContext;
 import com.aptana.ruby.core.index.IRubyIndexConstants;
+import com.aptana.ruby.core.inference.ITypeInferrer;
+import com.aptana.ruby.internal.core.index.RubyFileIndexingParticipant;
+import com.aptana.ruby.internal.core.inference.TypeInferrer;
 
 public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 {
 	private List<Index> indicesforTesting;
 
+	/**
+	 * ugly hack, but we enforce that we use the test indices for CA in the unit tests, and that we ignore word
+	 * proposals
+	 */
 	protected RubyContentAssistProcessor createContentAssistProcessor(RubySourceEditor editor)
 	{
 		return new RubyContentAssistProcessor(editor)
@@ -27,6 +43,35 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 			{
 				// For test purposes, ignore word completions!
 				return new ArrayList<ICompletionProposal>();
+			}
+
+			protected CompletionContext createCompletionContext(ITextViewer viewer, int offset)
+			{
+				return new CompletionContext(getProject(), viewer.getDocument().get(), offset - 1)
+				{
+					@Override
+					protected ITypeInferrer getTypeInferrer()
+					{
+						return new TypeInferrer(null)
+						{
+							@Override
+							protected Collection<Index> getAllIndicesForProject()
+							{
+								return indicesforTesting;
+							}
+						};
+					}
+				};
+			}
+
+			@Override
+			protected Index getIndex()
+			{
+				if (indicesforTesting != null)
+				{
+					return indicesforTesting.get(0);
+				}
+				return null;
 			}
 
 			@Override
@@ -245,12 +290,10 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 	{
 		Index testIndex = getTestIndex();
 		// Add a fake entry for Kernel.puts
-		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "puts/Kernel//P/S/1", new URI("kernel.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "puts/Kernel//P/I/1", new URI("kernel.rb"));
 		indicesforTesting.add(testIndex);
 
-		String src = "pu";
-
-		assertCompletionCorrect(src, 2, "puts", "puts");
+		assertCompletionCorrect("pu", 2, "puts", "puts");
 	}
 
 	protected Index getTestIndex()
@@ -341,6 +384,400 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 						"end");
 	}
 
-	// TODO Test pre-defined globals
-	// TODO Test class variables
+	public void testEmptyPrefixSuggestsClassInstanceLocalVarsAndMethodsInType() throws Exception
+	{
+		ICompletionProposal[] proposals = computeProposals("class Chris\n" + //
+				"  @@class_var = 123\n" + //
+				"  def initialize\n" + //
+				"    @counter = 1\n" + //
+				"  end\n" + //
+				"  def method\n" + //
+				"  end\n" + //
+				"  def run(arg)\n" + //
+				"    local = 'string'\n" + //
+				"    \n" + //
+				"  end\n" + //
+				"end", //
+				131);
+
+		assertNotNull(proposals);
+		assertContains(proposals, "@@class_var", "@counter", "arg", "local", "method");
+	}
+
+	public void testSuggestGlobalsInsideIndexAfterDollarSign() throws Exception
+	{
+		Index testIndex = getTestIndex();
+		// Add fake global entries
+		testIndex.addEntry(IRubyIndexConstants.GLOBAL_DECL, "$global", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.GLOBAL_DECL, "$stdout", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.GLOBAL_DECL, "$stderr", new URI("fake.rb"));
+		indicesforTesting.add(testIndex);
+
+		ICompletionProposal[] proposals = computeProposals("$", 1);
+
+		assertNotNull(proposals);
+		assertContains(proposals, "$global", "$stdout", "$stderr");
+	}
+
+	public void testSuggestsTypeNamesAndConstantsWhenPrefixIsUppercase() throws Exception
+	{
+		Index testIndex = getTestIndex();
+		// Add fake global entries
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "ClassName//C", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "CModule//M", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.CONSTANT_DECL, "CONSTANT/Object/", new URI("fake.rb"));
+		indicesforTesting.add(testIndex);
+
+		ICompletionProposal[] proposals = computeProposals("C", 1);
+
+		assertNotNull(proposals);
+		assertContains(proposals, "CONSTANT", "ClassName", "CModule");
+	}
+
+	public void testClassVariablePreviouslyDeclaredNoSyntaxErrors() throws Exception
+	{
+		assertCompletionCorrect("class Chris\n" + //
+				"  @@counter = 1\n" + //
+				"  def to_s\n" + //
+				"    puts @@c\n" + //
+				"  end\n" + //
+				"end", 51, "@@counter", //
+				"class Chris\n" + //
+						"  @@counter = 1\n" + //
+						"  def to_s\n" + //
+						"    puts @@counter\n" + //
+						"  end\n" + //
+						"end");
+	}
+
+	public void testClassVariablePreviouslyDeclaredJustDoubleAtSigilPrefix() throws Exception
+	{
+		assertCompletionCorrect("class Chris\n" + //
+				"  @@counter = 1\n" + //
+				"  def to_s\n" + //
+				"    puts @@\n" + //
+				"  end\n" + //
+				"end", 50, "@@counter", //
+				"class Chris\n" + //
+						"  @@counter = 1\n" + //
+						"  def to_s\n" + //
+						"    puts @@counter\n" + //
+						"  end\n" + //
+						"end"); //
+	}
+
+	public void testClassVariablePreviouslyDeclaredJustSingleAtSigilPrefix() throws Exception
+	{
+		assertCompletionCorrect("class Chris\n" + //
+				"  @@counter = 1\n" + //
+				"  def to_s\n" + //
+				"    puts @\n" + //
+				"  end\n" + //
+				"end", 49, "@@counter", //
+				"class Chris\n" + //
+						"  @@counter = 1\n" + //
+						"  def to_s\n" + //
+						"    puts @@counter\n" + //
+						"  end\n" + //
+						"end"); //
+	}
+
+	public void testDoesntSuggestClassVariablesOutsideCurrentType() throws Exception
+	{
+		String src = "class Outside\n" + //
+				"  @@outside = 1\n" + //
+				"end\n" + //
+				"class Chris\n" + //
+				"  @@counter = 1\n" + //
+				"  def to_s\n" + //
+				"    puts @\n" + //
+				"  end\n" + //
+				"end"; //
+
+		ICompletionProposal[] proposals = computeProposals(src, 83);
+
+		assertNotNull(proposals);
+		assertContains(proposals, "@@counter");
+		assertDoesntContain(proposals, "@@outside");
+	}
+
+	public void testDoesntSuggestInstanceVariablesOutsideCurrentType() throws Exception
+	{
+		String src = "class Outside\n" + //
+				"  def initialize\n" + //
+				"    @outside = 1\n" + //
+				"  end\n" + //
+				"end\n" + //
+				"class Chris\n" + //
+				"  def initialize\n" + //
+				"    @counter = 1\n" + //
+				"  end\n" + //
+				"  def to_s\n" + //
+				"    puts @\n" + //
+				"  end\n" + //
+				"end"; //
+
+		ICompletionProposal[] proposals = computeProposals(src, 131);
+
+		assertNotNull(proposals);
+		assertContains(proposals, "@counter");
+		assertDoesntContain(proposals, "@outside");
+	}
+
+	public void testSuggestsConstantsAndTypesInNamespaceAfterDoubleColon() throws Exception
+	{
+		Index testIndex = getTestIndex();
+		// Add fake global entries
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "TopClass//C", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "SubClass/Namespace/C", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "TopModule//M", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "SubModule/Namespace/M", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "Namespace//M", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.CONSTANT_DECL, "TOP_CONSTANT/Object/", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.CONSTANT_DECL, "SUB_CONSTANT/Namespace/", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "method_out_of_namespace/TopClass//P/I/0", new URI(
+				"fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "public_method_in_namespace/Namespace//P/S/0", new URI(
+				"fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "protected_method_in_namespace/Namespace//R/S/0", new URI(
+				"fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "private_method_in_namespace/Namespace//V/S/0", new URI(
+				"fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "public_instance_method_in_namespace/Namespace//P/I/0",
+				new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "protected_instance_method_in_namespace/Namespace//R/I/0",
+				new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "private_instance_method_in_namespace/Namespace//V/I/0",
+				new URI("fake.rb"));
+		indicesforTesting.add(testIndex);
+
+		ICompletionProposal[] proposals = computeProposals("Namespace::", 11);
+
+		assertNotNull(proposals);
+		// Proposals should include any singleton methods for Namespace module, constants defined in Namespace, types
+		// defined in namespace
+		assertContains(proposals, "SUB_CONSTANT", "SubClass", "SubModule", "public_method_in_namespace",
+				"protected_method_in_namespace", "private_method_in_namespace");
+		// Don't include toplevel types, constants; or instance methods in module
+		assertDoesntContain(proposals, "TOP_CONSTANT", "TopClass", "TopModule", "method_out_of_namespace",
+				"public_instance_method_in_namespace", "protected_instance_method_in_namespace",
+				"private_instance_method_in_namespace");
+	}
+
+	public void testSuggestsConstantsAndTypesInExplicitTopLevelNamespaceAfterDoubleColon() throws Exception
+	{
+		Index testIndex = getTestIndex();
+		// Add fake global entries
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "TopClass//C", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "SubClass/Namespace/C", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "TopModule//M", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "SubModule/Namespace/M", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "Namespace//M", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.CONSTANT_DECL, "TOP_CONSTANT/Object/", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.CONSTANT_DECL, "SUB_CONSTANT/Namespace/", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "method_out_of_namespace/TopClass//P/I/0", new URI(
+				"fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "public_method_in_namespace/Namespace//P/S/0", new URI(
+				"fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "protected_method_in_namespace/Namespace//R/S/0", new URI(
+				"fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "private_method_in_namespace/Namespace//V/S/0", new URI(
+				"fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "public_instance_method_in_namespace/Namespace//P/I/0",
+				new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "protected_instance_method_in_namespace/Namespace//R/I/0",
+				new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "private_instance_method_in_namespace/Namespace//V/I/0",
+				new URI("fake.rb"));
+		indicesforTesting.add(testIndex);
+
+		ICompletionProposal[] proposals = computeProposals("module Namespace\n" + //
+				"  ::\n" + //
+				"end\n", 21);
+
+		assertNotNull(proposals);
+		assertContains(proposals, "TopClass", "TopModule", "TOP_CONSTANT");
+		assertDoesntContain(proposals, "SubClass", "SubModule", "SUB_CONSTANT");
+	}
+
+	public void testAfterNamespacedDoubleColonInsideImplicitNamespace() throws Exception
+	{
+		Index testIndex = getTestIndex();
+		// Add fake global entries
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "TopClass//C", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "SubClass/Namespace/C", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "TopModule//M", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "SubModule/Namespace/M", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.TYPE_DECL, "Namespace//M", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.CONSTANT_DECL, "TOP_CONSTANT/Object/", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.CONSTANT_DECL, "SUB_CONSTANT/Namespace/", new URI("fake.rb"));
+		testIndex
+				.addEntry(IRubyIndexConstants.CONSTANT_DECL, "SUB_SUB_CONSTANT/SubClass/Namespace", new URI("fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "method_out_of_namespace/TopClass//P/S/0", new URI(
+				"fake.rb"));
+		testIndex.addEntry(IRubyIndexConstants.METHOD_DECL, "public_method_in_namespace/SubClass/Namespace/P/S/0",
+				new URI("fake.rb"));
+		indicesforTesting.add(testIndex);
+
+		ICompletionProposal[] proposals = computeProposals("module Namespace\n" + //
+				"  SubClass::\n" + //
+				"end\n", 29);
+
+		assertNotNull(proposals);
+		assertContains(proposals, "SUB_SUB_CONSTANT", "public_method_in_namespace");
+		assertDoesntContain(proposals, "TopClass", "SubClass", "TopModule", "SubModule", "Namespace", "TOP_CONSTANT",
+				"SUB_CONSTANT", "method_out_of_namespace");
+	}
+
+	public void testMethodsUpTheHierarchyonInstance() throws Exception
+	{
+		setupHierarchyCA("ruby_ca_methods_on_instance");
+
+		ICompletionProposal[] proposals = computeProposals("chris = Chris.new\nchris.", 24);
+
+		assertNotNull(proposals);
+		// Propose public instance methods on type, supertype and included modules up the chain
+		assertContains(proposals, "chris_public_instance", "super_public_instance", "other_public_instance");
+		// Do not propose protected, private or siingleton methods.
+		assertDoesntContain(proposals, "chris_private_instance", "chris_protected_instance", "super_private_instance",
+				"super_protected_instance", "chris_public_singleton", "chris_protected_singleton",
+				"chris_private_singleton", "super_public_singleton", "super_protected_singleton",
+				"super_private_singleton", "other_public_singleton", "other_protected_singleton",
+				"other_private_singleton", "other_protected_instance", "other_private_instance");
+	}
+
+	public void testMethodsUpTheHierarchyOnSingleton() throws Exception
+	{
+		setupHierarchyCA("ruby_ca_methods_on_singleton");
+
+		ICompletionProposal[] proposals = computeProposals("Chris.", 6);
+
+		assertNotNull(proposals);
+		// Proposals contain singleton methods from classes up hierarchy
+		assertContains(proposals, "chris_public_singleton", "chris_protected_singleton", "chris_private_singleton",
+				"super_public_singleton", "super_protected_singleton", "super_private_singleton");
+		// Don't contain instance methods, or singletons on included Modules
+		assertDoesntContain(proposals, "chris_public_instance", "chris_private_instance", "chris_protected_instance",
+				"super_public_instance", "super_private_instance", "super_protected_instance", "other_public_instance",
+				"other_protected_instance", "other_private_instance", "other_public_singleton",
+				"other_protected_singleton", "other_private_singleton");
+	}
+
+	public void testMethodsUpTheHierarchyInsideClassDefinitionSingletonMethod() throws Exception
+	{
+		setupHierarchyCA("ruby_ca_methods_inside_class_singleton_method");
+
+		ICompletionProposal[] proposals = computeProposals(
+				"class Chris < Super\n  def self.singleton\n    \n  end\nend\n", 45);
+
+		assertNotNull(proposals);
+		assertContains(proposals, "super_public_singleton", "super_protected_singleton", "super_private_singleton",
+				"chris_public_singleton", "chris_protected_singleton", "chris_private_singleton");
+		// Doesn't contains instance methods or singletons on included modules
+		assertDoesntContain(proposals, "other_public_singleton", "other_protected_singleton",
+				"other_private_singleton", "other_public_instance", "other_protected_instance",
+				"other_private_instance", "super_public_instance", "super_protected_instance",
+				"super_private_instance", "chris_protected_instance", "chris_public_instance", "chris_private_instance");
+	}
+
+	public void testMethodsUpTheHierarchyInsideClassDefinitionInstanceMethod() throws Exception
+	{
+		setupHierarchyCA("ruby_ca_methods_inside_class_instance_method");
+
+		ICompletionProposal[] proposals = computeProposals("class Chris < Super\n  def instance\n    \n  end\nend\n",
+				39);
+
+		assertNotNull(proposals);
+		// All instance methods up hierarchy
+		assertContains(proposals, "other_public_instance", "other_protected_instance", "other_private_instance",
+				"super_public_instance", "super_protected_instance", "super_private_instance",
+				"chris_protected_instance", "chris_public_instance", "chris_private_instance");
+		// No singletons
+		assertDoesntContain(proposals, "other_public_singleton", "other_protected_singleton",
+				"other_private_singleton", "super_public_singleton", "super_protected_singleton",
+				"super_private_singleton", "chris_public_singleton", "chris_protected_singleton",
+				"chris_private_singleton");
+	}
+
+	public void testMethodsUpTheHierarchyInsideClassDefinitionOutsideMethod() throws Exception
+	{
+		setupHierarchyCA("ruby_ca_methods_inside_class_toplevel");
+
+		ICompletionProposal[] proposals = computeProposals("class Chris < Super\n  \nend\n", 22);
+
+		assertNotNull(proposals);
+		assertContains(proposals, "super_public_singleton", "super_protected_singleton", "super_private_singleton",
+				"chris_public_singleton", "chris_protected_singleton", "chris_private_singleton");
+		assertDoesntContain(proposals, "super_public_instance", "super_protected_instance", "super_private_instance",
+				"chris_protected_instance", "chris_public_instance", "chris_private_instance",
+				"other_public_singleton", "other_protected_singleton", "other_private_singleton",
+				"other_public_instance", "other_protected_instance", "other_private_instance");
+	}
+
+	// TODO Test invocation inside class definition Chris with "self" as receiver
+	// TODO Test "include" versus "extend"
+	// TODO Test methods available in top-level: various visibilities, singleton/instance
+
+	protected void setupHierarchyCA(String tmpFilePrefix) throws IOException, CoreException
+	{
+		String indexFileSrc = "module Other\n" + //
+				"  def self.other_public_singleton\n" + //
+				"  end\n" + //
+				"  def other_public_instance\n" + //
+				"  end\n" + //
+				"  protected\n" + //
+				"  def self.other_protected_singleton\n" + //
+				"  end\n" + //
+				"  def other_protected_instance\n" + //
+				"  end\n" + //
+				"  private\n" + //
+				"  def self.other_private_singleton\n" + //
+				"  end\n" + //
+				"  def other_private_instance\n" + //
+				"  end\n" + //
+				"end\n" + //
+				"class Super\n" + //
+				"  include Other\n" + //
+				"  def self.super_public_singleton\n" + //
+				"  end\n" + //
+				"  def super_public_instance\n" + //
+				"  end\n" + //
+				"  protected\n" + //
+				"  def self.super_protected_singleton\n" + //
+				"  end\n" + //
+				"  def super_protected_instance\n" + //
+				"  end\n" + //
+				"  private\n" + //
+				"  def self.super_private_singleton\n" + //
+				"  end\n" + //
+				"  def super_private_instance\n" + //
+				"  end\n" + //
+				"end\n" + //
+				"class Chris < Super\n" + //
+				"  def self.chris_public_singleton\n" + //
+				"  end\n" + //
+				"  def chris_public_instance\n" + //
+				"  end\n" + //
+				"  protected\n" + //
+				"  def self.chris_protected_singleton\n" + //
+				"  end\n" + //
+				"  def chris_protected_instance\n" + //
+				"  end\n" + //
+				"  private\n" + //
+				"  def self.chris_private_singleton\n" + //
+				"  end\n" + //
+				"  def chris_private_instance\n" + //
+				"  end\n" + //
+				"end\n"; //
+		RubyFileIndexingParticipant rfip = new RubyFileIndexingParticipant();
+		Set<IFileStore> files = new HashSet<IFileStore>();
+		File file = File.createTempFile(tmpFilePrefix, ".rb");
+		FileWriter writer = new FileWriter(file);
+		writer.write(indexFileSrc);
+		writer.close();
+		files.add(EFS.getStore(file.toURI()));
+		Index testIndex = getTestIndex();
+		rfip.index(files, testIndex, new NullProgressMonitor());
+		indicesforTesting.add(testIndex);
+	}
 }

@@ -17,4 +17,8 @@ public interface ITypeGuess
 	public int getConfidence();
 
 	public String getType();
+
+	public Boolean isModule();
+
+	public Boolean isClass();
 }

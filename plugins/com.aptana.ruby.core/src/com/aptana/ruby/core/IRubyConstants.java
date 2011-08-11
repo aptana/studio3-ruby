@@ -26,4 +26,22 @@ public interface IRubyConstants
 	 */
 	public String BLOCK_PAIR_OCCURRENCES_ID = "com.aptana.ruby.blockPair.occurrences"; //$NON-NLS-1$
 
+	// Constants used for type names, common things like namespace delimeters
+	public static final String NAMESPACE_DELIMETER = "::"; //$NON-NLS-1$
+	// Types
+	public static final String STRING = "String"; //$NON-NLS-1$
+	public static final String FIXNUM = "Fixnum"; //$NON-NLS-1$
+	public static final String NIL_CLASS = "NilClass"; //$NON-NLS-1$
+	public static final String SYMBOL = "Symbol"; //$NON-NLS-1$
+	public static final String TIME = "Time"; //$NON-NLS-1$
+	public static final String ARRAY = "Array"; //$NON-NLS-1$
+	public static final String OBJECT = "Object"; //$NON-NLS-1$
+	public static final String FLOAT = "Float"; //$NON-NLS-1$
+	public static final String PROC = "Proc"; //$NON-NLS-1$
+	public static final String BIGNUM = "Bignum"; //$NON-NLS-1$
+	public static final String HASH = "Hash"; //$NON-NLS-1$
+	public static final String REGEXP = "Regexp"; //$NON-NLS-1$
+	public static final String TRUE_CLASS = "TrueClass"; //$NON-NLS-1$
+	public static final String FALSE_CLASS = "FalseClass"; //$NON-NLS-1$
+
 }

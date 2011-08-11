@@ -49,11 +49,13 @@ import com.aptana.core.util.StringUtil;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.QueryResult;
 import com.aptana.index.core.SearchPattern;
+import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.RubyCorePlugin;
 import com.aptana.ruby.core.ast.ASTUtils;
 import com.aptana.ruby.core.ast.ClosestSpanningNodeLocator;
 import com.aptana.ruby.core.ast.FirstPrecursorNodeLocator;
 import com.aptana.ruby.core.ast.INodeAcceptor;
+import com.aptana.ruby.core.ast.NamespaceVisitor;
 import com.aptana.ruby.core.ast.OffsetNodeLocator;
 import com.aptana.ruby.core.ast.ScopedNodeLocator;
 import com.aptana.ruby.core.index.IRubyIndexConstants;
@@ -65,8 +67,6 @@ import com.aptana.ruby.core.inference.ITypeInferrer;
 public class TypeInferrer implements ITypeInferrer
 {
 
-	// TODO Create constants for all the type names
-
 	/**
 	 * Hard-coded mapping from common method names to their possible return types.
 	 */
@@ -74,51 +74,57 @@ public class TypeInferrer implements ITypeInferrer
 	static
 	{
 		// TODO Read this in from some config file/property file rather than hardcode it!
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("capitalize", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("capitalize!", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("ceil", createSet("Fixnum"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("center", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("chomp", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("chomp!", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("chop", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("chop!", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("concat", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("count", createSet("Fixnum"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("crypt", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("downcase", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("downcase!", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("dump", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("floor", createSet("Fixnum"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("gets", createSet("String", "NilClass"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("gsub", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("gsub!", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("hash", createSet("Fixnum"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("index", createSet("Fixnum"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("inspect", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("intern", createSet("Symbol"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("length", createSet("Fixnum"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("now", createSet("Time"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("round", createSet("Fixnum"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("size", createSet("Fixnum"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("slice", createSet("String", "Array", "NilClass", "Object", "Fixnum"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("slice!", createSet("String", "Array", "NilClass", "Object", "Fixnum"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("strip", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("strip!", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("sub", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("sub!", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("swapcase", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("swapcase!", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_a", createSet("Array"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_ary", createSet("Array"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_i", createSet("Fixnum"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_int", createSet("Fixnum"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_f", createSet("Float"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_proc", createSet("Proc"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_s", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_str", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_string", createSet("String"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_sym", createSet("Symbol"));
-		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("unpack", createSet("Array"));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("capitalize", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("capitalize!", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("ceil", createSet(IRubyConstants.FIXNUM));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("center", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("chomp", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("chomp!", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("chop", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("chop!", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("concat", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("count", createSet(IRubyConstants.FIXNUM));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("crypt", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("downcase", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("downcase!", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("dump", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("floor", createSet(IRubyConstants.FIXNUM));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("gets", createSet(IRubyConstants.STRING, IRubyConstants.NIL_CLASS));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("gsub", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("gsub!", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("hash", createSet(IRubyConstants.FIXNUM));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("index", createSet(IRubyConstants.FIXNUM));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("inspect", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("intern", createSet(IRubyConstants.SYMBOL));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("length", createSet(IRubyConstants.FIXNUM));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("now", createSet(IRubyConstants.TIME));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("round", createSet(IRubyConstants.FIXNUM));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("size", createSet(IRubyConstants.FIXNUM));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put(
+				"slice",
+				createSet(IRubyConstants.STRING, IRubyConstants.ARRAY, IRubyConstants.NIL_CLASS, IRubyConstants.OBJECT,
+						IRubyConstants.FIXNUM));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put(
+				"slice!",
+				createSet(IRubyConstants.STRING, IRubyConstants.ARRAY, IRubyConstants.NIL_CLASS, IRubyConstants.OBJECT,
+						IRubyConstants.FIXNUM));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("strip", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("strip!", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("sub", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("sub!", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("swapcase", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("swapcase!", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_a", createSet(IRubyConstants.ARRAY));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_ary", createSet(IRubyConstants.ARRAY));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_i", createSet(IRubyConstants.FIXNUM));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_int", createSet(IRubyConstants.FIXNUM));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_f", createSet(IRubyConstants.FLOAT));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_proc", createSet(IRubyConstants.PROC));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_s", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_str", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_string", createSet(IRubyConstants.STRING));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("to_sym", createSet(IRubyConstants.SYMBOL));
+		TYPICAL_METHOD_RETURN_TYPE_NAMES.put("unpack", createSet(IRubyConstants.ARRAY));
 	}
 
 	private IProject project;
@@ -130,12 +136,31 @@ public class TypeInferrer implements ITypeInferrer
 
 	private static Set<ITypeGuess> createSet(String... strings)
 	{
+		if (strings == null || strings.length == 0)
+		{
+			return Collections.emptySet();
+		}
 		// TODO Allow for un-equal weighting of types!
 		int weight = 100 / strings.length;
 		Set<ITypeGuess> set = new HashSet<ITypeGuess>();
 		for (String string : strings)
 		{
-			set.add(new BasicTypeGuess(string, weight));
+			set.add(new BasicTypeGuess(string, weight, true));
+		}
+		return set;
+	}
+
+	private Collection<ITypeGuess> createSet(Map<String, Boolean> types)
+	{
+		if (types == null || types.isEmpty())
+		{
+			return Collections.emptySet();
+		}
+		int weight = 100 / types.size();
+		Set<ITypeGuess> set = new HashSet<ITypeGuess>();
+		for (Map.Entry<String, Boolean> entry : types.entrySet())
+		{
+			set.add(new BasicTypeGuess(entry.getKey(), weight, entry.getValue()));
 		}
 		return set;
 	}
@@ -153,6 +178,7 @@ public class TypeInferrer implements ITypeInferrer
 		{
 			reader.close();
 		}
+
 		if (root == null)
 		{
 			return Collections.emptyList();
@@ -167,43 +193,46 @@ public class TypeInferrer implements ITypeInferrer
 
 	public Collection<ITypeGuess> infer(Node rootNode, Node toInfer)
 	{
+		if (toInfer == null)
+		{
+			return createSet(IRubyConstants.OBJECT);
+		}
 		switch (toInfer.getNodeType())
 		{
 			case CONSTNODE:
-				// FIXME Treat this like we do in inferColon2Node where we look for matching constant decl!
-				return createSet(((ConstNode) toInfer).getName());
+				return inferConstant(rootNode, (ConstNode) toInfer);
 			case CALLNODE:
 			case FCALLNODE:
 			case VCALLNODE:
 				return inferMethod(rootNode, (INameNode) toInfer);
 			case SYMBOLNODE:
 			case DSYMBOLNODE:
-				return createSet("Symbol");
+				return createSet(IRubyConstants.SYMBOL);
 			case ARRAYNODE:
 			case ZARRAYNODE:
-				return createSet("Array");
+				return createSet(IRubyConstants.ARRAY);
 			case BIGNUMNODE:
-				return createSet("Bignum");
+				return createSet(IRubyConstants.BIGNUM);
 			case FIXNUMNODE:
-				return createSet("Fixnum");
+				return createSet(IRubyConstants.FIXNUM);
 			case FLOATNODE:
-				return createSet("Float");
+				return createSet(IRubyConstants.FLOAT);
 			case HASHNODE:
-				return createSet("Hash");
+				return createSet(IRubyConstants.HASH);
 			case DREGEXPNODE:
 			case REGEXPNODE:
-				return createSet("Regexp");
+				return createSet(IRubyConstants.REGEXP);
 			case TRUENODE:
-				return createSet("TrueClass");
+				return createSet(IRubyConstants.TRUE_CLASS);
 			case FALSENODE:
-				return createSet("FalseClass");
+				return createSet(IRubyConstants.FALSE_CLASS);
 			case NILNODE:
-				return createSet("NilClass");
+				return createSet(IRubyConstants.NIL_CLASS);
 			case DSTRNODE:
 			case DXSTRNODE:
 			case STRNODE:
 			case XSTRNODE:
-				return createSet("String");
+				return createSet(IRubyConstants.STRING);
 			case LOCALVARNODE:
 				return inferLocal(rootNode, (LocalVarNode) toInfer);
 			case INSTVARNODE:
@@ -226,7 +255,100 @@ public class TypeInferrer implements ITypeInferrer
 			default:
 				break;
 		}
-		return createSet("Object");
+		return createSet(IRubyConstants.OBJECT);
+	}
+
+	private Collection<ITypeGuess> inferConstant(Node rootNode, ConstNode toInfer)
+	{
+		NamespaceVisitor visitor = new NamespaceVisitor();
+		String implicitNamespace = visitor.getNamespace(rootNode, toInfer.getPosition().getStartOffset());
+		String constantName = toInfer.getName();
+		// First search for types and constants in the implicit namespace
+		// if no match, then look for them in toplevel
+		Map<String, Boolean> types = matchingTypes(implicitNamespace + IRubyConstants.NAMESPACE_DELIMETER
+				+ constantName);
+		if (types.isEmpty())
+		{
+			// TODO If no matching types, search constants and then infer any matches!
+			// types = inferMatchingConstants(implicitNamespace + IRubyConstants.NAMESPACE_DELIMETER +
+			// constantName);
+			// no matching types or constants, try without implicit namespace
+			if (implicitNamespace.length() > 0)
+			{
+				types = matchingTypes(constantName);
+				// TODO If no matching types, search constants!
+				if (types.isEmpty())
+				{
+					// types = inferMatchingConstants(constantName);
+				}
+			}
+		}
+
+		if (types.isEmpty())
+		{
+			// Fell all the way through, fall back and just assume constant text is a type
+			// FIXME We're assuming this is a class and not a module, may want to do some verification?
+			return createSet(constantName);
+		}
+		return createSet(types);
+	}
+
+	/**
+	 * Returns a map from the type name to a boolean indicating if it's a class (true) or Module (false).
+	 * 
+	 * @param fullyQualifiedName
+	 * @return
+	 */
+	private Map<String, Boolean> matchingTypes(String fullyQualifiedName)
+	{
+		Map<String, Boolean> matches = new HashMap<String, Boolean>();
+
+		if (fullyQualifiedName.startsWith(IRubyConstants.NAMESPACE_DELIMETER))
+		{
+			fullyQualifiedName = fullyQualifiedName.substring(2);
+		}
+		String typeName = fullyQualifiedName;
+		String namespace = StringUtil.EMPTY;
+		int lastNS = typeName.lastIndexOf(IRubyConstants.NAMESPACE_DELIMETER);
+		if (lastNS != -1)
+		{
+			namespace = typeName.substring(0, lastNS);
+			typeName = typeName.substring(lastNS + 2);
+		}
+		// Build query key
+		StringBuilder builder = new StringBuilder('^');
+		builder.append(typeName);
+		builder.append(IRubyIndexConstants.SEPARATOR);
+		builder.append(namespace);
+		builder.append(IRubyIndexConstants.SEPARATOR);
+		builder.append(".+$");
+		String key = builder.toString();
+		for (Index index : getAllIndicesForProject())
+		{
+			if (index == null)
+			{
+				continue;
+			}
+			List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.TYPE_DECL }, key,
+					SearchPattern.REGEX_MATCH | SearchPattern.CASE_SENSITIVE);
+			if (results == null)
+			{
+				continue;
+			}
+			for (QueryResult result : results)
+			{
+				String word = result.getWord();
+				String[] parts = word.split(Character.toString(IRubyIndexConstants.SEPARATOR));
+				String fullName = parts[0];
+				if (parts[1].length() > 0)
+				{
+					fullName = parts[1] + IRubyConstants.NAMESPACE_DELIMETER + fullName;
+				}
+				boolean isClass = parts[2].equals(IRubyIndexConstants.CLASS_SUFFIX);
+				matches.put(fullName, isClass);
+			}
+		}
+		return matches;
 	}
 
 	private Collection<ITypeGuess> inferInstance(Node rootNode, InstVarNode toInfer)
@@ -271,7 +393,7 @@ public class TypeInferrer implements ITypeInferrer
 		});
 		if (assigns == null)
 		{
-			return createSet("Object");
+			return createSet(IRubyConstants.OBJECT);
 		}
 		Collection<ITypeGuess> guesses = new ArrayList<ITypeGuess>();
 		for (Node assignment : assigns)
@@ -301,13 +423,13 @@ public class TypeInferrer implements ITypeInferrer
 		String namespace = StringUtil.EMPTY;
 		String typeName = StringUtil.EMPTY;
 		String constantName = fullName;
-		int namespaceIndex = fullName.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
+		int namespaceIndex = fullName.lastIndexOf(IRubyConstants.NAMESPACE_DELIMETER);
 		if (namespaceIndex != -1)
 		{
 			typeName = fullName.substring(0, namespaceIndex);
 			constantName = fullName.substring(namespaceIndex + 2);
 
-			namespaceIndex = typeName.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
+			namespaceIndex = typeName.lastIndexOf(IRubyConstants.NAMESPACE_DELIMETER);
 			if (namespaceIndex != -1)
 			{
 				namespace = typeName.substring(0, namespaceIndex);
@@ -319,7 +441,7 @@ public class TypeInferrer implements ITypeInferrer
 		final String key = constantName + IRubyIndexConstants.SEPARATOR + typeName + IRubyIndexConstants.SEPARATOR
 				+ namespace;
 		String matchingDocURI = null;
-		for (Index index : RubyIndexUtil.allIndices(project))
+		for (Index index : getAllIndicesForProject())
 		{
 			if (index == null)
 			{
@@ -401,8 +523,14 @@ public class TypeInferrer implements ITypeInferrer
 			}
 		}
 
+		// FIXME We're assuming this is a class, and not a module. May want to look up in indices and verify!
 		// It appears to be a type and not a constant, so just return the actual text as the resulting Type inferred
 		return createSet(fullName);
+	}
+
+	protected Collection<Index> getAllIndicesForProject()
+	{
+		return RubyIndexUtil.allIndices(project);
 	}
 
 	private Collection<ITypeGuess> inferLocal(Node rootNode, LocalVarNode toInfer)
@@ -422,7 +550,7 @@ public class TypeInferrer implements ITypeInferrer
 			LocalAsgnNode assign = (LocalAsgnNode) precedingAssignment;
 			return infer(rootNode, assign.getValueNode());
 		}
-		return createSet("Object");
+		return createSet(IRubyConstants.OBJECT);
 	}
 
 	private Collection<ITypeGuess> inferMethod(Node rootNode, INameNode toInfer)
@@ -430,7 +558,7 @@ public class TypeInferrer implements ITypeInferrer
 		final String methodName = toInfer.getName();
 		if (methodName.endsWith("?"))
 		{
-			return createSet("TrueClass", "FalseClass");
+			return createSet(IRubyConstants.TRUE_CLASS, IRubyConstants.FALSE_CLASS);
 		}
 		Collection<ITypeGuess> guesses = TYPICAL_METHOD_RETURN_TYPE_NAMES.get(methodName);
 		if (guesses == null)

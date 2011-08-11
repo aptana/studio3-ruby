@@ -145,13 +145,18 @@ public abstract class RubyContentAssistTestCase extends TestCase
 	protected void assertDoesntContain(ICompletionProposal[] proposals, String... displayNames)
 	{
 		Set<String> uniqueDisplayNames = new HashSet<String>(Arrays.asList(displayNames));
+		Set<String> matches = new HashSet<String>(uniqueDisplayNames.size());
 		for (ICompletionProposal proposal : proposals)
 		{
 			if (uniqueDisplayNames.contains(proposal.getDisplayString()))
 			{
-				fail(MessageFormat.format("Proposals contain an entry with disallowed display string: {0}",
-						proposal.getDisplayString()));
+				matches.add(proposal.getDisplayString());
 			}
+		}
+
+		if (!matches.isEmpty())
+		{
+			fail(MessageFormat.format("Proposals contain an entry for disallowed display string(s): {0}", matches));
 		}
 	}
 

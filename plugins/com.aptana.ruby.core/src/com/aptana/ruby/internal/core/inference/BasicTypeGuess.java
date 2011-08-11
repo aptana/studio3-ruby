@@ -15,11 +15,13 @@ public class BasicTypeGuess implements ITypeGuess
 {
 	private String type;
 	private int confidence;
+	private boolean isClass;
 
-	public BasicTypeGuess(String type, int confidence)
+	public BasicTypeGuess(String type, int confidence, boolean isClass)
 	{
 		this.type = type;
 		this.confidence = confidence;
+		this.isClass = isClass;
 	}
 
 	public int getConfidence()
@@ -35,6 +37,16 @@ public class BasicTypeGuess implements ITypeGuess
 	public String getType()
 	{
 		return type;
+	}
+
+	public Boolean isModule()
+	{
+		return !isClass();
+	}
+
+	public Boolean isClass()
+	{
+		return isClass;
 	}
 
 	public String toString()

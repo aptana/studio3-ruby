@@ -168,4 +168,13 @@ get_classes.each do |klass|
     f << "RUBY_PLATFORM = '#{RUBY_PLATFORM}'\n" if defined?(RUBY_PLATFORM)
     f << "PLATFORM = '#{PLATFORM}'\n" if defined?(PLATFORM)
   end
+  # Spit out pre-defined globals
+  open(file_name('globals'), 'w') do |f|
+    global_variables.each do |v|
+      value = eval(v.to_s)
+      str_value = value.nil? ? 'nil' : value.inspect
+      str_value = 'IO.new' if value.class == IO
+      f << "#{v.to_s} = #{str_value}\n"
+    end
+  end
 end
