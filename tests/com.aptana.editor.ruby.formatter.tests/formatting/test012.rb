@@ -20,48 +20,38 @@ ruby.formatter.wrap.comments.length=80
 ruby.formatter.formatter.tabulation.char=editor
 ruby.formatter.formatter.tabulation.size=2
 ruby.formatter.formatter.indentation.size=2
-ruby.formatter.formatter.on.off.enabled=true
+ruby.formatter.formatter.on.off.enabled=false
 ruby.formatter.formatter.on=@formatter:on
 ruby.formatter.formatter.off=@formatter:off
 ==CONTENT==
-#
-# Formatter on/off is enabled
-#
-module Alpha
-  class Beta
-    def main(a)
-      if a % 2 == 0
-        print "even"
-      end
-      # @formatter:off
-              case a % 2
-              when 1
-                puts "odd"
-              when 0
-                puts "even"
-              end
-    # @formatter:on
-    end
-  end
+=begin
+This is a multiline comment
+=end
+class Outer
+class Inner
+def method_across_multiple_lines
+var = 123
+puts var
+# the following is a multiline block
+1.upto(10).each do |x|
+puts x
+end
+end
+end
 end
 ==FORMATTED==
-#
-# Formatter on/off is enabled
-#
-module Alpha
-  class Beta
-    def main(a)
-      if a % 2 == 0
-        print "even"
+=begin
+This is a multiline comment
+=end
+class Outer
+  class Inner
+    def method_across_multiple_lines
+      var = 123
+      puts var
+      # the following is a multiline block
+      1.upto(10).each do |x|
+        puts x
       end
-      # @formatter:off
-              case a % 2
-              when 1
-                puts "odd"
-              when 0
-                puts "even"
-              end
-    # @formatter:on
     end
   end
 end

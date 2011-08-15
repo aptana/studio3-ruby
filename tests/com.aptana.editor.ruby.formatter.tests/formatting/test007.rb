@@ -24,44 +24,10 @@ ruby.formatter.formatter.on.off.enabled=false
 ruby.formatter.formatter.on=@formatter:on
 ruby.formatter.formatter.off=@formatter:off
 ==CONTENT==
-#
-# Formatter on/off is disabled
-#
-module Alpha
-  class Beta
-    def main(a)
-      if a % 2 == 0
-        print "even"
-      end
-      # @formatter:off
-              case a % 2
-              when 1
-                puts "odd"
-              when 0
-                puts "even"
-              end
-    # @formatter:on
-    end
-  end
+# Methods added to this helper will be available to all templates in the application.
+ module ApplicationHelper
 end
 ==FORMATTED==
-#
-# Formatter on/off is disabled
-#
-module Alpha
-  class Beta
-    def main(a)
-      if a % 2 == 0
-        print "even"
-      end
-      # @formatter:off
-      case a % 2
-      when 1
-        puts "odd"
-      when 0
-        puts "even"
-      end
-    # @formatter:on
-    end
-  end
+# Methods added to this helper will be available to all templates in the application.
+module ApplicationHelper
 end

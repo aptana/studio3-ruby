@@ -16,11 +16,11 @@ public class FormattingTests extends AbstractFormatterTestCase
 	// To generate formatted files, place js files under the 'formatting' folder and run these tests from the
 	// com.aptana.editor.js.formatter.tests plugin
 	// NOTE: Ensure that the contents section ends with a newline, or the generation may not work.
-	private static boolean INITIALIZE_MODE = true;
+	private static boolean INITIALIZE_MODE = false;
 	// Turning on the overwrite will re-generate the formatted block and overwrite it into the test files.
 	// This is a drastic move that will require a review of the output right after to make sure we have the
 	// right formatting for all the test file, so turn it on at your own risk.
-	private static boolean OVERWRITE_MODE = true;
+	private static boolean OVERWRITE_MODE = false;
 
 	private static String FORMATTER_FACTORY_ID = "com.aptana.editor.ruby.formatterFactory"; //$NON-NLS-1$
 	private static String TEST_BUNDLE_ID = "com.aptana.editor.ruby.formatter.tests"; //$NON-NLS-1$
