@@ -2,6 +2,7 @@ package com.aptana.editor.erb.html;
 
 import org.eclipse.jface.text.ITextViewer;
 
+import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.html.HTMLOpenTagCloser;
 
 public class ERBOpenTagCloser extends HTMLOpenTagCloser
@@ -14,7 +15,7 @@ public class ERBOpenTagCloser extends HTMLOpenTagCloser
 
 	protected boolean skipOpenTag(String openTag)
 	{
-		return super.skipOpenTag(openTag) || openTag.startsWith("<%"); //$NON-NLS-1$
+		return super.skipOpenTag(openTag) || openTag.startsWith(IERBConstants.OPEN_EVALUATE_TAG);
 	}
 
 }

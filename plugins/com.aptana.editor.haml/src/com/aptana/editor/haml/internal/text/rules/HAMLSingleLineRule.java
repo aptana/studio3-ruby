@@ -15,30 +15,38 @@ import org.eclipse.jface.text.rules.Token;
 
 /**
  * @author Max Stepanov
- *
  */
-public class HAMLSingleLineRule extends EndOfLineRule {
+public class HAMLSingleLineRule extends EndOfLineRule
+{
 
 	private boolean fNoStartSequence;
-	
-	public HAMLSingleLineRule(String startSequence, IToken token) {
+
+	public HAMLSingleLineRule(String startSequence, IToken token)
+	{
 		super(startSequence, token);
 	}
 
-	public HAMLSingleLineRule(IToken token) {
+	public HAMLSingleLineRule(IToken token)
+	{
 		super(" ", token); //$NON-NLS-1$
 		fNoStartSequence = true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.jface.text.rules.PatternRule#doEvaluate(org.eclipse.jface.text.rules.ICharacterScanner, boolean)
 	 */
 	@Override
-	protected IToken doEvaluate(ICharacterScanner scanner, boolean resume) {
-		if (!resume) {
-			if (fNoStartSequence) {
-				if (scanner.read() != ICharacterScanner.EOF) {
-					if (endSequenceDetected(scanner)) {
+	protected IToken doEvaluate(ICharacterScanner scanner, boolean resume)
+	{
+		if (!resume)
+		{
+			if (fNoStartSequence)
+			{
+				if (scanner.read() != ICharacterScanner.EOF)
+				{
+					if (endSequenceDetected(scanner))
+					{
 						return fToken;
 					}
 					scanner.unread();
@@ -47,18 +55,23 @@ public class HAMLSingleLineRule extends EndOfLineRule {
 			}
 			int index = 0;
 			int c;
-			if (scanner.getColumn() != 0) {
+			if (scanner.getColumn() != 0)
+			{
 				return Token.UNDEFINED;
 			}
-			while ((c = scanner.read()) != ICharacterScanner.EOF && isWhitespace(c)) {
+			while ((c = scanner.read()) != ICharacterScanner.EOF && isWhitespace(c))
+			{
 				++index;
 			}
-			if (c != ICharacterScanner.EOF) {
+			if (c != ICharacterScanner.EOF)
+			{
 				scanner.unread();
 			}
 			IToken token = super.doEvaluate(scanner, resume);
-			if (token.isUndefined()) {
-				for (int j = index; j > 0; --j) {
+			if (token.isUndefined())
+			{
+				for (int j = index; j > 0; --j)
+				{
 					scanner.unread();
 				}
 			}
@@ -66,10 +79,10 @@ public class HAMLSingleLineRule extends EndOfLineRule {
 		}
 		return super.doEvaluate(scanner, resume);
 	}
-	
-	private static boolean isWhitespace(int c) {
+
+	private static boolean isWhitespace(int c)
+	{
 		return (c == ' ') || (c == '\t');
 	}
-
 
 }

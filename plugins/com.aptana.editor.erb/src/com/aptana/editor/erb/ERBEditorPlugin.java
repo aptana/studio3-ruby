@@ -19,7 +19,8 @@ import com.aptana.editor.erb.xml.RXMLDocumentProvider;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class ERBEditorPlugin extends AbstractUIPlugin {
+public class ERBEditorPlugin extends AbstractUIPlugin
+{
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.aptana.editor.erb"; //$NON-NLS-1$
@@ -30,18 +31,19 @@ public class ERBEditorPlugin extends AbstractUIPlugin {
 	private IDocumentProvider rxmlDocumentProvider;
 	private IDocumentProvider rhtmlDocumentProvider;
 
-
 	/**
 	 * The constructor
 	 */
-	public ERBEditorPlugin() {
+	public ERBEditorPlugin()
+	{
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
-	public void start(BundleContext context) throws Exception {
+	public void start(BundleContext context) throws Exception
+	{
 		super.start(context);
 		plugin = this;
 	}
@@ -50,17 +52,19 @@ public class ERBEditorPlugin extends AbstractUIPlugin {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
 	 */
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext context) throws Exception
+	{
 		plugin = null;
 		super.stop(context);
 	}
 
 	/**
 	 * Returns the shared instance
-	 *
+	 * 
 	 * @return the shared instance
 	 */
-	public static ERBEditorPlugin getDefault() {
+	public static ERBEditorPlugin getDefault()
+	{
 		return plugin;
 	}
 
@@ -76,13 +80,16 @@ public class ERBEditorPlugin extends AbstractUIPlugin {
 		}
 		return getDefault().getImageRegistry().get(string);
 	}
-	
+
 	/**
 	 * Returns RXML document provider
+	 * 
 	 * @return
 	 */
-	public synchronized IDocumentProvider getRXMLDocumentProvider() {
-		if (rxmlDocumentProvider == null) {
+	public synchronized IDocumentProvider getRXMLDocumentProvider()
+	{
+		if (rxmlDocumentProvider == null)
+		{
 			rxmlDocumentProvider = new RXMLDocumentProvider();
 		}
 		return rxmlDocumentProvider;
@@ -90,10 +97,13 @@ public class ERBEditorPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns RHTML document provider
+	 * 
 	 * @return
 	 */
-	public synchronized IDocumentProvider getRHTMLDocumentProvider() {
-		if (rhtmlDocumentProvider == null) {
+	public synchronized IDocumentProvider getRHTMLDocumentProvider()
+	{
+		if (rhtmlDocumentProvider == null)
+		{
 			rhtmlDocumentProvider = new RHTMLDocumentProvider();
 		}
 		return rhtmlDocumentProvider;

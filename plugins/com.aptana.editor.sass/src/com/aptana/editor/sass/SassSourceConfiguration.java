@@ -63,7 +63,7 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 			// TODO Probably need to do some other massaging!
 			IContentTypeTranslator c = CommonEditorPlugin.getDefault().getContentTypeTranslator();
 			c.addTranslation(new QualifiedContentType(ISassConstants.CONTENT_TYPE_SASS), new QualifiedContentType(
-					"source.sass")); //$NON-NLS-1$
+					ISassConstants.TOPLEVEL_SCOPE));
 		}
 		return instance;
 	}
@@ -174,22 +174,22 @@ public class SassSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	private ITokenScanner getSingleLineCommentScanner()
 	{
-		return new CommentScanner(getToken("comment.line.sass")); //$NON-NLS-1$
+		return new CommentScanner(getToken(ISassConstants.COMMENT_LINE_SCOPE));
 	}
 
 	private ITokenScanner getMultiLineCommentScanner()
 	{
-		return new CommentScanner(getToken("comment.block.sass")); //$NON-NLS-1$
+		return new CommentScanner(getToken(ISassConstants.COMMENT_BLOCK_SCOPE));
 	}
 
 	private ITokenScanner getDoubleQuotedStringScanner()
 	{
-		return new StringScanner("string.quoted.double.sass"); //$NON-NLS-1$
+		return new StringScanner(ISassConstants.STRING_QUOTED_DOUBLE_SCOPE);
 	}
 
 	private ITokenScanner getSingleQuotedStringScanner()
 	{
-		return new StringScanner("string.quoted.single.sass"); //$NON-NLS-1$
+		return new StringScanner(ISassConstants.STRING_QUOTED_SINGLE_SCOPE);
 	}
 
 	private static IToken getToken(String tokenName)

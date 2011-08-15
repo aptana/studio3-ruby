@@ -23,7 +23,7 @@ public class StringScanner extends BufferedRuleBasedScanner
 	public StringScanner(String defaultTokenType)
 	{
 		List<IRule> rules = new ArrayList<IRule>();
-		rules.add(new RegexpRule("\\.", getToken("constant.character.escape.sass"), true)); //$NON-NLS-1$ //$NON-NLS-2$
+		rules.add(new RegexpRule("\\.", getToken(ISassConstants.ESCAPE_CHARACTER_SCOPE), true)); //$NON-NLS-1$
 		setRules(rules.toArray(new IRule[rules.size()]));
 
 		setDefaultReturnToken(getToken(defaultTokenType));

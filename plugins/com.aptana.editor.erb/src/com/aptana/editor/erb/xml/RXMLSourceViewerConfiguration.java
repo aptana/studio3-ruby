@@ -31,18 +31,20 @@ import com.aptana.editor.xml.XMLSourceConfiguration;
 public class RXMLSourceViewerConfiguration extends CompositeSourceViewerConfiguration
 {
 
-	// FIXME Move these special strings out as constants on IERBConstants!
 	static
 	{
 		IContentTypeTranslator c = CommonEditorPlugin.getDefault().getContentTypeTranslator();
-		c.addTranslation(new QualifiedContentType(IERBConstants.CONTENT_TYPE_XML_ERB), new QualifiedContentType(
-				"text.xml.ruby")); //$NON-NLS-1$
-		c.addTranslation(new QualifiedContentType(IERBConstants.CONTENT_TYPE_XML_ERB,
-				CompositePartitionScanner.START_SWITCH_TAG), new QualifiedContentType(
-				"text.xml.ruby", "source.erb.embedded.xml")); //$NON-NLS-1$ //$NON-NLS-2$
-		c.addTranslation(new QualifiedContentType(IERBConstants.CONTENT_TYPE_XML_ERB,
-				CompositePartitionScanner.END_SWITCH_TAG), new QualifiedContentType(
-				"text.xml.ruby", "source.erb.embedded.xml")); //$NON-NLS-1$ //$NON-NLS-2$
+		// @formatter:off
+		c.addTranslation(
+				new QualifiedContentType(IERBConstants.CONTENT_TYPE_XML_ERB),
+				new QualifiedContentType(IERBConstants.TOPLEVEL_RXML_SCOPE));
+		c.addTranslation(
+				new QualifiedContentType(IERBConstants.CONTENT_TYPE_XML_ERB, CompositePartitionScanner.START_SWITCH_TAG),
+				new QualifiedContentType(IERBConstants.TOPLEVEL_RXML_SCOPE, IERBConstants.EMBEDDED_RUBY_RXML_SCOPE));
+		c.addTranslation(
+				new QualifiedContentType(IERBConstants.CONTENT_TYPE_XML_ERB, CompositePartitionScanner.END_SWITCH_TAG),
+				new QualifiedContentType(IERBConstants.TOPLEVEL_RXML_SCOPE, IERBConstants.EMBEDDED_RUBY_RXML_SCOPE));
+		// @formatter:on
 	}
 
 	private RubyDoubleClickStrategy fDoubleClickStrategy;
@@ -74,9 +76,9 @@ public class RXMLSourceViewerConfiguration extends CompositeSourceViewerConfigur
 
 	protected String getStartEndTokenType()
 	{
-		return "punctuation.section.embedded.ruby"; //$NON-NLS-1$
+		return IERBConstants.EMBEDDED_RUBY_TRANSITION_SCOPE;
 	}
-	
+
 	@Override
 	public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType)
 	{

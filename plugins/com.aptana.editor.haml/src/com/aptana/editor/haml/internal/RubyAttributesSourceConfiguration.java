@@ -37,9 +37,9 @@ import com.aptana.ruby.core.IRubyConstants;
 
 /**
  * @author Max Stepanov
- *
  */
-public class RubyAttributesSourceConfiguration implements IPartitioningConfiguration, ISourceViewerConfiguration {
+public class RubyAttributesSourceConfiguration implements IPartitioningConfiguration, ISourceViewerConfiguration
+{
 
 	public final static String PREFIX = "__hamlrubyattr_"; //$NON-NLS-1$
 	public final static String DEFAULT = "__hamlrubyattr" + IDocument.DEFAULT_CONTENT_TYPE; //$NON-NLS-1$
@@ -54,78 +54,101 @@ public class RubyAttributesSourceConfiguration implements IPartitioningConfigura
 	private final IPredicateRule[] partitioningRules = new IPredicateRule[] {
 			new PartitionerSwitchingIgnoreRule(new SingleLineRule("\"", "\"", getToken(STRING_DOUBLE), '\\')), //$NON-NLS-1$ //$NON-NLS-2$
 			new PartitionerSwitchingIgnoreRule(new SingleLineRule("\'", "\'", getToken(STRING_SINGLE), '\\')), //$NON-NLS-1$ //$NON-NLS-2$
-			new SingleCharacterRule('}', getToken(null))
-	};
-	
-	static {
+			new SingleCharacterRule('}', getToken(null)) };
+
+	static
+	{
 		IContentTypeTranslator c = CommonEditorPlugin.getDefault().getContentTypeTranslator();
-		c.addTranslation(new QualifiedContentType(DEFAULT), new QualifiedContentType(IHAMLConstants.RUBY_ATTRIBUTES_SCOPE));
-		c.addTranslation(new QualifiedContentType(STRING_SINGLE), new QualifiedContentType(IHAMLConstants.RUBY_ATTRIBUTES_SCOPE, IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
-		c.addTranslation(new QualifiedContentType(STRING_DOUBLE), new QualifiedContentType(IHAMLConstants.RUBY_ATTRIBUTES_SCOPE, IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
+		c.addTranslation(new QualifiedContentType(DEFAULT), new QualifiedContentType(
+				IHAMLConstants.RUBY_ATTRIBUTES_SCOPE));
+		c.addTranslation(new QualifiedContentType(STRING_SINGLE), new QualifiedContentType(
+				IHAMLConstants.RUBY_ATTRIBUTES_SCOPE, IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
+		c.addTranslation(new QualifiedContentType(STRING_DOUBLE), new QualifiedContentType(
+				IHAMLConstants.RUBY_ATTRIBUTES_SCOPE, IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
 	}
 
-	public static RubyAttributesSourceConfiguration getDefault() {
-		if (instance == null) {
+	public static RubyAttributesSourceConfiguration getDefault()
+	{
+		if (instance == null)
+		{
 			instance = new RubyAttributesSourceConfiguration();
 		}
 		return instance;
 	}
-	
+
 	/**
 	 * 
 	 */
-	private RubyAttributesSourceConfiguration() {
+	private RubyAttributesSourceConfiguration()
+	{
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see com.aptana.editor.common.IPartitioningConfiguration#getContentTypes()
 	 */
-	public String[] getContentTypes() {
+	public String[] getContentTypes()
+	{
 		return CONTENT_TYPES;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getSpellingContentTypes()
 	 */
-	public String[] getSpellingContentTypes() {
+	public String[] getSpellingContentTypes()
+	{
 		return SPELLING_CONTENT_TYPES;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see com.aptana.editor.common.IPartitioningConfiguration#getPartitioningRules()
 	 */
-	public IPredicateRule[] getPartitioningRules() {
+	public IPredicateRule[] getPartitioningRules()
+	{
 		return partitioningRules;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see com.aptana.editor.common.IPartitioningConfiguration#createSubPartitionScanner()
 	 */
-	public ISubPartitionScanner createSubPartitionScanner() {
+	public ISubPartitionScanner createSubPartitionScanner()
+	{
 		return new SubPartitionScanner(partitioningRules, CONTENT_TYPES, getToken(DEFAULT));
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see com.aptana.editor.common.IPartitioningConfiguration#getDocumentContentType(java.lang.String)
 	 */
-	public String getDocumentContentType(String contentType) {
-		if (contentType.startsWith(PREFIX)) {
+	public String getDocumentContentType(String contentType)
+	{
+		if (contentType.startsWith(PREFIX))
+		{
 			return IHAMLConstants.CONTENT_TYPE_HAML;
 		}
 		return null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see com.aptana.editor.common.ITopContentTypesProvider#getTopContentTypes()
 	 */
-	public String[][] getTopContentTypes() {
+	public String[][] getTopContentTypes()
+	{
 		throw new IllegalStateException("Should never been called"); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see com.aptana.editor.common.ISourceViewerConfiguration#setupPresentationReconciler(org.eclipse.jface.text.presentation.PresentationReconciler, org.eclipse.jface.text.source.ISourceViewer)
+	/*
+	 * (non-Javadoc)
+	 * @see
+	 * com.aptana.editor.common.ISourceViewerConfiguration#setupPresentationReconciler(org.eclipse.jface.text.presentation
+	 * .PresentationReconciler, org.eclipse.jface.text.source.ISourceViewer)
 	 */
-	public void setupPresentationReconciler(PresentationReconciler reconciler, ISourceViewer sourceViewer) {
+	public void setupPresentationReconciler(PresentationReconciler reconciler, ISourceViewer sourceViewer)
+	{
 		DefaultDamagerRepairer dr = new ThemeingDamagerRepairer(getCodeScanner());
 		reconciler.setDamager(dr, DEFAULT);
 		reconciler.setRepairer(dr, DEFAULT);
@@ -141,29 +164,35 @@ public class RubyAttributesSourceConfiguration implements IPartitioningConfigura
 
 	/*
 	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getContentAssistProcessor(com.aptana.editor.common.AbstractThemeableEditor, java.lang.String)
+	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getContentAssistProcessor(com.aptana.editor.common.
+	 * AbstractThemeableEditor, java.lang.String)
 	 */
-	public IContentAssistProcessor getContentAssistProcessor(AbstractThemeableEditor editor, String contentType) {
+	public IContentAssistProcessor getContentAssistProcessor(AbstractThemeableEditor editor, String contentType)
+	{
 		return null;
 	}
 
-	private ITokenScanner getCodeScanner() {
+	private ITokenScanner getCodeScanner()
+	{
 		return new RubyCodeScanner();
 	}
 
-	private ITokenScanner getSingleQuotedStringScanner() {
+	private ITokenScanner getSingleQuotedStringScanner()
+	{
 		RuleBasedScanner singleQuotedStringScanner = new RuleBasedScanner();
 		singleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
 		return singleQuotedStringScanner;
 	}
 
-	private ITokenScanner getDoubleQuotedStringScanner() {
+	private ITokenScanner getDoubleQuotedStringScanner()
+	{
 		RuleBasedScanner doubleQuotedStringScanner = new RuleBasedScanner();
 		doubleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
 		return doubleQuotedStringScanner;
 	}
 
-	private static IToken getToken(String tokenName) {
+	private static IToken getToken(String tokenName)
+	{
 		return CommonUtil.getToken(tokenName);
 	}
 

@@ -16,16 +16,16 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WordRule;
 
+import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.erb.parsing.lexer.ERBTokens;
 import com.aptana.editor.html.parsing.HTMLTokenScanner;
 
 public class RHTMLTokenScanner extends HTMLTokenScanner
 {
 
-	@SuppressWarnings("nls")
-	private static final String[] RUBY_START = { "<%", "<%=" };
-	@SuppressWarnings("nls")
-	private static final String[] RUBY_END = new String[] { "-%>", "%>" };
+	private static final String[] RUBY_START = { IERBConstants.OPEN_EVALUATE_TAG, IERBConstants.OPEN_INSERT_TAG };
+	private static final String[] RUBY_END = new String[] { IERBConstants.CLOSE_NO_NEWLINE_TAG,
+			IERBConstants.CLOSE_W_NEWLINE_TAG };
 
 	public RHTMLTokenScanner()
 	{
