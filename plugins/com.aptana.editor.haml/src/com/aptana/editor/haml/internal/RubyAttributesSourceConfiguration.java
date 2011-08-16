@@ -67,7 +67,7 @@ public class RubyAttributesSourceConfiguration implements IPartitioningConfigura
 				IHAMLConstants.RUBY_ATTRIBUTES_SCOPE, IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
 	}
 
-	public static RubyAttributesSourceConfiguration getDefault()
+	public synchronized static RubyAttributesSourceConfiguration getDefault()
 	{
 		if (instance == null)
 		{

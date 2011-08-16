@@ -7,6 +7,8 @@
  */
 package com.aptana.ruby.core;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -72,7 +74,7 @@ public class RubySourceParser
 		}
 
 		ParserResult ast = null;
-		StringReader reader = new StringReader(source);
+		Reader reader = new BufferedReader(new StringReader(source));
 		try
 		{
 			ast = parse(fileName, reader);
@@ -82,7 +84,14 @@ public class RubySourceParser
 		}
 		finally
 		{
-			reader.close();
+			try
+			{
+				reader.close();
+			}
+			catch (IOException e)
+			{
+				// ignore
+			}
 		}
 		if (ast == null)
 		{

@@ -103,7 +103,7 @@ public class RakeTasksHelper implements IRakeHelper
 				args.add(param);
 			}
 		}
-		return ProcessUtil.runInBackground(rubyExe == null ? RUBY_EXE_NAME : rubyExe.toOSString(), wd, env,
+		return ProcessUtil.runInBackground((rubyExe == null) ? RUBY_EXE_NAME : rubyExe.toOSString(), wd, env,
 				args.toArray(new String[args.size()]));
 	}
 
@@ -162,13 +162,13 @@ public class RakeTasksHelper implements IRakeHelper
 		{
 			return Collections.emptyMap();
 		}
-
+		BufferedReader bufReader = null;
 		try
 		{
-			BufferedReader bufReader = new BufferedReader(new StringReader(getTasksText(project)));
+			bufReader = new BufferedReader(new StringReader(getTasksText(project)));
 			String line = null;
 			Map<String, String> tasks = new HashMap<String, String>();
-			while ((line = bufReader.readLine()) != null)
+			while ((line = bufReader.readLine()) != null) // $codepro.audit.disable assignmentInCondition
 			{
 				Matcher mat = RAKE_TASK_PATTERN.matcher(line);
 				if (mat.matches())
@@ -182,6 +182,20 @@ public class RakeTasksHelper implements IRakeHelper
 		{
 			RakePlugin.log("Error parsing rake tasks", e); //$NON-NLS-1$
 			return Collections.emptyMap();
+		}
+		finally
+		{
+			if (bufReader != null)
+			{
+				try
+				{
+					bufReader.close();
+				}
+				catch (final IOException e) // $codepro.audit.disable emptyCatchClause
+				{
+					// ignore
+				}
+			}
 		}
 		return fCachedTasks.get(project);
 	}

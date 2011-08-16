@@ -7,6 +7,9 @@
  */
 package com.aptana.editor.ruby;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.regex.Pattern;
 
@@ -124,10 +127,10 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 		support.setWarnings(new NullWarnings());
 		RubyParser parser = new Ruby19Parser(support);
 		LexerSource lexerSource = null;
-		StringReader reader = null;
+		Reader reader = null;
 		try
 		{
-			reader = new StringReader(d.get());
+			reader = new BufferedReader(new StringReader(d.get()));
 			lexerSource = LexerSource.getSource(StringUtil.EMPTY, reader, config);
 			parser.parse(config, lexerSource);
 		}
@@ -137,12 +140,12 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 			{
 				return false;
 			}
-			StringReader reader2 = null;
+			Reader reader2 = null;
 			try
 			{
 				StringBuffer buffer = new StringBuffer(d.get());
 				buffer.insert(offset, TextUtilities.getDefaultLineDelimiter(d) + BLOCK_CLOSER);
-				reader2 = new StringReader(buffer.toString());
+				reader2 = new BufferedReader(new StringReader(buffer.toString()));
 				lexerSource = LexerSource.getSource(StringUtil.EMPTY, reader2, config);
 				parser.parse(config, lexerSource);
 			}
@@ -154,20 +157,34 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 			{
 				if (reader2 != null)
 				{
-					reader2.close();
+					try
+					{
+						reader2.close();
+					}
+					catch (IOException e1)
+					{
+						// ignore
+					}
 				}
 			}
 			return true;
 		}
 		catch (Throwable t)
 		{
-			IdeLog.logError(RubyEditorPlugin.getDefault(), "Got unexpected exception parsing file", t);
+			IdeLog.logError(RubyEditorPlugin.getDefault(), "Got unexpected exception parsing file", t); //$NON-NLS-1$
 		}
 		finally
 		{
 			if (reader != null)
 			{
-				reader.close();
+				try
+				{
+					reader.close();
+				}
+				catch (IOException e)
+				{
+					// ignore
+				}
 			}
 		}
 		return false;

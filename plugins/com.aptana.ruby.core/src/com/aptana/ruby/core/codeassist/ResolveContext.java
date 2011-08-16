@@ -7,6 +7,9 @@
  */
 package com.aptana.ruby.core.codeassist;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
@@ -45,14 +48,21 @@ public class ResolveContext
 		{
 			Parser parser = new Parser();
 			// TODO Handle fixing common syntax errors as we do in ruble for CA!
-			StringReader reader = new StringReader(source);
+			Reader reader = new BufferedReader(new StringReader(source));
 			try
 			{
 				root = parser.parse(getFileName(), reader, new ParserConfiguration(0, CompatVersion.BOTH));
 			}
 			finally
 			{
-				reader.close();
+				try
+				{
+					reader.close();
+				}
+				catch (IOException e)
+				{
+					// ignore
+				}
 			}
 		}
 		return root;

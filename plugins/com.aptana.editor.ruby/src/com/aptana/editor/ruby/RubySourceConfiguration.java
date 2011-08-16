@@ -96,7 +96,7 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 	{
 	}
 
-	public static RubySourceConfiguration getDefault()
+	public synchronized static RubySourceConfiguration getDefault()
 	{
 		if (instance == null)
 		{

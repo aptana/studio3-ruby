@@ -7,7 +7,9 @@
  */
 package com.aptana.editor.ruby;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,17 +100,17 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			myOffset = 0;
 		}
 		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.BOTH);
-		StringReader reader = null;
+		Reader reader = null;
 		try
 		{
 			fContents = document.get(myOffset, length);
-			reader = new StringReader(fContents);
+			reader = new BufferedReader(new StringReader(fContents));
 			lexerSource = LexerSource.getSource(DEFAULT_FILENAME, reader, config);
 			lexer.setSource(lexerSource);
 		}
 		catch (BadLocationException e)
 		{
-			reader = new StringReader(StringUtil.EMPTY);
+			reader = new BufferedReader(new StringReader(StringUtil.EMPTY));
 			lexerSource = LexerSource.getSource(DEFAULT_FILENAME, reader, config);
 			lexer.setSource(lexerSource);
 		}
@@ -129,7 +131,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			}
 			catch (BadLocationException e)
 			{
-				IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to get previous partition at offset: " + offset,
+				IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to get previous partition at offset: " + offset, //$NON-NLS-1$
 						e);
 			}
 		}

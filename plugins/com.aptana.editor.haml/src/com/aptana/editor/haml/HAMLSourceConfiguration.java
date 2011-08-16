@@ -116,7 +116,7 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 						IHAMLConstants.EMBEDDED_RUBY_SCOPE));
 	}
 
-	public static HAMLSourceConfiguration getDefault()
+	public synchronized static HAMLSourceConfiguration getDefault()
 	{
 		if (instance == null)
 		{

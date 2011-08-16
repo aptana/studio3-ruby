@@ -1,3 +1,10 @@
+/**
+ * Aptana Studio
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
+ * Please see the license.html included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package com.aptana.editor.sass;
 
 import java.util.ArrayList;
@@ -53,7 +60,7 @@ public class SassFoldingComputer implements IFoldingComputer
 
 			// Iterate over lines of the document
 			String src = getDocument().get();
-			String[] lines = src.split("\r?\n|\r"); //$NON-NLS-1$
+			String[] lines = src.split("\r?\n|\r"); //$NON-NLS-1$ // $codepro.audit.disable platformSpecificLineSeparator
 			for (String line : lines)
 			{
 				if (sub.isCanceled())
@@ -144,7 +151,7 @@ public class SassFoldingComputer implements IFoldingComputer
 			}
 		}
 		// TODO check prefs for determining width of indent. Assume 2 for now.
-		return size + (spaces / 2);
+		return size + (spaces >> 1); // shift operator to divide by 2
 	}
 
 	protected IDocument getDocument()

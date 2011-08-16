@@ -32,7 +32,7 @@ public class HAMLSubPartitionScanner extends CompositeSubPartitionScanner
 	private static final int TYPE_RUBY_EVALUATION = 1;
 	private static final int TYPE_RUBY_ATTRIBUTES = 2;
 
-	private static final String[] RUBY_EVALUATION_SWITCH_SEQUENCES = new String[] { "\n" }; //$NON-NLS-1$
+	private static final String[] RUBY_EVALUATION_SWITCH_SEQUENCES = new String[] { "\r\n", "\n", "\r" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ // $codepro.audit.disable platformSpecificLineSeparator
 	private static final String[] RUBY_ATTRIBUTES_SWITCH_SEQUENCES = new String[] { "}" }; //$NON-NLS-1$
 
 	private static final char COMMA = ',';
@@ -70,7 +70,7 @@ public class HAMLSubPartitionScanner extends CompositeSubPartitionScanner
 							{
 								if (c == sequence[0] && TextUtils.sequenceDetected(characterScanner, sequence, false))
 								{
-									return (VERTICAL == previous);
+									return VERTICAL == previous;
 								}
 							}
 							previous = c;

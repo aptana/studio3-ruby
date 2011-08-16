@@ -43,7 +43,7 @@ public class RakeTasksContributionItem extends ContributionItem implements IWork
 
 	static final String RAKE_NAMESPACE_DELIMETER = ":"; //$NON-NLS-1$
 
-	private HashMap<String, MenuManager> fNamespaces;
+	private Map<String, MenuManager> fNamespaces;
 	private IServiceLocator serviceLocator;
 
 	public RakeTasksContributionItem()

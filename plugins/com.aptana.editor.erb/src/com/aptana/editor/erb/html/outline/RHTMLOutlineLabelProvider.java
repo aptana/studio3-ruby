@@ -74,7 +74,7 @@ public class RHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider
 		IRubyScript ruby = script.getScript();
 		source = source.substring(ruby.getStartingOffset(), Math.min(ruby.getEndingOffset() + 1, source.length()));
 		// gets the first line of the ruby source
-		StringTokenizer st = new StringTokenizer(source, "\n\r\f"); //$NON-NLS-1$
+		StringTokenizer st = new StringTokenizer(source, "\n\r\f"); //$NON-NLS-1$ // $codepro.audit.disable platformSpecificLineSeparator
 		if (st.hasMoreTokens())
 		{
 			source = st.nextToken();

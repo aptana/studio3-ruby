@@ -7,7 +7,10 @@
  */
 package com.aptana.editor.ruby.validator;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
@@ -132,7 +135,7 @@ public class RubyValidator implements IValidator
 			}
 		};
 		parser.setWarnings(warnings);
-		StringReader reader = new StringReader(source);
+		Reader reader = new BufferedReader(new StringReader(source));
 		LexerSource lexerSource = LexerSource.getSource((path == null) ? "filename" : path.getPath(), reader, config); //$NON-NLS-1$
 		try
 		{
@@ -152,7 +155,7 @@ public class RubyValidator implements IValidator
 			}
 			catch (BadLocationException ble)
 			{
-				IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to calculate offset of line: " + lineNumber, ble);
+				IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to calculate offset of line: " + lineNumber, ble); //$NON-NLS-1$
 			}
 			if (start == end && end == source.length() && charLineOffset > 0)
 			{
@@ -162,7 +165,14 @@ public class RubyValidator implements IValidator
 		}
 		finally
 		{
-			reader.close();
+			try
+			{
+				reader.close();
+			}
+			catch (IOException e)
+			{
+				// ignore
+			}
 		}
 
 		return items;

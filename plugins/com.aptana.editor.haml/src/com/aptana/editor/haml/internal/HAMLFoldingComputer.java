@@ -52,7 +52,8 @@ public class HAMLFoldingComputer implements IFoldingComputer
 			return Collections.emptyMap();
 		}
 
-		Map<ProjectionAnnotation, Position> newPositions = new HashMap<ProjectionAnnotation, Position>(lineCount / 4);
+		// using shift operator to do a faster "divide by 4"
+		Map<ProjectionAnnotation, Position> newPositions = new HashMap<ProjectionAnnotation, Position>(lineCount >> 2);
 		Stack<Integer> indentLevels = new Stack<Integer>();
 		indentLevels.push(0);
 		Map<Integer, Integer> starts = new HashMap<Integer, Integer>(3);

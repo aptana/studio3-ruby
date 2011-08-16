@@ -7,6 +7,8 @@
  */
 package com.aptana.editor.ruby;
 
+import java.io.BufferedReader;
+import java.io.Reader;
 import java.io.StringReader;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -292,7 +294,7 @@ public class RubyTokenScanner implements ITokenScanner
 		{
 			fContents = StringUtil.EMPTY;
 		}
-		StringReader reader = new StringReader(fContents);
+		Reader reader = new BufferedReader(new StringReader(fContents));
 		lexerSource = LexerSource.getSource("filename", reader, config); //$NON-NLS-1$
 		lexer.setSource(lexerSource);
 
@@ -312,7 +314,7 @@ public class RubyTokenScanner implements ITokenScanner
 			}
 			catch (BadLocationException e)
 			{
-				IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to get previous partition at offset: " + offset,
+				IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to get previous partition at offset: " + offset, //$NON-NLS-1$
 						e);
 			}
 		}

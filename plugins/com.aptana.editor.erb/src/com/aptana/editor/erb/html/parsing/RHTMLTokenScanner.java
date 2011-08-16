@@ -32,14 +32,14 @@ public class RHTMLTokenScanner extends HTMLTokenScanner
 		List<IRule> rules = new ArrayList<IRule>();
 		// adds rules for finding the ruby start and end sequences
 		WordRule wordRule = new WordRule(new RubyStartDetector(), Token.UNDEFINED);
-		IToken token = createToken(getTokenName(ERBTokens.RUBY));
+		IToken token = createToken(getERBTokenName(ERBTokens.RUBY));
 		for (String word : RUBY_START)
 		{
 			wordRule.addWord(word, token);
 		}
 		rules.add(wordRule);
 		wordRule = new WordRule(new RubyEndDetector(), Token.UNDEFINED);
-		token = createToken(getTokenName(ERBTokens.RUBY_END));
+		token = createToken(getERBTokenName(ERBTokens.RUBY_END));
 		for (String word : RUBY_END)
 		{
 			wordRule.addWord(word, token);
@@ -54,7 +54,7 @@ public class RHTMLTokenScanner extends HTMLTokenScanner
 		setRules(rules.toArray(new IRule[rules.size()]));
 	}
 
-	private static String getTokenName(short token)
+	private static String getERBTokenName(short token)
 	{
 		return ERBTokens.getTokenName(token);
 	}

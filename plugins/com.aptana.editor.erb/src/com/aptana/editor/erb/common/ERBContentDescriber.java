@@ -25,7 +25,7 @@ public abstract class ERBContentDescriber implements ITextContentDescriber
 
 	public int describe(Reader contents, IContentDescription description) throws IOException
 	{
-		BufferedReader reader = new BufferedReader(contents);
+		BufferedReader reader = new BufferedReader(contents); // $codepro.audit.disable closeWhereCreated
 		String line = reader.readLine();
 		if (line == null)
 		{

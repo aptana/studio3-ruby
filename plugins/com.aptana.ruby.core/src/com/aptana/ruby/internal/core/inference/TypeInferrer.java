@@ -7,9 +7,11 @@
  */
 package com.aptana.ruby.internal.core.inference;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
@@ -168,7 +170,7 @@ public class TypeInferrer implements ITypeInferrer
 	public Collection<ITypeGuess> infer(String source, int offset)
 	{
 		Parser parser = new Parser();
-		StringReader reader = new StringReader(source);
+		Reader reader = new BufferedReader(new StringReader(source));
 		Node root = null;
 		try
 		{
@@ -176,7 +178,14 @@ public class TypeInferrer implements ITypeInferrer
 		}
 		finally
 		{
-			reader.close();
+			try
+			{
+				reader.close();
+			}
+			catch (IOException e)
+			{
+				// ignore
+			}
 		}
 
 		if (root == null)
@@ -277,10 +286,10 @@ public class TypeInferrer implements ITypeInferrer
 			{
 				types = matchingTypes(constantName);
 				// TODO If no matching types, search constants!
-				if (types.isEmpty())
-				{
-					// types = inferMatchingConstants(constantName);
-				}
+				// if (types.isEmpty())
+				// {
+				// types = inferMatchingConstants(constantName);
+				// }
 			}
 		}
 
@@ -339,13 +348,15 @@ public class TypeInferrer implements ITypeInferrer
 			{
 				String word = result.getWord();
 				String[] parts = word.split(Character.toString(IRubyIndexConstants.SEPARATOR));
-				String fullName = parts[0];
+				StringBuilder fullName = new StringBuilder();
 				if (parts[1].length() > 0)
 				{
-					fullName = parts[1] + IRubyConstants.NAMESPACE_DELIMETER + fullName;
+					fullName.append(parts[1]);
+					fullName.append(IRubyConstants.NAMESPACE_DELIMETER);
 				}
+				fullName.append(parts[0]);
 				boolean isClass = parts[2].equals(IRubyIndexConstants.CLASS_SUFFIX);
-				matches.put(fullName, isClass);
+				matches.put(fullName.toString(), isClass);
 			}
 		}
 		return matches;
@@ -467,13 +478,13 @@ public class TypeInferrer implements ITypeInferrer
 
 		if (matchingDocURI != null)
 		{
-			InputStreamReader reader = null;
+			Reader reader = null;
 			try
 			{
 				// TODO Move parsing code into one method, and try to use the parser pool
 				IFileStore store = EFS.getStore(URI.create(matchingDocURI));
 				InputStream stream = store.openInputStream(EFS.NONE, new NullProgressMonitor());
-				reader = new InputStreamReader(stream);
+				reader = new BufferedReader(new InputStreamReader(stream));
 				Parser parser = new Parser();
 				Node root = parser.parse(StringUtil.EMPTY, reader, new ParserConfiguration(0, CompatVersion.BOTH));
 				if (root == null)

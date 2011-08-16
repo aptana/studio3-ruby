@@ -91,7 +91,7 @@ public class SassCodeScanner extends CSSCodeScanner
 						.equals(token.getData())))
 		{
 			String src = getSource(getTokenOffset(), getTokenLength());
-			if (src.contains("\n") || src.contains("\r")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (src.contains("\n") || src.contains("\r")) //$NON-NLS-1$ //$NON-NLS-2$ // $codepro.audit.disable platformSpecificLineSeparator
 			{
 				if (ISassConstants.META_SELECTOR_SCOPE.equals(token.getData()))
 				{
