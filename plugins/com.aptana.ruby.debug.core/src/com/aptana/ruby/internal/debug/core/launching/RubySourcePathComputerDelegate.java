@@ -30,6 +30,7 @@ import org.eclipse.debug.core.sourcelookup.containers.DirectorySourceContainer;
 import org.eclipse.debug.core.sourcelookup.containers.FolderSourceContainer;
 import org.eclipse.debug.core.sourcelookup.containers.ProjectSourceContainer;
 import org.eclipse.debug.core.sourcelookup.containers.WorkspaceSourceContainer;
+
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
 
 /**
@@ -89,7 +90,8 @@ public class RubySourcePathComputerDelegate implements ISourcePathComputerDelega
 		List<ISourceContainer> sourceContainers = new ArrayList<ISourceContainer>();
 		if (path != null)
 		{
-			IResource resource = ResourcesPlugin.getWorkspace().getRoot().getContainerForLocation(new Path(path));
+			IResource resource = ResourcesPlugin.getWorkspace().getRoot()
+					.getContainerForLocation(Path.fromOSString(path));
 			if (resource != null && resource instanceof IContainer && resource.exists())
 			{
 				IContainer container = (IContainer) resource;

@@ -37,6 +37,7 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugUIConstants;
 
 import com.aptana.core.ShellExecutable;
+import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.ProcessUtil;
 import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
@@ -121,6 +122,11 @@ public class RakeTasksHelper implements IRakeHelper
 			if (workingDir != null)
 			{
 				return project.getLocation().append(workingDir);
+			}
+			if (IdeLog.isWarningEnabled(RakePlugin.getDefault(), null))
+			{
+				IdeLog.logWarning(RakePlugin.getDefault(),
+						"Failed to find parent of Rakefile to use as working dir for project: " + project.getName()); //$NON-NLS-1$
 			}
 		}
 		catch (CoreException e)
