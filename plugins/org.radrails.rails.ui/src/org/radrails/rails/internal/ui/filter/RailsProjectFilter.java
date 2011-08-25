@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.Viewer;
 
 import com.aptana.core.util.StringUtil;
-import com.aptana.editor.html.contentassist.index.HTMLIndexConstants;
+import com.aptana.editor.html.contentassist.index.IHTMLIndexConstants;
 import com.aptana.explorer.ui.filter.PathFilter;
 import com.aptana.ruby.core.index.IRubyIndexConstants;
 
@@ -126,7 +126,7 @@ public class RailsProjectFilter extends PathFilter
 
 	protected String[] indexCategories()
 	{
-		return new String[] { HTMLIndexConstants.RESOURCE_CSS, HTMLIndexConstants.RESOURCE_JS,
+		return new String[] { IHTMLIndexConstants.RESOURCE_CSS, IHTMLIndexConstants.RESOURCE_JS,
 				IRubyIndexConstants.REQUIRE };
 	}
 
