@@ -163,6 +163,10 @@ public class RubyValidator implements IValidator
 			}
 			items.add(manager.createError(e.getMessage(), lineNumber, charLineOffset, end - start + 1, path));
 		}
+		catch (IOException e)
+		{
+			IdeLog.logError(RubyEditorPlugin.getDefault(), "IOException parsing source", e); //$NON-NLS-1$
+		}
 		finally
 		{
 			try

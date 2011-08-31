@@ -30,6 +30,7 @@ import org.jrubyparser.ast.IArgumentNode;
 import org.jrubyparser.ast.INameNode;
 import org.jrubyparser.ast.IterNode;
 import org.jrubyparser.ast.ListNode;
+import org.jrubyparser.ast.LiteralNode;
 import org.jrubyparser.ast.LocalAsgnNode;
 import org.jrubyparser.ast.ModuleNode;
 import org.jrubyparser.ast.MultipleAsgnNode;
@@ -239,6 +240,10 @@ public class ASTUtils
 		if (node instanceof INameNode)
 		{
 			return ((INameNode) node).getName();
+		}
+		if (node instanceof LiteralNode)
+		{
+			return ((LiteralNode) node).getName();
 		}
 		// tries reflection
 		try

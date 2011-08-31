@@ -116,7 +116,8 @@ public class SourceElementVisitor extends InOrderVisitor
 	@Override
 	public Object visitAliasNode(AliasNode iVisited)
 	{
-		String name = iVisited.getNewName();
+		Node newNameNode = iVisited.getNewName();
+		String name = ASTUtils.getName(newNameNode);
 		int nameStart = iVisited.getPosition().getStartOffset() + ALIAS.length() - 1;
 		addAliasMethod(name, iVisited.getPosition().getStartOffset(), iVisited.getPosition().getEndOffset(), nameStart);
 

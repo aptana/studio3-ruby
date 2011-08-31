@@ -8,6 +8,7 @@
 package com.aptana.editor.ruby.formatter.tests;
 
 import com.aptana.editor.common.formatting.AbstractFormatterTestCase;
+import com.aptana.editor.ruby.RubyEditorPlugin;
 
 public class FormattingTests extends AbstractFormatterTestCase
 {
@@ -25,6 +26,14 @@ public class FormattingTests extends AbstractFormatterTestCase
 	private static String FORMATTER_FACTORY_ID = "com.aptana.editor.ruby.formatterFactory"; //$NON-NLS-1$
 	private static String TEST_BUNDLE_ID = "com.aptana.editor.ruby.formatter.tests"; //$NON-NLS-1$
 	private static String FILE_TYPE = "rb"; //$NON-NLS-1$
+
+	@Override
+	protected void setUpSuite() throws Exception
+	{
+		// Force the ruby editor plugin to load!
+		RubyEditorPlugin.getDefault();
+		super.setUpSuite();
+	}
 
 	@Override
 	protected String getTestBundleId()

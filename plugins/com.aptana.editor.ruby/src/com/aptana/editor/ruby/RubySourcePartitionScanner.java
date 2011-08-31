@@ -200,7 +200,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		}
 		catch (SyntaxException se)
 		{
-			if (se.getMessage().equals("embedded document meets end of file")) //$NON-NLS-1$
+			if ("embedded document meets end of file".equals(se.getMessage())) //$NON-NLS-1$
 			{
 				return handleUnterminedMultilineComment(se);
 			}

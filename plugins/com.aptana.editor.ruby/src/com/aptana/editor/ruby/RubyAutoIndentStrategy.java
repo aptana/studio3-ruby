@@ -153,6 +153,10 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 			{
 				return false;
 			}
+			catch (IOException ioe)
+			{
+				return false;
+			}
 			finally
 			{
 				if (reader2 != null)

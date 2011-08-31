@@ -22,6 +22,7 @@ import org.jrubyparser.parser.ParserSupport19;
 import org.jrubyparser.parser.Ruby18Parser;
 import org.jrubyparser.parser.Ruby19Parser;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.StringUtil;
 
 /**
@@ -81,6 +82,10 @@ public class RubySourceParser
 		}
 		catch (Exception e)
 		{
+			if (IdeLog.isInfoEnabled(RubyCorePlugin.getDefault(), null))
+			{
+				IdeLog.logInfo(RubyCorePlugin.getDefault(), "Unable to parse ruby file", e, null);
+			}
 		}
 		finally
 		{
@@ -100,7 +105,7 @@ public class RubySourceParser
 		return ast;
 	}
 
-	private ParserResult parse(String fileName, Reader content)
+	private ParserResult parse(String fileName, Reader content) throws IOException
 	{
 		if (fileName == null)
 		{
