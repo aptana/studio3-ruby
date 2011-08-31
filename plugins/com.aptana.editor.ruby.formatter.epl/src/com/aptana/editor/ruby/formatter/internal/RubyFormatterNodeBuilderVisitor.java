@@ -124,7 +124,6 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		builder.push(classNode);
 		// visitChildren(visited);
 		Node bodyNode = visited.getBodyNode();
-		bodyNode.accept(this);
 		int bodyEndOffset;
 		if (NodeType.NILNODE.equals(bodyNode.getNodeType()))
 		{
@@ -132,6 +131,7 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		}
 		else
 		{
+			bodyNode.accept(this);
 			bodyEndOffset = bodyNode.getPosition().getEndOffset();
 		}
 		builder.checkedPop(classNode, bodyEndOffset);
