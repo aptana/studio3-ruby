@@ -51,17 +51,20 @@ public class LineContinuationDamagerRepairer extends ThemeingDamagerRepairer
 					int start = Math.max(partition.getOffset(), info.getOffset());
 					int end = info.getOffset() + info.getLength();
 					int length = end - start;
-					String previousLine = fDocument.get(start, length);
-					if (previousLine.endsWith("\\")) //$NON-NLS-1$
+					if (length > 0)
 					{
-						return new Region(start, region.getLength() + (length + 1));
+						String previousLine = fDocument.get(start, length);
+						if (previousLine.endsWith("\\")) //$NON-NLS-1$
+						{
+							return new Region(start, region.getLength() + (length + 1));
+						}
 					}
 				}
 			}
 			catch (BadLocationException e1)
 			{
 				IdeLog.logError(RubyEditorPlugin.getDefault(),
-						"Unable to check previous line form '\' continuation, offset: " + e.getOffset(), e1);
+						"Unable to check previous line for '\\' continuation, offset: " + e.getOffset(), e1); //$NON-NLS-1$
 			}
 		}
 		return region;

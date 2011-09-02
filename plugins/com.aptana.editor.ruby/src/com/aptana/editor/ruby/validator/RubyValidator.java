@@ -173,7 +173,7 @@ public class RubyValidator implements IValidator
 			{
 				reader.close();
 			}
-			catch (IOException e)
+			catch (IOException e) // $codepro.audit.disable emptyCatchClause
 			{
 				// ignore
 			}

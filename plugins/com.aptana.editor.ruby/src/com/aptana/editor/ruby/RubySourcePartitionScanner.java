@@ -27,9 +27,11 @@ import org.jrubyparser.Parser.NullWarnings;
 import org.jrubyparser.SourcePosition;
 import org.jrubyparser.ast.CommentNode;
 import org.jrubyparser.ast.Node;
+import org.jrubyparser.lexer.HeredocTerm;
 import org.jrubyparser.lexer.Lexer;
 import org.jrubyparser.lexer.Lexer.LexState;
 import org.jrubyparser.lexer.LexerSource;
+import org.jrubyparser.lexer.StrTerm;
 import org.jrubyparser.lexer.SyntaxException;
 import org.jrubyparser.lexer.SyntaxException.PID;
 import org.jrubyparser.parser.ParserConfiguration;
@@ -39,6 +41,7 @@ import org.jrubyparser.parser.Tokens;
 
 import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.StringUtil;
+import com.aptana.editor.common.CommonUtil;
 
 public class RubySourcePartitionScanner implements IPartitionTokenScanner
 {
@@ -53,6 +56,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 	private ParserResult result;
 	private String fContents;
 	private LexerSource lexerSource;
+	private Reader reader;
 	private int origOffset;
 	private int origLength;
 	private int fLength;
@@ -100,20 +104,17 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			myOffset = 0;
 		}
 		ParserConfiguration config = new ParserConfiguration(0, CompatVersion.BOTH);
-		Reader reader = null;
 		try
 		{
 			fContents = document.get(myOffset, length);
-			reader = new BufferedReader(new StringReader(fContents));
-			lexerSource = LexerSource.getSource(DEFAULT_FILENAME, reader, config);
-			lexer.setSource(lexerSource);
 		}
 		catch (BadLocationException e)
 		{
-			reader = new BufferedReader(new StringReader(StringUtil.EMPTY));
-			lexerSource = LexerSource.getSource(DEFAULT_FILENAME, reader, config);
-			lexer.setSource(lexerSource);
+			fContents = StringUtil.EMPTY;
 		}
+		reader = new BufferedReader(new StringReader(fContents)); // $codepro.audit.disable closeWhereCreated
+		lexerSource = LexerSource.getSource(DEFAULT_FILENAME, reader, config);
+		lexer.setSource(lexerSource);
 
 		// FIXME If we're resuming after a string/regexp/command, set up lex state to be expression end.
 		if (partitionOffset > 0)
@@ -158,7 +159,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		}
 		setOffset(getAdjustedOffset());
 		setLength(0);
-		IToken returnValue = new Token(fContentType);
+		IToken returnValue = createToken(fContentType);
 		boolean isEOF = false;
 		try
 		{
@@ -166,7 +167,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			if (isEOF)
 			{
 				returnValue = Token.EOF;
-				// TODO Close the lexer's reader!
+				// TODO Close the lexer's reader?
 			}
 			else
 			{
@@ -179,11 +180,16 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 				{
 					return handleStringInterpolation();
 				}
-				else if (lexerToken == Tokens.tSTRING_BEG)
+				// Set up lexer to process embedded code in strings!
+				else if (lexerToken == Tokens.tSTRING_BEG || lexerToken == Tokens.tREGEXP_BEG
+						|| lexerToken == Tokens.tXSTRING_BEG || lexerToken == Tokens.tQWORDS_BEG
+						|| lexerToken == Tokens.tWORDS_BEG || lexerToken == Tokens.tSYMBEG)
 				{
-					IToken heredoc = handleHeredocInMiddleOfLine();
-					if (heredoc != null)
-						return heredoc;
+					StrTerm strTerm = lexer.getStrTerm();
+					if (strTerm != null)
+					{
+						strTerm.splitEmbeddedTokens();
+					}
 				}
 				returnValue = getToken(lexerToken);
 			}
@@ -215,7 +221,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 				return Token.EOF;
 			}
 			setLength(getAdjustedOffset() - fOffset);
-			return new Token(RubySourceConfiguration.DEFAULT);
+			return createToken(RubySourceConfiguration.DEFAULT);
 		}
 		catch (IOException e)
 		{
@@ -245,41 +251,6 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		return !inSingleQuote && lexerToken == Tokens.tSTRING_DBEG;
 	}
 
-	private IToken handleHeredocInMiddleOfLine() throws IOException
-	{
-		String opening = getOpeningStringToEndOfLine();
-		int endOfMarker = indexOf(opening.trim(), '.', ',', '+', '(', ')');
-		if (opening.trim().startsWith(HEREDOC_MARKER_PREFIX) && endOfMarker != -1)
-		{
-			adjustOffset(opening);
-			addHereDocStartToken(endOfMarker);
-			addCommaToken(endOfMarker);
-			scanRestOfLineAfterHeredocBegins(opening.trim(), endOfMarker);
-			setLexerPastHeredocBeginning(opening.trim());
-			return popTokenOffQueue();
-		}
-		return null;
-	}
-
-	private String getOpeningStringToEndOfLine()
-	{
-		int start = fOffset - origOffset;
-		// TODO Are there ever comment nodes anymore? Do we need this code?!
-		List<CommentNode> comments = result.getCommentNodes();
-		if (comments != null && !comments.isEmpty())
-		{
-			Node comment = comments.get(comments.size() - 1);
-			int end = comment.getPosition().getEndOffset();
-			start = end;
-		}
-		// Need to grab until newline or EOF!
-		String untilEnd = new String(fContents.substring(start));
-		int index = indexOf(untilEnd, '\r', '\n'); // $codepro.audit.disable platformSpecificLineSeparator
-		if (index != -1)
-			untilEnd = new String(untilEnd.substring(0, index + 1));
-		return untilEnd;
-	}
-
 	private void setLength(int newLength)
 	{
 		fLength = newLength;
@@ -304,7 +275,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		// TODO recover somehow by removing this chunk out of the
 		// fContents?
 		int length = fContents.length() - start;
-		QueuedToken qtoken = new QueuedToken(new Token(contentType), start + origOffset, length);
+		QueuedToken qtoken = new QueuedToken(createToken(contentType), start + origOffset, length);
 		if (fOffset == origOffset)
 		{
 			// If we never got to read in beginning contents
@@ -326,17 +297,38 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 	private IToken handleSingleVariableStringInterpolation() throws IOException
 	{
 		addPoundToken();
-		scanDynamicVariable();
-		setLexerPastDynamicSectionOfString();
+		// let lexer scan the dynamic variable...
+		int start = lexerSource.getOffset();
+		lexer.nextToken();
+		int end = lexerSource.getOffset();
+		String content = fContents.substring(start, end);
+		// push the dynamic var onto the queue
+		push(new QueuedToken(createToken(RubySourceConfiguration.DEFAULT), fOffset, content.length()));
+		setOffset(fOffset + content.length()); // move past dynamic var after we're done with queue
+
 		return popTokenOffQueue();
 	}
 
 	private IToken handleStringInterpolation() throws IOException
 	{
+		// Can we just treat the arg token normally somehow?
 		addPoundBraceToken();
-		scanTokensInsideDynamicPortion();
-		addClosingBraceToken();
-		setLexerPastDynamicSectionOfString();
+
+		// We need to record the offset here, and the offset after asking for next token. Then grab code in between to
+		// recurse on!
+		int start = lexerSource.getOffset();
+
+		// Seems like next token returned is considered string content and contains the interpolated code. We need to
+		// dive into it specially.
+		// FIXME JRuby parser lexer StringTerm doesn't properly handle nested strings inside DExpr. It just stops at
+		// first '}'.
+
+		lexer.nextToken();
+		int end = lexerSource.getOffset();
+		String content = fContents.substring(start, end);
+		scanTokensInsideDynamicPortion(content);
+		// Then lexer will resume by returning the "}" token as string content too
+
 		return popTokenOffQueue();
 	}
 
@@ -347,7 +339,20 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 
 	private void reset()
 	{
-		// TODO Close the lexer's reader!
+		// Close the lexer's reader?
+		if (reader != null)
+		{
+			try
+			{
+				reader.close(); // $codepro.audit.disable closeInFinally
+			}
+			catch (IOException e) // $codepro.audit.disable emptyCatchClause
+			{
+				// ignore
+			}
+			reader = null;
+		}
+
 		lexer.reset();
 		lexer.setState(LexState.EXPR_BEG);
 		lexer.setPreserveSpaces(true);
@@ -355,84 +360,6 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		fQueue.clear();
 		inSingleQuote = false;
 		fContentType = RubySourceConfiguration.DEFAULT;
-	}
-
-	private void adjustOffset(String opening)
-	{
-		int index = opening.indexOf(HEREDOC_MARKER_PREFIX);
-		if (index > 0)
-		{
-			setOffset(fOffset + index);
-		}
-	}
-
-	private int indexOf(String opening, char... chars)
-	{
-		String trimmed = opening.trim();
-		int diff;
-		if (trimmed.length() == 0)
-		{
-			diff = opening.length();
-		}
-		else
-		{
-			// Count leading whitespace
-			diff = opening.indexOf(trimmed.charAt(0));
-		}
-		int lowest = -1;
-		for (char c : chars)
-		{
-			int value = trimmed.indexOf(c);
-			if (value == -1)
-			{
-				continue;
-			}
-			value += diff;
-			if (lowest == -1)
-			{
-				lowest = value;
-				continue;
-			}
-			if (value < lowest)
-			{
-				lowest = value;
-			}
-		}
-		return lowest;
-	}
-
-	private void scanRestOfLineAfterHeredocBegins(String opening, int index)
-	{
-		String possible = new String(opening.substring(index + 1));
-		RubySourcePartitionScanner scanner = new RubySourcePartitionScanner();
-		IDocument document = new Document(possible);
-		scanner.setRange(document, 0, possible.length());
-		IToken token;
-		while (!(token = scanner.nextToken()).isEOF()) // $codepro.audit.disable assignmentInCondition
-		{
-			push(new QueuedToken(token, scanner.getTokenOffset() + fOffset + index + 1, scanner.getTokenLength()));
-		}
-		setOffset(fOffset + index + 1 + possible.length());
-		if (scanner.fOpeningString != null && scanner.fOpeningString.endsWith("\n")) //$NON-NLS-1$ // $codepro.audit.disable platformSpecificLineSeparator
-		{
-			fOpeningString = scanner.fOpeningString;
-		}
-		else
-		{
-			String marker = new String(opening.substring(0, index).trim());
-			fOpeningString = generateOpeningStringForHeredocMarker(marker);
-		}
-		fContentType = RubySourceConfiguration.STRING_DOUBLE;
-	}
-
-	private void addCommaToken(int index)
-	{
-		push(new QueuedToken(new Token(RubySourceConfiguration.DEFAULT), fOffset + index, 1));
-	}
-
-	private void addHereDocStartToken(int index)
-	{
-		push(new QueuedToken(new Token(RubySourceConfiguration.STRING_DOUBLE), fOffset, index));
 	}
 
 	private void setOffset(int offset)
@@ -445,101 +372,17 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		addStringToken(1);// add token for the #
 	}
 
-	private void scanDynamicVariable()
+	private void scanTokensInsideDynamicPortion(String content)
 	{
-		// read until whitespace or '"'
-		int whitespace = fContents.indexOf(' ', fOffset - origOffset);
-		if (whitespace == -1)
-		{
-			whitespace = Integer.MAX_VALUE;
-		}
-		int doubleQuote = fContents.indexOf('"', fOffset - origOffset);
-		if (doubleQuote == -1)
-		{
-			doubleQuote = Integer.MAX_VALUE;
-		}
-		int end = Math.min(whitespace, doubleQuote);
-		// FIXME If we can't find whitespace or doubleQuote, we are pretty
-		// screwed.
-		String possible = null;
-		if (end == -1)
-		{
-			possible = new String(fContents.substring(fOffset - origOffset));
-		}
-		else
-		{
-			possible = new String(fContents.substring(fOffset - origOffset, end));
-		}
 		RubySourcePartitionScanner scanner = new RubySourcePartitionScanner();
-		IDocument document = new Document(possible);
-		scanner.setRange(document, 0, possible.length());
-		IToken token;
-		while (!(token = scanner.nextToken()).isEOF()) // $codepro.audit.disable assignmentInCondition
-		{
-			push(new QueuedToken(token, scanner.getTokenOffset() + (fOffset), scanner.getTokenLength()));
-		}
-		setOffset(fOffset + possible.length());
-	}
-
-	private void scanTokensInsideDynamicPortion()
-	{
-		String possible = new String(fContents.substring(fOffset - origOffset));
-		int end = findEnd(possible);
-		if (end != -1)
-		{
-			possible = new String(possible.substring(0, end));
-		}
-		RubySourcePartitionScanner scanner = new RubySourcePartitionScanner();
-		IDocument document = new Document(possible);
-		scanner.setRange(document, 0, possible.length());
+		IDocument document = new Document(content);
+		scanner.setRange(document, 0, content.length());
 		IToken token;
 		while (!(token = scanner.nextToken()).isEOF()) // $codepro.audit.disable assignmentInCondition
 		{
 			push(new QueuedToken(token, scanner.getTokenOffset() + fOffset, scanner.getTokenLength()));
 		}
-		setOffset(fOffset + possible.length());
-	}
-
-	private int findEnd(String possible)
-	{
-		int end = new EndBraceFinder(possible).find();
-		if (this.insideHeredoc())
-		{
-			String marker = fOpeningString.trim();
-			int offset = possible.indexOf(marker);
-			if (offset != -1)
-			{
-				int endingOffset = offset + marker.length();
-				boolean allowLeadingWhitespace = true; // TODO: set based on existence of '-' operator
-				while (offset > 0)
-				{
-					final char c = possible.charAt(offset - 1); // $codepro.audit.disable variableDeclaredInLoop
-					if (c == '\r' || c == '\n') // $codepro.audit.disable platformSpecificLineSeparator
-					{
-						break;
-					}
-					else if (allowLeadingWhitespace && (c == ' ' || c == '\t'))
-					{
-						offset--;
-					}
-					else
-					{
-						// try to advance to the next potential end marker. Note
-						// that if this fails, offset will be -1 and then we'll
-						// exit the while loop
-						offset = possible.indexOf(marker, endingOffset);
-						endingOffset = offset + marker.length();
-					}
-				}
-				// if we found an end marker, use it if it comes before the
-				// ending brace
-				if (end == -1 || (offset != -1 && offset < end))
-				{
-					end = offset - 1;
-				}
-			}
-		}
-		return end;
+		setOffset(fOffset + content.length());
 	}
 
 	private void addPoundBraceToken()
@@ -549,79 +392,13 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 
 	private void addStringToken(int length)
 	{
-		push(new QueuedToken(new Token(fContentType), fOffset, length));
+		String contentType = getStringType();
+		if (RubySourceConfiguration.DEFAULT.equals(contentType))
+		{
+			contentType = RubySourceConfiguration.STRING_DOUBLE;
+		}
+		push(new QueuedToken(createToken(contentType), fOffset, length));
 		setOffset(fOffset + length); // move past token
-	}
-
-	private void addClosingBraceToken()
-	{
-		addStringToken(1);
-	}
-
-	private void setLexerPastDynamicSectionOfString() throws IOException
-	{
-		String opening = fOpeningString;
-		if (opening.endsWith("\n")) //$NON-NLS-1$ // $codepro.audit.disable platformSpecificLineSeparator
-		{
-			// What about When it should remain <<-!
-			// try searching backwards from fOffset in fContents for <<-opening
-			// or <<opening and take whichever we find
-			// first. If we fail to find, assume <<
-			String heredocStart = HEREDOC_MARKER_PREFIX;
-			int lastIndent = fContents.lastIndexOf(INDENTED_HEREDOC_MARKER_PREFIX + opening, fOffset);
-			if (lastIndent != -1)
-			{
-				if (lastIndent > fContents.lastIndexOf(HEREDOC_MARKER_PREFIX + opening, fOffset))
-				{
-					heredocStart = INDENTED_HEREDOC_MARKER_PREFIX;
-				}
-			}
-			opening = heredocStart + opening;
-		}
-		String oldContentType = fContentType;
-		String oldOpening = fOpeningString;
-		generateHackedSource(opening);
-		fContentType = oldContentType;
-		fOpeningString = oldOpening;
-	}
-
-	private void setLexerPastHeredocBeginning(String rawBeginning) throws IOException
-	{
-		String heredocMarker = HEREDOC_MARKER_PREFIX;
-		if (rawBeginning.startsWith(INDENTED_HEREDOC_MARKER_PREFIX))
-		{
-			heredocMarker = INDENTED_HEREDOC_MARKER_PREFIX;
-		}
-		heredocMarker += fOpeningString.trim();
-
-		generateHackedSource(heredocMarker);
-
-		// Add a token for the heredoc string we just ate up!
-		fContentType = RubySourceConfiguration.STRING_DOUBLE;
-		int afterHeredoc = fOffset;
-		push(new QueuedToken(new Token(RubySourceConfiguration.STRING_DOUBLE), afterHeredoc, getAdjustedOffset()
-				- afterHeredoc));
-	}
-
-	private void generateHackedSource(String beginning) throws IOException
-	{
-		StringBuffer fakeContents = new StringBuffer();
-		int start = fOffset - beginning.length();
-		for (int i = 0; i < start; i++)
-		{
-			fakeContents.append(' ');
-		}
-		fakeContents.append(beginning);
-		if ((fOffset - origOffset) < origLength)
-		{
-			fakeContents.append(new String(fContents.substring((fOffset - origOffset))));
-		}
-
-		IDocument document = new Document(fakeContents.toString());
-		List<QueuedToken> queueCopy = new ArrayList<QueuedToken>(fQueue);
-		setPartialRange(document, start, fakeContents.length() - start, RubySourceConfiguration.DEFAULT, start);
-		fQueue = new ArrayList<QueuedToken>(queueCopy);
-		lexer.advance();
 	}
 
 	private void parseOutComments(List<CommentNode> comments)
@@ -638,7 +415,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 					length++;
 				}
 			}
-			Token token = new Token(getContentType(comment));
+			IToken token = createToken(getContentType(comment));
 			push(new QueuedToken(token, offset, length));
 		}
 	}
@@ -660,7 +437,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			{
 				fContentType = RubySourceConfiguration.DEFAULT;
 				inSingleQuote = false;
-				return new Token(RubySourceConfiguration.STRING_DOUBLE);
+				return createToken(RubySourceConfiguration.STRING_DOUBLE);
 			}
 		}
 		if (fContentType.equals(RubySourceConfiguration.MULTI_LINE_COMMENT) && i != Tokens.tWHITESPACE)
@@ -671,40 +448,45 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 		switch (i)
 		{
 			case RubyTokenScanner.SPACE:
-				return new Token(fContentType);
+			case Tokens.tWHITESPACE:
+				return createToken(getStringType());
 			case Tokens.tCOMMENT:
-				return new Token(RubySourceConfiguration.SINGLE_LINE_COMMENT);
+				return createToken(RubySourceConfiguration.SINGLE_LINE_COMMENT);
 			case Tokens.tDOCUMENTATION:
-				fContentType = RubySourceConfiguration.MULTI_LINE_COMMENT;
-				return new Token(RubySourceConfiguration.MULTI_LINE_COMMENT);
+				return createToken(fContentType = RubySourceConfiguration.MULTI_LINE_COMMENT);
 			case Tokens.tSTRING_CONTENT:
-				return new Token(fContentType);
+				return createToken(fContentType = getStringType());
 			case Tokens.tSTRING_BEG:
 				String opening = getOpeningString();
 				if ("%".equals(opening)) // space after percent sign, it's an operator //$NON-NLS-1$
 				{
-					return new Token(fContentType);
+					return createToken(fContentType);
 				}
 				fOpeningString = opening;
-				fContentType = RubySourceConfiguration.STRING_DOUBLE;
-				if (fOpeningString.equals("'") || fOpeningString.startsWith("%q")) { //$NON-NLS-1$//$NON-NLS-2$
+
+				if (fOpeningString.equals("'") || fOpeningString.startsWith("%q")) //$NON-NLS-1$//$NON-NLS-2$
+				{
 					inSingleQuote = true;
 					fContentType = RubySourceConfiguration.STRING_SINGLE;
 				}
-				else if (fOpeningString.startsWith(HEREDOC_MARKER_PREFIX))
-				{ // here-doc
+				else if (fOpeningString.startsWith(HEREDOC_MARKER_PREFIX)) // here-doc
+				{
+					// FIXME If it's a heredoc mid-line, don't change the content type!
 					fOpeningString = generateOpeningStringForHeredocMarker(fOpeningString);
 					if (fOpeningString.length() > 0 && fOpeningString.charAt(0) == '\'')
 					{
-						inSingleQuote = true;
-						fContentType = RubySourceConfiguration.STRING_SINGLE;
+						return createToken(RubySourceConfiguration.STRING_SINGLE);
 					}
+					return createToken(RubySourceConfiguration.STRING_DOUBLE);
 				}
-				return new Token(fContentType);
+				else
+				{
+					fContentType = RubySourceConfiguration.STRING_DOUBLE;
+				}
+				return createToken(fContentType);
 			case Tokens.tXSTRING_BEG:
 				fOpeningString = getOpeningString();
-				fContentType = RubySourceConfiguration.COMMAND;
-				return new Token(RubySourceConfiguration.COMMAND);
+				return createToken(fContentType = RubySourceConfiguration.COMMAND);
 			case Tokens.tQWORDS_BEG:
 			case Tokens.tWORDS_BEG:
 				fOpeningString = getOpeningString();
@@ -714,30 +496,21 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 				{
 					fContentType = RubySourceConfiguration.STRING_DOUBLE;
 				}
-				return new Token(fContentType);
+				return createToken(fContentType);
 			case Tokens.tSTRING_END:
-				// If we're ending a heredoc, make sure we're not nested and ending one of the earlier ones!
-				if (insideHeredoc() && !reachedEndOfHeredoc())
-				{
-					String contentTypeToReturn = RubySourceConfiguration.STRING_DOUBLE;
-					if (fOpeningString.length() > 0 && fOpeningString.charAt(0) == '\'')
-					{
-						contentTypeToReturn = RubySourceConfiguration.STRING_SINGLE;
-					}
-					return new Token(contentTypeToReturn);
-				}
-
 				String oldContentType = fContentType;
+				// FIXME What if this is a nested heredoc?
+				// FIXME What if the old content type wass default? make it a string of some sort in string content...
+
 				fContentType = RubySourceConfiguration.DEFAULT;
-				inSingleQuote = false;
-				return new Token(oldContentType);
+				// at end of string, the strterm is wiped, how can we tell what string type it was?
+				return createToken(oldContentType);
 			case Tokens.tREGEXP_BEG:
 				fOpeningString = getOpeningString();
-				fContentType = RubySourceConfiguration.REGULAR_EXPRESSION;
-				return new Token(RubySourceConfiguration.REGULAR_EXPRESSION);
+				return createToken(fContentType = RubySourceConfiguration.REGULAR_EXPRESSION);
 			case Tokens.tREGEXP_END:
 				fContentType = RubySourceConfiguration.DEFAULT;
-				return new Token(RubySourceConfiguration.REGULAR_EXPRESSION);
+				return createToken(RubySourceConfiguration.REGULAR_EXPRESSION);
 			case Tokens.tSYMBEG:
 				// Sometimes we need to add 1, sometimes two. Depends on if there's
 				// a space preceding the ':'
@@ -751,7 +524,7 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 				}
 				if (fContents.length() <= charAt + 1)
 				{
-					return new Token(RubySourceConfiguration.DEFAULT);
+					return createToken(RubySourceConfiguration.DEFAULT);
 				}
 				if (c == '%') // %s syntax
 				{
@@ -762,21 +535,56 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 				{
 					if (fContents.length() <= charAt + 1)
 					{
-						return new Token(RubySourceConfiguration.DEFAULT);
+						return createToken(RubySourceConfiguration.DEFAULT);
 					}
 					nextCharOffset++;
 					c = fContents.charAt(++charAt);
 					if (c == '"') // Check for :"symbol" syntax
 					{
 						fOpeningString = "\""; //$NON-NLS-1$
-						push(new QueuedToken(new Token(RubySourceConfiguration.STRING_DOUBLE), nextCharOffset - 1, 1));
+						push(new QueuedToken(createToken(RubySourceConfiguration.STRING_DOUBLE), nextCharOffset - 1, 1));
 						fContentType = RubySourceConfiguration.STRING_DOUBLE;
 					}
 				}
-				return new Token(RubySourceConfiguration.DEFAULT);
+				return createToken(RubySourceConfiguration.DEFAULT);
 			default:
-				return new Token(fContentType);
+				return createToken(fContentType);
 		}
+	}
+
+	/**
+	 * Wrap generating tokens so we can re-use the same object for the same data.
+	 * 
+	 * @param data
+	 * @return
+	 */
+	protected IToken createToken(String tokenName)
+	{
+		return CommonUtil.getToken(tokenName);
+	}
+
+	private String getStringType()
+	{
+		StrTerm strTerm = lexer.getStrTerm();
+		if (strTerm != null)
+		{
+			if (strTerm instanceof HeredocTerm)
+			{
+				strTerm.splitEmbeddedTokens();
+			}
+			if (strTerm.isSubstituting())
+			{
+				if (RubySourceConfiguration.REGULAR_EXPRESSION.equals(fContentType)
+						|| RubySourceConfiguration.COMMAND.equals(fContentType))
+				{
+					return fContentType;
+				}
+				return RubySourceConfiguration.STRING_DOUBLE;
+			}
+			inSingleQuote = true;
+			return RubySourceConfiguration.STRING_SINGLE;
+		}
+		return fContentType;
 	}
 
 	private boolean insideHeredoc()
@@ -893,144 +701,5 @@ public class RubySourcePartitionScanner implements IPartitionTokenScanner
 			return null; // end is past end of source
 		}
 		return new String(contents.substring(pos.getStartOffset(), pos.getEndOffset()));
-	}
-
-	/**
-	 * Used to find the end of string interpolation (the '}'). Uses a stack to maintain nesting of strings/regexp, and
-	 * knowledge of escape chars.
-	 * 
-	 * @author cwilliams
-	 */
-	public static class EndBraceFinder
-	{
-		private String input;
-		private List<String> stack;
-
-		public EndBraceFinder(String possible)
-		{
-			this.input = possible;
-			stack = new ArrayList<String>();
-		}
-
-		/**
-		 * Return index of the end brace. -1 if not found.
-		 * 
-		 * @return
-		 */
-		public int find()
-		{
-			int lastEndBrace = -1;
-			for (int i = 0; i < input.length(); i++)
-			{
-				switch (input.charAt(i))
-				{
-					case '$':
-						// don't skip next char if we're in a regexp
-						if (!topEquals("/")) //$NON-NLS-1$
-						{
-							i++;
-						}
-						break;
-					case '\\':
-						i++;
-						break;
-					case '"':
-						if (topEquals("\"")) { //$NON-NLS-1$
-							pop();
-						}
-						else
-						{
-							// if we hit an '"' with an open '/' we assume we're done. Ticket #372
-							if (stack.contains("/") && !stack.contains("\"") && lastEndBrace != -1) //$NON-NLS-1$ //$NON-NLS-2$
-							{
-								return lastEndBrace;
-							}
-							if (!topEquals("'")) //$NON-NLS-1$
-								push("\""); //$NON-NLS-1$
-						}
-						break;
-					case '/':
-						if (topEquals("/")) { //$NON-NLS-1$
-							pop();
-							// found a regex
-							lastEndBrace = -1;
-						}
-						else
-						{
-							// Only if we're not inside a string
-							if (!topEquals("'") && !topEquals("\"")) { //$NON-NLS-1$ //$NON-NLS-2$
-								push("/"); //$NON-NLS-1$
-							}
-						}
-						break;
-					case '\'':
-						if (topEquals("'")) { //$NON-NLS-1$
-							pop();
-						}
-						else if (!topEquals("\"") && !topEquals("/")) { //$NON-NLS-1$ //$NON-NLS-2$
-							// not inside a double quoted string or a regex
-							push("'"); //$NON-NLS-1$
-						}
-						break;
-					case '{':
-						// Only if we're not inside a string
-						if (!topEquals("'") && !topEquals("\"")) { //$NON-NLS-1$ //$NON-NLS-2$
-							push("{"); //$NON-NLS-1$
-						}
-						break;
-					case '#':
-						// Only add if we're inside a double quote string
-						if (topEquals("\"")) { //$NON-NLS-1$
-							if (input.charAt(i + 1) == '{')
-							{
-								push("#{"); //$NON-NLS-1$
-								i++;
-							}
-						}
-						break;
-					case '}':
-						if (stack.isEmpty())
-						{ // if not in open state
-							return i;
-						}
-						if (topEquals("#{") || topEquals("{")) { //$NON-NLS-1$ //$NON-NLS-2$
-							pop();
-						}
-						if (topEquals("/")) { //$NON-NLS-1$
-							// assumes '/' is for division until we find a matching '/' to make it a regex
-							lastEndBrace = i;
-						}
-						break;
-					default:
-						break;
-				}
-			}
-			return (lastEndBrace < 0) ? -1 : lastEndBrace;
-		}
-
-		private boolean topEquals(String string)
-		{
-			String open = peek();
-			return open != null && open.equals(string);
-		}
-
-		private boolean push(String string)
-		{
-			return stack.add(string);
-		}
-
-		private String pop()
-		{
-			return stack.remove(stack.size() - 1);
-		}
-
-		private String peek()
-		{
-			if (stack.isEmpty())
-			{
-				return null;
-			}
-			return stack.get(stack.size() - 1);
-		}
 	}
 }

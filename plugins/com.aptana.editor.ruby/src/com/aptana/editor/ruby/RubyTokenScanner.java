@@ -8,7 +8,7 @@
 package com.aptana.editor.ruby;
 
 import java.io.BufferedReader;
-import java.io.Reader;
+import java.io.IOException;
 import java.io.StringReader;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -65,6 +65,7 @@ public class RubyTokenScanner implements ITokenScanner
 	private int origOffset;
 	private int origLength;
 	private String fContents;
+	private BufferedReader reader;
 
 	public RubyTokenScanner()
 	{
@@ -294,7 +295,7 @@ public class RubyTokenScanner implements ITokenScanner
 		{
 			fContents = StringUtil.EMPTY;
 		}
-		Reader reader = new BufferedReader(new StringReader(fContents));
+		reader = new BufferedReader(new StringReader(fContents)); // $codepro.audit.disable closeWhereCreated
 		lexerSource = LexerSource.getSource("filename", reader, config); //$NON-NLS-1$
 		lexer.setSource(lexerSource);
 
@@ -325,7 +326,17 @@ public class RubyTokenScanner implements ITokenScanner
 
 	protected void reset()
 	{
-		// TODO close the StringReader!
+		if (reader != null)
+		{
+			try
+			{
+				reader.close(); // $codepro.audit.disable closeInFinally
+			}
+			catch (IOException e) // $codepro.audit.disable emptyCatchClause
+			{
+				// ignore
+			}
+		}
 		lexer.reset();
 		lexer.setState(LexState.EXPR_BEG);
 		lexer.setPreserveSpaces(true);

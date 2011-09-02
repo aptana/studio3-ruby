@@ -165,7 +165,7 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 					{
 						reader2.close();
 					}
-					catch (IOException e1)
+					catch (IOException e1) // $codepro.audit.disable emptyCatchClause
 					{
 						// ignore
 					}
@@ -185,7 +185,7 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 				{
 					reader.close();
 				}
-				catch (IOException e)
+				catch (IOException e) // $codepro.audit.disable emptyCatchClause
 				{
 					// ignore
 				}
