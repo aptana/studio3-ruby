@@ -27,6 +27,7 @@ public interface IRubyElement extends IParseNode
 	public static final short DYNAMIC_VAR = 11;
 	public static final short FIELD = 12;
 	public static final short IMPORT_CONTAINER = 13;
+	public static final short COMMENT = 14;
 
 	public String getName();
 
