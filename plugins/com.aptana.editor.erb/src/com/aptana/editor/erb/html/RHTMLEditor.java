@@ -85,7 +85,7 @@ public class RHTMLEditor extends HTMLEditor
 		return modified;
 	}
 
-	public static IPreferenceStore getChainedPreferenceStore()
+	public static IPreferenceStore getChainedPreferenceStore() // $codepro.audit.disable hidingInheritedStaticMethods
 	{
 		return new ChainedPreferenceStore(new IPreferenceStore[] { ERBEditorPlugin.getDefault().getPreferenceStore(),
 				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
