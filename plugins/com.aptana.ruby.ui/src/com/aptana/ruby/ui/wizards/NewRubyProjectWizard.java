@@ -8,6 +8,7 @@
 package com.aptana.ruby.ui.wizards;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -24,6 +25,8 @@ import com.aptana.projects.internal.wizards.NewProjectWizard;
 import com.aptana.projects.internal.wizards.ProjectTemplateSelectionPage;
 import com.aptana.ruby.core.RubyProjectNature;
 import com.aptana.ruby.ui.RubyUIPlugin;
+import com.aptana.usage.FeatureEvent;
+import com.aptana.usage.StudioAnalytics;
 
 /**
  * Ruby project wizard.
@@ -151,5 +154,11 @@ public class NewRubyProjectWizard extends NewProjectWizard implements IExecutabl
 			// The super cloneFromGit will deal with the project template cloning
 			super.cloneFromGit(newProjectHandle, description);
 		}
+	}
+	
+	@Override
+	protected void sendProjectCreateEvent(Map<String, String> payload)
+	{
+		StudioAnalytics.getInstance().sendEvent(new FeatureEvent("project.create.ruby", payload)); //$NON-NLS-1$
 	}
 }
