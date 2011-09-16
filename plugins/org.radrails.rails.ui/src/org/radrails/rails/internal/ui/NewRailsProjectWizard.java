@@ -8,6 +8,7 @@
 package org.radrails.rails.internal.ui;
 
 import java.io.File;
+import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -29,6 +30,8 @@ import com.aptana.ruby.core.RubyProjectNature;
 import com.aptana.ruby.ui.wizards.NewRubyProjectWizard;
 import com.aptana.ruby.ui.wizards.WizardNewRubyProjectCreationPage;
 import com.aptana.terminal.views.TerminalView;
+import com.aptana.usage.FeatureEvent;
+import com.aptana.usage.StudioAnalytics;
 
 /**
  * Rails project wizard
@@ -166,5 +169,11 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 			return lastPart.endsWith("beta4");
 		}
 		return true;
+	}
+	
+	@Override
+	protected void sendProjectCreateEvent(Map<String, String> payload)
+	{
+		StudioAnalytics.getInstance().sendEvent(new FeatureEvent("project.create.rails", payload)); //$NON-NLS-1$
 	}
 }
