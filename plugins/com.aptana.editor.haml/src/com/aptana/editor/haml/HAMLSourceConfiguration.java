@@ -33,6 +33,7 @@ import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.TextUtils;
 import com.aptana.editor.common.scripting.IContentTypeTranslator;
 import com.aptana.editor.common.scripting.QualifiedContentType;
+import com.aptana.editor.common.text.SingleTokenScanner;
 import com.aptana.editor.common.text.rules.CharacterMapRule;
 import com.aptana.editor.common.text.rules.CommentScanner;
 import com.aptana.editor.common.text.rules.ISubPartitionScanner;
@@ -252,9 +253,7 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	protected ITokenScanner getRubyEvaluationScanner()
 	{
-		RuleBasedScanner scanner = new RuleBasedScanner();
-		scanner.setDefaultReturnToken(getToken(StringUtil.EMPTY));
-		return scanner;
+		return new SingleTokenScanner(getToken(StringUtil.EMPTY));
 	}
 
 	/*
@@ -336,6 +335,7 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	private ITokenScanner getHTMLCommentScanner()
 	{
+		// FIXME Use CommentScanner and subclass!
 		RuleBasedScanner commentScanner = new RuleBasedScanner();
 		commentScanner = new CommentScanner(getToken(IHAMLConstants.HTML_COMMENT_SCOPE))
 		{

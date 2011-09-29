@@ -17,7 +17,6 @@ import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.MultiLineRule;
-import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.source.ISourceViewer;
 
@@ -28,6 +27,7 @@ import com.aptana.editor.common.IPartitioningConfiguration;
 import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.scripting.IContentTypeTranslator;
 import com.aptana.editor.common.scripting.QualifiedContentType;
+import com.aptana.editor.common.text.SingleTokenScanner;
 import com.aptana.editor.common.text.rules.CommentScanner;
 import com.aptana.editor.common.text.rules.ISubPartitionScanner;
 import com.aptana.editor.common.text.rules.PartitionerSwitchingIgnoreRule;
@@ -252,23 +252,17 @@ public class RubySourceConfiguration implements IPartitioningConfiguration, ISou
 
 	private ITokenScanner getCommandScanner()
 	{
-		RuleBasedScanner commandScanner = new RuleBasedScanner();
-		commandScanner.setDefaultReturnToken(getToken("string.interpolated.ruby")); //$NON-NLS-1$
-		return commandScanner;
+		return new SingleTokenScanner(getToken("string.interpolated.ruby")); //$NON-NLS-1$
 	}
 
 	private ITokenScanner getSingleQuotedStringScanner()
 	{
-		RuleBasedScanner singleQuotedStringScanner = new RuleBasedScanner();
-		singleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
-		return singleQuotedStringScanner;
+		return new SingleTokenScanner(getToken(IRubyConstants.SINGLE_QUOTED_STRING_SCOPE));
 	}
 
 	private ITokenScanner getDoubleQuotedStringScanner()
 	{
-		RuleBasedScanner doubleQuotedStringScanner = new RuleBasedScanner();
-		doubleQuotedStringScanner.setDefaultReturnToken(getToken(IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
-		return doubleQuotedStringScanner;
+		return new SingleTokenScanner(getToken(IRubyConstants.DOUBLE_QUOTED_STRING_SCOPE));
 	}
 
 	private static IToken getToken(String tokenName)

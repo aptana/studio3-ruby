@@ -13,8 +13,8 @@ import java.util.List;
 import org.eclipse.jface.text.rules.BufferedRuleBasedScanner;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.Token;
 
+import com.aptana.editor.common.CommonUtil;
 import com.aptana.editor.common.text.rules.RegexpRule;
 
 public class StringScanner extends BufferedRuleBasedScanner
@@ -31,6 +31,6 @@ public class StringScanner extends BufferedRuleBasedScanner
 
 	protected IToken getToken(String tokenName)
 	{
-		return new Token(tokenName);
+		return CommonUtil.getToken(tokenName);
 	}
 }
