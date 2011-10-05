@@ -30,7 +30,6 @@ package org.jrubyparser.parser;
 
 import java.io.IOException;
 
-import org.jrubyparser.ast.AliasNode;
 import org.jrubyparser.ast.ArgsNode;
 import org.jrubyparser.ast.ArgumentNode;
 import org.jrubyparser.ast.ArrayNode;
@@ -46,7 +45,6 @@ import org.jrubyparser.ast.ClassNode;
 import org.jrubyparser.ast.ClassVarNode;
 import org.jrubyparser.ast.Colon3Node;
 import org.jrubyparser.ast.ConstDeclNode;
-import org.jrubyparser.ast.DRegexpNode;
 import org.jrubyparser.ast.DStrNode;
 import org.jrubyparser.ast.DSymbolNode;
 import org.jrubyparser.ast.DXStrNode;
@@ -66,6 +64,7 @@ import org.jrubyparser.ast.InstVarNode;
 import org.jrubyparser.ast.IterNode;
 import org.jrubyparser.ast.LambdaNode;
 import org.jrubyparser.ast.ListNode;
+import org.jrubyparser.ast.LiteralNode;
 import org.jrubyparser.ast.ModuleNode;
 import org.jrubyparser.ast.MultipleAsgn19Node;
 import org.jrubyparser.ast.NextNode;
@@ -77,7 +76,7 @@ import org.jrubyparser.ast.OpAsgnNode;
 import org.jrubyparser.ast.OpAsgnOrNode;
 import org.jrubyparser.ast.OptArgNode;
 import org.jrubyparser.ast.PostExeNode;
-import org.jrubyparser.ast.PreExeNode;
+import org.jrubyparser.ast.PreExe19Node;
 import org.jrubyparser.ast.RedoNode;
 import org.jrubyparser.ast.RegexpNode;
 import org.jrubyparser.ast.RescueBodyNode;
@@ -90,7 +89,6 @@ import org.jrubyparser.ast.SelfNode;
 import org.jrubyparser.ast.StarNode;
 import org.jrubyparser.ast.StrNode;
 import org.jrubyparser.ast.SymbolNode;
-import org.jrubyparser.ast.UndefNode;
 import org.jrubyparser.ast.UnnamedRestArgNode;
 import org.jrubyparser.ast.UntilNode;
 import org.jrubyparser.ast.VAliasNode;
@@ -99,7 +97,9 @@ import org.jrubyparser.ast.XStrNode;
 import org.jrubyparser.ast.YieldNode;
 import org.jrubyparser.ast.ZArrayNode;
 import org.jrubyparser.ast.ZSuperNode;
+import org.jrubyparser.ast.ZYieldNode;
 import org.jrubyparser.ast.ILiteralNode;
+import org.jrubyparser.BlockStaticScope;
 import org.jrubyparser.IRubyWarnings;
 import org.jrubyparser.IRubyWarnings.ID;
 import org.jrubyparser.SourcePosition;
@@ -115,7 +115,6 @@ import org.jrubyparser.lexer.Token;
 public class Ruby19Parser implements RubyParser {
     protected ParserSupport19 support;
     protected Lexer lexer;
-    protected IRubyWarnings warnings;
 
     public Ruby19Parser() {
         this(new ParserSupport19());
@@ -125,11 +124,10 @@ public class Ruby19Parser implements RubyParser {
         this.support = support;
         lexer = new Lexer(false);
         lexer.setParserSupport(support);
+        support.setLexer(lexer);
     }
 
     public void setWarnings(IRubyWarnings warnings) {
-        this.warnings = warnings;
-
         support.setWarnings(warnings);
         lexer.setWarnings(warnings);
     }
@@ -146,7 +144,7 @@ public class Ruby19Parser implements RubyParser {
 
 %token <Token> tIDENTIFIER tFID tGVAR tIVAR tCONSTANT tCVAR tLABEL tCHAR
 %type <Token> variable
-%type <Token> fitem sym symbol operation operation2 operation3 cname fname op 
+%type <Token> sym symbol operation operation2 operation3 cname fname op
 %type <Token> f_norm_arg dot_or_colon restarg_mark blkarg_mark
 %token <Token> tUPLUS         /* unary+ */
 %token <Token> tUMINUS        /* unary- */
@@ -199,7 +197,6 @@ public class Ruby19Parser implements RubyParser {
 %token <Node> tNTH_REF tBACK_REF tSTRING_CONTENT tINTEGER
 %token <FloatNode> tFLOAT  
 %token <RegexpNode>  tREGEXP_END
-%token <Token> tCOMMENT tWHITESPACE tDOCUMENTATION
 %type <RestArgNode> f_rest_arg 
 %type <Node> singleton strings string string1 xstring regexp
 %type <Node> string_contents xstring_contents string_content method_call
@@ -224,16 +221,19 @@ public class Ruby19Parser implements RubyParser {
 %type <MultipleAsgn19Node> mlhs mlhs_basic 
 %type <RescueBodyNode> opt_rescue
 %type <AssignableNode> var_lhs
+%type <LiteralNode> fsym
+%type <Node> fitem
    // ENEBO: begin all new types
 %type <Node> f_arg_item
 %type <Node> bv_decls opt_bv_decl lambda_body 
 %type <LambdaNode> lambda
 %type <Node> mlhs_inner f_block_opt for_var
 %type <Node> opt_call_args f_marg f_margs 
-%type <Token> bvar fsym
+%type <Token> bvar
    // ENEBO: end all new types
 
 %type <Token> rparen rbracket reswords f_bad_arg
+%token <Token> tCOMMENT tWHITESPACE tDOCUMENTATION
 
 /*
  *    precedence table
@@ -279,21 +279,21 @@ program       : {
                           support.checkUselessStatement($2);
                       }
                   }
-                  support.getResult().setAST(support.addRootNode($2, getPosition($2)));
+                  support.getResult().setAST(support.addRootNode($2, support.getPosition($2)));
               }
 
 bodystmt      : compstmt opt_rescue opt_else opt_ensure {
                   Node node = $1;
 
                   if ($2 != null) {
-                      node = new RescueNode(getPosition($1, true), $1, $2, $3);
+                      node = new RescueNode(support.getPosition($1, true), $1, $2, $3);
                   } else if ($3 != null) {
-                      warnings.warn(ID.ELSE_WITHOUT_RESCUE, getPosition($1), "else without rescue is useless");
+                      support.warn(ID.ELSE_WITHOUT_RESCUE, support.getPosition($1), "else without rescue is useless");
                       node = support.appendToBlock($1, $3);
                   }
                   if ($4 != null) {
                       if (node == null) node = NilImplicitNode.NIL;
-                      node = new EnsureNode(getPosition($1), node, $4);
+                      node = new EnsureNode(support.getPosition($1), node, $4);
                   }
 
                   $$ = node;
@@ -308,10 +308,10 @@ compstmt        : stmts opt_terms {
 
 stmts           : none
                 | stmt {
-                    $$ = support.newline_node($1, getPosition($1, true));
+                    $$ = support.newline_node($1, support.getPosition($1, true));
                 }
                 | stmts terms stmt {
-                    $$ = support.appendToBlock($1, support.newline_node($3, getPosition($3, true)));
+                    $$ = support.appendToBlock($1, support.newline_node($3, support.getPosition($3, true)));
                 }
                 | error stmt {
                     $$ = $2;
@@ -320,16 +320,16 @@ stmts           : none
 stmt            : kALIAS fitem {
                     lexer.setState(LexState.EXPR_FNAME);
                 } fitem {
-                    $$ = new AliasNode(support.union($1, $4), (String) $2.getValue(), (String) $4.getValue());
+                    $$ = support.newAlias(support.union($1, $4), $2, $4);
                 }
                 | kALIAS tGVAR tGVAR {
-                    $$ = new VAliasNode(getPosition($1), (String) $2.getValue(), (String) $3.getValue());
+                    $$ = new VAliasNode(support.getPosition($1), (String) $2.getValue(), (String) $3.getValue());
                 }
                 | kALIAS tGVAR tBACK_REF {
-                    $$ = new VAliasNode(getPosition($1), (String) $2.getValue(), "$" + $<BackRefNode>3.getType());
+                    $$ = new VAliasNode(support.getPosition($1), (String) $2.getValue(), "$" + $<BackRefNode>3.getType());
                 }
                 | kALIAS tGVAR tNTH_REF {
-                    yyerror("can't make alias for the number variables");
+                    support.yyerror("can't make alias for the number variables");
                 }
                 | kUNDEF undef_list {
                     $$ = $2;
@@ -342,37 +342,36 @@ stmt            : kALIAS fitem {
                 }
                 | stmt kWHILE_MOD expr_value {
                     if ($1 != null && $1 instanceof BeginNode) {
-                        $$ = new WhileNode(getPosition($1), support.getConditionNode($3), $<BeginNode>1.getBodyNode(), false);
+                        $$ = new WhileNode(support.getPosition($1), support.getConditionNode($3), $<BeginNode>1.getBodyNode(), false);
                     } else {
-                        $$ = new WhileNode(getPosition($1), support.getConditionNode($3), $1, true);
+                        $$ = new WhileNode(support.getPosition($1), support.getConditionNode($3), $1, true);
                     }
                 }
                 | stmt kUNTIL_MOD expr_value {
                     if ($1 != null && $1 instanceof BeginNode) {
-                        $$ = new UntilNode(getPosition($1), support.getConditionNode($3), $<BeginNode>1.getBodyNode(), false);
+                        $$ = new UntilNode(support.getPosition($1), support.getConditionNode($3), $<BeginNode>1.getBodyNode(), false);
                     } else {
-                        $$ = new UntilNode(getPosition($1), support.getConditionNode($3), $1, true);
+                        $$ = new UntilNode(support.getPosition($1), support.getConditionNode($3), $1, true);
                     }
                 }
                 | stmt kRESCUE_MOD stmt {
                     Node body = $3 == null ? NilImplicitNode.NIL : $3;
-                    $$ = new RescueNode(getPosition($1), $1, new RescueBodyNode(getPosition($1), null, body, null), null);
+                    $$ = new RescueNode(support.getPosition($1), $1, new RescueBodyNode(support.getPosition($1), null, body, null), null);
                 }
                 | klBEGIN {
-                    if (support.isInDef() || support.isInSingle()) {
-                        yyerror("BEGIN in method");
+                    // FIXME: the == here is gross; need a cleaner way to check t
+                    if (support.isInDef() || support.isInSingle() || support.getCurrentScope().getClass() == BlockStaticScope.class) {
+                        support.yyerror("BEGIN in method, singleton, or block");
                     }
-                    support.pushLocalScope();
                 } tLCURLY compstmt tRCURLY {
-                    support.getResult().addBeginNode(new PreExeNode(getPosition($4), support.getCurrentScope(), $4));
-                    support.popCurrentScope();
+                    support.getResult().addBeginNode(new PreExe19Node(support.getPosition($4), support.getCurrentScope(), $4));
                     $$ = null;
                 }
                 | klEND tLCURLY compstmt tRCURLY {
                     if (support.isInDef() || support.isInSingle()) {
-                        warnings.warn(ID.END_IN_METHOD, getPosition($1), "END in method; use at_exit");
+                        support.warn(ID.END_IN_METHOD, support.getPosition($1), "END in method; use at_exit");
                     }
-                    $$ = new PostExeNode(getPosition($3), $3);
+                    $$ = new PostExeNode(support.getPosition($3), $3);
                 }
                 | lhs '=' command_call {
                     support.checkExpression($3);
@@ -401,16 +400,16 @@ stmt            : kALIAS fitem {
                 }
                 | primary_value '[' opt_call_args rbracket tOP_ASGN command_call {
   // FIXME: arg_concat logic missing for opt_call_args
-                    $$ = support.new_opElementAsgnNode(getPosition($1), $1, (String) $5.getValue(), $3, $6);
+                    $$ = support.new_opElementAsgnNode(support.getPosition($1), $1, (String) $5.getValue(), $3, $6);
                 }
                 | primary_value tDOT tIDENTIFIER tOP_ASGN command_call {
-                    $$ = new OpAsgnNode(getPosition($1), $1, $5, (String) $3.getValue(), (String) $4.getValue());
+                    $$ = new OpAsgnNode(support.getPosition($1), $1, $5, (String) $3.getValue(), (String) $4.getValue());
                 }
                 | primary_value tDOT tCONSTANT tOP_ASGN command_call {
-                    $$ = new OpAsgnNode(getPosition($1), $1, $5, (String) $3.getValue(), (String) $4.getValue());
+                    $$ = new OpAsgnNode(support.getPosition($1), $1, $5, (String) $3.getValue(), (String) $4.getValue());
                 }
                 | primary_value tCOLON2 tIDENTIFIER tOP_ASGN command_call {
-                    $$ = new OpAsgnNode(getPosition($1), $1, $5, (String) $3.getValue(), (String) $4.getValue());
+                    $$ = new OpAsgnNode(support.getPosition($1), $1, $5, (String) $3.getValue(), (String) $4.getValue());
                 }
                 | backref tOP_ASGN command_call {
                     support.backrefAssignError($1);
@@ -432,16 +431,16 @@ stmt            : kALIAS fitem {
 // Node:expr *CURRENT* all but arg so far
 expr            : command_call
                 | expr kAND expr {
-                    $$ = support.newAndNode(getPosition($2), $1, $3);
+                    $$ = support.newAndNode(support.getPosition($2), $1, $3);
                 }
                 | expr kOR expr {
-                    $$ = support.newOrNode(getPosition($2), $1, $3);
+                    $$ = support.newOrNode(support.getPosition($2), $1, $3);
                 }
-                | kNOT expr {
-                    $$ = new NotNode(support.union($1, $2), support.getConditionNode($2));
+                | kNOT opt_nl expr {
+                    $$ = support.getOperatorCallNode(support.getConditionNode($3), "!");
                 }
                 | tBANG command_call {
-                    $$ = new NotNode(support.union($1, $2), support.getConditionNode($2));
+                    $$ = support.getOperatorCallNode(support.getConditionNode($2), "!");
                 }
                 | arg
 
@@ -453,13 +452,13 @@ expr_value      : expr {
 command_call    : command
                 | block_command
                 | kRETURN call_args {
-                    $$ = new ReturnNode(support.union($1, $2), support.ret_args($2, getPosition($1)));
+                    $$ = new ReturnNode(support.union($1, $2), support.ret_args($2, support.getPosition($1)));
                 }
                 | kBREAK call_args {
-                    $$ = new BreakNode(support.union($1, $2), support.ret_args($2, getPosition($1)));
+                    $$ = new BreakNode(support.union($1, $2), support.ret_args($2, support.getPosition($1)));
                 }
                 | kNEXT call_args {
-                    $$ = new NextNode(support.union($1, $2), support.ret_args($2, getPosition($1)));
+                    $$ = new NextNode(support.union($1, $2), support.ret_args($2, support.getPosition($1)));
                 }
 
 // Node:block_command - A call with a block (foo.bar {...}, foo::bar {...}, bar {...}) [!null]
@@ -475,7 +474,7 @@ block_command   : block_call
 cmd_brace_block : tLBRACE_ARG {
                     support.pushBlockScope();
                 } opt_block_param compstmt tRCURLY {
-                    $$ = new IterNode(getPosition($1), $3, $4, support.getCurrentScope());
+                    $$ = new IterNode(support.getPosition($1), $3, $4, support.getCurrentScope());
                     support.popCurrentScope();
                 }
 
@@ -509,6 +508,7 @@ command        : operation command_args %prec tLOWEST {
 mlhs            : mlhs_basic
                 | tLPAREN mlhs_inner rparen {
                     $$ = $2;
+                    $<Node>$.setPosition(support.union($1, $3));
                 }
 
 // MultipleAssign19Node:mlhs_entry - mlhs w or w/o parens [!null]
@@ -516,44 +516,46 @@ mlhs_inner      : mlhs_basic {
                     $$ = $1;
                 }
                 | tLPAREN mlhs_inner rparen {
-                    $$ = new MultipleAsgn19Node(getPosition($1), support.newArrayNode(getPosition($1), $2), null, null);
+                    SourcePosition pos = support.union($1, $3);
+                    $$ = new MultipleAsgn19Node(pos, support.newArrayNode(pos, $2), null, null);
                 }
 
 // MultipleAssign19Node:mlhs_basic - multiple left hand side (basic because used in multiple context) [!null]
 mlhs_basic      : mlhs_head {
-                    $$ = new MultipleAsgn19Node(getPosition($1), $1, null, null);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), $1, null, null);
                 }
                 | mlhs_head mlhs_item {
                     $$ = new MultipleAsgn19Node(support.union($<Node>1, $<Node>2), $1.add($2), null, null);
                 }
                 | mlhs_head tSTAR mlhs_node {
-                    $$ = new MultipleAsgn19Node(getPosition($1), $1, $3, (ListNode) null);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), $1, $3, (ListNode) null);
                 }
                 | mlhs_head tSTAR mlhs_node ',' mlhs_post {
-                    $$ = new MultipleAsgn19Node(getPosition($1), $1, $3, $5);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), $1, $3, $5);
                 }
                 | mlhs_head tSTAR {
-                    $$ = new MultipleAsgn19Node(getPosition($1), $1, new StarNode(getPosition(null)), null);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), $1, new StarNode(support.getPosition(null)), null);
                 }
                 | mlhs_head tSTAR ',' mlhs_post {
-                    $$ = new MultipleAsgn19Node(getPosition($1), $1, new StarNode(getPosition(null)), $4);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), $1, new StarNode(support.getPosition(null)), $4);
                 }
                 | tSTAR mlhs_node {
-                    $$ = new MultipleAsgn19Node(getPosition($1), null, $2, null);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), null, $2, null);
                 }
                 | tSTAR mlhs_node ',' mlhs_post {
-                    $$ = new MultipleAsgn19Node(getPosition($1), null, $2, $4);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), null, $2, $4);
                 }
                 | tSTAR {
-                      $$ = new MultipleAsgn19Node(getPosition($1), null, new StarNode(getPosition(null)), null);
+                      $$ = new MultipleAsgn19Node(support.getPosition($1), null, new StarNode(support.getPosition(null)), null);
                 }
                 | tSTAR ',' mlhs_post {
-                      $$ = new MultipleAsgn19Node(getPosition($1), null, new StarNode(getPosition(null)), $3);
+                      $$ = new MultipleAsgn19Node(support.getPosition($1), null, new StarNode(support.getPosition(null)), $3);
                 }
 
 mlhs_item       : mlhs_node
                 | tLPAREN mlhs_inner rparen {
                     $$ = $2;
+                    $<Node>$.setPosition(support.union($1, $3));
                 }
 
 // Set of mlhs terms at front of mlhs (a, *b, d, e = arr  # a is head)
@@ -589,7 +591,7 @@ mlhs_node       : variable {
                 }
                 | primary_value tCOLON2 tCONSTANT {
                     if (support.isInDef() || support.isInSingle()) {
-                        yyerror("dynamic constant assignment");
+                        support.yyerror("dynamic constant assignment");
                     }
 
                     SourcePosition position = support.union($1, $3);
@@ -598,7 +600,7 @@ mlhs_node       : variable {
                 }
                 | tCOLON3 tCONSTANT {
                     if (support.isInDef() || support.isInSingle()) {
-                        yyerror("dynamic constant assignment");
+                        support.yyerror("dynamic constant assignment");
                     }
 
                     SourcePosition position = support.union($1, $2);
@@ -627,7 +629,7 @@ lhs             : variable {
                 }
                 | primary_value tCOLON2 tCONSTANT {
                     if (support.isInDef() || support.isInSingle()) {
-                        yyerror("dynamic constant assignment");
+                        support.yyerror("dynamic constant assignment");
                     }
 
                     SourcePosition position = support.union($1, $3);
@@ -636,7 +638,7 @@ lhs             : variable {
                 }
                 | tCOLON3 tCONSTANT {
                     if (support.isInDef() || support.isInSingle()) {
-                        yyerror("dynamic constant assignment");
+                        support.yyerror("dynamic constant assignment");
                     }
 
                     SourcePosition position = support.union($1, $2);
@@ -648,7 +650,7 @@ lhs             : variable {
                 }
 
 cname           : tIDENTIFIER {
-                    yyerror("class/module name must be CONSTANT");
+                    support.yyerror("class/module name must be CONSTANT");
                 }
                 | tCONSTANT
 
@@ -665,23 +667,23 @@ cpath           : tCOLON3 cname {
 // Token:fname - A function name [!null]
 fname          : tIDENTIFIER | tCONSTANT | tFID 
                | op {
-                   lexer.setState(LexState.EXPR_END);
+                   lexer.setState(LexState.EXPR_ENDFN);
                    $$ = $1;
                }
                | reswords {
-                   lexer.setState(LexState.EXPR_END);
+                   lexer.setState(LexState.EXPR_ENDFN);
                    $$ = $1;
                }
 
-// Token:fsym
+// LiteralNode:fsym
 fsym           : fname {
-                    $$ = $1;
+                    $$ = new LiteralNode($1);
                 }
                 | symbol {
-                    $$ = $1;
+                    $$ = new LiteralNode($1);
                 }
 
-// Token:fitem
+// Node:fitem
 fitem           : fsym {
                     $$ = $1;
                 }
@@ -690,12 +692,12 @@ fitem           : fsym {
                 }
 
 undef_list      : fitem {
-                    $$ = new UndefNode(getPosition($1), (String) $1.getValue());
+                    $$ = support.newUndef(support.getPosition($1), $1);
                 }
                 | undef_list ',' {
                     lexer.setState(LexState.EXPR_FNAME);
                 } fitem {
-                    $$ = support.appendToBlock($1, new UndefNode(getPosition($1), (String) $4.getValue()));
+                    $$ = support.appendToBlock($1, support.newUndef(support.getPosition($1), $4));
                 }
 
 // Token:op
@@ -725,8 +727,8 @@ arg             : lhs '=' arg {
                 }
                 | var_lhs tOP_ASGN arg {
                     support.checkExpression($3);
-                    String asgnOp = (String) $2.getValue();
 
+                    String asgnOp = (String) $2.getValue();
                     if (asgnOp.equals("||")) {
                         $1.setValueNode($3);
                         $$ = new OpAsgnOrNode(support.union($1, $3), support.gettable2($1), $1);
@@ -743,39 +745,41 @@ arg             : lhs '=' arg {
                     support.checkExpression($3);
                     SourcePosition position = support.union($4, $5);
                     Node body = $5 == null ? NilImplicitNode.NIL : $5;
-                    Node rescueNode = new RescueNode(position, $3, new RescueBodyNode(position, null, body, null), null);
+                    Node rest;
 
                     String asgnOp = (String) $2.getValue();
                     if (asgnOp.equals("||")) {
                         $1.setValueNode($3);
-                        $$ = new OpAsgnOrNode(support.union($1, $3), support.gettable2($1), $1);
+                        rest = new OpAsgnOrNode(support.union($1, $3), support.gettable2($1), $1);
                     } else if (asgnOp.equals("&&")) {
                         $1.setValueNode($3);
-                        $$ = new OpAsgnAndNode(support.union($1, $3), support.gettable2($1), $1);
+                        rest = new OpAsgnAndNode(support.union($1, $3), support.gettable2($1), $1);
                     } else {
                         $1.setValueNode(support.getOperatorCallNode(support.gettable2($1), asgnOp, $3));
                         $1.setPosition(support.union($1, $3));
-                        $$ = $1;
+                        rest = $1;
                     }
+                    $$ = new RescueNode($4.getPosition(), rest, new RescueBodyNode($4.getPosition(), null, body, null), null);
+
                 }
                 | primary_value '[' opt_call_args rbracket tOP_ASGN arg {
   // FIXME: arg_concat missing for opt_call_args
-                    $$ = support.new_opElementAsgnNode(getPosition($1), $1, (String) $5.getValue(), $3, $6);
+                    $$ = support.new_opElementAsgnNode(support.getPosition($1), $1, (String) $5.getValue(), $3, $6);
                 }
                 | primary_value tDOT tIDENTIFIER tOP_ASGN arg {
-                    $$ = new OpAsgnNode(getPosition($1), $1, $5, (String) $3.getValue(), (String) $4.getValue());
+                    $$ = new OpAsgnNode(support.getPosition($1), $1, $5, (String) $3.getValue(), (String) $4.getValue());
                 }
                 | primary_value tDOT tCONSTANT tOP_ASGN arg {
-                    $$ = new OpAsgnNode(getPosition($1), $1, $5, (String) $3.getValue(), (String) $4.getValue());
+                    $$ = new OpAsgnNode(support.getPosition($1), $1, $5, (String) $3.getValue(), (String) $4.getValue());
                 }
                 | primary_value tCOLON2 tIDENTIFIER tOP_ASGN arg {
-                    $$ = new OpAsgnNode(getPosition($1), $1, $5, (String) $3.getValue(), (String) $4.getValue());
+                    $$ = new OpAsgnNode(support.getPosition($1), $1, $5, (String) $3.getValue(), (String) $4.getValue());
                 }
                 | primary_value tCOLON2 tCONSTANT tOP_ASGN arg {
-                    yyerror("constant re-assignment");
+                    support.yyerror("constant re-assignment");
                 }
                 | tCOLON3 tCONSTANT tOP_ASGN arg {
-                    yyerror("constant re-assignment");
+                    support.yyerror("constant re-assignment");
                 }
                 | backref tOP_ASGN arg {
                     support.backrefAssignError($1);
@@ -795,71 +799,67 @@ arg             : lhs '=' arg {
                     $$ = new DotNode(support.union($1, $3), $1, $3, true, isLiteral);
                 }
                 | arg tPLUS arg {
-                    $$ = support.getOperatorCallNode($1, "+", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "+", $3, support.getPosition(null));
                 }
                 | arg tMINUS arg {
-                    $$ = support.getOperatorCallNode($1, "-", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "-", $3, support.getPosition(null));
                 }
                 | arg tSTAR2 arg {
-                    $$ = support.getOperatorCallNode($1, "*", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "*", $3, support.getPosition(null));
                 }
                 | arg tDIVIDE arg {
-                    $$ = support.getOperatorCallNode($1, "/", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "/", $3, support.getPosition(null));
                 }
                 | arg tPERCENT arg {
-                    $$ = support.getOperatorCallNode($1, "%", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "%", $3, support.getPosition(null));
                 }
                 | arg tPOW arg {
-                    $$ = support.getOperatorCallNode($1, "**", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "**", $3, support.getPosition(null));
                 }
                 | tUMINUS_NUM tINTEGER tPOW arg {
-                    $$ = support.getOperatorCallNode(support.getOperatorCallNode($2, "**", $4, getPosition(null)), "-@");
+                    $$ = support.getOperatorCallNode(support.getOperatorCallNode($2, "**", $4, support.getPosition(null)), "-@");
                 }
                 | tUMINUS_NUM tFLOAT tPOW arg {
-                    $$ = support.getOperatorCallNode(support.getOperatorCallNode($2, "**", $4, getPosition(null)), "-@");
+                    $$ = support.getOperatorCallNode(support.getOperatorCallNode($2, "**", $4, support.getPosition(null)), "-@");
                 }
                 | tUPLUS arg {
-                    if (support.isLiteral($2)) {
-                        $$ = $2;
-                    } else {
-                        $$ = support.getOperatorCallNode($2, "+@");
-                    }
+                    $$ = support.getOperatorCallNode($2, "+@");
                 }
                 | tUMINUS arg {
                     $$ = support.getOperatorCallNode($2, "-@");
                 }
                 | arg tPIPE arg {
-                    $$ = support.getOperatorCallNode($1, "|", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "|", $3, support.getPosition(null));
                 }
                 | arg tCARET arg {
-                    $$ = support.getOperatorCallNode($1, "^", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "^", $3, support.getPosition(null));
                 }
                 | arg tAMPER2 arg {
-                    $$ = support.getOperatorCallNode($1, "&", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "&", $3, support.getPosition(null));
                 }
                 | arg tCMP arg {
-                    $$ = support.getOperatorCallNode($1, "<=>", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "<=>", $3, support.getPosition(null));
                 }
                 | arg tGT arg {
-                    $$ = support.getOperatorCallNode($1, ">", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, ">", $3, support.getPosition(null));
                 }
                 | arg tGEQ arg {
-                    $$ = support.getOperatorCallNode($1, ">=", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, ">=", $3, support.getPosition(null));
                 }
                 | arg tLT arg {
-                    $$ = support.getOperatorCallNode($1, "<", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "<", $3, support.getPosition(null));
                 }
                 | arg tLEQ arg {
-                    $$ = support.getOperatorCallNode($1, "<=", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "<=", $3, support.getPosition(null));
                 }
                 | arg tEQ arg {
-                    $$ = support.getOperatorCallNode($1, "==", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "==", $3, support.getPosition(null));
                 }
                 | arg tEQQ arg {
-                    $$ = support.getOperatorCallNode($1, "===", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "===", $3, support.getPosition(null));
                 }
                 | arg tNEQ arg {
-                    $$ = support.getOperatorCallNode($1, "!=", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "!=", $3, support.getPosition(null));
                 }
                 | arg tMATCH arg {
                     $$ = support.getMatchNode($1, $3);
@@ -874,29 +874,29 @@ arg             : lhs '=' arg {
                     $$ = new NotNode(support.union($1, $3), support.getMatchNode($1, $3));
                 }
                 | tBANG arg {
-                    $$ = new NotNode(support.union($1, $2), support.getConditionNode($2));
+                     $$ = support.getOperatorCallNode(support.getConditionNode($2), "!");
                 }
                 | tTILDE arg {
                     $$ = support.getOperatorCallNode($2, "~");
                 }
                 | arg tLSHFT arg {
-                    $$ = support.getOperatorCallNode($1, "<<", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, "<<", $3, support.getPosition(null));
                 }
                 | arg tRSHFT arg {
-                    $$ = support.getOperatorCallNode($1, ">>", $3, getPosition(null));
+                    $$ = support.getOperatorCallNode($1, ">>", $3, support.getPosition(null));
                 }
                 | arg tANDOP arg {
-                    $$ = support.newAndNode(getPosition($2), $1, $3);
+                    $$ = support.newAndNode(support.getPosition($2), $1, $3);
                 }
                 | arg tOROP arg {
-                    $$ = support.newOrNode(getPosition($2), $1, $3);
+                    $$ = support.newOrNode(support.getPosition($2), $1, $3);
                 }
                 | kDEFINED opt_nl arg {
                     // ENEBO: arg surrounded by in_defined set/unset
-                    $$ = new DefinedNode(getPosition($1), $3);
+                    $$ = new DefinedNode(support.getPosition($1), $3);
                 }
                 | arg '?' arg opt_nl ':' arg {
-                    $$ = new IfNode(getPosition($1), support.getConditionNode($1), $3, $6);
+                    $$ = new IfNode(support.getPosition($1), support.getConditionNode($1), $3, $6);
                 }
                 | primary {
                     $$ = $1;
@@ -912,15 +912,21 @@ aref_args       : none
                     $$ = $1;
                 }
                 | args ',' assocs trailer {
-                    $$ = support.arg_append($1, new HashNode(getPosition(null), $3));
+                    $$ = support.arg_append($1, new HashNode(support.getPosition(null), $3));
                 }
                 | assocs trailer {
-                    $$ = support.newArrayNode(getPosition($1), new HashNode(getPosition(null), $1));
+                    $$ = support.newArrayNode(support.getPosition($1), new HashNode(support.getPosition(null), $1));
                 }
 
 paren_args      : tLPAREN2 opt_call_args rparen {
-                    $$ = $2;
-                    if ($$ != null) $<Node>$.setPosition(support.union($1, $3));
+                    SourcePosition pos = support.union($1, $3);
+
+                    if ($2 == null) {
+                        $$ = new ArrayNode(pos);
+                    } else {
+                        $$ = $2;
+                        $<Node>$.setPosition(pos);
+                    }
                 }
 
 opt_paren_args  : none | paren_args
@@ -928,17 +934,17 @@ opt_paren_args  : none | paren_args
 opt_call_args   : none | call_args
 
 call_args       : command {
-                    $$ = support.newArrayNode(getPosition($1), $1);
+                    $$ = support.newArrayNode(support.getPosition($1), $1);
                 }
                 | args opt_block_arg {
                     $$ = support.arg_blk_pass($1, $2);
                 }
                 | assocs opt_block_arg {
-                    $$ = support.newArrayNode(getPosition($1), new HashNode(getPosition(null), $1));
+                    $$ = support.newArrayNode(support.getPosition($1), new HashNode(support.getPosition(null), $1));
                     $$ = support.arg_blk_pass((Node)$$, $2);
                 }
                 | args ',' assocs opt_block_arg {
-                    $$ = support.arg_append($1, new HashNode(getPosition(null), $3));
+                    $$ = support.arg_append($1, new HashNode(support.getPosition(null), $3));
                     $$ = support.arg_blk_pass((Node)$$, $4);
                 }
                 | block_arg {
@@ -958,10 +964,13 @@ block_arg       : tAMPER arg_value {
 opt_block_arg   : ',' block_arg {
                     $$ = $2;
                 }
+                | ',' {
+                    $$ = null;
+                }
                 | none_block_pass
 
 args            : arg_value {
-                    $$ = support.newArrayNode(getPosition2($1), $1);
+                    $$ = support.newArrayNode(support.getPosition2($1), $1);
                 }
                 | tSTAR arg_value {
                     $$ = support.newSplatNode(support.union($1, $2), $2);
@@ -1007,7 +1016,7 @@ mrhs            : args ',' arg_value {
                     }
                 }
                 | tSTAR arg_value {
-                     $$ = support.newSplatNode(getPosition($1), $2);  
+                     $$ = support.newSplatNode(support.getPosition($1), $2);  
                 }
 
 primary         : literal
@@ -1027,7 +1036,7 @@ primary         : literal
                 | tLPAREN_ARG expr {
                     lexer.setState(LexState.EXPR_ENDARG); 
                 } rparen {
-                    if (warnings.isVerbose()) warnings.warning(ID.GROUPED_EXPRESSION, getPosition($1), "(...) interpreted as grouped expression");
+                    support.warning(ID.GROUPED_EXPRESSION, support.getPosition($1), "(...) interpreted as grouped expression");
                     $$ = $2;
                 }
                 | tLPAREN compstmt tRPAREN {
@@ -1062,13 +1071,13 @@ primary         : literal
                     $$ = support.new_yield(support.union($1, $4), $3);
                 }
                 | kYIELD tLPAREN2 rparen {
-                    $$ = new YieldNode(support.union($1, $3), null, false);
+                    $$ = new ZYieldNode(support.union($1, $3));
                 }
                 | kYIELD {
-                    $$ = new YieldNode($1.getPosition(), null, false);
+                    $$ = new ZYieldNode($1.getPosition());
                 }
                 | kDEFINED opt_nl tLPAREN2 expr rparen {
-                    $$ = new DefinedNode(getPosition($1), $4);
+                    $$ = new DefinedNode(support.union($1, $5), $4);
                 }
                 | kNOT tLPAREN2 expr rparen {
                     $$ = support.getOperatorCallNode(support.getConditionNode($3), "!");
@@ -1083,7 +1092,7 @@ primary         : literal
                 | method_call brace_block {
                     if ($1 != null && 
                           $<BlockAcceptingNode>1.getIterNode() instanceof BlockPassNode) {
-                        throw new SyntaxException(PID.BLOCK_ARG_AND_BLOCK_GIVEN, getPosition($1), "Both block arg and actual block given.");
+                        throw new SyntaxException(PID.BLOCK_ARG_AND_BLOCK_GIVEN, support.getPosition($1), "Both block arg and actual block given.");
                     }
                     $$ = $<BlockAcceptingNode>1.setIterNode($2);
                     $<Node>$.setPosition(support.union($1, $2));
@@ -1111,7 +1120,7 @@ primary         : literal
                   lexer.getConditionState().end();
                 } compstmt kEND {
                     Node body = $6 == null ? NilImplicitNode.NIL : $6;
-                    $$ = new UntilNode(getPosition($1), support.getConditionNode($3), body);
+                    $$ = new UntilNode(support.getPosition($1), support.getConditionNode($3), body);
                 }
                 | kCASE expr_value opt_terms case_body kEND {
                     $$ = support.newCaseNode(support.union($1, $5), $2, $4);
@@ -1125,11 +1134,11 @@ primary         : literal
                     lexer.getConditionState().end();
                 } compstmt kEND {
                       // ENEBO: Lots of optz in 1.9 parser here
-                    $$ = new ForNode(support.union($1, $9), $2, $8, $5);
+                    $$ = new ForNode(support.union($1, $9), $2, $8, $5, support.getCurrentScope());
                 }
                 | kCLASS cpath superclass {
                     if (support.isInDef() || support.isInSingle()) {
-                        yyerror("class definition in method body");
+                        support.yyerror("class definition in method body");
                     }
                     support.pushLocalScope();
                 } bodystmt kEND {
@@ -1153,7 +1162,7 @@ primary         : literal
                 }
                 | kMODULE cpath {
                     if (support.isInDef() || support.isInSingle()) { 
-                        yyerror("module definition in method body");
+                        support.yyerror("module definition in method body");
                     }
                     support.pushLocalScope();
                 } bodystmt kEND {
@@ -1178,7 +1187,7 @@ primary         : literal
                 } fname {
                     support.setInSingle(support.getInSingle() + 1);
                     support.pushLocalScope();
-                    lexer.setState(LexState.EXPR_END); /* force for args */
+                    lexer.setState(LexState.EXPR_ENDFN); /* force for args */
                 } f_arglist bodystmt kEND {
                     // TODO: We should use implicit nil for body, but problem (punt til later)
                     Node body = $8; //$8 == null ? NilImplicitNode.NIL : $8;
@@ -1215,7 +1224,7 @@ do              : term
 
 if_tail         : opt_else
                 | kELSIF expr_value then compstmt if_tail {
-                    $$ = new IfNode(getPosition($1), support.getConditionNode($2), $4, $5);
+                    $$ = new IfNode(support.getPosition($1), support.getConditionNode($2), $4, $5);
                 }
 
 opt_else        : none
@@ -1232,6 +1241,7 @@ f_marg          : f_norm_arg {
                 }
                 | tLPAREN f_margs rparen {
                     $$ = $2;
+                    $<Node>$.setPosition(support.union($1, $3));
                 }
 
 f_marg_list     : f_marg {
@@ -1242,31 +1252,31 @@ f_marg_list     : f_marg {
                 }
 
 f_margs         : f_marg_list {
-                    $$ = new MultipleAsgn19Node(getPosition($1), $1, null, null);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), $1, null, null);
                 }
                 | f_marg_list ',' tSTAR f_norm_arg {
-                    $$ = new MultipleAsgn19Node(getPosition($1), $1, support.assignable($4, null), null);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), $1, support.assignable($4, null), null);
                 }
                 | f_marg_list ',' tSTAR f_norm_arg ',' f_marg_list {
-                    $$ = new MultipleAsgn19Node(getPosition($1), $1, support.assignable($4, null), $6);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), $1, support.assignable($4, null), $6);
                 }
                 | f_marg_list ',' tSTAR {
-                    $$ = new MultipleAsgn19Node(getPosition($1), $1, new StarNode(getPosition(null)), null);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), $1, new StarNode(support.getPosition(null)), null);
                 }
                 | f_marg_list ',' tSTAR ',' f_marg_list {
-                    $$ = new MultipleAsgn19Node(getPosition($1), $1, new StarNode(getPosition(null)), $5);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), $1, new StarNode(support.getPosition(null)), $5);
                 }
                 | tSTAR f_norm_arg {
-                    $$ = new MultipleAsgn19Node(getPosition($1), null, support.assignable($2, null), null);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), null, support.assignable($2, null), null);
                 }
                 | tSTAR f_norm_arg ',' f_marg_list {
-                    $$ = new MultipleAsgn19Node(getPosition($1), null, support.assignable($2, null), $4);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), null, support.assignable($2, null), $4);
                 }
                 | tSTAR {
-                    $$ = new MultipleAsgn19Node(getPosition($1), null, new StarNode(getPosition(null)), null);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), null, new StarNode(support.getPosition(null)), null);
                 }
                 | tSTAR ',' f_marg_list {
-                    $$ = new MultipleAsgn19Node(getPosition($1), null, null, $3);
+                    $$ = new MultipleAsgn19Node(support.getPosition($1), null, null, $3);
                 }
 
 block_param     : f_arg ',' f_block_optarg ',' f_rest_arg opt_f_block_arg {
@@ -1285,8 +1295,8 @@ block_param     : f_arg ',' f_block_optarg ',' f_rest_arg opt_f_block_arg {
                     $$ = support.new_args(support.union($1, $4), $1, null, $3, null, $4);
                 }
                 | f_arg ',' {
-    // FIXME, weird unnamed rest
-                    $$ = support.new_args($1.getPosition(), $1, null, null, null, null);
+                    RestArgNode rest = new UnnamedRestArgNode($1.getPosition(), support.getCurrentScope().addVariable("*"));
+                    $$ = support.new_args($1.getPosition(), $1, null, rest, null, null);
                 }
                 | f_arg ',' f_rest_arg ',' f_arg opt_f_block_arg {
                     $$ = support.new_args(support.union($1, $6), $1, null, $3, $5, $6);
@@ -1313,12 +1323,12 @@ block_param     : f_arg ',' f_block_optarg ',' f_rest_arg opt_f_block_arg {
                     $$ = support.new_args(support.union($1, $4), null, null, $1, $3, $4);
                 }
                 | f_block_arg {
-                    $$ = support.new_args(getPosition($1), null, null, null, null, $1);
+                    $$ = support.new_args(support.getPosition($1), null, null, null, null, $1);
                 }
 
 opt_block_param : none {
     // was $$ = null;
-                   $$ = support.new_args(getPosition(null), null, null, null, null, null);
+                   $$ = support.new_args(support.getPosition(null), null, null, null, null, null);
                 }
                 | block_param_def {
                     lexer.commandStart = true;
@@ -1326,10 +1336,10 @@ opt_block_param : none {
                 }
 
 block_param_def : tPIPE opt_bv_decl tPIPE {
-                    $$ = support.new_args(getPosition(null), null, null, null, null, null);
+                    $$ = support.new_args(support.getPosition(null), null, null, null, null, null);
                 }
                 | tOROP {
-                    $$ = support.new_args(getPosition(null), null, null, null, null, null);
+                    $$ = support.new_args(support.getPosition(null), null, null, null, null, null);
                 }
                 | tPIPE block_param opt_bv_decl tPIPE {
                     $$ = $2;
@@ -1385,17 +1395,17 @@ lambda_body     : tLAMBEG compstmt tRCURLY {
 do_block        : kDO_BLOCK {
                     support.pushBlockScope();
                 } opt_block_param compstmt kEND {
-                    $$ = new IterNode(getPosition($1), $3, $4, support.getCurrentScope());
+                    $$ = new IterNode(support.getPosition($1), $3, $4, support.getCurrentScope());
                     support.popCurrentScope();
                 }
 
 block_call      : command do_block {
                     // Workaround for JRUBY-2326 (MRI does not enter this production for some reason)
                     if ($1 instanceof YieldNode) {
-                        throw new SyntaxException(PID.BLOCK_GIVEN_TO_YIELD, getPosition($1), "block given to yield");
+                        throw new SyntaxException(PID.BLOCK_GIVEN_TO_YIELD, support.getPosition($1), "block given to yield");
                     }
                     if ($<BlockAcceptingNode>1.getIterNode() instanceof BlockPassNode) {
-                        throw new SyntaxException(PID.BLOCK_ARG_AND_BLOCK_GIVEN, getPosition($1), "Both block arg and actual block given.");
+                        throw new SyntaxException(PID.BLOCK_ARG_AND_BLOCK_GIVEN, support.getPosition($1), "Both block arg and actual block given.");
                     }
                     $$ = $<BlockAcceptingNode>1.setIterNode($2);
                     $<Node>$.setPosition(support.union($1, $2));
@@ -1442,7 +1452,7 @@ method_call     : operation paren_args {
 brace_block     : tLCURLY {
                     support.pushBlockScope();
                 } opt_block_param compstmt tRCURLY {
-                    $$ = new IterNode(getPosition($1), $3, $4, support.getCurrentScope());
+                    $$ = new IterNode(support.union($1, $5), $3, $4, support.getCurrentScope());
                     support.popCurrentScope();
                 }
                 | kDO {
@@ -1462,7 +1472,7 @@ cases           : opt_else | case_body
 opt_rescue      : kRESCUE exc_list exc_var then compstmt opt_rescue {
                     Node node;
                     if ($3 != null) {
-                        node = support.appendToBlock(support.node_assign($3, new GlobalVarNode(getPosition($1), "$!")), $5);
+                        node = support.appendToBlock(support.node_assign($3, new GlobalVarNode(support.getPosition($1), "$!")), $5);
                         if ($5 != null) {
                             node.setPosition(support.unwrapNewlineNode($5).getPosition());
                         }
@@ -1470,7 +1480,7 @@ opt_rescue      : kRESCUE exc_list exc_var then compstmt opt_rescue {
                         node = $5;
                     }
                     Node body = node == null ? NilImplicitNode.NIL : node;
-                    $$ = new RescueBodyNode(getPosition($1, true), $2, body, $6);
+                    $$ = new RescueBodyNode(support.getPosition($1, true), $2, body, $6);
                 }
                 | { 
                     $$ = null; 
@@ -1503,7 +1513,7 @@ literal         : numeric
                 | dsym
 
 strings         : string {
-                    $$ = $1 instanceof EvStrNode ? new DStrNode(getPosition($1)).add($1) : $1;
+                    $$ = $1 instanceof EvStrNode ? new DStrNode(support.getPosition($1)).add($1) : $1;
                     /*
                     NODE *node = $1;
                     if (!node) {
@@ -1522,7 +1532,7 @@ string          : tCHAR {
                     $$ = $1;
                 }
                 | string string1 {
-                    $$ = support.literal_concat(getPosition($1), $1, $2);
+                    $$ = support.literal_concat(support.getPosition($1), $1, $2);
                 }
 
 string1         : tSTRING_BEG string_contents tSTRING_END {
@@ -1559,18 +1569,7 @@ xstring         : tXSTRING_BEG xstring_contents tSTRING_END {
                 }
 
 regexp          : tREGEXP_BEG xstring_contents tREGEXP_END {
-                    int options = $3.getOptions();
-                    Node node = $2;
-
-                    if (node == null) {
-                        $$ = new RegexpNode(getPosition($1), "", options & ~ReOptions.RE_OPTION_ONCE);
-                    } else if (node instanceof StrNode) {
-                        $$ = new RegexpNode($2.getPosition(), ((StrNode) node).getValue(), options & ~ReOptions.RE_OPTION_ONCE);
-                    } else if (node instanceof DStrNode) {
-                        $$ = new DRegexpNode(getPosition($1), (DStrNode) node, options, (options & ReOptions.RE_OPTION_ONCE) != 0);
-                    } else {
-                        $$ = new DRegexpNode(getPosition($1), options, (options & ReOptions.RE_OPTION_ONCE) != 0).add(node);
-                    }
+                    $$ = support.newRegexpNode(support.union($1, $3), $2, (RegexpNode) $3);
                 }
 
 words           : tWORDS_BEG ' ' tSTRING_END {
@@ -1581,15 +1580,15 @@ words           : tWORDS_BEG ' ' tSTRING_END {
                 }
 
 word_list       : /* none */ {
-                    $$ = new ArrayNode(getPosition(null));
+                    $$ = new ArrayNode(support.getPosition(null));
                 }
                 | word_list word ' ' {
-                     $$ = $1.add($2 instanceof EvStrNode ? new DStrNode(getPosition($1)).add($2) : $2);
+                     $$ = $1.add($2 instanceof EvStrNode ? new DStrNode(support.getPosition($1)).add($2) : $2);
                 }
 
 word            : string_content
                 | word string_content {
-                     $$ = support.literal_concat(getPosition($1), $1, $2);
+                     $$ = support.literal_concat(support.getPosition($1), $1, $2);
                 }
 
 qwords          : tQWORDS_BEG ' ' tSTRING_END {
@@ -1601,7 +1600,7 @@ qwords          : tQWORDS_BEG ' ' tSTRING_END {
                 }
 
 qword_list      : /* none */ {
-                    $$ = new ArrayNode(getPosition(null));
+                    $$ = new ArrayNode(support.getPosition(null));
                 }
                 | qword_list tSTRING_CONTENT ' ' {
                     $$ = $1.add($2);
@@ -1611,14 +1610,14 @@ string_contents : /* none */ {
                     $$ = new StrNode($<Token>0.getPosition(), "");
                 }
                 | string_contents string_content {
-                    $$ = support.literal_concat(getPosition($1), $1, $2);
+                    $$ = support.literal_concat(support.getPosition($1), $1, $2);
                 }
 
 xstring_contents: /* none */ {
                     $$ = null;
                 }
                 | xstring_contents string_content {
-                    $$ = support.literal_concat(getPosition($1), $1, $2);
+                    $$ = support.literal_concat(support.getPosition($1), $1, $2);
                 }
 
 string_content  : tSTRING_CONTENT {
@@ -1634,6 +1633,8 @@ string_content  : tSTRING_CONTENT {
                 }
                 | tSTRING_DBEG {
                    $$ = lexer.getStrTerm();
+                   lexer.getConditionState().stop();
+                   lexer.getCmdArgumentState().stop();
                    lexer.setStrTerm(null);
                    lexer.setState(LexState.EXPR_BEG);
                 } compstmt tRCURLY {
@@ -1669,18 +1670,13 @@ dsym            : tSYMBEG xstring_contents tSTRING_END {
                      // DStrNode: :"some text #{some expression}"
                      // StrNode: :"some text"
                      // EvStrNode :"#{some expression}"
+                     // Ruby 1.9 allows empty strings as symbols
                      if ($2 == null) {
-                       yyerror("empty symbol literal");
-                     }
-                     /* FIXME: No node here seems to be an empty string
-                        instead of an error
-                        if (!($$ = $2)) {
-                        $$ = NEW_LIT(ID2SYM(rb_intern("")));
-                        }
-                     */
-
-                     if ($2 instanceof DStrNode) {
+                         $$ = new SymbolNode($1.getPosition(), "");
+                     } else if ($2 instanceof DStrNode) {
                          $$ = new DSymbolNode(support.union($1, $3), $<DStrNode>2);
+                     } else if ($2 instanceof StrNode) {
+                         $$ = new SymbolNode(support.union($1, $3), $<StrNode>2.getValue().toString().intern());
                      } else {
                        SourcePosition position = support.union($2, $3);
 
@@ -1755,7 +1751,6 @@ superclass      : term {
                     $$ = $3;
                 }
                 | error term {
-                   yyerrok();
                    $$ = null;
                 }
 
@@ -1812,43 +1807,37 @@ f_args          : f_arg ',' f_optarg ',' f_rest_arg opt_f_block_arg {
                     $$ = support.new_args($1.getPosition(), null, null, null, null, $1);
                 }
                 | /* none */ {
-                    $$ = support.new_args(getPosition(null), null, null, null, null, null);
+                    $$ = support.new_args(support.getPosition(null), null, null, null, null, null);
                 }
 
 f_bad_arg       : tCONSTANT {
-                    yyerror("formal argument cannot be a constant");
+                    support.yyerror("formal argument cannot be a constant");
                 }
                 | tIVAR {
-                    yyerror("formal argument cannot be an instance variable");
+                    support.yyerror("formal argument cannot be an instance variable");
                 }
                 | tGVAR {
-                    yyerror("formal argument cannot be a global variable");
+                    support.yyerror("formal argument cannot be a global variable");
                 }
                 | tCVAR {
-                    yyerror("formal argument cannot be a class variable");
+                    support.yyerror("formal argument cannot be a class variable");
                 }
 
 // Token:f_norm_arg
 f_norm_arg      : f_bad_arg
                 | tIDENTIFIER {
-    // FIXME: Resolve what the hell is going on
-    /*                    if (support.is_local_id($1)) {
-                        yyerror("formal argument must be local variable");
-                        }*/
-                     
-                    support.shadowing_lvar($1);
-                    $$ = $1;
+                    $$ = support.formal_argument($1);
                 }
 
 f_arg_item      : f_norm_arg {
-                    support.arg_var($1);
-                    $$ = new ArgumentNode($<ISourcePositionHolder>1.getPosition(), (String) $1.getValue());
+                    $$ = support.arg_var($1);
   /*
                     $$ = new ArgAuxiliaryNode($1.getPosition(), (String) $1.getValue(), 1);
   */
                 }
                 | tLPAREN f_margs rparen {
                     $$ = $2;
+                    $<Node>$.setPosition(support.union($1, $3));
                     /*		    {
 			ID tid = internal_id();
 			arg_var(tid);
@@ -1863,7 +1852,7 @@ f_arg_item      : f_norm_arg {
                 }
 
 f_arg           : f_arg_item {
-                    $$ = new ArrayNode(getPosition(null), $1);
+                    $$ = new ListNode($<ISourcePositionHolder>1.getPosition()).add($1);
                 }
                 | f_arg ',' f_arg_item {
                     $1.add($3);
@@ -1871,32 +1860,24 @@ f_arg           : f_arg_item {
                 }
 
 f_opt           : tIDENTIFIER '=' arg_value {
-                    if (!support.is_local_id($1)) {
-                        yyerror("formal argument must be local variable");
-                    }
-                    support.shadowing_lvar($1);
-                    support.arg_var($1);
-                    $$ = new OptArgNode(getPosition($1), support.assignable($1, $3));
+                    support.arg_var(support.formal_argument($1));
+                    $$ = new OptArgNode($1.getPosition(), support.assignable($1, $3));
                 }
 
 f_block_opt     : tIDENTIFIER '=' primary_value {
-                    if (!support.is_local_id($1)) {
-                        yyerror("formal argument must be local variable");
-                    }
-                    support.shadowing_lvar($1);
-                    support.arg_var($1);
-                    $$ = new OptArgNode(getPosition($1), support.assignable($1, $3));
+                    support.arg_var(support.formal_argument($1));
+                    $$ = new OptArgNode($1.getPosition(), support.assignable($1, $3));
                 }
 
 f_block_optarg  : f_block_opt {
-                    $$ = new BlockNode(getPosition($1)).add($1);
+                    $$ = new BlockNode(support.getPosition($1)).add($1);
                 }
                 | f_block_optarg ',' f_block_opt {
                     $$ = support.appendToBlock($1, $3);
                 }
 
 f_optarg        : f_opt {
-                    $$ = new BlockNode(getPosition($1)).add($1);
+                    $$ = new BlockNode(support.getPosition($1)).add($1);
                 }
                 | f_optarg ',' f_opt {
                     $$ = support.appendToBlock($1, $3);
@@ -1906,10 +1887,10 @@ restarg_mark    : tSTAR2 | tSTAR
 
 f_rest_arg      : restarg_mark tIDENTIFIER {
                     if (!support.is_local_id($2)) {
-                        yyerror("duplicate rest argument name");
+                        support.yyerror("duplicate rest argument name");
                     }
-                    support.shadowing_lvar($2);
-                    $$ = new RestArgNode(support.union($1, $2), (String) $2.getValue(), support.arg_var($2));
+
+                    $$ = new RestArgNode(support.arg_var(support.shadowing_lvar($2)));
                 }
                 | restarg_mark {
                     $$ = new UnnamedRestArgNode($1.getPosition(), support.getCurrentScope().getLocalScope().addVariable("*"));
@@ -1919,13 +1900,11 @@ blkarg_mark     : tAMPER2 | tAMPER
 
 // f_block_arg - Block argument def for function (foo(&block)) [!null]
 f_block_arg     : blkarg_mark tIDENTIFIER {
-                    String identifier = (String) $2.getValue();
-
                     if (!support.is_local_id($2)) {
-                        yyerror("block argument must be local variable");
+                        support.yyerror("block argument must be local variable");
                     }
-                    support.shadowing_lvar($2);
-                    $$ = new BlockArgNode(support.union($1, $2), support.arg_var($2), identifier);
+
+                    $$ = new BlockArgNode(support.arg_var(support.shadowing_lvar($2)));
                 }
 
 opt_f_block_arg : ',' f_block_arg {
@@ -1945,38 +1924,42 @@ singleton       : var_ref {
                     lexer.setState(LexState.EXPR_BEG);
                 } expr rparen {
                     if ($3 == null) {
-                        yyerror("can't define single method for ().");
+                        support.yyerror("can't define single method for ().");
                     } else if ($3 instanceof ILiteralNode) {
-                        yyerror("can't define single method for literals.");
+                        support.yyerror("can't define single method for literals.");
                     }
                     support.checkExpression($3);
                     $$ = $3;
+                    $<Node>$.setPosition(support.union($1, $3));
                 }
 
 assoc_list      : none {
-                    $$ = new ArrayNode(getPosition(null));
+                    $$ = new ArrayNode(support.getPosition(null));
                 }
                 | assocs trailer {
                     $$ = $1;
                 }
 
+// [!null]
 assocs          : assoc
                 | assocs ',' assoc {
                     $$ = $1.addAll($3);
                 }
 
+// [!null]
 assoc           : arg_value tASSOC arg_value {
-                    SourcePosition position;
+                    SourcePosition pos;
                     if ($1 == null && $3 == null) {
-                        position = getPosition($2);
+                        pos = support.getPosition($2);
                     } else {
-                        position = support.union($1, $3);
+                        pos = support.union($1, $3);
                     }
 
-                    $$ = support.newArrayNode(position, $1).add($3);
+                    $$ = support.newArrayNode(pos, $1).add($3);
                 }
                 | tLABEL arg_value {
-                    $$ = support.newArrayNode(support.union($1, $2), new SymbolNode(getPosition($1), (String) $1.getValue())).add($2);
+                    SourcePosition pos = support.union($1, $2);
+                    $$ = support.newArrayNode(pos, new SymbolNode(pos, (String) $1.getValue())).add($2);
                 }
 
 operation       : tIDENTIFIER | tCONSTANT | tFID
@@ -1994,13 +1977,11 @@ rbracket        : opt_nl tRBRACK {
 trailer         : /* none */ | '\n' | ','
 
 term            : ';' {
-                      yyerrok();
                 }
                 | '\n'
 
 terms           : term
                 | terms ';' {
-                      yyerrok();
                 }
 
 none            : /* none */ {
@@ -2016,7 +1997,7 @@ none_block_pass : /* none */ {
     /** The parse method use an lexer stream and parse it to an AST node 
      * structure
      */
-    public ParserResult parse(ParserConfiguration configuration, LexerSource source) {
+    public ParserResult parse(ParserConfiguration configuration, LexerSource source) throws IOException {
         support.reset();
         support.setConfiguration(configuration);
         support.setResult(new ParserResult());
@@ -2024,41 +2005,25 @@ none_block_pass : /* none */ {
         lexer.reset();
         lexer.setSource(source);
 
-        try {
-   //yyparse(lexer, new jay.yydebug.yyAnim("JRuby", 9));
-    //yyparse(lexer, new jay.yydebug.yyDebugAdapter());
-            yyparse(lexer, null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (yyException e) {
-            e.printStackTrace();
+        Object debugger = null;
+        if (configuration.isDebug()) {
+            try {
+                Class yyDebugAdapterClass = Class.forName("jay.yydebug.yyDebugAdapter");
+                debugger = yyDebugAdapterClass.newInstance();
+            } catch (IllegalAccessException iae) {
+                // ignore, no debugger present
+            } catch (InstantiationException ie) {
+                // ignore, no debugger present
+            } catch (ClassNotFoundException cnfe) {
+                // ignore, no debugger present
+            }
         }
+        //yyparse(lexer, new jay.yydebug.yyAnim("JRuby", 9));
+        yyparse(lexer, debugger);
         
         return support.getResult();
     }
 
     // +++
     // Helper Methods
-    
-    void yyerrok() {}
-
-    /**
-     * Since we can recieve positions at times we know can be null we
-     * need an extra safety net here.
-     */
-    private SourcePosition getPosition2(ISourcePositionHolder pos) {
-        return pos == null ? lexer.getPosition(null, false) : pos.getPosition();
-    }
-
-    private SourcePosition getPosition(ISourcePositionHolder start) {
-        return getPosition(start, false);
-    }
-
-    private SourcePosition getPosition(ISourcePositionHolder start, boolean inclusive) {
-        if (start != null) {
-            return lexer.getPosition(start.getPosition(), inclusive);
-        } 
-
-        return lexer.getPosition(null, inclusive);
-    }
 }

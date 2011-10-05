@@ -14,7 +14,9 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.rules.ITokenScanner;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.editor.common.text.rules.ThemeingDamagerRepairer;
+import com.aptana.editor.ruby.RubyEditorPlugin;
 
 /**
  * Expands the damage region to the previous line if it ends with '\'.
@@ -49,16 +51,20 @@ public class LineContinuationDamagerRepairer extends ThemeingDamagerRepairer
 					int start = Math.max(partition.getOffset(), info.getOffset());
 					int end = info.getOffset() + info.getLength();
 					int length = end - start;
-					String previousLine = fDocument.get(start, length);
-					if (previousLine.endsWith("\\")) //$NON-NLS-1$
+					if (length > 0)
 					{
-						return new Region(start, region.getLength() + (length + 1));
+						String previousLine = fDocument.get(start, length);
+						if (previousLine.endsWith("\\")) //$NON-NLS-1$
+						{
+							return new Region(start, region.getLength() + (length + 1));
+						}
 					}
 				}
 			}
 			catch (BadLocationException e1)
 			{
-				// ignore
+				IdeLog.logError(RubyEditorPlugin.getDefault(),
+						"Unable to check previous line for '\\' continuation, offset: " + e.getOffset(), e1); //$NON-NLS-1$
 			}
 		}
 		return region;

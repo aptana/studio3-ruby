@@ -36,6 +36,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
@@ -50,12 +51,14 @@ import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.EclipseUtil;
 import com.aptana.core.util.ProcessUtil;
 import com.aptana.core.util.ResourceUtil;
+import com.aptana.core.util.StringUtil;
 import com.aptana.index.core.IFileStoreIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.IndexContainerJob;
 import com.aptana.index.core.IndexManager;
 import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.RubyCorePlugin;
+import com.aptana.ruby.core.RubyProjectNature;
 import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
 public class CoreStubber extends Job
@@ -68,9 +71,9 @@ public class CoreStubber extends Job
 	 * A way to version the core stubs. If the core stubber script changes, be sure to bump this so new core stubs are
 	 * created!
 	 */
-	private static final String CORE_STUBBER_VERSION = "2"; //$NON-NLS-1$
+	private static final String CORE_STUBBER_VERSION = "3"; //$NON-NLS-1$
 
-	protected static boolean outOfDate = false;
+	protected static boolean fgOutOfDate = false;
 
 	public CoreStubber()
 	{
@@ -216,7 +219,7 @@ public class CoreStubber extends Job
 					RubySourceIndexer.VERSION_KEY, -1, null);
 			if (currentVersion != RubySourceIndexer.CURRENT_VERSION)
 			{
-				outOfDate = true;
+				fgOutOfDate = true;
 			}
 			for (File stubDir : stubDirs)
 			{
@@ -309,8 +312,7 @@ public class CoreStubber extends Job
 				project.accept(visitor, IResource.NONE);
 				if (visitor.found())
 				{
-					// TODO If this project doesn't have the ruby nature, add it!
-					// RubyProjectNature.add(project, new NullProgressMonitor());
+					RubyProjectNature.add(project, new NullProgressMonitor());
 					return true;
 				}
 			}
@@ -334,7 +336,7 @@ public class CoreStubber extends Job
 			this.fFound = false;
 		}
 
-		public boolean visit(IResourceProxy proxy) throws CoreException
+		public boolean visit(IResourceProxy proxy)
 		{
 			if (fFound)
 			{
@@ -457,12 +459,14 @@ public class CoreStubber extends Job
 		URL url = FileLocator.find(RubyCorePlugin.getDefault().getBundle(), new Path(CORE_STUBBER_PATH), null);
 		File stubberScript = ResourceUtil.resourcePathToFile(url);
 
-		IStatus stubberResult = ProcessUtil.runInBackground(rubyExe == null ? "ruby" : rubyExe.toOSString(), null, //$NON-NLS-1$
+		IStatus stubberResult = ProcessUtil.runInBackground((rubyExe == null) ? "ruby" : rubyExe.toOSString(), null, //$NON-NLS-1$
 				ShellExecutable.getEnvironment(), stubberScript.getAbsolutePath(), outputDir.getAbsolutePath());
 		if (stubberResult == null || !stubberResult.isOK())
 		{
-			RubyCorePlugin.getDefault().getLog()
-					.log(new Status(IStatus.ERROR, RubyCorePlugin.PLUGIN_ID, (stubberResult == null) ? "" //$NON-NLS-1$
+			RubyCorePlugin
+					.getDefault()
+					.getLog()
+					.log(new Status(IStatus.ERROR, RubyCorePlugin.PLUGIN_ID, (stubberResult == null) ? StringUtil.EMPTY
 							: stubberResult.getMessage(), null));
 		}
 		else
@@ -484,17 +488,18 @@ public class CoreStubber extends Job
 
 	private static class IndexRubyContainerJob extends IndexContainerJob
 	{
-		public IndexRubyContainerJob(URI outputDir)
+		private IndexRubyContainerJob(URI outputDir)
 		{
 			super(outputDir);
 		}
 
-		public IndexRubyContainerJob(String message, URI outputDir)
+		private IndexRubyContainerJob(String message, URI outputDir)
 		{
 			super(message, outputDir);
 		}
 
-		protected List<Map.Entry<IFileStoreIndexingParticipant, Set<IFileStore>>> mapParticipantsToFiles(Set<IFileStore> fileStores)
+		protected List<Map.Entry<IFileStoreIndexingParticipant, Set<IFileStore>>> mapParticipantsToFiles(
+				Set<IFileStore> fileStores)
 		{
 			Map<IFileStoreIndexingParticipant, Set<IFileStore>> map = new HashMap<IFileStoreIndexingParticipant, Set<IFileStore>>();
 			map.put(new RubyFileIndexingParticipant(), fileStores);
@@ -505,7 +510,7 @@ public class CoreStubber extends Job
 		protected Set<IFileStore> filterFiles(long indexLastModified, Set<IFileStore> files)
 		{
 			Set<IFileStore> firstPass;
-			if (outOfDate)
+			if (fgOutOfDate)
 			{
 				firstPass = files;
 			}

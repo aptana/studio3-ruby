@@ -29,6 +29,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.ruby.debug.core.RubyDebugModel;
 import com.aptana.ruby.debug.core.model.IRubyExceptionBreakpoint;
 import com.aptana.ruby.debug.ui.RubyDebugUIPlugin;
@@ -83,7 +84,7 @@ public class AddExceptionAction implements IViewActionDelegate, IWorkbenchWindow
 			}
 			catch (CoreException e)
 			{
-				RubyDebugUIPlugin.logError(e);
+				IdeLog.logError(RubyDebugUIPlugin.getDefault(), e);
 			}
 		}
 	}
@@ -97,8 +98,8 @@ public class AddExceptionAction implements IViewActionDelegate, IWorkbenchWindow
 	private void createBreakpoint(final String type) throws CoreException
 	{
 		final IResource resource = ResourcesPlugin.getWorkspace().getRoot();
-		IBreakpoint[] breakpoints = DebugPlugin.getDefault().getBreakpointManager().getBreakpoints(
-				RubyDebugModel.getModelIdentifier());
+		IBreakpoint[] breakpoints = DebugPlugin.getDefault().getBreakpointManager()
+				.getBreakpoints(RubyDebugModel.getModelIdentifier());
 		boolean exists = false;
 		for (IBreakpoint breakpoint : breakpoints)
 		{
@@ -126,7 +127,7 @@ public class AddExceptionAction implements IViewActionDelegate, IWorkbenchWindow
 				}
 				catch (CoreException e)
 				{
-					RubyDebugUIPlugin.logError(e);
+					IdeLog.logError(RubyDebugUIPlugin.getDefault(), e.getMessage(), e);
 					return e.getStatus();
 				}
 			}

@@ -122,7 +122,7 @@ public class RubyFileIndexingParticipant extends AbstractFileIndexingParticipant
 			{
 				text = text.toLowerCase();
 			}
-			String[] lines = text.split("\r\n|\r|\n"); //$NON-NLS-1$
+			String[] lines = text.split("\r\n|\r|\n"); //$NON-NLS-1$ // $codepro.audit.disable platformSpecificLineSeparator
 			for (String line : lines)
 			{
 				for (TaskTag entry : TaskTag.getTaskTags())

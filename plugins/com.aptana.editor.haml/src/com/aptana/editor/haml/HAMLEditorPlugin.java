@@ -14,28 +14,30 @@ import org.osgi.framework.BundleContext;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class HAMLEditorPlugin extends AbstractUIPlugin {
+public class HAMLEditorPlugin extends AbstractUIPlugin
+{
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.aptana.editor.haml"; //$NON-NLS-1$
 
 	// The shared instance
 	private static HAMLEditorPlugin plugin;
-	
+
 	private IDocumentProvider hamlDocumentProvider;
 
-	
 	/**
 	 * The constructor
 	 */
-	public HAMLEditorPlugin() {
+	public HAMLEditorPlugin()
+	{
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.core.runtime.Plugins#start(org.osgi.framework.BundleContext)
 	 */
-	public void start(BundleContext context) throws Exception {
+	public void start(BundleContext context) throws Exception
+	{
 		super.start(context);
 		plugin = this;
 	}
@@ -44,26 +46,31 @@ public class HAMLEditorPlugin extends AbstractUIPlugin {
 	 * (non-Javadoc)
 	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
 	 */
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext context) throws Exception
+	{
 		plugin = null;
 		super.stop(context);
 	}
 
 	/**
 	 * Returns the shared instance
-	 *
+	 * 
 	 * @return the shared instance
 	 */
-	public static HAMLEditorPlugin getDefault() {
+	public static HAMLEditorPlugin getDefault()
+	{
 		return plugin;
 	}
 
 	/**
 	 * Returns test document provider
+	 * 
 	 * @return
 	 */
-	public synchronized IDocumentProvider getHAMLDocumentProvider() {
-		if (hamlDocumentProvider == null) {
+	public synchronized IDocumentProvider getHAMLDocumentProvider()
+	{
+		if (hamlDocumentProvider == null)
+		{
 			hamlDocumentProvider = new HAMLDocumentProvider();
 		}
 		return hamlDocumentProvider;

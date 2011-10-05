@@ -49,11 +49,8 @@ public class ResolutionTarget
 		{
 			return true;
 		}
-		if (obj == null)
-		{
-			return false;
-		}
-		if (getClass() != obj.getClass())
+
+		if (!(obj instanceof ResolutionTarget))
 		{
 			return false;
 		}
@@ -69,6 +66,7 @@ public class ResolutionTarget
 		{
 			return false;
 		}
+
 		if (uri == null)
 		{
 			if (other.uri != null)

@@ -104,7 +104,7 @@ public class RubyPreferencePage extends CommonEditorPreferencePage
 	@Override
 	public void propertyChange(PropertyChangeEvent event)
 	{
-		if (event.getSource() == enableFolding)
+		if (event.getSource().equals(enableFolding))
 		{
 			boolean optionsEnabled = false;
 			Object newValue = event.getNewValue();

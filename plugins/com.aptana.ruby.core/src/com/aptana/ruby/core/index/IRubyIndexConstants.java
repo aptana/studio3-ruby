@@ -7,6 +7,8 @@
  */
 package com.aptana.ruby.core.index;
 
+import com.aptana.ruby.core.IRubyConstants;
+
 public interface IRubyIndexConstants
 {
 	/**
@@ -31,8 +33,13 @@ public interface IRubyIndexConstants
 	public static final char SEPARATOR = '/';
 	public static final char CLASS_SUFFIX = 'C';
 	public static final char MODULE_SUFFIX = 'M';
-	
-	public static final String OBJECT = "Object"; //$NON-NLS-1$
 
-	public static final String NAMESPACE_DELIMETER = "::"; //$NON-NLS-1$
+	/**
+	 * @deprecated Please use {@link IRubyConstants#OBJECT}
+	 */
+	public static final String OBJECT = IRubyConstants.OBJECT;
+	/**
+	 * @deprecated Please use {@link IRubyConstants#NAMESPACE_DELIMETER}
+	 */
+	public static final String NAMESPACE_DELIMETER = IRubyConstants.NAMESPACE_DELIMETER;
 }

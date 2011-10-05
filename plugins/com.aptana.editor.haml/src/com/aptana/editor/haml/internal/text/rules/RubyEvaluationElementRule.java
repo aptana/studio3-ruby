@@ -17,14 +17,15 @@ import org.eclipse.jface.text.rules.WordRule;
 
 /**
  * @author Max Stepanov
- *
  */
-public class RubyEvaluationElementRule implements IPredicateRule {
+public class RubyEvaluationElementRule implements IPredicateRule
+{
 
 	private final WordRule wordRule;
 	private final IToken successToken;
-	
-	public RubyEvaluationElementRule(IToken token) {
+
+	public RubyEvaluationElementRule(IToken token)
+	{
 		successToken = token;
 		wordRule = new WordRule(new RubyEvaluationElementWordDetector(), Token.UNDEFINED);
 		wordRule.addWord("-", token); //$NON-NLS-1$
@@ -36,36 +37,48 @@ public class RubyEvaluationElementRule implements IPredicateRule {
 		wordRule.addWord("!==", token); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.jface.text.rules.IPredicateRule#getSuccessToken()
 	 */
-	public IToken getSuccessToken() {
+	public IToken getSuccessToken()
+	{
 		return successToken;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.jface.text.rules.IRule#evaluate(org.eclipse.jface.text.rules.ICharacterScanner)
 	 */
-	public IToken evaluate(ICharacterScanner scanner) {
+	public IToken evaluate(ICharacterScanner scanner)
+	{
 		return evaluate(scanner, false);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.text.rules.IPredicateRule#evaluate(org.eclipse.jface.text.rules.ICharacterScanner, boolean)
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.text.rules.IPredicateRule#evaluate(org.eclipse.jface.text.rules.ICharacterScanner,
+	 * boolean)
 	 */
-	public IToken evaluate(ICharacterScanner scanner, boolean resume) {
-		if (!resume) {
+	public IToken evaluate(ICharacterScanner scanner, boolean resume)
+	{
+		if (!resume)
+		{
 			int index = 0;
 			int c;
-			while ((c = scanner.read()) != ICharacterScanner.EOF && isWhitespace(c)) {
+			while ((c = scanner.read()) != ICharacterScanner.EOF && isWhitespace(c))
+			{
 				++index;
 			}
-			if (c != ICharacterScanner.EOF) {
+			if (c != ICharacterScanner.EOF)
+			{
 				scanner.unread();
 			}
 			IToken token = wordRule.evaluate(scanner);
-			if (token.isUndefined()) {
-				for (int j = index; j > 0; --j) {
+			if (token.isUndefined())
+			{
+				for (int j = index; j > 0; --j)
+				{
 					scanner.unread();
 				}
 			}
@@ -73,33 +86,39 @@ public class RubyEvaluationElementRule implements IPredicateRule {
 		}
 		return Token.UNDEFINED;
 	}
-	
-	private static boolean isWhitespace(int c) {
+
+	private static boolean isWhitespace(int c)
+	{
 		return (c == ' ') || (c == '\t');
 	}
 
 }
 
-/* package */ class RubyEvaluationElementWordDetector implements IWordDetector {
+/* package */class RubyEvaluationElementWordDetector implements IWordDetector
+{
 
 	private static final char EQUAL = '=';
 	private static final char TILDA = '~';
 	private static final char DASH = '-';
 	private static final char AMPERSAND = '&';
 	private static final char EXCLAMATION = '!';
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.jface.text.rules.IWordDetector#isWordStart(char)
 	 */
-	public boolean isWordStart(char c) {
+	public boolean isWordStart(char c)
+	{
 		return AMPERSAND == c || EXCLAMATION == c || EQUAL == c || TILDA == c || DASH == c;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.jface.text.rules.IWordDetector#isWordPart(char)
 	 */
-	public boolean isWordPart(char c) {
-		return EQUAL ==c;
+	public boolean isWordPart(char c)
+	{
+		return EQUAL == c;
 	}
 
 }

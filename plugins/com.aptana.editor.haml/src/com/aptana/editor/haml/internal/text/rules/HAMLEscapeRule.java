@@ -17,42 +17,54 @@ import com.aptana.editor.common.TextUtils;
 
 /**
  * @author Max Stepanov
- *
  */
-public class HAMLEscapeRule implements IPredicateRule {
+public class HAMLEscapeRule implements IPredicateRule
+{
 
 	private static final char ESCAPE = '\\';
 
 	private final IToken successToken;
-	
-	public HAMLEscapeRule(IToken token) {
+
+	public HAMLEscapeRule(IToken token)
+	{
 		this.successToken = token;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.jface.text.rules.IPredicateRule#getSuccessToken()
 	 */
-	public IToken getSuccessToken() {
+	public IToken getSuccessToken()
+	{
 		return successToken;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.jface.text.rules.IRule#evaluate(org.eclipse.jface.text.rules.ICharacterScanner)
 	 */
-	public IToken evaluate(ICharacterScanner scanner) {
+	public IToken evaluate(ICharacterScanner scanner)
+	{
 		return evaluate(scanner, false);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.text.rules.IPredicateRule#evaluate(org.eclipse.jface.text.rules.ICharacterScanner, boolean)
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.text.rules.IPredicateRule#evaluate(org.eclipse.jface.text.rules.ICharacterScanner,
+	 * boolean)
 	 */
-	public IToken evaluate(ICharacterScanner scanner, boolean resume) {
-		if (!resume) {
+	public IToken evaluate(ICharacterScanner scanner, boolean resume)
+	{
+		if (!resume)
+		{
 			int c = scanner.read();
-			if (c != ICharacterScanner.EOF) {
-				if (ESCAPE == c) {
+			if (c != ICharacterScanner.EOF)
+			{
+				if (ESCAPE == c)
+				{
 					c = scanner.read();
-					if (c != ICharacterScanner.EOF && !isNewLine(scanner, c)) {
+					if (c != ICharacterScanner.EOF && !isNewLine(scanner, c))
+					{
 						return successToken;
 					}
 					scanner.unread();
@@ -62,11 +74,14 @@ public class HAMLEscapeRule implements IPredicateRule {
 		}
 		return Token.UNDEFINED;
 	}
-	
-	private static boolean isNewLine(ICharacterScanner characterScanner, int c) {
+
+	private static boolean isNewLine(ICharacterScanner characterScanner, int c)
+	{
 		char[][] newLineSequences = TextUtils.rsort(characterScanner.getLegalLineDelimiters());
-		for (char[] sequence : newLineSequences) {
-			if (c == sequence[0]) {
+		for (char[] sequence : newLineSequences)
+		{
+			if (c == sequence[0])
+			{
 				return true;
 			}
 		}

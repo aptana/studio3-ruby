@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.debug.core.model.IVariable;
 import org.xmlpull.v1.XmlPullParser;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.RubyDebugCorePlugin;
 import com.aptana.ruby.debug.core.model.IRubyStackFrame;
 import com.aptana.ruby.debug.core.model.IRubyVariable;
@@ -77,9 +78,9 @@ public class VariableReader extends XmlStreamReader
 		}
 		if (name.equals("variable"))
 		{
-			String varName = xpp.getAttributeValue("", "name");
-			String varValue = xpp.getAttributeValue("", "value");
-			String kind = xpp.getAttributeValue("", "kind");
+			String varName = xpp.getAttributeValue(StringUtil.EMPTY, "name");
+			String varValue = xpp.getAttributeValue(StringUtil.EMPTY, "value");
+			String kind = xpp.getAttributeValue(StringUtil.EMPTY, "kind");
 			RubyVariable newVariable;
 			if (varValue == null)
 			{
@@ -87,9 +88,9 @@ public class VariableReader extends XmlStreamReader
 			}
 			else
 			{
-				String typeName = xpp.getAttributeValue("", "type");
-				boolean hasChildren = xpp.getAttributeValue("", "hasChildren").equals("true");
-				String objectId = xpp.getAttributeValue("", "objectId");
+				String typeName = xpp.getAttributeValue(StringUtil.EMPTY, "type");
+				boolean hasChildren = xpp.getAttributeValue(StringUtil.EMPTY, "hasChildren").equals("true");
+				String objectId = xpp.getAttributeValue(StringUtil.EMPTY, "objectId");
 				newVariable = new RubyVariable(stackFrame, varName, kind, varValue, typeName, hasChildren, objectId);
 			}
 			newVariable.setParent(parent);
@@ -98,8 +99,8 @@ public class VariableReader extends XmlStreamReader
 		}
 		if (name.equals("processingException"))
 		{
-			exceptionMessage = xpp.getAttributeValue("", "message");
-			exceptionType = xpp.getAttributeValue("", "type");
+			exceptionMessage = xpp.getAttributeValue(StringUtil.EMPTY, "message");
+			exceptionType = xpp.getAttributeValue(StringUtil.EMPTY, "type");
 			return true;
 		}
 		return false;

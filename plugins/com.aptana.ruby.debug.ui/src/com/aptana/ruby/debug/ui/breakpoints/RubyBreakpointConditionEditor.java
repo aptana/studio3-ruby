@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IPropertyListener;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.IRubyLineBreakpoint;
 import com.aptana.ruby.debug.ui.RubyDebugUIPlugin;
 import com.aptana.ruby.internal.debug.ui.breakpoints.AbstractRubyBreakpointEditor;
@@ -154,7 +155,7 @@ public final class RubyBreakpointConditionEditor extends AbstractRubyBreakpointE
 				conditionEnabled = breakpoint.isConditionEnabled();
 			}
 		}
-		document.set((condition == null ? "" : condition)); //$NON-NLS-1$
+		document.set((condition == null ? StringUtil.EMPTY : condition));
 		fViewer.setUndoManager(new TextViewerUndoManager(10));
 		fViewer.getUndoManager().connect(fViewer);
 		fDocumentListener = new IDocumentListener()

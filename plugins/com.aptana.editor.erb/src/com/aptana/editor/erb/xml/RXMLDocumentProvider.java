@@ -16,15 +16,14 @@ import com.aptana.editor.xml.XMLSourceConfiguration;
 
 /**
  * @author Max Stepanov
- *
  */
-public class RXMLDocumentProvider extends CompositeDocumentProvider {
+public class RXMLDocumentProvider extends CompositeDocumentProvider
+{
 
-	public RXMLDocumentProvider() {
-		super(IERBConstants.CONTENT_TYPE_XML_ERB,
-				XMLSourceConfiguration.getDefault(),
-				RubySourceConfiguration.getDefault(),
-				ERBPartitionerSwitchStrategy.getDefault());
+	public RXMLDocumentProvider()
+	{
+		super(IERBConstants.CONTENT_TYPE_XML_ERB, XMLSourceConfiguration.getDefault(), RubySourceConfiguration
+				.getDefault(), ERBPartitionerSwitchStrategy.getDefault());
 	}
-	
+
 }

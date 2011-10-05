@@ -93,7 +93,7 @@ public class RHTMLSourceViewerConfiguration extends CompositeSourceViewerConfigu
 
 	protected String getStartEndTokenType()
 	{
-		return "punctuation.section.embedded.ruby"; //$NON-NLS-1$
+		return IERBConstants.EMBEDDED_RUBY_TRANSITION_SCOPE;
 	}
 
 	@Override
@@ -117,8 +117,8 @@ public class RHTMLSourceViewerConfiguration extends CompositeSourceViewerConfigu
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType)
 	{
-		return new IAutoEditStrategy[] { new RubyRegexpAutoIndentStrategy(contentType, this, sourceViewer, ERBEditorPlugin
-				.getDefault().getPreferenceStore()) };
+		return new IAutoEditStrategy[] { new RubyRegexpAutoIndentStrategy(contentType, this, sourceViewer,
+				ERBEditorPlugin.getDefault().getPreferenceStore()) };
 	}
 
 }

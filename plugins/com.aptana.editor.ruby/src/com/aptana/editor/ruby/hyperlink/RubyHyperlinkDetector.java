@@ -66,13 +66,13 @@ public class RubyHyperlinkDetector extends IndexQueryingHyperlinkDetector
 				}
 			}
 		}
-		catch (SyntaxException se)
+		catch (SyntaxException se) // $codepro.audit.disable emptyCatchClause
 		{
 			// ignore
 		}
 		catch (Exception e)
 		{
-			IdeLog.logError(RubyEditorPlugin.getDefault(), e.getMessage(), e);
+			IdeLog.logError(RubyEditorPlugin.getDefault(), e);
 		}
 		try
 		{

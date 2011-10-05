@@ -9,12 +9,14 @@ package com.aptana.editor.erb.html;
 
 import com.aptana.editor.erb.common.ERBContentDescriber;
 
-public class RHTMLContentDescriber extends ERBContentDescriber {
+public class RHTMLContentDescriber extends ERBContentDescriber
+{
 
-    private static final String HTML_PREFIX = "<!DOCTYPE HTML"; //$NON-NLS-1$
+	private static final String HTML_PREFIX = "<!DOCTYPE HTML"; //$NON-NLS-1$
 
-    @Override
-    protected String getPrefix() {
-        return HTML_PREFIX;
-    }
+	@Override
+	protected String getPrefix()
+	{
+		return HTML_PREFIX;
+	}
 }

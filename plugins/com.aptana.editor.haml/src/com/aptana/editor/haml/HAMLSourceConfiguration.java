@@ -24,6 +24,7 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.CommonUtil;
@@ -32,6 +33,7 @@ import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.TextUtils;
 import com.aptana.editor.common.scripting.IContentTypeTranslator;
 import com.aptana.editor.common.scripting.QualifiedContentType;
+import com.aptana.editor.common.text.SingleTokenScanner;
 import com.aptana.editor.common.text.rules.CharacterMapRule;
 import com.aptana.editor.common.text.rules.CommentScanner;
 import com.aptana.editor.common.text.rules.ISubPartitionScanner;
@@ -68,8 +70,8 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 	public final static String HTML_COMMENT = PREFIX + "html_comment"; //$NON-NLS-1$
 	public final static String HAML_COMMENT = PREFIX + "haml_comment"; //$NON-NLS-1$
 
-	public static final String[] CONTENT_TYPES = new String[] { DEFAULT, HTML_COMMENT, HAML_COMMENT, DOCTYPE, ELEMENT, INTERPOLATION, RUBY_EVALUATION, HTML_ATTRIBUTES,
-			RUBY_ATTRIBUTES, RUBY_ATTRIBUTES_CLOSE, OBJECT };
+	public static final String[] CONTENT_TYPES = new String[] { DEFAULT, HTML_COMMENT, HAML_COMMENT, DOCTYPE, ELEMENT,
+			INTERPOLATION, RUBY_EVALUATION, HTML_ATTRIBUTES, RUBY_ATTRIBUTES, RUBY_ATTRIBUTES_CLOSE, OBJECT };
 	private static final String[] SPELLING_CONTENT_TYPES = new String[] { DEFAULT, HTML_COMMENT, HAML_COMMENT };
 
 	private static final String[][] TOP_CONTENT_TYPES = new String[][] { { IHAMLConstants.CONTENT_TYPE_HAML },
@@ -79,10 +81,12 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 			new HAMLSingleLineRule("/", getToken(HTML_COMMENT)), //$NON-NLS-1$
 			new HAMLSingleLineRule("-#", getToken(HAML_COMMENT)), //$NON-NLS-1$
 			new HAMLSingleLineRule("!!!", getToken(DOCTYPE)), //$NON-NLS-1$
-			new HAMLEscapeRule(getToken("")), //$NON-NLS-1$
+			new HAMLEscapeRule(getToken(StringUtil.EMPTY)),
 			new SingleLineRule("#{", "}", getToken(INTERPOLATION)), //$NON-NLS-1$ //$NON-NLS-2$
-			new HAMLElementRule(getToken(ELEMENT)), new RubyEvaluationElementRule(new Token(RUBY_EVALUATION)), new SingleCharacterRule('{', getToken(RUBY_ATTRIBUTES)),
-			new SingleCharacterRule('}', getToken(RUBY_ATTRIBUTES_CLOSE)), new SingleLineRule("[", "]", getToken(OBJECT)), //$NON-NLS-1$ //$NON-NLS-2$
+			new HAMLElementRule(getToken(ELEMENT)), new RubyEvaluationElementRule(new Token(RUBY_EVALUATION)),
+			new SingleCharacterRule('{', getToken(RUBY_ATTRIBUTES)),
+			new SingleCharacterRule('}', getToken(RUBY_ATTRIBUTES_CLOSE)),
+			new SingleLineRule("[", "]", getToken(OBJECT)), //$NON-NLS-1$ //$NON-NLS-2$
 			new MultiLineRule("(", ")", getToken(HTML_ATTRIBUTES)), //$NON-NLS-1$ //$NON-NLS-2$
 	};
 
@@ -106,12 +110,14 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 		c.addTranslation(new QualifiedContentType(RUBY_EVALUATION), new QualifiedContentType(
 				IHAMLConstants.RUBY_EVAL_SCOPE));
 		c.addTranslation(new QualifiedContentType(OBJECT), new QualifiedContentType(IHAMLConstants.OBJECT_SCOPE));
-		c.addTranslation(new QualifiedContentType(INTERPOLATION), new QualifiedContentType(IHAMLConstants.INTERPOLATION_SCOPE));
-		c.addTranslation(new QualifiedContentType(IHAMLConstants.CONTENT_TYPE_HAML, IRubyConstants.CONTENT_TYPE_RUBY), new QualifiedContentType(IHAMLConstants.TEXT_SCOPE,
-				IHAMLConstants.RUBY_EVAL_SCOPE, IHAMLConstants.EMBEDDED_RUBY_SCOPE));
+		c.addTranslation(new QualifiedContentType(INTERPOLATION), new QualifiedContentType(
+				IHAMLConstants.INTERPOLATION_SCOPE));
+		c.addTranslation(new QualifiedContentType(IHAMLConstants.CONTENT_TYPE_HAML, IRubyConstants.CONTENT_TYPE_RUBY),
+				new QualifiedContentType(IHAMLConstants.TEXT_SCOPE, IHAMLConstants.RUBY_EVAL_SCOPE,
+						IHAMLConstants.EMBEDDED_RUBY_SCOPE));
 	}
 
-	public static HAMLSourceConfiguration getDefault()
+	public synchronized static HAMLSourceConfiguration getDefault()
 	{
 		if (instance == null)
 		{
@@ -126,19 +132,17 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.aptana.editor.common.IPartitioningConfiguration#getContentTypes()
+	 * @see com.aptana.editor.common.IPartitioningConfiguration#getContentTypes()
 	 */
-	public String[] getContentTypes() {
-		return TextUtils.combine(new String[][] { CONTENT_TYPES, RubySourceConfiguration.CONTENT_TYPES, RubyAttributesSourceConfiguration.CONTENT_TYPES });
+	public String[] getContentTypes()
+	{
+		return TextUtils.combine(new String[][] { CONTENT_TYPES, RubySourceConfiguration.CONTENT_TYPES,
+				RubyAttributesSourceConfiguration.CONTENT_TYPES });
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.aptana.editor.common.ITopContentTypesProvider#getTopContentTypes()
+	 * @see com.aptana.editor.common.ITopContentTypesProvider#getTopContentTypes()
 	 */
 	public String[][] getTopContentTypes()
 	{
@@ -147,32 +151,25 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.aptana.editor.common.ISourceViewerConfiguration#getSpellingContentTypes
-	 * ()
+	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getSpellingContentTypes ()
 	 */
-	public String[] getSpellingContentTypes() {
+	public String[] getSpellingContentTypes()
+	{
 		return SPELLING_CONTENT_TYPES;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.aptana.editor.common.IPartitioningConfiguration#getPartitioningRules
-	 * ()
+	 * @see com.aptana.editor.common.IPartitioningConfiguration#getPartitioningRules ()
 	 */
-	public IPredicateRule[] getPartitioningRules() {
+	public IPredicateRule[] getPartitioningRules()
+	{
 		return partitioningRules;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.aptana.editor.common.IPartitioningConfiguration#createSubPartitionScanner
-	 * ()
+	 * @see com.aptana.editor.common.IPartitioningConfiguration#createSubPartitionScanner ()
 	 */
 	public ISubPartitionScanner createSubPartitionScanner()
 	{
@@ -181,9 +178,7 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see com.aptana.editor.common.IPartitioningConfiguration#
-	 * getDocumentDefaultContentType()
+	 * @see com.aptana.editor.common.IPartitioningConfiguration# getDocumentDefaultContentType()
 	 */
 	public String getDocumentContentType(String contentType)
 	{
@@ -206,11 +201,9 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.aptana.editor.common.ISourceViewerConfiguration#
-	 * setupPresentationReconciler(org.eclipse.jface.text.presentation
-	 * .PresentationReconciler, org.eclipse.jface.text.source.ISourceViewer)
+	 * @see com.aptana.editor.common.ISourceViewerConfiguration#
+	 * setupPresentationReconciler(org.eclipse.jface.text.presentation .PresentationReconciler,
+	 * org.eclipse.jface.text.source.ISourceViewer)
 	 */
 	public void setupPresentationReconciler(PresentationReconciler reconciler, ISourceViewer sourceViewer)
 	{
@@ -258,18 +251,14 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	}
 
-	protected ITokenScanner getRubyEvaluationScanner() {
-		RuleBasedScanner scanner = new RuleBasedScanner();
-		scanner.setDefaultReturnToken(getToken("")); //$NON-NLS-1$
-		return scanner;
+	protected ITokenScanner getRubyEvaluationScanner()
+	{
+		return new SingleTokenScanner(getToken(StringUtil.EMPTY));
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.aptana.editor.common.ISourceViewerConfiguration#getContentAssistProcessor
-	 * (com.aptana.editor.common.
+	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getContentAssistProcessor (com.aptana.editor.common.
 	 * AbstractThemeableEditor, java.lang.String)
 	 */
 	public IContentAssistProcessor getContentAssistProcessor(AbstractThemeableEditor editor, String contentType)
@@ -277,86 +266,106 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 		return null;
 	}
 
-	private ITokenScanner getTextScanner() {
+	private ITokenScanner getTextScanner()
+	{
 		RuleBasedScanner textScanner = new RuleBasedScanner();
-		textScanner.setRules(new IRule[] { new CharacterMapRule().add('/', getToken("punctuation.terminator.tag.haml")) //$NON-NLS-1$
-				.add('/', getToken("punctuation.terminator.tag.haml")) //$NON-NLS-1$
-				.add('>', getToken("punctuation.other.tag.haml")) //$NON-NLS-1$
-				.add('<', getToken("punctuation.other.tag.haml")) //$NON-NLS-1$
-				.add('&', getToken("punctuation.other.tag.haml")) //$NON-NLS-1$
-				.add('!', getToken("punctuation.other.tag.haml")), //$NON-NLS-1$
-				new HAMLEscapeRule(getToken("meta.escape.haml")), //$NON-NLS-1$
-		});
+		textScanner.setRules(new IRule[] {
+				new CharacterMapRule().add('/', getToken(IHAMLConstants.TAG_TERMINATOR_PUNCTUATION_SCOPE))
+						.add('/', getToken(IHAMLConstants.TAG_TERMINATOR_PUNCTUATION_SCOPE))
+						.add('>', getToken(IHAMLConstants.TAG_OTHER_PUNCTUATION_SCOPE))
+						.add('<', getToken(IHAMLConstants.TAG_OTHER_PUNCTUATION_SCOPE))
+						.add('&', getToken(IHAMLConstants.TAG_OTHER_PUNCTUATION_SCOPE))
+						.add('!', getToken(IHAMLConstants.TAG_OTHER_PUNCTUATION_SCOPE)),
+				new HAMLEscapeRule(getToken(IHAMLConstants.META_ESCAPE_SCOPE)) });
 		textScanner.setDefaultReturnToken(getToken(IHAMLConstants.TEXT_SCOPE));
 		return textScanner;
 	}
 
-	private ITokenScanner getElementScanner() {
+	private ITokenScanner getElementScanner()
+	{
 		return new HAMLElementScanner();
 	}
 
-	private ITokenScanner getInterpolationScanner() {
+	private ITokenScanner getInterpolationScanner()
+	{
 		RuleBasedScanner interpolationScanner = new RuleBasedScanner();
-		interpolationScanner.setRules(new IRule[] { new MultiCharacterRule("#{", getToken("punctuation.section.embedded.ruby")), //$NON-NLS-1$ //$NON-NLS-2$
-				new SingleCharacterRule('}', getToken("punctuation.section.embedded.ruby")) //$NON-NLS-1$
-				});
-		interpolationScanner.setDefaultReturnToken(getToken("source.ruby.embedded.source")); //$NON-NLS-1$
+		interpolationScanner.setRules(new IRule[] {
+				new MultiCharacterRule("#{", getToken(IHAMLConstants.SECTION_EMBEDDED_PUNCTUATION_SCOPE)), //$NON-NLS-1$
+				new SingleCharacterRule('}', getToken(IHAMLConstants.SECTION_EMBEDDED_PUNCTUATION_SCOPE)) });
+		interpolationScanner.setDefaultReturnToken(getToken(IHAMLConstants.EMBEDDED_RUBY_SOURCE_SCOPE));
 		return interpolationScanner;
 	}
 
-	private ITokenScanner getObjectScanner() {
+	private ITokenScanner getObjectScanner()
+	{
 		RuleBasedScanner objectScanner = new RuleBasedScanner();
-		objectScanner.setRules(new IRule[] { new CharacterMapRule().add('[', getToken("punctuation.section.other.haml")) //$NON-NLS-1$
-				.add(']', getToken("punctuation.section.other.haml")), //$NON-NLS-1$
+		// @formatter:off
+		objectScanner.setRules(new IRule[] { 
+				new CharacterMapRule()
+				.add('[',	getToken(IHAMLConstants.SECTION_OTHER_PUNCTUATION_SCOPE))
+				.add(']', getToken(IHAMLConstants.SECTION_OTHER_PUNCTUATION_SCOPE)),
 				// TODO: add word rules here for:
 				// - variable.other.readwrite.instance.ruby
 				// - constant.other.symbol.ruby
 				// - comma
 				});
+		// @formatter:on
 		objectScanner.setDefaultReturnToken(getToken(IHAMLConstants.OBJECT_SCOPE));
 		return objectScanner;
 	}
 
-	private ITokenScanner getHTMLAttributesScanner() {
+	private ITokenScanner getHTMLAttributesScanner()
+	{
 		RuleBasedScanner htmlAttributesScanner = new RuleBasedScanner();
-		htmlAttributesScanner.setRules(new IRule[] { new CharacterMapRule().add('(', getToken("punctuation.section.other.haml")) //$NON-NLS-1$
-				.add(')', getToken("punctuation.section.other.haml")), //$NON-NLS-1$
-				// TODO: add word rules here for:
-				// - single quoted string
-				// - double quoted string
-				// - an HTML attribute name
-				// - equal sign
+		// @formatter:off
+		htmlAttributesScanner.setRules(new IRule[] { 
+				new CharacterMapRule()
+					.add('(', getToken(IHAMLConstants.SECTION_OTHER_PUNCTUATION_SCOPE))
+					.add(')', getToken(IHAMLConstants.SECTION_OTHER_PUNCTUATION_SCOPE)),
+					// TODO: add word rules here for:
+					// - single quoted string
+					// - double quoted string
+					// - an HTML attribute name
+					// - equal sign
 				});
+		// @formatter:on
 		htmlAttributesScanner.setDefaultReturnToken(getToken(IHAMLConstants.OBJECT_SCOPE));
 		return htmlAttributesScanner;
 	}
 
-	private ITokenScanner getHTMLCommentScanner() {
+	private ITokenScanner getHTMLCommentScanner()
+	{
+		// FIXME Use CommentScanner and subclass!
 		RuleBasedScanner commentScanner = new RuleBasedScanner();
-		commentScanner = new CommentScanner(getToken(IHAMLConstants.HTML_COMMENT_SCOPE)) {
+		commentScanner = new CommentScanner(getToken(IHAMLConstants.HTML_COMMENT_SCOPE))
+		{
 			@Override
-			protected List<IRule> createRules() {
+			protected List<IRule> createRules()
+			{
 				List<IRule> rules = super.createRules();
-				rules.add(new SingleCharacterRule('/', getToken("punctuation.section.comment.haml"))); //$NON-NLS-1$
+				rules.add(new SingleCharacterRule('/', getToken(IHAMLConstants.COMMENT_PUNCTUATION_SCOPE)));
 				return rules;
 			}
 		};
 		return commentScanner;
 	}
 
-	private ITokenScanner getHAMLCommentScanner() {
+	private ITokenScanner getHAMLCommentScanner()
+	{
 		return new CommentScanner(getToken(IRubyConstants.LINE_COMMENT_SCOPE));
 	}
 
-	private ITokenScanner getDocTypeScanner() {
+	private ITokenScanner getDocTypeScanner()
+	{
 		RuleBasedScanner docTypeScanner = new RuleBasedScanner();
-		docTypeScanner.setRules(new IRule[] { new SingleCharacterRule('!', getToken("punctuation.definition.prolog.haml")) //$NON-NLS-1$
-				});
+		docTypeScanner.setRules(new IRule[] { new SingleCharacterRule('!',
+				getToken(IHAMLConstants.PROLOG_DEF_PUNCTUATION_SCOPE)) });
 		docTypeScanner.setDefaultReturnToken(getToken(IHAMLConstants.DOCTYPE_SCOPE));
 		return docTypeScanner;
 	}
 
-	private static IToken getToken(String tokenName) {
+	private static IToken getToken(String tokenName)
+	{
 		return CommonUtil.getToken(tokenName);
 	}
 

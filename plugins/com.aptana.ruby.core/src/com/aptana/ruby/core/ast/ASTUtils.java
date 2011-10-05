@@ -30,6 +30,7 @@ import org.jrubyparser.ast.IArgumentNode;
 import org.jrubyparser.ast.INameNode;
 import org.jrubyparser.ast.IterNode;
 import org.jrubyparser.ast.ListNode;
+import org.jrubyparser.ast.LiteralNode;
 import org.jrubyparser.ast.LocalAsgnNode;
 import org.jrubyparser.ast.ModuleNode;
 import org.jrubyparser.ast.MultipleAsgnNode;
@@ -41,17 +42,20 @@ import org.jrubyparser.ast.SymbolNode;
 import org.jrubyparser.ast.TrueNode;
 import org.jrubyparser.ast.ZArrayNode;
 
+import com.aptana.core.util.ArrayUtil;
+import com.aptana.core.util.StringUtil;
+
 public class ASTUtils
 {
 
-	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
+	private static final String EMPTY_STRING = StringUtil.EMPTY;
 	private static final String NAMESPACE_DELIMETER = "::"; //$NON-NLS-1$
 
 	public static String[] getArgs(ArgsNode argsNode, StaticScope scope)
 	{
 		if (argsNode == null)
 		{
-			return new String[0];
+			return ArrayUtil.NO_STRINGS;
 		}
 
 		List<String> arguments = getArguments(argsNode.getPre());
@@ -237,11 +241,15 @@ public class ASTUtils
 		{
 			return ((INameNode) node).getName();
 		}
+		if (node instanceof LiteralNode)
+		{
+			return ((LiteralNode) node).getName();
+		}
 		// tries reflection
 		try
 		{
 			Method getNameMethod = node.getClass().getMethod("getName", new Class[] {}); //$NON-NLS-1$
-			Object name = getNameMethod.invoke(node, new Object[0]);
+			Object name = getNameMethod.invoke(node, ArrayUtil.NO_OBJECTS);
 			return (String) name;
 		}
 		catch (Exception e)
@@ -254,7 +262,7 @@ public class ASTUtils
 	{
 		if (node == null)
 		{
-			return ""; //$NON-NLS-1$
+			return StringUtil.EMPTY;
 		}
 		if (node instanceof HashNode)
 		{
@@ -294,18 +302,18 @@ public class ASTUtils
 		}
 		if (node instanceof StrNode)
 		{
-			return '"' + ((StrNode) node).getValue().toString() + '"';
+			return '"' + ((StrNode) node).getValue() + '"';
 		}
 		if (node instanceof DStrNode)
 		{
 			List<Node> children = node.childNodes();
 			StringBuilder text = new StringBuilder();
-			text.append("\""); //$NON-NLS-1$
+			text.append('"');
 			for (Node child : children)
 			{
 				text.append(getStringRepresentation(child));
 			}
-			text.append("\""); //$NON-NLS-1$
+			text.append('"');
 			return text.toString();
 		}
 		return node.toString();

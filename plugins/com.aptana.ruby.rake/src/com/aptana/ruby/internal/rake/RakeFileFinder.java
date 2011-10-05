@@ -10,7 +10,6 @@ package com.aptana.ruby.internal.rake;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceProxy;
 import org.eclipse.core.resources.IResourceProxyVisitor;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
 class RakeFileFinder implements IResourceProxyVisitor
@@ -20,7 +19,7 @@ class RakeFileFinder implements IResourceProxyVisitor
 
 	private IPath workingDirectory;
 
-	public boolean visit(IResourceProxy proxy) throws CoreException
+	public boolean visit(IResourceProxy proxy)
 	{
 		if (proxy.getType() == IResource.FILE)
 		{

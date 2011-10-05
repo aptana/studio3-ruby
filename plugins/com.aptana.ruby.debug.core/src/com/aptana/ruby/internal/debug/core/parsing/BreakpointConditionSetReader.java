@@ -2,6 +2,7 @@ package com.aptana.ruby.internal.debug.core.parsing;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.RubyDebugCorePlugin;
 
 @SuppressWarnings("nls")
@@ -40,7 +41,7 @@ public class BreakpointConditionSetReader extends XmlStreamReader
 		boolean result = false;
 		if (xpp.getName().equals("conditionSet"))
 		{
-			index = xpp.getAttributeValue("", "bp_id");
+			index = xpp.getAttributeValue(StringUtil.EMPTY, "bp_id");
 			result = true;
 		}
 		else if (xpp.getName().equals("error"))

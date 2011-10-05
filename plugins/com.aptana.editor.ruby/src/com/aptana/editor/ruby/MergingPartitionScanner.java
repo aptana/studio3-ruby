@@ -14,8 +14,8 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 /**
- * Wraps the an IPartitionSTokencanner and merges consecutive tokens with the same data/partition marking. So if we have 10
- * default tokens in a row, this will eat up the ten and return a token that spans all of them.
+ * Wraps the an IPartitionSTokencanner and merges consecutive tokens with the same data/partition marking. So if we have
+ * 10 default tokens in a row, this will eat up the ten and return a token that spans all of them.
  * 
  * @author Chris Williams
  */
@@ -52,15 +52,19 @@ public class MergingPartitionScanner implements IPartitionTokenScanner
 
 	public IToken nextToken()
 	{
-		setLength(newLength);
-		setOffset(newOffset);
-		if (lastToken != null && lastToken.isEOF())
+		// Sometimes we call this after a clear or something and we have 0,0 as length and offset.
+		// When we're not queuing up the last Token, we need to skip this and start asking scanner for tokens.
+		if (lastToken != null)
 		{
-			return lastToken;
+			setLength(newLength);
+			setOffset(newOffset);
+			if (lastToken.isEOF())
+			{
+				return lastToken;
+			}
 		}
-
 		IToken token = null;
-		while (!(token = fScanner.nextToken()).isEOF())
+		while (!(token = fScanner.nextToken()).isEOF()) // $codepro.audit.disable assignmentInCondition
 		{
 			if (lastToken != null && token.getData().equals(lastToken.getData()))
 			{

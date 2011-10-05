@@ -7,6 +7,7 @@
  */
 package com.aptana.editor.ruby;
 
+import java.util.List;
 import java.util.Vector;
 
 import org.eclipse.jface.text.IDocument;
@@ -27,7 +28,7 @@ public class RubyCodeScanner implements ITokenScanner
 	private boolean inPipe;
 	private boolean lookForBlock;
 	private boolean nextAreArgs;
-	private Vector<QueuedToken> queue;
+	private List<QueuedToken> queue;
 	private int fLength;
 	private int fOffset;
 	private int fOrigOffset;
@@ -51,7 +52,9 @@ public class RubyCodeScanner implements ITokenScanner
 	{
 		IToken intToken = pop();
 		if (intToken.isEOF())
+		{
 			return Token.EOF;
+		}
 		Integer data = (Integer) intToken.getData();
 
 		if (lookForBlock)
@@ -142,7 +145,7 @@ public class RubyCodeScanner implements ITokenScanner
 					return getToken(IRubyScopeConstants.FUNCTION_PARAMETER);
 				}
 				// intentionally fall-through
-			case Tokens.tAMPER:
+			case Tokens.tAMPER: // $codepro.audit.disable nonTerminatedCaseClause
 			case Tokens.tPERCENT:
 			case Tokens.tPOW:
 			case Tokens.tSTAR2:
@@ -296,7 +299,7 @@ public class RubyCodeScanner implements ITokenScanner
 					return getToken(IRubyScopeConstants.SPECIAL_METHOD);
 				}
 				// intentionally fall through
-			default:
+			default: // $codepro.audit.disable nonTerminatedCaseClause
 				return getToken(StringUtil.EMPTY);
 		}
 	}
@@ -318,7 +321,8 @@ public class RubyCodeScanner implements ITokenScanner
 		{
 			return false;
 		}
-		return tokenSrc.equals("\r\n") || tokenSrc.equals("\n") || tokenSrc.equals("\r");
+		return tokenSrc.equals("\r\n") || tokenSrc.equals("\n") || tokenSrc.equals("\r"); // $codepro.audit.disable
+																							// platformSpecificLineSeparator
 	}
 
 	private String getSourceForCurrentToken()
@@ -401,6 +405,6 @@ public class RubyCodeScanner implements ITokenScanner
 
 	private boolean isKeyword(int i)
 	{
-		return (i >= RubyTokenScanner.MIN_KEYWORD && i <= RubyTokenScanner.MAX_KEYWORD);
+		return i >= RubyTokenScanner.MIN_KEYWORD && i <= RubyTokenScanner.MAX_KEYWORD;
 	}
 }

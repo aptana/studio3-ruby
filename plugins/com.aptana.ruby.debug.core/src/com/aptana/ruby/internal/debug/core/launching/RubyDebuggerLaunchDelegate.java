@@ -39,8 +39,10 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 
 import com.aptana.core.ShellExecutable;
+import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.ExecutableUtil;
 import com.aptana.core.util.ResourceUtil;
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.RubyDebugCorePlugin;
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
 import com.aptana.ruby.internal.debug.core.RubyDebuggerProxy;
@@ -97,8 +99,9 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 		commandList.addAll(programArguments(configuration));
 
 		// Now actually launch the process!
+		IPath workingDir = getWorkingDirectory(configuration);
 		Process process = DebugPlugin.exec(commandList.toArray(new String[commandList.size()]),
-				getWorkingDirectory(configuration).toFile(), getEnvironment(configuration));
+				(workingDir == null) ? null : workingDir.toFile(), getEnvironment(configuration));
 		// FIXME Build a label from args?
 		String label = commandList.get(0);
 
@@ -238,7 +241,7 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 			File file = ResourceUtil.resourcePathToFile(url);
 			String filePath = file.getParent();
 			arguments.add("-I"); //$NON-NLS-1$
-			arguments.add(filePath); 
+			arguments.add(filePath);
 			arguments.add("-rsync"); //$NON-NLS-1$
 		}
 		catch (Exception e)
@@ -275,7 +278,7 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 			{
 				if (envstring.indexOf((int) '\u0000') != -1)
 				{
-					envstring = envstring.replaceFirst("\u0000.*", ""); //$NON-NLS-1$ //$NON-NLS-2$
+					envstring = envstring.replaceFirst("\u0000.*", StringUtil.EMPTY); //$NON-NLS-1$
 				}
 				int eqlsign = envstring.indexOf('=');
 				if (eqlsign != -1)
@@ -306,13 +309,21 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 	 */
 	protected IPath getWorkingDirectory(ILaunchConfiguration configuration) throws CoreException
 	{
+		// TODO Cache once we grab it once?
 		String workingDirVal = configuration.getAttribute(IRubyLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY,
 				(String) null);
 		if (workingDirVal == null)
+		{
 			return null;
+		}
 		IPath workingDirectory = Path.fromOSString(workingDirVal);
 		if (!workingDirectory.toFile().isDirectory())
+		{
+			IdeLog.logError(RubyDebugCorePlugin.getDefault(),
+					"Specified working directory does not appear to be a valid directory: " //$NON-NLS-1$
+							+ workingDirVal);
 			return null;
+		}
 		return workingDirectory;
 	}
 

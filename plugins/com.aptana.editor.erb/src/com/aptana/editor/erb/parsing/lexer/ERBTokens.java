@@ -29,12 +29,12 @@ public class ERBTokens
 	public static String getTokenName(short token)
 	{
 		init();
-		token -= OFFSET;
-		if (token < 0 || token > MAXIMUM)
+		int index = token - OFFSET;
+		if (index < 0 || index > MAXIMUM)
 		{
 			return NAME_UNKNOWN;
 		}
-		return NAMES[token];
+		return NAMES[index];
 	}
 
 	public static short getToken(String tokenName)

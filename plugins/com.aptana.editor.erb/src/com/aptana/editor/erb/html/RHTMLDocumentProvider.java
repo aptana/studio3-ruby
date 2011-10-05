@@ -16,15 +16,14 @@ import com.aptana.editor.ruby.RubySourceConfiguration;
 
 /**
  * @author Max Stepanov
- *
  */
-public class RHTMLDocumentProvider extends CompositeDocumentProvider {
+public class RHTMLDocumentProvider extends CompositeDocumentProvider
+{
 
-	public RHTMLDocumentProvider() {
-		super(IERBConstants.CONTENT_TYPE_HTML_ERB,
-				HTMLSourceConfiguration.getDefault(),
-				RubySourceConfiguration.getDefault(),
-				ERBPartitionerSwitchStrategy.getDefault());
+	public RHTMLDocumentProvider()
+	{
+		super(IERBConstants.CONTENT_TYPE_HTML_ERB, HTMLSourceConfiguration.getDefault(), RubySourceConfiguration
+				.getDefault(), ERBPartitionerSwitchStrategy.getDefault());
 	}
 
 }

@@ -27,6 +27,7 @@ public class CoreTests
 		};
 		// $JUnit-BEGIN$
 		suite.addTest(com.aptana.ruby.core.tests.AllTests.suite());
+		suite.addTest(com.aptana.ruby.rake.tests.AllTests.suite());
 		// $JUnit-END$
 		return suite;
 	}

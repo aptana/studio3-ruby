@@ -27,6 +27,8 @@ import org.jrubyparser.ast.RootNode;
 import org.jrubyparser.ast.SymbolNode;
 import org.jrubyparser.parser.ParserResult;
 
+import com.aptana.core.util.StringUtil;
+import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.RubyCorePlugin;
 import com.aptana.ruby.core.RubySourceParser;
 import com.aptana.ruby.core.ast.ASTUtils;
@@ -36,6 +38,7 @@ import com.aptana.ruby.core.ast.NamespaceVisitor;
 import com.aptana.ruby.core.ast.OffsetNodeLocator;
 import com.aptana.ruby.core.ast.ScopedNodeLocator;
 import com.aptana.ruby.core.inference.ITypeGuess;
+import com.aptana.ruby.core.inference.ITypeInferrer;
 import com.aptana.ruby.internal.core.inference.TypeInferrer;
 
 public class CompletionContext
@@ -103,11 +106,13 @@ public class CompletionContext
 						{
 							source.deleteCharAt(i);
 							source.deleteCharAt(i - 1);
-							tmpPrefix.append("@");
+							tmpPrefix.append('@');
 							i--;
 						}
 						else
+						{
 							source.deleteCharAt(i);
+						}
 						break;
 					case '.':
 					case '$': // if it breaks syntax, lets fix it
@@ -125,9 +130,13 @@ public class CompletionContext
 								isAfterDoubleSemiColon = true;
 								source.deleteCharAt(i);
 								source.deleteCharAt(i - 1);
-								tmpPrefix.insert(0, "::");
-								partialPrefix = "";
+								tmpPrefix.insert(0, IRubyConstants.NAMESPACE_DELIMETER);
+								partialPrefix = StringUtil.EMPTY;
 								i--;
+								if (offset >= source.length())
+								{
+									offset = source.length() - 1;
+								}
 								continue;
 							}
 						}
@@ -334,10 +343,11 @@ public class CompletionContext
 
 	public boolean isGlobal()
 	{
-		return !emptyPrefix() && !isExplicitMethodInvokation() && getPartialPrefix().startsWith("$"); //$NON-NLS-1$
+		return !emptyPrefix() && !isExplicitMethodInvokation()
+				&& (getPartialPrefix().length() > 0 && getPartialPrefix().charAt(0) == '$');
 	}
 
-	public boolean isDoubleSemiColon()
+	public boolean isDoubleColon()
 	{
 		return isAfterDoubleSemiColon && !isMethodInvokation;
 	}
@@ -383,7 +393,9 @@ public class CompletionContext
 	public synchronized Node getRootNode()
 	{
 		if (fRootNode != null)
+		{
 			return fRootNode;
+		}
 		// TODO Use ParserPoolFactory here!
 		RubySourceParser parser = new RubySourceParser(CompatVersion.BOTH);
 		if (!isBroken())
@@ -427,7 +439,7 @@ public class CompletionContext
 	 */
 	public boolean isInstanceOrClassVariable()
 	{
-		return getPartialPrefix() != null && getPartialPrefix().startsWith("@") && getPartialPrefix().length() == 1; //$NON-NLS-1$
+		return getPartialPrefix() != null && getPartialPrefix().length() == 1 && getPartialPrefix().charAt(0) == '@';
 	}
 
 	/**
@@ -437,8 +449,8 @@ public class CompletionContext
 	 */
 	public boolean isInstanceVariable()
 	{
-		return getPartialPrefix() != null && getPartialPrefix().startsWith("@") && !isClassVariable() //$NON-NLS-1$
-				&& getPartialPrefix().length() > 1;
+		return getPartialPrefix() != null && getPartialPrefix().length() > 1 && getPartialPrefix().charAt(0) == '@'
+				&& !isClassVariable();
 	}
 
 	/**
@@ -560,7 +572,12 @@ public class CompletionContext
 
 	public Collection<ITypeGuess> inferReceiver()
 	{
-		return new TypeInferrer(project).infer(getRootNode(), getReceiver());
+		return getTypeInferrer().infer(getRootNode(), getReceiver());
+	}
+
+	protected ITypeInferrer getTypeInferrer()
+	{
+		return new TypeInferrer(project);
 	}
 
 	public boolean isNotParseable()
@@ -570,7 +587,7 @@ public class CompletionContext
 
 	public boolean isSymbol()
 	{
-		return getPartialPrefix().startsWith(":"); //$NON-NLS-1$
+		return getPartialPrefix().length() > 0 && getPartialPrefix().charAt(0) == ':';
 	}
 
 	public Set<String> getSymbolsInAST()

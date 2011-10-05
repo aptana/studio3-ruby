@@ -30,6 +30,7 @@ import org.jrubyparser.CompatVersion;
 import org.jrubyparser.ast.CommentNode;
 import org.jrubyparser.parser.ParserResult;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.editor.ruby.formatter.internal.RubyFormatterContext;
 import com.aptana.editor.ruby.formatter.internal.RubyFormatterNodeBuilder;
@@ -39,9 +40,9 @@ import com.aptana.formatter.FormatterDocument;
 import com.aptana.formatter.FormatterIndentDetector;
 import com.aptana.formatter.FormatterUtils;
 import com.aptana.formatter.FormatterWriter;
+import com.aptana.formatter.IDebugScopes;
 import com.aptana.formatter.IFormatterContext;
 import com.aptana.formatter.IFormatterDocument;
-import com.aptana.formatter.epl.FormatterPlugin;
 import com.aptana.formatter.nodes.IFormatterContainerNode;
 import com.aptana.formatter.ui.FormatterException;
 import com.aptana.formatter.ui.FormatterMessages;
@@ -108,7 +109,7 @@ public class RubyFormatter extends AbstractScriptFormatter
 		}
 		catch (Throwable t)
 		{
-			FormatterPlugin.logError(t);
+			IdeLog.logError(RubyFormatterPlugin.getDefault(), t, IDebugScopes.DEBUG);
 		}
 		return 0;
 	}
@@ -250,7 +251,7 @@ public class RubyFormatter extends AbstractScriptFormatter
 		{
 			StatusLineMessageTimerManager.setErrorMessage(FormatterMessages.Formatter_formatterErrorStatus,
 					ERROR_DISPLAY_TIMEOUT, true);
-			FormatterPlugin.logError(t);
+			IdeLog.logError(RubyFormatterPlugin.getDefault(), t, IDebugScopes.DEBUG);
 		}
 		return null;
 	}

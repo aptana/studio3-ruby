@@ -52,7 +52,7 @@ public class HAMLAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 			boolean shouldAutoIndent = false;
 
 			// check for ruby blocks
-			if (lineContent.startsWith("-") && lineContent.endsWith("|")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (lineContent.length() > 1 && lineContent.charAt(0) == '-' && lineContent.endsWith("|")) //$NON-NLS-1$
 			{
 				shouldAutoIndent = true;
 			}
@@ -89,7 +89,7 @@ public class HAMLAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 		}
 		catch (BadLocationException e)
 		{
-			IdeLog.logError(HAMLEditorPlugin.getDefault(), e.getMessage(), e);
+			IdeLog.logError(HAMLEditorPlugin.getDefault(), e);
 		}
 
 		return false;

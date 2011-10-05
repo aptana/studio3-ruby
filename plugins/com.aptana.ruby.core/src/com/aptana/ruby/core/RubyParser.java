@@ -30,7 +30,7 @@ public class RubyParser implements IParser
 
 	}
 
-	public IParseRootNode parse(IParseState parseState) throws Exception
+	public IParseRootNode parse(IParseState parseState)
 	{
 		String source = new String(parseState.getSource());
 		RubyScript root = new RubyScript(parseState.getStartingOffset(), parseState.getStartingOffset()

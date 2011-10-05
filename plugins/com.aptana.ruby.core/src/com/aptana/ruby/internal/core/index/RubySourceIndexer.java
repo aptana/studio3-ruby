@@ -10,6 +10,7 @@ package com.aptana.ruby.internal.core.index;
 import java.net.URI;
 import java.util.Stack;
 
+import com.aptana.core.util.ArrayUtil;
 import com.aptana.core.util.StringUtil;
 import com.aptana.index.core.Index;
 import com.aptana.ruby.core.IRubyMethod.Visibility;
@@ -28,7 +29,7 @@ class RubySourceIndexer implements ISourceElementRequestor
 	private Index index;
 	private URI documentPath;
 
-	public RubySourceIndexer(Index index, URI documentPath)
+	RubySourceIndexer(Index index, URI documentPath)
 	{
 		this.index = index;
 		this.documentPath = documentPath;
@@ -180,12 +181,12 @@ class RubySourceIndexer implements ISourceElementRequestor
 			addIndex(IRubyIndexConstants.FIELD_DECL, createdNamespacedFieldKey(field.name));
 			return;
 		}
-		else if (field.name.startsWith("@")) //$NON-NLS-1$
+		else if (field.name.length() > 0 && field.name.charAt(0) == '@')
 		{
 			addIndex(IRubyIndexConstants.FIELD_DECL, createdNamespacedFieldKey(field.name));
 			return;
 		}
-		else if (field.name.startsWith("$")) //$NON-NLS-1$
+		else if (field.name.length() > 0 && field.name.charAt(0) == '$')
 		{
 			addIndex(IRubyIndexConstants.GLOBAL_DECL, field.name);
 			return;
@@ -202,7 +203,7 @@ class RubySourceIndexer implements ISourceElementRequestor
 	{
 		// TODO Use Toplevel, not Object?
 		String simpleName = IRubyIndexConstants.OBJECT;
-		String[] enclosingTypes = new String[0];
+		String[] enclosingTypes = ArrayUtil.NO_STRINGS;
 		if (!typeStack.isEmpty())
 		{
 			TypeInfo info = typeStack.pop();
@@ -234,7 +235,7 @@ class RubySourceIndexer implements ISourceElementRequestor
 	{
 		// TODO Use Toplevel, not Object?
 		String simpleName = IRubyIndexConstants.OBJECT;
-		String[] enclosingTypes = new String[0];
+		String[] enclosingTypes = ArrayUtil.NO_STRINGS;
 		if (!typeStack.isEmpty())
 		{
 			TypeInfo info = typeStack.pop();
@@ -336,7 +337,7 @@ class RubySourceIndexer implements ISourceElementRequestor
 		String superTypeSourceName = lastSegment(superSimpleName, NAMESPACE_DELIMETER);
 		if (superSimpleName != null && !superSimpleName.equals(superTypeSourceName))
 		{
-			int start = superQualification == null ? 0 : superQualification.length + 1;
+			int start = (superQualification == null) ? 0 : superQualification.length + 1;
 			int prefixLength = superSimpleName.length() - superTypeSourceName.length();
 			char[] mangledQualification = new char[start + prefixLength];
 			if (superQualification != null)

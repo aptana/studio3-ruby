@@ -24,14 +24,15 @@ public class RubyCorePlugin extends Plugin
 	public static final String PLUGIN_ID = "com.aptana.ruby.core"; //$NON-NLS-1$
 
 	// The shared instance
-	private static RubyCorePlugin plugin;
+	private static RubyCorePlugin fgPlugin;
 
 	private RubyCodeResolver fCodeResolver;
 
 	/**
 	 * The constructor
 	 */
-	public RubyCorePlugin()
+	public RubyCorePlugin() // $codepro.audit.disable
+							// com.instantiations.assist.eclipse.analysis.audit.rule.effectivejava.enforceTheSingletonPropertyWithAPrivateConstructor
 	{
 	}
 
@@ -39,10 +40,10 @@ public class RubyCorePlugin extends Plugin
 	 * (non-Javadoc)
 	 * @see org.eclipse.core.runtime.Plugins#start(org.osgi.framework.BundleContext)
 	 */
-	public void start(BundleContext context) throws Exception
+	public void start(BundleContext context) throws Exception // $codepro.audit.disable declaredExceptions
 	{
 		super.start(context);
-		plugin = this;
+		fgPlugin = this;
 		// Schedule a job to stub out core library for ruby, then index it
 		Job job = new CoreStubber();
 		job.schedule();
@@ -52,10 +53,10 @@ public class RubyCorePlugin extends Plugin
 	 * (non-Javadoc)
 	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
 	 */
-	public void stop(BundleContext context) throws Exception
+	public void stop(BundleContext context) throws Exception // $codepro.audit.disable declaredExceptions
 	{
 		fCodeResolver = null;
-		plugin = null;
+		fgPlugin = null;
 		super.stop(context);
 	}
 
@@ -66,7 +67,7 @@ public class RubyCorePlugin extends Plugin
 	 */
 	public static RubyCorePlugin getDefault()
 	{
-		return plugin;
+		return fgPlugin;
 	}
 
 	public static void log(Throwable e)

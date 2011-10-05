@@ -12,6 +12,7 @@ import junit.framework.TestSuite;
 
 import com.aptana.editor.ruby.RubyEditorTests;
 import com.aptana.editor.ruby.internal.contentassist.RubyCATests;
+import com.aptana.editor.ruby.internal.text.InternalTextTests;
 import com.aptana.editor.ruby.internal.text.rules.InternalTextRulesTests;
 import com.aptana.editor.ruby.outline.RubyOutlineTest;
 
@@ -24,6 +25,7 @@ public class AllTests
 		// $JUnit-BEGIN$
 		suite.addTest(RubyEditorTests.suite());
 		suite.addTest(RubyCATests.suite());
+		suite.addTest(InternalTextTests.suite());
 		suite.addTest(InternalTextRulesTests.suite());
 		suite.addTestSuite(RubyOutlineTest.class);
 		// $JUnit-END$

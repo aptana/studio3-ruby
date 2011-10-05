@@ -37,7 +37,8 @@ public class FormatterClassNode extends FormatterBlockWithBeginEndNode implement
 	{
 		if (context.getParent() == null)
 		{
-			return getInt(RubyFormatterConstants.LINES_FILE_BETWEEN_CLASS);
+			// return getInt(RubyFormatterConstants.LINES_FILE_BETWEEN_CLASS);
+			return getInt(RubyFormatterConstants.LINES_BEFORE_FIRST);
 		}
 		else if (context.getChildIndex() == 0)
 		{

@@ -9,7 +9,6 @@ package com.aptana.editor.ruby.outline;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -32,7 +31,7 @@ public class ToggleHideFieldsHandler extends AbstractHandler
 
 	private ViewerFilter fFilter;
 
-	public Object execute(ExecutionEvent event) throws ExecutionException
+	public Object execute(ExecutionEvent event)
 	{
 		IEditorPart editor = HandlerUtil.getActiveEditor(event);
 		if (editor instanceof AbstractThemeableEditor)
@@ -59,7 +58,7 @@ public class ToggleHideFieldsHandler extends AbstractHandler
 	 * 
 	 * @author cwilliams
 	 */
-	private class FieldsFilter extends ViewerFilter
+	private static class FieldsFilter extends ViewerFilter
 	{
 		@Override
 		public boolean select(Viewer viewer, Object parent, Object element)

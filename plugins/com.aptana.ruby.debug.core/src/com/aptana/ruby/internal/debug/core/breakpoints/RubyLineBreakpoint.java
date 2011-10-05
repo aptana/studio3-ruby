@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IBreakpoint;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.IRubyLineBreakpoint;
 import com.aptana.ruby.debug.core.RubyDebugModel;
 
@@ -135,7 +136,7 @@ public class RubyLineBreakpoint extends RubyBreakpoint implements IRubyLineBreak
 		IResource resource = ensureMarker().getResource();
 		if (resource.equals(ResourcesPlugin.getWorkspace().getRoot()))
 		{
-			return Path.fromPortableString(ensureMarker().getAttribute(EXTERNAL_FILENAME, "")); //$NON-NLS-1$
+			return Path.fromPortableString(ensureMarker().getAttribute(EXTERNAL_FILENAME, StringUtil.EMPTY));
 		}
 		return resource.getProjectRelativePath();
 	}
@@ -145,7 +146,7 @@ public class RubyLineBreakpoint extends RubyBreakpoint implements IRubyLineBreak
 		IResource resource = ensureMarker().getResource();
 		if (resource.equals(ResourcesPlugin.getWorkspace().getRoot()))
 		{
-			return Path.fromPortableString(ensureMarker().getAttribute(EXTERNAL_FILENAME, "")); //$NON-NLS-1$
+			return Path.fromPortableString(ensureMarker().getAttribute(EXTERNAL_FILENAME, StringUtil.EMPTY));
 		}
 		return resource.getLocation();
 	}

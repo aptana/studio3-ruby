@@ -104,7 +104,7 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 	// constants
 	private static final int SIZING_TEXT_FIELD_WIDTH = 250;
 	private static final String SAVED_LOCATION_ATTR = "OUTSIDE_LOCATION"; //$NON-NLS-1$
-	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
+	private static final String EMPTY_STRING = StringUtil.EMPTY;
 
 	/**
 	 * Creates a new project creation wizard page.

@@ -26,7 +26,6 @@ import org.jrubyparser.ast.ConstDeclNode;
 import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.DAsgnNode;
 import org.jrubyparser.ast.DStrNode;
-import org.jrubyparser.ast.DVarNode;
 import org.jrubyparser.ast.DefnNode;
 import org.jrubyparser.ast.DefsNode;
 import org.jrubyparser.ast.FCallNode;
@@ -51,6 +50,7 @@ import org.jrubyparser.ast.UnnamedRestArgNode;
 import org.jrubyparser.ast.VCallNode;
 import org.jrubyparser.ast.YieldNode;
 
+import com.aptana.core.util.ArrayUtil;
 import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.core.IRubyMethod;
 import com.aptana.ruby.core.IRubyMethod.Visibility;
@@ -116,7 +116,8 @@ public class SourceElementVisitor extends InOrderVisitor
 	@Override
 	public Object visitAliasNode(AliasNode iVisited)
 	{
-		String name = iVisited.getNewName();
+		Node newNameNode = iVisited.getNewName();
+		String name = ASTUtils.getName(newNameNode);
 		int nameStart = iVisited.getPosition().getStartOffset() + ALIAS.length() - 1;
 		addAliasMethod(name, iVisited.getPosition().getStartOffset(), iVisited.getPosition().getEndOffset(), nameStart);
 
@@ -210,7 +211,7 @@ public class SourceElementVisitor extends InOrderVisitor
 				typeInfo.declarationStart = iVisited.getPosition().getStartOffset();
 				typeInfo.nameSourceStart = receiver.getPosition().getStartOffset();
 				typeInfo.nameSourceEnd = receiver.getPosition().getEndOffset() - 1;
-				typeInfo.modules = new String[0];
+				typeInfo.modules = ArrayUtil.NO_STRINGS;
 				requestor.enterType(typeInfo);
 
 				Object ins = super.visitCallNode(iVisited);
@@ -628,7 +629,7 @@ public class SourceElementVisitor extends InOrderVisitor
 		info.nameSourceStart = node.getPosition().getStartOffset();
 		info.nameSourceEnd = node.getPosition().getEndOffset() - 1;
 		info.visibility = IRubyMethod.Visibility.PUBLIC;
-		info.parameterNames = new String[0];
+		info.parameterNames = ArrayUtil.NO_STRINGS;
 		return info;
 	}
 
@@ -680,7 +681,7 @@ public class SourceElementVisitor extends InOrderVisitor
 
 	private String dropLeadingColon(String association)
 	{
-		if (association.startsWith(":")) //$NON-NLS-1$
+		if (association.length() > 0 && association.charAt(0) == ':')
 		{
 			return association.substring(1);
 		}
@@ -754,7 +755,7 @@ public class SourceElementVisitor extends InOrderVisitor
 			method.nameSourceStart = start;
 			method.nameSourceEnd = end;
 			// TODO Use the parameters of the original method
-			method.parameterNames = new String[0];
+			method.parameterNames = ArrayUtil.NO_STRINGS;
 			requestor.enterMethod(method);
 			requestor.exitMethod(end);
 		}
@@ -979,7 +980,7 @@ public class SourceElementVisitor extends InOrderVisitor
 		method.nameSourceStart = nameStart;
 		method.nameSourceEnd = nameStart + name.length() - 1;
 		// TODO Use the parameters of the original method
-		method.parameterNames = new String[0];
+		method.parameterNames = ArrayUtil.NO_STRINGS;
 		requestor.enterMethod(method);
 		requestor.exitMethod(end);
 	}
@@ -993,7 +994,7 @@ public class SourceElementVisitor extends InOrderVisitor
 		info.nameSourceStart = node.getPosition().getStartOffset();
 		info.nameSourceEnd = node.getPosition().getEndOffset() - 1;
 		info.visibility = IRubyMethod.Visibility.PUBLIC;
-		info.parameterNames = new String[0];
+		info.parameterNames = ArrayUtil.NO_STRINGS;
 		return info;
 	}
 
@@ -1086,12 +1087,12 @@ public class SourceElementVisitor extends InOrderVisitor
 						mixins.add(((StrNode) next).getValue());
 					}
 				}
-				else if (node instanceof DVarNode)
-				{
+				// else if (node instanceof DVarNode)
+				// {
 					// FIXME track DAsgnNodes, then infer value, then try and also look at the callnode beforeiternode
 					// and use heuristics?
 
-				}
+				// }
 			}
 		}
 
@@ -1117,7 +1118,7 @@ public class SourceElementVisitor extends InOrderVisitor
 		typeInfo.name = ASTUtils.getFullyQualifiedName(iVisited);
 		typeInfo.nameSourceStart = iVisited.getPosition().getStartOffset();
 		typeInfo.nameSourceEnd = iVisited.getPosition().getEndOffset() - 1;
-		typeInfo.modules = new String[0];
+		typeInfo.modules = ArrayUtil.NO_STRINGS;
 		return typeInfo;
 	}
 
@@ -1147,7 +1148,7 @@ public class SourceElementVisitor extends InOrderVisitor
 		}
 		if (child instanceof StrNode)
 		{
-			return ((StrNode) child).getValue().toString();
+			return ((StrNode) child).getValue();
 		}
 		return null;
 	}

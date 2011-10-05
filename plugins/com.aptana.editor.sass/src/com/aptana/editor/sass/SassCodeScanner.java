@@ -24,6 +24,7 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WordRule;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.text.rules.CharacterMapRule;
 import com.aptana.editor.common.text.rules.ExtendedWordRule;
 import com.aptana.editor.css.CSSCodeScanner;
@@ -42,17 +43,8 @@ public class SassCodeScanner extends CSSCodeScanner
 	{
 		List<IRule> rules = super.createRules();
 		// Stick in a rule that recognizes mixins and variables
-		// FIXME This rule doesn't properly set the first char (!, =, or +) to it's own different punctuation token type
-		ExtendedWordRule variableRule = new ExtendedWordRule(new VariableWordDetector(),
-				createToken("variable.other.sass"), true) //$NON-NLS-1$
-		{
-
-			@Override
-			protected boolean wordOK(String word, ICharacterScanner scanner)
-			{
-				return word.length() >= 2;
-			}
-		};
+		ExtendedWordRule variableRule = new VariableWordRule(new VariableWordDetector(),
+				createToken(ISassConstants.VARIABLE_OTHER_SCOPE), true);
 		rules.add(1, variableRule);
 		return rules;
 	}
@@ -63,16 +55,16 @@ public class SassCodeScanner extends CSSCodeScanner
 	{
 		WordRule wordRule = super.createAtWordsRule();
 
-		wordRule.addWord("@mixin", createToken("keyword.control.at-rule.mixin.sass"));
-		wordRule.addWord("@include", createToken("keyword.control.at-rule.include.sass"));
-		wordRule.addWord("@function", createToken("keyword.control.at-rule.function.sass"));
-		wordRule.addWord("@while", createToken("keyword.control.at-rule.while.sass"));
-		wordRule.addWord("@each", createToken("keyword.control.at-rule.each.sass"));
-		wordRule.addWord("@for", createToken("keyword.control.at-rule.for.sass"));
-		wordRule.addWord("@if", createToken("keyword.control.at-rule.if.sass"));
-		wordRule.addWord("@warn", createToken("keyword.control.at-rule.warn.sass"));
-		wordRule.addWord("@debug", createToken("keyword.control.at-rule.debug.sass"));
-		wordRule.addWord("@extend", createToken("keyword.control.at-rule.extend.sass"));
+		wordRule.addWord("@mixin", createToken(ISassConstants.KEYWORD_CONTROL_AT_RULE_MIXIN_SCOPE));
+		wordRule.addWord("@include", createToken(ISassConstants.KEYWORD_CONTROL_AT_RULE_INCLUDE_SCOPE));
+		wordRule.addWord("@function", createToken(ISassConstants.KEYWORD_CONTROL_AT_RULE_FUNCTION_SCOPE));
+		wordRule.addWord("@while", createToken(ISassConstants.KEYWORD_CONTROL_AT_RULE_WHILE_SCOPE));
+		wordRule.addWord("@each", createToken(ISassConstants.KEYWORD_CONTROL_AT_RULE_EACH_SCOPE));
+		wordRule.addWord("@for", createToken(ISassConstants.KEYWORD_CONTROL_AT_RULE_FOR_SCOPE));
+		wordRule.addWord("@if", createToken(ISassConstants.KEYWORD_CONTROL_AT_RULE_IF_SCOPE));
+		wordRule.addWord("@warn", createToken(ISassConstants.KEYWORD_CONTROL_AT_RULE_WARN_SCOPE));
+		wordRule.addWord("@debug", createToken(ISassConstants.KEYWORD_CONTROL_AT_RULE_DEBUG_SCOPE));
+		wordRule.addWord("@extend", createToken(ISassConstants.KEYWORD_CONTROL_AT_RULE_EXTEND_SCOPE));
 
 		return wordRule;
 	}
@@ -93,17 +85,19 @@ public class SassCodeScanner extends CSSCodeScanner
 		}
 		// FIXME If token is "meta.selector.sass", then it's whitespace. Check if it contains a newline. If so, make it
 		// Token.WHITESPACE if not preceded by a comma!
-		if (lastToken != null && !"punctuation.separator.sass".equals(lastToken.getData()) && //$NON-NLS-1$
-				("meta.selector.sass".equals(token.getData()) || "meta.property-value.sass".equals(token.getData()))) //$NON-NLS-1$ //$NON-NLS-2$
+		if (lastToken != null
+				&& !ISassConstants.PUNCTUATION_SEPARATOR_SCOPE.equals(lastToken.getData())
+				&& (ISassConstants.META_SELECTOR_SCOPE.equals(token.getData()) || ISassConstants.META_PROPERTY_VALUE_SCOPE
+						.equals(token.getData())))
 		{
 			String src = getSource(getTokenOffset(), getTokenLength());
-			if (src.contains("\n") || src.contains("\r")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (src.contains("\n") || src.contains("\r")) //$NON-NLS-1$ //$NON-NLS-2$ // $codepro.audit.disable platformSpecificLineSeparator
 			{
-				if ("meta.selector.sass".equals(token.getData())) //$NON-NLS-1$
+				if (ISassConstants.META_SELECTOR_SCOPE.equals(token.getData()))
 				{
 					fInSelector = false;
 				}
-				else if ("meta.property-value.sass".equals(token.getData())) //$NON-NLS-1$
+				else if (ISassConstants.META_PROPERTY_VALUE_SCOPE.equals(token.getData()))
 				{
 					fInPropertyValue = false;
 				}
@@ -112,10 +106,10 @@ public class SassCodeScanner extends CSSCodeScanner
 
 		}
 		else if (lastToken != null
-				&& ("keyword.control.at-rule.mixin.sass".equals(lastToken.getData()) || "keyword.control.at-rule.include.sass" //$NON-NLS-1$ //$NON-NLS-2$
-				.equals(lastToken.getData())))
+				&& (ISassConstants.KEYWORD_CONTROL_AT_RULE_MIXIN_SCOPE.equals(lastToken.getData()) || ISassConstants.KEYWORD_CONTROL_AT_RULE_INCLUDE_SCOPE
+						.equals(lastToken.getData())))
 		{
-			token = new Token("entity.name.function.sass"); //$NON-NLS-1$
+			token = new Token(ISassConstants.ENTITY_NAME_FUNCTION_SCOPE);
 		}
 		if (token.isOther())
 		{
@@ -132,7 +126,7 @@ public class SassCodeScanner extends CSSCodeScanner
 		}
 		catch (BadLocationException e)
 		{
-			return ""; //$NON-NLS-1$
+			return StringUtil.EMPTY;
 		}
 	}
 
@@ -141,7 +135,7 @@ public class SassCodeScanner extends CSSCodeScanner
 	{
 		CharacterMapRule rule = super.createPunctuatorsRule();
 		// Override equals
-		rule.add('=', createToken("punctuation.definition.entity.sass")); //$NON-NLS-1$
+		rule.add('=', createToken(ISassConstants.PUNCTUATION_DEFINITION_ENTITY_SCOPE));
 		return rule;
 	}
 
@@ -173,6 +167,29 @@ public class SassCodeScanner extends CSSCodeScanner
 		return list.toArray(new String[list.size()]);
 	}
 
+	@Override
+	public void setRange(IDocument document, int offset, int length)
+	{
+		this.lastToken = null;
+		this._document = document;
+		super.setRange(document, offset, length);
+	}
+
+	// FIXME This rule doesn't properly set the first char (!, =, or +) to it's own different punctuation token type
+	private static final class VariableWordRule extends ExtendedWordRule
+	{
+		private VariableWordRule(IWordDetector detector, IToken defaultToken, boolean ignoreCase)
+		{
+			super(detector, defaultToken, ignoreCase);
+		}
+
+		@Override
+		protected boolean wordOK(String word, ICharacterScanner scanner)
+		{
+			return word.length() >= 2;
+		}
+	}
+
 	private static class VariableWordDetector implements IWordDetector
 	{
 
@@ -186,13 +203,5 @@ public class SassCodeScanner extends CSSCodeScanner
 			// Old SASS used !, = and + as prefixes for variables and mixins, keep them in for now
 			return c == '!' || c == '$' || c == '=' || c == '+';
 		}
-	}
-
-	@Override
-	public void setRange(IDocument document, int offset, int length)
-	{
-		this.lastToken = null;
-		this._document = document;
-		super.setRange(document, offset, length);
 	}
 }

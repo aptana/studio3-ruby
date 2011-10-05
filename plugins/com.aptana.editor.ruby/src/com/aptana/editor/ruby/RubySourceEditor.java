@@ -26,6 +26,8 @@ import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
+import com.aptana.core.logging.IdeLog;
+import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.outline.CommonOutlineItem;
@@ -38,7 +40,6 @@ import com.aptana.parsing.lexer.IRange;
 import com.aptana.ruby.core.IImportContainer;
 import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.IRubyElement;
-import com.aptana.ruby.core.IRubyField;
 import com.aptana.ruby.core.IRubyMethod;
 import com.aptana.ruby.core.IRubyType;
 
@@ -213,14 +214,15 @@ public class RubySourceEditor extends AbstractThemeableEditor
 				// Match "end" to "do ..." only if it's a do/end block
 				int endOffset = currentNode.getEndingOffset();
 				IDocument document = getSourceViewer().getDocument();
-				String endText = ""; //$NON-NLS-1$
+				String endText = StringUtil.EMPTY;
 				try
 				{
 					endText = document.get(endOffset, 1);
 				}
 				catch (BadLocationException e)
 				{
-					// ignore
+					IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to get text at end of block, end offset: " //$NON-NLS-1$
+							+ endOffset, e);
 				}
 				if (endText.equals("d")) //$NON-NLS-1$
 				{
@@ -233,10 +235,10 @@ public class RubySourceEditor extends AbstractThemeableEditor
 					}
 				}
 			}
-			else if (currentNode instanceof IRubyField)
-			{
-				// TODO Find occurrences of variables!
-			}
+			// else if (currentNode instanceof IRubyField)
+			// {
+			// TODO Find occurrences of variables!
+			// }
 			// TODO Also match if/else/unless/begin/rescue/end blocks!
 		}
 

@@ -31,6 +31,7 @@ import org.jrubyparser.ast.ClassVarAsgnNode;
 import org.jrubyparser.ast.ClassVarDeclNode;
 import org.jrubyparser.ast.Colon3Node;
 import org.jrubyparser.ast.ConstNode;
+import org.jrubyparser.ast.DefnNode;
 import org.jrubyparser.ast.InstAsgnNode;
 import org.jrubyparser.ast.MethodDefNode;
 import org.jrubyparser.ast.ModuleNode;
@@ -46,6 +47,7 @@ import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.QueryResult;
 import com.aptana.index.core.SearchPattern;
+import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.IRubyMethod.Visibility;
 import com.aptana.ruby.core.ast.ASTUtils;
 import com.aptana.ruby.core.ast.ClosestSpanningNodeLocator;
@@ -63,16 +65,20 @@ import com.aptana.scripting.model.ContentAssistElement;
 public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 {
 
+	// TODO Move this up the hierarchy?
+	private static final ICompletionProposal[] NO_PROPOSALS = new ICompletionProposal[0];
+
 	private static final String NAMESPACE_DELIMITER = IRubyIndexConstants.NAMESPACE_DELIMETER;
 	// TODO Move these images over to the ruby.ui plugin...
 	private static final String GLOBAL_IMAGE = "icons/global_obj.png"; //$NON-NLS-1$
 	private static final String INSTANCE_VAR_IMAGE = "icons/instance_var_obj.png"; //$NON-NLS-1$
 	private static final String CLASS_VAR_IMAGE = "icons/class_var_obj.png"; //$NON-NLS-1$
 	private static final String LOCAL_VAR_IMAGE = "icons/local_var_obj.png"; //$NON-NLS-1$
-	private static final String PUBLIC_METHOD_IMAGE = "icons/method_public_obj.png"; //$NON-NLS-1$
 	private static final String CLASS_IMAGE = "icons/class_obj.png"; //$NON-NLS-1$
 	private static final String MODULE_IMAGE = "icons/module_obj.png"; //$NON-NLS-1$
+	private static final String PUBLIC_METHOD_IMAGE = "icons/method_public_obj.png"; //$NON-NLS-1$
 	private static final String PROTECTED_METHOD_IMAGE = "icons/method_protected_obj.png"; //$NON-NLS-1$
+	private static final String PRIVATE_METHOD_IMAGE = "icons/method_private_obj.png"; //$NON-NLS-1$
 	private static final String CONSTANT_IMAGE = "icons/constant_obj.png"; //$NON-NLS-1$
 	private static final String SYMBOL_IMAGE = GLOBAL_IMAGE; // FIXME Get an image for symbols!
 
@@ -116,12 +122,12 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			boolean autoActivated)
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
-		fContext = new CompletionContext(getProject(), viewer.getDocument().get(), offset - 1);
+		fContext = createCompletionContext(viewer, offset);
 		try
 		{
 			if (fContext.inComment())
 			{
-				return new ICompletionProposal[0];
+				return NO_PROPOSALS;
 			}
 			// order matters. we can handle symbols even if we can't parse
 			else if (fContext.isSymbol())
@@ -144,7 +150,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			else if (fContext.isConstant())
 			{
 				// JDT suggests constants, then types
-				proposals.addAll(suggestConstants());
+				proposals.addAll(suggestConstantsInNamespace());
 				proposals.addAll(suggestTypeNames());
 			}
 			else if (fContext.isGlobal())
@@ -164,8 +170,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 				proposals.addAll(suggestInstanceVariables());
 				proposals.addAll(suggestClassVariables());
 			}
-			// TODO Add symbol CA!
-			else if (fContext.isDoubleSemiColon())
+			else if (fContext.isDoubleColon())
 			{
 				// This is either a qualified type name, method call, or qualified constant name
 				// When after last "::", if empty or uppercase, it's a type or constant
@@ -203,22 +208,30 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		}
 	}
 
+	protected CompletionContext createCompletionContext(ITextViewer viewer, int offset)
+	{
+		return new CompletionContext(getProject(), viewer.getDocument().get(), offset - 1);
+	}
+
 	private Collection<? extends ICompletionProposal> suggestMethodsOnReceiver()
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 		Collection<ITypeGuess> guesses = fContext.inferReceiver();
-		Set<String> typeNames = new HashSet<String>();
+		Map<String, Boolean> typeNames = new HashMap<String, Boolean>();
+		Set<String> receiverTypes = new HashSet<String>();
 		for (ITypeGuess guess : guesses)
 		{
 			String typeName = guess.getType();
-			typeNames.add(typeName);
+			receiverTypes.add(typeName);
+			typeNames.put(typeName, guess.isModule());
 			// Include supertypes
-			typeNames.addAll(calculateSuperTypes(typeName));
+			typeNames.putAll(calculateSuperTypes(typeName));
 		}
 		// Based on what the receiver is (if it's a type name) we should toggle instance/singleton
 		// methods!
 		boolean receiverIsType = receiverIsType();
-		proposals.addAll(suggestMethodsForType(typeNames, !receiverIsType, false));
+		proposals.addAll(suggestMethodsForTypes(receiverTypes, typeNames, receiverIsType, !receiverIsType,
+				receiverIsType, receiverIsType));
 		if (receiverIsType)
 		{
 			// TODO Insert the class name as the "location"?
@@ -414,22 +427,54 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	private Collection<? extends ICompletionProposal> suggestConstantsInNamespace()
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
+
+		String typeName = IRubyIndexConstants.OBJECT;
+		String namespace = StringUtil.EMPTY;
+
 		String fullPrefix = fContext.getFullPrefix();
-		String namespace = fullPrefix.substring(0, fullPrefix.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER));
-		String typeName = null;
-		int namespaceIndex = namespace.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
-		if (namespaceIndex == -1)
+		if (!fullPrefix.startsWith(IRubyIndexConstants.NAMESPACE_DELIMETER))
 		{
-			typeName = namespace;
-			namespace = StringUtil.EMPTY;
+			// FIXME We also want to search without the implicit namespace!
+			// tack on current namespace to beginning, since we're not explicitly forcing toplevel...
+			String implicitNamespace = fContext.getNamespace();
+			if (implicitNamespace.length() > 0)
+			{
+				fullPrefix = implicitNamespace + IRubyIndexConstants.NAMESPACE_DELIMETER + fullPrefix;
+			}
 		}
-		else
+
+		int lastNS = fullPrefix.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
+		if (lastNS > 0)
 		{
-			typeName = namespace.substring(namespaceIndex + 2);
-			namespace = namespace.substring(0, namespaceIndex);
+			typeName = fullPrefix.substring(0, lastNS);
 		}
-		String key = "^" + fContext.getPartialPrefix() + "[^/]*?" + IRubyIndexConstants.SEPARATOR + typeName
-				+ IRubyIndexConstants.SEPARATOR + namespace + "[^/]*$";
+		lastNS = typeName.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
+		if (lastNS > 0)
+		{
+			namespace = typeName.substring(0, lastNS);
+			typeName = typeName.substring(lastNS + 2);
+		}
+
+		StringBuilder builder = new StringBuilder();
+		builder.append('^'); // begin matching at start of key
+		builder.append(fContext.getPartialPrefix()).append("[^/]*?"); // match prefix plus any normal chars for constant
+																		// name
+		builder.append(IRubyIndexConstants.SEPARATOR);
+		// builder.append('(');
+		// Match defining type...
+		builder.append(typeName); // defining type name
+		builder.append(IRubyIndexConstants.SEPARATOR);
+		builder.append(namespace);
+		// or match in toplevel
+		// builder.append('|');
+		// builder.append(IRubyIndexConstants.OBJECT);
+		// builder.append(IRubyIndexConstants.SEPARATOR);
+		// // no namespace in toplevel
+		// builder.append(')');
+		builder.append('$'); // end matching at end of key
+
+		// We search the given namespace and enclosing type name, but we also include constants in the top level
+		String key = builder.toString();
 		for (Index index : allIndicesForProject())
 		{
 			if (index == null)
@@ -519,6 +564,30 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 		Node enclosing = fContext.getEnclosingTypeNode();
 		String enclosingTypeName = fContext.getEnclosingType();
+
+		// If we're inside an instance method or toplevel, include instance method proposals
+		boolean includeInstance = false;
+		if (enclosing instanceof RootNode)
+		{
+			includeInstance = true;
+		}
+		else
+		{
+			MethodDefNode enclosingMethod = (MethodDefNode) new ClosestSpanningNodeLocator().find(
+					fContext.getRootNode(), fContext.getOffset(), new INodeAcceptor()
+					{
+
+						public boolean accepts(Node node)
+						{
+							return node instanceof MethodDefNode;
+						}
+					});
+			if (enclosingMethod instanceof DefnNode)
+			{
+				includeInstance = true;
+			}
+		}
+
 		// Use AST for proposals
 		List<Node> methodDefNodes = new ScopedNodeLocator().find(enclosing, new INodeAcceptor()
 		{
@@ -556,8 +625,8 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		}
 
 		// Calculate the type hierarchy
-		Set<String> allTypes = new HashSet<String>();
-		allTypes.add(enclosingTypeName);
+		Map<String, Boolean> allTypes = new HashMap<String, Boolean>();
+		allTypes.put(enclosingTypeName, enclosing instanceof ModuleNode);
 		if (enclosing instanceof ClassNode)
 		{
 			ClassNode classNode = (ClassNode) enclosing;
@@ -568,7 +637,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			{
 				superTypeName = ASTUtils.getFullyQualifiedName(superNode);
 			}
-			allTypes.add(superTypeName);
+			allTypes.put(superTypeName, false);
 			// Need to suggest methods up the hierarchy too...
 			PerformanceStats stats = null;
 			if (PerformanceStats.isEnabled(CALC_SUPER_TYPE_EVENT))
@@ -576,7 +645,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 				stats = PerformanceStats.getStats(CALC_SUPER_TYPE_EVENT, this);
 				stats.startRun(superTypeName);
 			}
-			allTypes.addAll(calculateSuperTypes(superTypeName));
+			allTypes.putAll(calculateSuperTypes(superTypeName));
 			if (stats != null)
 			{
 				stats.endRun();
@@ -594,7 +663,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 				stats = PerformanceStats.getStats(CALC_SUPER_TYPE_EVENT, this);
 				stats.startRun(enclosingTypeName);
 			}
-			allTypes.addAll(calculateSuperTypes(enclosingTypeName));
+			allTypes.putAll(calculateSuperTypes(enclosingTypeName));
 			if (stats != null)
 			{
 				stats.endRun();
@@ -609,7 +678,12 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			stats = PerformanceStats.getStats(METHOD_PROPOSALS_FOR_TYPE_EVENT, this);
 			stats.startRun(allTypes.toString());
 		}
-		proposals.addAll(suggestMethodsForType(allTypes, true, true));
+		// FIXME We want to include private methods for the enclosing type, but not the supertypes! Right now we just
+		// include them all the time
+		Set<String> receiverTypes = new HashSet<String>();
+		receiverTypes.add(enclosingTypeName);
+		proposals
+				.addAll(suggestMethodsForTypes(receiverTypes, allTypes, !includeInstance, includeInstance, true, true));
 		if (stats != null)
 		{
 			stats.endRun();
@@ -623,18 +697,23 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	 * Bulk query the index for all methods starting with prefix on the set of fully qualified type names passed in.
 	 * This generates a complex regexp pattern to use.
 	 * 
+	 * @param receiverTypes
+	 *            Possible receiver types inferred or statically determined.
 	 * @param typeNames
+	 *            Map from type name to boolean indicating if type is a class (false) or module (true)
+	 * @param includeSingleton
 	 * @param includeInstance
 	 * @param includeProtected
 	 * @return
 	 */
 	@SuppressWarnings("nls")
-	private Collection<? extends ICompletionProposal> suggestMethodsForType(Set<String> typeNames,
-			boolean includeInstance, boolean includeProtected)
+	private Collection<? extends ICompletionProposal> suggestMethodsForTypes(Set<String> receiverTypes,
+			Map<String, Boolean> typeNames, boolean includeSingleton, boolean includeInstance,
+			boolean includeProtected, boolean includePrivate)
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 		Set<String> possibles = new HashSet<String>();
-		for (String typeName : typeNames)
+		for (String typeName : typeNames.keySet())
 		{
 			String simpleName = typeName;
 			String namespace = StringUtil.EMPTY;
@@ -648,19 +727,19 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		}
 		StringBuilder keyBuilder = new StringBuilder();
 		// method prefix typed...
-		keyBuilder.append("^");
+		keyBuilder.append('^');
 		keyBuilder.append(fContext.getPartialPrefix());
 		keyBuilder.append("[^/]*?");
 		keyBuilder.append(IRubyIndexConstants.SEPARATOR);
 		// All the possible types
-		keyBuilder.append("(");
+		keyBuilder.append('(');
 		for (String possible : possibles)
 		{
 			keyBuilder.append(possible);
-			keyBuilder.append("|");
+			keyBuilder.append('|');
 		}
 		keyBuilder.deleteCharAt(keyBuilder.length() - 1);
-		keyBuilder.append(")");
+		keyBuilder.append(')');
 		keyBuilder.append(IRubyIndexConstants.SEPARATOR);
 		// visibility
 		keyBuilder.append("(P");
@@ -668,15 +747,25 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		{
 			keyBuilder.append("|R");
 		}
-		keyBuilder.append(")");
+		if (includePrivate)
+		{
+			keyBuilder.append("|V");
+		}
+		keyBuilder.append(')');
 		keyBuilder.append(IRubyIndexConstants.SEPARATOR);
 		// singleton/instance
-		keyBuilder.append("(S");
-		if (includeInstance)
+		if (includeInstance && includeSingleton)
 		{
-			keyBuilder.append("|I");
+			keyBuilder.append("(S|I)");
 		}
-		keyBuilder.append(")");
+		else if (includeInstance)
+		{
+			keyBuilder.append('I');
+		}
+		else if (includeSingleton)
+		{
+			keyBuilder.append('S');
+		}
 		keyBuilder.append(IRubyIndexConstants.SEPARATOR);
 		// Followed by whatever number of args
 		keyBuilder.append("[^/]*$");
@@ -695,12 +784,29 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			}
 			for (QueryResult result : results)
 			{
-				String methodName = getMethodNameFromMethodDefKey(result.getWord());
+
 				String typeNameInKey = getTypeNameFromMethodDefKey(result.getWord());
+
+				if (includeSingleton)
+				{
+					// If type is a module and the method is a singleton,
+					// don't add unless the receiver is that module
+					boolean isModule = typeNames.get(typeNameInKey);
+					boolean isSingletonMethod = isSingletonMethodInKey(result.getWord());
+					if (isSingletonMethod && isModule && !receiverTypes.contains(typeNameInKey))
+					{
+						continue;
+					}
+				}
+
+				String methodName = getMethodNameFromMethodDefKey(result.getWord());
 				Visibility vis = getVisibilityFromMethodDefKey(result.getWord());
 				Image image;
 				switch (vis)
 				{
+					case PRIVATE:
+						image = RubyEditorPlugin.getImage(PRIVATE_METHOD_IMAGE);
+						break;
 					case PROTECTED:
 						image = RubyEditorPlugin.getImage(PROTECTED_METHOD_IMAGE);
 						break;
@@ -715,6 +821,24 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		return proposals;
 	}
 
+	private boolean isSingletonMethodInKey(String word)
+	{
+		String[] parts = word.split(Character.toString(IRubyIndexConstants.SEPARATOR));
+		String singletonOrInstance = parts[4];
+		if (singletonOrInstance != null && singletonOrInstance.length() > 0)
+		{
+			char c = singletonOrInstance.charAt(0);
+			switch (c)
+			{
+				case 'S':
+					return true;
+				case 'I':
+					return false;
+			}
+		}
+		return false;
+	}
+
 	protected Collection<Index> allIndicesForProject()
 	{
 		return RubyIndexUtil.allIndices(getProject());
@@ -722,7 +846,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 
 	private Visibility getVisibilityFromMethodDefKey(String word)
 	{
-		String[] parts = word.split("" + IRubyIndexConstants.SEPARATOR); //$NON-NLS-1$
+		String[] parts = word.split(Character.toString(IRubyIndexConstants.SEPARATOR));
 		String namespace = parts[3];
 		if (namespace != null && namespace.length() > 0)
 		{
@@ -742,7 +866,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 
 	private String getTypeNameFromMethodDefKey(String word)
 	{
-		String[] parts = word.split("" + IRubyIndexConstants.SEPARATOR); //$NON-NLS-1$
+		String[] parts = word.split(Character.toString(IRubyIndexConstants.SEPARATOR));
 		String simpleName = parts[1];
 		String namespace = parts[2];
 		if (namespace != null && namespace.length() > 0)
@@ -778,25 +902,6 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		{
 			String varName = ASTUtils.getName(assign);
 			CommonCompletionProposal proposal = createProposal(varName, RubyEditorPlugin.getImage(CLASS_VAR_IMAGE));
-			proposals.add(proposal);
-		}
-		return proposals;
-	}
-
-	private List<ICompletionProposal> suggestConstants()
-	{
-		Index index = getIndex();
-		List<QueryResult> results = index.query(new String[] { IRubyIndexConstants.CONSTANT_DECL },
-				fContext.getPartialPrefix(), SearchPattern.PREFIX_MATCH | SearchPattern.CASE_SENSITIVE);
-		if (results == null)
-		{
-			return Collections.emptyList();
-		}
-		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
-		for (QueryResult result : results)
-		{
-			CommonCompletionProposal proposal = createProposal(result.getWord(),
-					RubyEditorPlugin.getImage(CONSTANT_IMAGE));
 			proposals.add(proposal);
 		}
 		return proposals;
@@ -908,18 +1013,23 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		return proposal;
 	}
 
-	// Actually generate the list of super types and return them all, so we can query up the hierarchy for methods!
+	/**
+	 * Returns a map containing all the super types mapped to a boolean indicating module (true) or class (false)
+	 * 
+	 * @param typeName
+	 * @return
+	 */
 	@SuppressWarnings("nls")
-	private Set<String> calculateSuperTypes(String typeName)
+	private Map<String, Boolean> calculateSuperTypes(String typeName)
 	{
-		Set<String> typeNames = new HashSet<String>();
+		Map<String, Boolean> typeNames = new HashMap<String, Boolean>();
 		if (typeName == null)
 		{
 			return typeNames;
 		}
-		if (IRubyIndexConstants.OBJECT.equals(typeName))
+		if (IRubyConstants.OBJECT.equals(typeName))
 		{
-			typeNames.add("Kernel");
+			typeNames.put("Kernel", true);
 			return typeNames;
 		}
 		// Break type_name up into type name and namespace...
@@ -932,7 +1042,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			simpleName = typeName.substring(lastDelim + 2);
 		}
 		// For performance reasons we don't recurse on modules
-		Set<String> moduleNames = new HashSet<String>();
+		Map<String, Boolean> moduleNames = new HashMap<String, Boolean>();
 
 		final String key = "^[^/]*" + IRubyIndexConstants.SEPARATOR + "[^/]*" + IRubyIndexConstants.SEPARATOR
 				+ simpleName + IRubyIndexConstants.SEPARATOR + namespace + IRubyIndexConstants.SEPARATOR + ".*$";
@@ -954,23 +1064,23 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 				char classOrModule = result.getWord().charAt(result.getWord().length() - 2);
 				if (IRubyIndexConstants.MODULE_SUFFIX == classOrModule)
 				{
-					moduleNames.add(getTypeNameFromSuperRefKey(result.getWord()));
+					moduleNames.put(getTypeNameFromSuperRefKey(result.getWord()), true);
 				}
 				else
 				{
-					typeNames.add(getTypeNameFromSuperRefKey(result.getWord()));
+					typeNames.put(getTypeNameFromSuperRefKey(result.getWord()), false);
 				}
 			}
 		}
 		trace(MessageFormat.format("Supertypes of {0}: {1}", typeName, typeNames));
 		trace(MessageFormat.format("Included modules: {0}", moduleNames));
 		// Now grab all the supertypes of these super types! RECURSION!!!!1!1!
-		Set<String> typeNamesCopy = new HashSet<String>(typeNames);
-		for (String superType : typeNamesCopy)
+		Map<String, Boolean> typeNamesCopy = new HashMap<String, Boolean>(typeNames);
+		for (String superType : typeNamesCopy.keySet())
 		{
-			typeNames.addAll(calculateSuperTypes(superType));
+			typeNames.putAll(calculateSuperTypes(superType));
 		}
-		typeNames.addAll(moduleNames);
+		typeNames.putAll(moduleNames);
 		return typeNames;
 	}
 

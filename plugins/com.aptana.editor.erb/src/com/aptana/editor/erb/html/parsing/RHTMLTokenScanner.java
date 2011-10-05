@@ -16,30 +16,30 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WordRule;
 
+import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.erb.parsing.lexer.ERBTokens;
 import com.aptana.editor.html.parsing.HTMLTokenScanner;
 
 public class RHTMLTokenScanner extends HTMLTokenScanner
 {
 
-	@SuppressWarnings("nls")
-	private static final String[] RUBY_START = { "<%", "<%=" };
-	@SuppressWarnings("nls")
-	private static final String[] RUBY_END = new String[] { "-%>", "%>" };
+	private static final String[] RUBY_START = { IERBConstants.OPEN_EVALUATE_TAG, IERBConstants.OPEN_INSERT_TAG };
+	private static final String[] RUBY_END = new String[] { IERBConstants.CLOSE_NO_NEWLINE_TAG,
+			IERBConstants.CLOSE_W_NEWLINE_TAG };
 
 	public RHTMLTokenScanner()
 	{
 		List<IRule> rules = new ArrayList<IRule>();
 		// adds rules for finding the ruby start and end sequences
 		WordRule wordRule = new WordRule(new RubyStartDetector(), Token.UNDEFINED);
-		IToken token = createToken(getTokenName(ERBTokens.RUBY));
+		IToken token = createToken(getERBTokenName(ERBTokens.RUBY));
 		for (String word : RUBY_START)
 		{
 			wordRule.addWord(word, token);
 		}
 		rules.add(wordRule);
 		wordRule = new WordRule(new RubyEndDetector(), Token.UNDEFINED);
-		token = createToken(getTokenName(ERBTokens.RUBY_END));
+		token = createToken(getERBTokenName(ERBTokens.RUBY_END));
 		for (String word : RUBY_END)
 		{
 			wordRule.addWord(word, token);
@@ -54,7 +54,7 @@ public class RHTMLTokenScanner extends HTMLTokenScanner
 		setRules(rules.toArray(new IRule[rules.size()]));
 	}
 
-	private static String getTokenName(short token)
+	private static String getERBTokenName(short token)
 	{
 		return ERBTokens.getTokenName(token);
 	}

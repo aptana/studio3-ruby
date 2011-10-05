@@ -552,4 +552,14 @@ public abstract class AbstractVisitor implements NodeVisitor
 	{
 		return visitNode(iVisited);
 	}
+
+	public Object visitBlockArg18Node(BlockArg18Node iVisited)
+	{
+		return visitNode(iVisited);
+	}
+
+	public Object visitLiteralNode(LiteralNode iVisited)
+	{
+		return visitNode(iVisited);
+	}
 }

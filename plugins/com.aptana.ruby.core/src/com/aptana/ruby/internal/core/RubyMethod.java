@@ -74,7 +74,7 @@ public class RubyMethod extends NamedMember implements IRubyMethod
 	{
 		StringBuilder text = new StringBuilder();
 		text.append(getName());
-		text.append("("); //$NON-NLS-1$
+		text.append('(');
 		String[] params = getParameters();
 		for (int i = 0; i < params.length; ++i)
 		{
@@ -84,7 +84,7 @@ public class RubyMethod extends NamedMember implements IRubyMethod
 				text.append(", "); //$NON-NLS-1$
 			}
 		}
-		text.append(")"); //$NON-NLS-1$
+		text.append(')');
 		return text.toString();
 	}
 

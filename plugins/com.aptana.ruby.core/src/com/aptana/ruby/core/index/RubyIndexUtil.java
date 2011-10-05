@@ -1,3 +1,10 @@
+/**
+ * Aptana Studio
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
+ * Please see the license.html included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package com.aptana.ruby.core.index;
 
 import java.util.ArrayList;
@@ -11,8 +18,13 @@ import com.aptana.index.core.IndexManager;
 import com.aptana.ruby.internal.core.index.CoreStubber;
 import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
-public abstract class RubyIndexUtil
+public class RubyIndexUtil
 {
+
+	private RubyIndexUtil()
+	{
+		// util class, avoid instantiation
+	}
 
 	/**
 	 * Returns the project index, ruby core index, the std lib indices and the gem indices.

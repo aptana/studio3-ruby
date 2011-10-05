@@ -17,6 +17,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.ruby.debug.core.model.IEvaluationResult;
 import com.aptana.ruby.debug.core.model.IRubyStackFrame;
 import com.aptana.ruby.debug.core.model.IRubyValue;
@@ -83,7 +84,7 @@ public class ExecuteHandler extends AbstractHandler
 						}
 						catch (DebugException e)
 						{
-							RubyDebugUIPlugin.logError(e);
+							IdeLog.logError(RubyDebugUIPlugin.getDefault(), e);
 						}
 					}
 				}

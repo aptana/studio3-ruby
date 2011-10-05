@@ -31,7 +31,7 @@ public class RHTMLScanner extends HTMLScanner
 	public short getTokenType(Object data)
 	{
 		IScannerSwitchStrategy strategy = getCurrentSwitchStrategy();
-		if (strategy == RUBY_STRATEGY)
+		if (RUBY_STRATEGY.equals(strategy))
 		{
 			if (!isInRuby)
 			{

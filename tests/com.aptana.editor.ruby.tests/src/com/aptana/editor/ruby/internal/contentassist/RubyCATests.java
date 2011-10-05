@@ -11,10 +11,10 @@ public class RubyCATests extends TestCase
 	{
 		TestSuite suite = new TestSuite(RubyCATests.class.getName());
 		// $JUnit-BEGIN$
-		suite.addTestSuite(RubyContentAssistProcessorTest.class);
 		suite.addTestSuite(RubyCommentContentAssistProcessorTest.class);
-		suite.addTestSuite(RubyRegexpContentAssistProcessorTest.class);
+		suite.addTestSuite(RubyContentAssistProcessorTest.class);
 		suite.addTestSuite(RubyDoubleQuotedStringContentAssistProcessorTest.class);
+		suite.addTestSuite(RubyRegexpContentAssistProcessorTest.class);
 		// $JUnit-END$
 		return suite;
 	}

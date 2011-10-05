@@ -19,17 +19,13 @@ import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.text.rules.SingleCharacterRule;
 import com.aptana.editor.common.text.rules.WhitespaceDetector;
+import com.aptana.editor.haml.IHAMLConstants;
 
 public class HAMLElementScanner extends BufferedRuleBasedScanner
 {
-
-	private static final String ENTITY_NAME_TAG_CLASS_HAML = "entity.name.tag.class.haml"; //$NON-NLS-1$
-	private static final String ENTITY_NAME_TAG_ID_HAML = "entity.name.tag.id.haml"; //$NON-NLS-1$
-	private static final String ENTITY_NAME_TAG_HAML = "entity.name.tag.haml"; //$NON-NLS-1$
-	private static final String PUNCTUATION_DEFINITION_TAG_HAML = "punctuation.definition.tag.haml"; //$NON-NLS-1$
-
 	private IToken fLastToken;
 
 	public HAMLElementScanner()
@@ -38,53 +34,16 @@ public class HAMLElementScanner extends BufferedRuleBasedScanner
 
 		// Add generic whitespace rule.
 		rules.add(new WhitespaceRule(new WhitespaceDetector()));
-		rules.add(new SingleCharacterRule('%', createToken(PUNCTUATION_DEFINITION_TAG_HAML)));
+		rules.add(new SingleCharacterRule('%', createToken(IHAMLConstants.PUNCTUATION_DEFINITION_TAG_HAML)));
 
 		// tags
-		WordRule rule = new WordRule(new IWordDetector()
-		{
-			public boolean isWordStart(char c)
-			{
-				return Character.isLetterOrDigit(c);
-			}
-
-			public boolean isWordPart(char c)
-			{
-				return Character.isLetterOrDigit(c) || c == '_' || c == '-';
-			}
-		}, createToken(ENTITY_NAME_TAG_HAML));
-		rules.add(rule);
+		rules.add(new WordRule(new TagDetector(), createToken(IHAMLConstants.ENTITY_NAME_TAG_HAML)));
 
 		// ids
-		rule = new WordRule(new IWordDetector()
-		{
-			public boolean isWordStart(char c)
-			{
-				return c == '#';
-			}
-
-			public boolean isWordPart(char c)
-			{
-				return Character.isLetterOrDigit(c) || c == '_' || c == '-';
-			}
-		}, createToken(ENTITY_NAME_TAG_ID_HAML));
-		rules.add(rule);
+		rules.add(new WordRule(new IDDetector(), createToken(IHAMLConstants.ENTITY_NAME_TAG_ID_HAML)));
 
 		// classes
-		rule = new WordRule(new IWordDetector()
-		{
-
-			public boolean isWordStart(char c)
-			{
-				return c == '.';
-			}
-
-			public boolean isWordPart(char c)
-			{
-				return Character.isLetterOrDigit(c) || c == '_' || c == '-';
-			}
-		}, createToken(ENTITY_NAME_TAG_CLASS_HAML));
-		rules.add(rule);
+		rules.add(new WordRule(new ClassDetector(), createToken(IHAMLConstants.ENTITY_NAME_TAG_CLASS_HAML)));
 
 		setRules(rules.toArray(new IRule[rules.size()]));
 	}
@@ -99,11 +58,11 @@ public class HAMLElementScanner extends BufferedRuleBasedScanner
 	{
 		IToken token = super.nextToken();
 		// If preceding is %, then entity name tag stays, otherwise it's just default token
-		if (token != null && ENTITY_NAME_TAG_HAML.equals(token.getData()))
+		if (token != null && IHAMLConstants.ENTITY_NAME_TAG_HAML.equals(token.getData()))
 		{
-			if (fLastToken == null || !PUNCTUATION_DEFINITION_TAG_HAML.equals(fLastToken.getData()))
+			if (fLastToken == null || !IHAMLConstants.PUNCTUATION_DEFINITION_TAG_HAML.equals(fLastToken.getData()))
 			{
-				token = createToken(""); //$NON-NLS-1$
+				token = createToken(StringUtil.EMPTY);
 			}
 		}
 		fLastToken = token;
@@ -117,4 +76,42 @@ public class HAMLElementScanner extends BufferedRuleBasedScanner
 		fLastToken = null;
 	}
 
+	private static final class TagDetector implements IWordDetector
+	{
+		public boolean isWordStart(char c)
+		{
+			return Character.isLetterOrDigit(c);
+		}
+
+		public boolean isWordPart(char c)
+		{
+			return Character.isLetterOrDigit(c) || c == '_' || c == '-';
+		}
+	}
+
+	private static final class IDDetector implements IWordDetector
+	{
+		public boolean isWordStart(char c)
+		{
+			return c == '#';
+		}
+
+		public boolean isWordPart(char c)
+		{
+			return Character.isLetterOrDigit(c) || c == '_' || c == '-';
+		}
+	}
+
+	private static final class ClassDetector implements IWordDetector
+	{
+		public boolean isWordStart(char c)
+		{
+			return c == '.';
+		}
+
+		public boolean isWordPart(char c)
+		{
+			return Character.isLetterOrDigit(c) || c == '_' || c == '-';
+		}
+	}
 }

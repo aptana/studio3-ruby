@@ -12,37 +12,44 @@ import com.aptana.editor.common.PartitionerSwitchStrategy;
 
 /**
  * @author Max Stepanov
- *
  */
-public class ERBPartitionerSwitchStrategy extends PartitionerSwitchStrategy {
+public class ERBPartitionerSwitchStrategy extends PartitionerSwitchStrategy
+{
 
 	private static ERBPartitionerSwitchStrategy instance;
-	
-	private static final String[][] ERB_PAIRS = new String[][] {
-		{ "<%=", "-%>" }, //$NON-NLS-1$ //$NON-NLS-2$
-		{ "<%=", "%>" }, //$NON-NLS-1$ //$NON-NLS-2$
-		{ "<%", "-%>" }, //$NON-NLS-1$ //$NON-NLS-2$
-		{ "<%", "%>" } //$NON-NLS-1$ //$NON-NLS-2$
+
+	// @formatter:off
+	private static final String[][] ERB_PAIRS = new String[][] { 
+		{ IERBConstants.OPEN_INSERT_TAG, IERBConstants.CLOSE_NO_NEWLINE_TAG },
+		{ IERBConstants.OPEN_INSERT_TAG, IERBConstants.CLOSE_W_NEWLINE_TAG },
+		{ IERBConstants.OPEN_EVALUATE_TAG, IERBConstants.CLOSE_NO_NEWLINE_TAG },
+		{ IERBConstants.OPEN_EVALUATE_TAG, IERBConstants.CLOSE_W_NEWLINE_TAG }
 	};
-	
+	// @formatter:on
+
 	/**
 	 * 
 	 */
-	private ERBPartitionerSwitchStrategy() {
+	private ERBPartitionerSwitchStrategy()
+	{
 		super(ERB_PAIRS);
 	}
-	
-	public static ERBPartitionerSwitchStrategy getDefault() {
-		if (instance == null) {
+
+	public synchronized static ERBPartitionerSwitchStrategy getDefault()
+	{
+		if (instance == null)
+		{
 			instance = new ERBPartitionerSwitchStrategy();
 		}
 		return instance;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see com.aptana.editor.common.IPartitionerSwitchStrategy#getSwitchTagPairs()
 	 */
-	public String[][] getSwitchTagPairs() {
+	public String[][] getSwitchTagPairs()
+	{
 		return ERB_PAIRS;
 	}
 

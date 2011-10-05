@@ -50,10 +50,7 @@ public class RubyType extends NamedMember implements IRubyType
 	{
 		IRubyElement[] elements = getChildrenOfType(IRubyElement.METHOD);
 		IRubyMethod[] methods = new IRubyMethod[elements.length];
-		for (int i = 0; i < elements.length; ++i)
-		{
-			methods[i] = (IRubyMethod) elements[i];
-		}
+		System.arraycopy(elements, 0, methods, 0, elements.length);
 		return methods;
 	}
 

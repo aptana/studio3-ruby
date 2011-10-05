@@ -10,6 +10,7 @@ import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.editors.text.ILocationProvider;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.ruby.debug.ui.RubyDebugUIPlugin;
 
 /**
@@ -91,7 +92,7 @@ public class StorageEditorInput implements IStorageEditorInput, ILocationProvide
 		}
 		catch (CoreException e)
 		{
-			RubyDebugUIPlugin.logError(e);
+			IdeLog.logError(RubyDebugUIPlugin.getDefault(), e);
 		}
 		return false;
 	}

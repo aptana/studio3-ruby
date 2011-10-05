@@ -15,11 +15,13 @@ public class BasicTypeGuess implements ITypeGuess
 {
 	private String type;
 	private int confidence;
+	private boolean isClass;
 
-	public BasicTypeGuess(String type, int confidence)
+	public BasicTypeGuess(String type, int confidence, boolean isClass)
 	{
 		this.type = type;
 		this.confidence = confidence;
+		this.isClass = isClass;
 	}
 
 	public int getConfidence()
@@ -37,6 +39,16 @@ public class BasicTypeGuess implements ITypeGuess
 		return type;
 	}
 
+	public Boolean isModule()
+	{
+		return !isClass();
+	}
+
+	public Boolean isClass()
+	{
+		return isClass;
+	}
+
 	public String toString()
 	{
 		return MessageFormat.format("<{0}: {1}%>", type, confidence); //$NON-NLS-1$
@@ -45,17 +57,44 @@ public class BasicTypeGuess implements ITypeGuess
 	@Override
 	public int hashCode()
 	{
-		return toString().hashCode();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + confidence;
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj)
 	{
-		if (obj instanceof BasicTypeGuess)
+		if (this == obj)
 		{
-			BasicTypeGuess other = (BasicTypeGuess) obj;
-			return toString().equals(other.toString());
+			return true;
 		}
-		return false;
+		if (obj == null)
+		{
+			return false;
+		}
+		if (!(obj instanceof BasicTypeGuess))
+		{
+			return false;
+		}
+		BasicTypeGuess other = (BasicTypeGuess) obj;
+		if (confidence != other.confidence)
+		{
+			return false;
+		}
+		if (type == null)
+		{
+			if (other.type != null)
+			{
+				return false;
+			}
+		}
+		else if (!type.equals(other.type))
+		{
+			return false;
+		}
+		return true;
 	}
 }

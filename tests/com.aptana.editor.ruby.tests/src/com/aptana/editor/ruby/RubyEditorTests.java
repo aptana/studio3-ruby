@@ -14,9 +14,9 @@ public class RubyEditorTests extends TestCase
 		suite.addTestSuite(RubyCodeScannerTest.class);
 		suite.addTestSuite(RubyEditorTest.class);
 		suite.addTestSuite(RubyRegexScannerTest.class);
+		suite.addTestSuite(RubySourceConfigurationTest.class);
 		suite.addTestSuite(RubySourcePartitionScannerTest.class);
 		suite.addTestSuite(RubyTokenScannerTest.class);
-		suite.addTestSuite(RubySourceConfigurationTest.class);
 		// $JUnit-END$
 		return suite;
 	}

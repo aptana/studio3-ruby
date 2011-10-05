@@ -10,6 +10,7 @@ package com.aptana.ruby.internal.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
 import com.aptana.ruby.core.IRubyConstants;
@@ -18,7 +19,7 @@ import com.aptana.ruby.core.IRubyElement;
 public abstract class RubyElement extends ParseNode implements IRubyElement
 {
 
-	private static final String EMPTY = ""; //$NON-NLS-1$
+	private static final String EMPTY = StringUtil.EMPTY;
 	private int occurrenceCount = 1;
 
 	protected RubyElement()
@@ -26,7 +27,7 @@ public abstract class RubyElement extends ParseNode implements IRubyElement
 		super(IRubyConstants.CONTENT_TYPE_RUBY);
 	}
 
-	public RubyElement(int start, int end)
+	protected RubyElement(int start, int end)
 	{
 		super(IRubyConstants.CONTENT_TYPE_RUBY);
 		this.setLocation(start, end);
@@ -86,9 +87,13 @@ public abstract class RubyElement extends ParseNode implements IRubyElement
 	public boolean equals(Object obj)
 	{
 		if (!super.equals(obj))
+		{
 			return false;
+		}
 		if (!(obj instanceof RubyElement))
+		{
 			return false;
+		}
 
 		return getName().equals(((RubyElement) obj).getName());
 	}

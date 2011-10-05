@@ -37,6 +37,7 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugUIConstants;
 
 import com.aptana.core.ShellExecutable;
+import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.ProcessUtil;
 import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
@@ -103,7 +104,7 @@ public class RakeTasksHelper implements IRakeHelper
 				args.add(param);
 			}
 		}
-		return ProcessUtil.runInBackground(rubyExe == null ? RUBY_EXE_NAME : rubyExe.toOSString(), wd, env,
+		return ProcessUtil.runInBackground((rubyExe == null) ? RUBY_EXE_NAME : rubyExe.toOSString(), wd, env,
 				args.toArray(new String[args.size()]));
 	}
 
@@ -121,6 +122,11 @@ public class RakeTasksHelper implements IRakeHelper
 			if (workingDir != null)
 			{
 				return project.getLocation().append(workingDir);
+			}
+			if (IdeLog.isWarningEnabled(RakePlugin.getDefault(), null))
+			{
+				IdeLog.logWarning(RakePlugin.getDefault(),
+						"Failed to find parent of Rakefile to use as working dir for project: " + project.getName()); //$NON-NLS-1$
 			}
 		}
 		catch (CoreException e)
@@ -162,13 +168,13 @@ public class RakeTasksHelper implements IRakeHelper
 		{
 			return Collections.emptyMap();
 		}
-
+		BufferedReader bufReader = null;
 		try
 		{
-			BufferedReader bufReader = new BufferedReader(new StringReader(getTasksText(project)));
+			bufReader = new BufferedReader(new StringReader(getTasksText(project)));
 			String line = null;
 			Map<String, String> tasks = new HashMap<String, String>();
-			while ((line = bufReader.readLine()) != null)
+			while ((line = bufReader.readLine()) != null) // $codepro.audit.disable assignmentInCondition
 			{
 				Matcher mat = RAKE_TASK_PATTERN.matcher(line);
 				if (mat.matches())
@@ -182,6 +188,20 @@ public class RakeTasksHelper implements IRakeHelper
 		{
 			RakePlugin.log("Error parsing rake tasks", e); //$NON-NLS-1$
 			return Collections.emptyMap();
+		}
+		finally
+		{
+			if (bufReader != null)
+			{
+				try
+				{
+					bufReader.close();
+				}
+				catch (final IOException e) // $codepro.audit.disable emptyCatchClause
+				{
+					// ignore
+				}
+			}
 		}
 		return fCachedTasks.get(project);
 	}
@@ -265,14 +285,14 @@ public class RakeTasksHelper implements IRakeHelper
 		List<ILaunchConfiguration> candidateConfigs = new ArrayList<ILaunchConfiguration>(configs.length);
 		for (ILaunchConfiguration config : configs)
 		{
-			boolean absoluteFilenamesMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_FILE_NAME, "") //$NON-NLS-1$
-					.equals(rakeScriptPath);
+			boolean absoluteFilenamesMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_FILE_NAME,
+					StringUtil.EMPTY).equals(rakeScriptPath);
 			if (!absoluteFilenamesMatch)
 			{
 				continue;
 			}
-			boolean argsMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, "") //$NON-NLS-1$
-					.equals(args.toString());
+			boolean argsMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS,
+					StringUtil.EMPTY).equals(args.toString());
 			if (!argsMatch)
 			{
 				continue;

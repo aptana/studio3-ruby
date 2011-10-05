@@ -9,6 +9,7 @@ package com.aptana.editor.erb.html.parsing;
 
 import java.io.IOException;
 
+import beaver.Scanner.Exception;
 import beaver.Symbol;
 
 import com.aptana.editor.common.parsing.CompositeParser;
@@ -24,13 +25,16 @@ import com.aptana.ruby.core.IRubyScript;
 public class RHTMLParser extends CompositeParser
 {
 
+	// TODO Move to constants in parsing plugin and re-use
+	private static final ParseNode[] NO_PARSE_NODES = new ParseNode[0];
+
 	public RHTMLParser()
 	{
 		super(new RHTMLParserScanner(), IHTMLConstants.CONTENT_TYPE_HTML);
 	}
 
 	@Override
-	protected IParseNode processEmbeddedlanguage(IParseState parseState) throws Exception
+	protected IParseNode processEmbeddedlanguage(IParseState parseState) throws IOException, Exception
 	{
 		String source = new String(parseState.getSource());
 		int startingOffset = parseState.getStartingOffset();
@@ -46,7 +50,7 @@ public class RHTMLParser extends CompositeParser
 				case ERBTokens.RUBY:
 					if (root == null)
 					{
-						root = new ParseRootNode(IRubyConstants.CONTENT_TYPE_RUBY, new ParseNode[0], startingOffset,
+						root = new ParseRootNode(IRubyConstants.CONTENT_TYPE_RUBY, NO_PARSE_NODES, startingOffset,
 								startingOffset + source.length() - 1);
 					}
 					processRubyBlock(root);
@@ -58,7 +62,7 @@ public class RHTMLParser extends CompositeParser
 		return root;
 	}
 
-	private void processRubyBlock(IParseNode root) throws IOException, Exception
+	private void processRubyBlock(IParseNode root) throws IOException, beaver.Scanner.Exception
 	{
 		Symbol startTag = getCurrentSymbol();
 		advance();

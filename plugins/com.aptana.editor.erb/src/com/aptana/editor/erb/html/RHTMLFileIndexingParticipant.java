@@ -1,3 +1,10 @@
+/**
+ * Aptana Studio
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
+ * Please see the license.html included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package com.aptana.editor.erb.html;
 
 import java.text.MessageFormat;
@@ -48,7 +55,7 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 		}
 		catch (Throwable e)
 		{
-			IdeLog.logError(ERBEditorPlugin.getDefault(), e.getMessage(), e);
+			IdeLog.logError(ERBEditorPlugin.getDefault(), e);
 		}
 		finally
 		{
@@ -110,7 +117,7 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 			// code
 			// replace from end of last code piece to beginning of next with
 			// spaces for any non-whitespace characters in between
-			if (codeFragment.startsWith("#")) //$NON-NLS-1$
+			if (codeFragment.length() > 0 && codeFragment.charAt(0) == '#')
 			{
 				codeFragment = fillWithWhitespace(codeFragment);
 				dontIncludeSemicolon = true;

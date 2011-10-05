@@ -12,6 +12,7 @@ import org.jrubyparser.ast.CommentNode;
 import com.aptana.parsing.ast.ParseNode;
 import com.aptana.ruby.core.IRubyComment;
 import com.aptana.ruby.core.IRubyConstants;
+import com.aptana.ruby.core.IRubyElement;
 
 public class RubyComment extends ParseNode implements IRubyComment
 {
@@ -20,6 +21,18 @@ public class RubyComment extends ParseNode implements IRubyComment
 	{
 		super(IRubyConstants.CONTENT_TYPE_RUBY);
 		setLocation(commentNode.getPosition().getStartOffset(), commentNode.getPosition().getEndOffset());
+	}
+
+	@Override
+	public short getNodeType()
+	{
+		return IRubyElement.COMMENT;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "COMMENT"; //$NON-NLS-1$
 	}
 
 }

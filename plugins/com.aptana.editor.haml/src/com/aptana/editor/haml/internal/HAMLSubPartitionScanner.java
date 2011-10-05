@@ -14,7 +14,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 import com.aptana.editor.common.IPartitionScannerSwitchStrategy;
-import com.aptana.editor.common.IPartitionScannerSwitchStrategy.SequenceBypassHandler;
+import com.aptana.editor.common.IPartitionScannerSwitchStrategy.ISequenceBypassHandler;
 import com.aptana.editor.common.PartitionScannerSwitchStrategy;
 import com.aptana.editor.common.TextUtils;
 import com.aptana.editor.common.text.rules.CompositeSubPartitionScanner;
@@ -32,13 +32,13 @@ public class HAMLSubPartitionScanner extends CompositeSubPartitionScanner
 	private static final int TYPE_RUBY_EVALUATION = 1;
 	private static final int TYPE_RUBY_ATTRIBUTES = 2;
 
-	private static final String[] RUBY_EVALUATION_SWITCH_SEQUENCES = new String[] { "\n" }; //$NON-NLS-1$
+	private static final String[] RUBY_EVALUATION_SWITCH_SEQUENCES = new String[] { "\r\n", "\n", "\r" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ // $codepro.audit.disable platformSpecificLineSeparator
 	private static final String[] RUBY_ATTRIBUTES_SWITCH_SEQUENCES = new String[] { "}" }; //$NON-NLS-1$
 
 	private static final char COMMA = ',';
 	private static final char VERTICAL = '|';
 
-	private static final SequenceBypassHandler RUBY_BYPASS_HANDLER = new SequenceBypassHandler()
+	private static final ISequenceBypassHandler RUBY_BYPASS_HANDLER = new ISequenceBypassHandler()
 	{
 		public boolean bypassSequence(ICharacterScanner characterScanner, char[] sequenceFound)
 		{
@@ -70,7 +70,7 @@ public class HAMLSubPartitionScanner extends CompositeSubPartitionScanner
 							{
 								if (c == sequence[0] && TextUtils.sequenceDetected(characterScanner, sequence, false))
 								{
-									return (VERTICAL == previous);
+									return VERTICAL == previous;
 								}
 							}
 							previous = c;

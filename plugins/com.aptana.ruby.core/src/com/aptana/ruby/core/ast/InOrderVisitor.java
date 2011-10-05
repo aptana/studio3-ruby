@@ -838,4 +838,16 @@ public class InOrderVisitor extends AbstractVisitor
 		}
 		return null;
 	}
+
+	public Object visitBlockArg18Node(BlockArg18Node iVisited)
+	{
+		handleNode(iVisited);
+		return super.visitBlockArg18Node(iVisited);
+	}
+
+	public Object visitLiteralNode(LiteralNode iVisited)
+	{
+		handleNode(iVisited);
+		return super.visitLiteralNode(iVisited);
+	}
 }

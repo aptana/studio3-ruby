@@ -69,11 +69,11 @@ public class ResolutionTargetHyperlink implements IHyperlink
 		}
 		catch (CoreException e)
 		{
-			IdeLog.logError(RubyEditorPlugin.getDefault(), e.getMessage(), e);
+			IdeLog.logError(RubyEditorPlugin.getDefault(), e);
 		}
 	}
 
-	private void setEditorToRange(IEditorPart editorPart) throws CoreException
+	private void setEditorToRange(IEditorPart editorPart)
 	{
 		if (!(editorPart instanceof ITextEditor))
 		{
@@ -105,7 +105,7 @@ public class ResolutionTargetHyperlink implements IHyperlink
 		{
 			return false;
 		}
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof ResolutionTargetHyperlink))
 		{
 			return false;
 		}

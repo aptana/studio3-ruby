@@ -2,6 +2,7 @@ package com.aptana.ruby.internal.debug.core.parsing;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.RubyDebugCorePlugin;
 
 @SuppressWarnings("nls")
@@ -40,7 +41,7 @@ public class ExceptionBreakpointModificationReader extends XmlStreamReader
 		boolean result = false;
 		if (xpp.getName().equals("catchpointSet"))
 		{
-			exception = xpp.getAttributeValue("", "exception");
+			exception = xpp.getAttributeValue(StringUtil.EMPTY, "exception");
 			result = true;
 		}
 		else if (xpp.getName().equals("error"))
