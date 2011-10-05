@@ -20,6 +20,7 @@ import org.jrubyparser.parser.ParserResult;
 
 import com.aptana.core.resources.TaskTag;
 import com.aptana.core.util.IOUtil;
+import com.aptana.core.util.StringUtil;
 import com.aptana.index.core.AbstractFileIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.parsing.IParserPool;
@@ -122,7 +123,7 @@ public class RubyFileIndexingParticipant extends AbstractFileIndexingParticipant
 			{
 				text = text.toLowerCase();
 			}
-			String[] lines = text.split("\r\n|\r|\n"); //$NON-NLS-1$ // $codepro.audit.disable platformSpecificLineSeparator
+			String[] lines = StringUtil.LINE_SPLITTER.split(text);
 			for (String line : lines)
 			{
 				for (TaskTag entry : TaskTag.getTaskTags())
