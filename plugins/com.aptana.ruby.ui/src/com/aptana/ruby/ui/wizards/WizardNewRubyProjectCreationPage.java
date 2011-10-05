@@ -62,6 +62,7 @@ import org.eclipse.ui.internal.ide.IIDEHelpContextIds;
 import org.eclipse.ui.internal.ide.dialogs.IDEResourceInfoUtils;
 
 import com.aptana.core.util.StringUtil;
+import com.aptana.projects.internal.wizards.AbstractNewProjectWizard;
 import com.aptana.projects.internal.wizards.IWizardProjectCreationPage;
 import com.aptana.ui.util.SWTUtils;
 import com.aptana.ui.util.UIUtils;
@@ -470,7 +471,7 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 		createGitLocationComposite(projectGenerationControls);
 
 		noGenerator = new Button(projectGenerationControls, SWT.RADIO);
-		if (getWizard().getPage(NewRubyProjectWizard.TEMPLATE_SELECTION_PAGE_NAME) != null)
+		if (getWizard().getPage(AbstractNewProjectWizard.TEMPLATE_SELECTION_PAGE_NAME) != null)
 		{
 			// we have a project-templates page
 			noGenerator.setText(Messages.WizardNewProjectCreationPage_NoGeneratorText2);

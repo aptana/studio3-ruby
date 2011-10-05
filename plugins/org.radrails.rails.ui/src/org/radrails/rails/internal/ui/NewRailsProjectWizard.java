@@ -8,7 +8,7 @@
 package org.radrails.rails.internal.ui;
 
 import java.io.File;
-import java.util.Map;
+import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -30,8 +30,6 @@ import com.aptana.ruby.core.RubyProjectNature;
 import com.aptana.ruby.ui.wizards.NewRubyProjectWizard;
 import com.aptana.ruby.ui.wizards.WizardNewRubyProjectCreationPage;
 import com.aptana.terminal.views.TerminalView;
-import com.aptana.usage.FeatureEvent;
-import com.aptana.usage.StudioAnalytics;
 
 /**
  * Rails project wizard
@@ -40,6 +38,8 @@ import com.aptana.usage.StudioAnalytics;
  */
 public class NewRailsProjectWizard extends NewRubyProjectWizard
 {
+
+	private boolean runGenerator;
 
 	/*
 	 * (non-Javadoc)
@@ -73,9 +73,16 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 		return new String[] { RailsProjectNature.ID, RubyProjectNature.ID };
 	}
 
-	protected TemplateType[] getTemplateTypes()
+	@Override
+	protected TemplateType[] getProjectTemplateTypes()
 	{
 		return new TemplateType[] { TemplateType.RAILS };
+	}
+
+	@Override
+	protected String getProjectCreateEventName()
+	{
+		return "project.create.rails"; //$NON-NLS-1$
 	}
 
 	@Override
@@ -84,28 +91,31 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 		// HACK I have to query for this here, because otherwise when we generate the project somehow the fields get
 		// focus and that auto changes the radio selection value for generation
 		IWizardPage page = getStartingPage();
-		boolean runGenerator = false;
+		runGenerator = false;
 		if (page instanceof WizardNewRailsProjectCreationPage)
 		{
 			WizardNewRailsProjectCreationPage railsPage = (WizardNewRailsProjectCreationPage) page;
 			runGenerator = railsPage.runGenerator();
 		}
-
-		if (!super.performFinish())
-		{
-			return false;
-		}
-
-		if (runGenerator)
-			runGenerator();
-
-		return true;
+		return super.performFinish();
 	}
 
-	private void runGenerator()
+	@Override
+	protected IProject createNewProject(IProgressMonitor monitor) throws InvocationTargetException
+	{
+		SubMonitor sub = SubMonitor.convert(monitor, 100);
+		IProject project = super.createNewProject(sub.newChild(90));
+		if (runGenerator)
+		{
+			runGenerator(sub.newChild(10));
+		}
+		return project;
+	}
+
+	private void runGenerator(IProgressMonitor monitor)
 	{
 		// Pop open a confirmation dialog if the project already has a config/environment.rb file!
-		final IProject project = mainPage.getProjectHandle();
+		final IProject project = newProject;
 		File projectFile = project.getLocation().toFile();
 		File env = new File(projectFile, "config" + File.separator + "environment.rb"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (env.exists())
@@ -121,7 +131,9 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 			{
 				SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 				if (subMonitor.isCanceled())
+				{
 					return Status.CANCEL_STATUS;
+				}
 
 				// Now launch the rails command in a terminal!
 				TerminalView terminal = TerminalView.openView(project.getName(), project.getName(),
@@ -169,11 +181,5 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 			return lastPart.endsWith("beta4");
 		}
 		return true;
-	}
-	
-	@Override
-	protected void sendProjectCreateEvent(Map<String, String> payload)
-	{
-		StudioAnalytics.getInstance().sendEvent(new FeatureEvent("project.create.rails", payload)); //$NON-NLS-1$
 	}
 }
