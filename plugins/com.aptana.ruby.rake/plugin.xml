@@ -25,10 +25,16 @@
 		                     ifEmpty="false">
 		                  <adapt
 		                        type="org.eclipse.core.resources.IResource">
-		                     <test
-		                           property="com.aptana.ruby.rake.hasRakefile"
-		                           value="true">
-		                     </test>
+                       <and>
+                          <test
+                                property="org.eclipse.core.resources.projectNature"
+                                value="com.aptana.ruby.core.rubynature">
+                          </test>
+                          <test
+                                property="com.aptana.ruby.rake.hasRakefile"
+                                value="true">
+                          </test>
+                       </and>
 		                  </adapt>
 		               </iterate>
 		            </with>
@@ -38,10 +44,16 @@
 		                     ifEmpty="false">
 		                  <adapt
 		                        type="org.eclipse.core.resources.IResource">
-		                     <test
-		                           property="com.aptana.ruby.rake.hasRakefile"
-		                           value="true">
-		                     </test>
+		                     <and>
+                          <test
+                                property="org.eclipse.core.resources.projectNature"
+                                value="com.aptana.ruby.core.rubynature">
+                          </test>
+                          <test
+                                property="com.aptana.ruby.rake.hasRakefile"
+                                value="true">
+                          </test>
+                       </and>
 		                  </adapt>
 		               </iterate>
 		            </with>
@@ -51,10 +63,16 @@
 		                     ifEmpty="false">
 		                  <adapt
 		                        type="org.eclipse.core.resources.IResource">
-		                     <test
-		                           property="com.aptana.ruby.rake.hasRakefile"
-		                           value="true">
-		                     </test>
+		                     <and>
+                          <test
+                                property="org.eclipse.core.resources.projectNature"
+                                value="com.aptana.ruby.core.rubynature">
+                          </test>
+                          <test
+                                property="com.aptana.ruby.rake.hasRakefile"
+                                value="true">
+                          </test>
+                       </and>
 		                  </adapt>
 		               </iterate>
 		            </with>
