@@ -13,6 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -162,8 +163,12 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 	@SuppressWarnings("nls")
 	protected boolean requiresNewArgToGenerateApp(IProject project)
 	{
-		IStatus result = RailsCorePlugin.runRailsInBackground(project.getLocation(), ShellExecutable.getEnvironment(),
-				"-v");
+		Map<String, String> env = null;
+		if (!Platform.OS_WIN32.equals(Platform.getOS()))
+		{
+			env = ShellExecutable.getEnvironment();
+		}
+		IStatus result = RailsCorePlugin.runRailsInBackground(project.getLocation(), env, "-v");
 		if (result == null || !result.isOK())
 		{
 			return false;

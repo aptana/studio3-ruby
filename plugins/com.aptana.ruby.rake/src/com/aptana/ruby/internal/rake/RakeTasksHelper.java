@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -92,7 +93,16 @@ public class RakeTasksHelper implements IRakeHelper
 
 		IPath wd = getWorkingDirectory(project);
 		IPath rubyExe = RubyLaunchingPlugin.rubyExecutablePath(wd);
-		Map<String, String> env = modifyEnv(ShellExecutable.getEnvironment(wd), arguments);
+		Map<String, String> env;
+		if (!Platform.OS_WIN32.equals(Platform.getOS()))
+		{
+			env = ShellExecutable.getEnvironment(wd);
+		}
+		else
+		{
+			env = new HashMap<String, String>();
+		}
+		env = modifyEnv(env, arguments);
 
 		List<String> args = new ArrayList<String>();
 		args.add(RakePlugin.getDefault().getRakePath(project));
