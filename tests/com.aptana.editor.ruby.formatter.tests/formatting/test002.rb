@@ -300,7 +300,7 @@ class Account < ActiveRecord::Base
   def ensure_owner_is_admin
     account_owner = self.memberships.find_by_user_id(self.owner)
     if !account_owner.admin?
-    account_owner.update_attribute(:admin, true)
+      account_owner.update_attribute(:admin, true)
     end
   end
 

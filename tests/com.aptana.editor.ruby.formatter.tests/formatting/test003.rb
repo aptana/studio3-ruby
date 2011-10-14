@@ -52,7 +52,7 @@ module Alpha
   class Beta
     def main(a)
       if a % 2 == 0
-      print "even"
+        print "even"
       end
       # @formatter:off
               case a % 2
