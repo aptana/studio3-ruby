@@ -459,8 +459,14 @@ public class CoreStubber extends Job
 		URL url = FileLocator.find(RubyCorePlugin.getDefault().getBundle(), new Path(CORE_STUBBER_PATH), null);
 		File stubberScript = ResourceUtil.resourcePathToFile(url);
 
+		Map<String, String> env = null;
+		if (!Platform.OS_WIN32.equals(Platform.getOS()))
+		{
+			env = ShellExecutable.getEnvironment();
+		}
+
 		IStatus stubberResult = ProcessUtil.runInBackground((rubyExe == null) ? "ruby" : rubyExe.toOSString(), null, //$NON-NLS-1$
-				ShellExecutable.getEnvironment(), stubberScript.getAbsolutePath(), outputDir.getAbsolutePath());
+				env, stubberScript.getAbsolutePath(), outputDir.getAbsolutePath());
 		if (stubberResult == null || !stubberResult.isOK())
 		{
 			RubyCorePlugin

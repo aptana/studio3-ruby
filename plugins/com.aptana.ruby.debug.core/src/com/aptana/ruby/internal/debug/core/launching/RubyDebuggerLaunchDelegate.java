@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -270,7 +271,11 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 	private String[] getEnvironment(ILaunchConfiguration configuration) throws CoreException
 	{
 		Map<String, String> env = new HashMap<String, String>();
-		env.putAll(ShellExecutable.getEnvironment(getWorkingDirectory(configuration)));
+		// Only grab shell environment if we're not on Windows. This isn't running inside cygwin!
+		if (!Platform.OS_WIN32.equals(Platform.getOS()))
+		{
+			env.putAll(ShellExecutable.getEnvironment(getWorkingDirectory(configuration)));
+		}
 		String[] envp = DebugPlugin.getDefault().getLaunchManager().getEnvironment(configuration);
 		if (envp != null)
 		{

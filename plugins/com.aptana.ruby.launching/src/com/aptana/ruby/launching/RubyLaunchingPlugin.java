@@ -148,8 +148,13 @@ public class RubyLaunchingPlugin extends Plugin
 		String rubyExe = (rubyPath == null ? RUBY : rubyPath.toOSString());
 		if (!rubyToLoadPaths.containsKey(rubyExe))
 		{
-			String rawLoadPathOutput = ProcessUtil.outputForCommand(rubyExe, null,
-					ShellExecutable.getEnvironment(workingDir), "-e", "puts $:"); //$NON-NLS-1$ //$NON-NLS-2$
+			Map<String, String> env = null;
+			if (!Platform.OS_WIN32.equals(Platform.getOS()))
+			{
+				env = ShellExecutable.getEnvironment(workingDir);
+			}
+
+			String rawLoadPathOutput = ProcessUtil.outputForCommand(rubyExe, null, env, "-e", "puts $:"); //$NON-NLS-1$ //$NON-NLS-2$
 			if (rawLoadPathOutput == null)
 			{
 				rubyToLoadPaths.put(rubyExe, null);
@@ -210,14 +215,19 @@ public class RubyLaunchingPlugin extends Plugin
 			}
 			// FIXME Will this actually behave properly with RVM?
 			// FIXME Not finding my user gem path on Windows...
-			IStatus status = ProcessUtil.runInBackground(rubyPathString, wd, ShellExecutable.getEnvironment(wd),
-					gemCommand, "env", "gempath"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			Map<String, String> env = null;
+			if (!Platform.OS_WIN32.equals(Platform.getOS()))
+			{
+				env = ShellExecutable.getEnvironment(wd);
+			}
+			IStatus status = ProcessUtil.runInBackground(rubyPathString, wd, env, gemCommand, "env", "gempath"); //$NON-NLS-1$ //$NON-NLS-2$
 			String gemEnvOutput = null;
 			if (status.isOK())
 			{
 				gemEnvOutput = status.getMessage();
 			}
-			
+
 			if (gemEnvOutput == null)
 			{
 				rubyToGemPaths.put(rubyPathString, null);
@@ -314,7 +324,13 @@ public class RubyLaunchingPlugin extends Plugin
 		if (!pathToVersion.containsKey(rubyExe))
 		{
 			String rubyPath = (rubyExe == null ? RUBY : rubyExe.toOSString());
-			String version = ProcessUtil.outputForCommand(rubyPath, null, ShellExecutable.getEnvironment(), "-v"); //$NON-NLS-1$
+
+			Map<String, String> env = null;
+			if (!Platform.OS_WIN32.equals(Platform.getOS()))
+			{
+				env = ShellExecutable.getEnvironment();
+			}
+			String version = ProcessUtil.outputForCommand(rubyPath, null, env, "-v"); //$NON-NLS-1$
 			pathToVersion.put(rubyExe, version);
 		}
 		return pathToVersion.get(rubyExe);
