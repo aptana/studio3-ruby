@@ -9,6 +9,7 @@ package org.radrails.rails.internal.ui;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
