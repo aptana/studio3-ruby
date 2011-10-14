@@ -1018,9 +1018,9 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 	{
 		int startOffset = position.getStartOffset();
 		int endOffset = position.getEndOffset();
-		if (startOffset > endOffset)
+		if (startOffset < endOffset)
 		{
-			pushTextNode(startOffset + 1, endOffset);
+			pushTextNode(startOffset, endOffset);
 		}
 	}
 

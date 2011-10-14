@@ -145,8 +145,8 @@ module Rails
   class << self
     def boot!
       unless booted?
-      preinitialize
-      pick_boot.run
+        preinitialize
+        pick_boot.run
       end
     end
 
@@ -195,9 +195,9 @@ module Rails
 
     def load_rails_gem
       if version = self.class.gem_version
-      gem 'rails', version
+        gem 'rails', version
       else
-      gem 'rails'
+        gem 'rails'
       end
     rescue Gem::LoadError => load_error
       $stderr.puts %(Missing the Rails #{version} gem. Please `gem install -v=#{version} rails`, update your RAILS_GEM_VERSION setting in config/environment.rb for the Rails version you do have installed, or comment out RAILS_GEM_VERSION to use the latest version installed.)
@@ -211,11 +211,11 @@ module Rails
 
       def gem_version
         if defined? RAILS_GEM_VERSION
-        RAILS_GEM_VERSION
+          RAILS_GEM_VERSION
         elsif ENV.include?('RAILS_GEM_VERSION')
-        ENV['RAILS_GEM_VERSION']
+          ENV['RAILS_GEM_VERSION']
         else
-        parse_gem_version(read_environment_rb)
+          parse_gem_version(read_environment_rb)
         end
       end
 
@@ -223,8 +223,8 @@ module Rails
         min_version = '1.3.2'
         require 'rubygems'
         unless rubygems_version >= min_version
-        $stderr.puts %Q(Rails requires RubyGems >= #{min_version} (you have #{rubygems_version}). Please `gem update --system` and try again.)
-        exit 1
+          $stderr.puts %Q(Rails requires RubyGems >= #{min_version} (you have #{rubygems_version}). Please `gem update --system` and try again.)
+          exit 1
         end
 
       rescue LoadError
