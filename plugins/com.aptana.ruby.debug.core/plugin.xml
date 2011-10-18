@@ -145,5 +145,11 @@
             id="com.aptana.ruby.debug.core.sourcePathComputer">
       </sourcePathComputer>
    </extension>
-
+   <extension
+         point="org.eclipse.debug.core.processFactories">
+      <processFactory
+            class="com.aptana.ruby.debug.core.launching.InterruptingProcessFactory"
+            id="com.aptana.ruby.debug.core.interruptingProcessFactory">
+      </processFactory>
+   </extension>
 </plugin>
