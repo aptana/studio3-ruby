@@ -29,7 +29,7 @@ public class RubyPreferenceInitializer extends AbstractPreferenceInitializer
 				".$@:"); //$NON-NLS-1$
 
 		// mark occurrences
-		prefs.putBoolean(com.aptana.editor.common.preferences.IPreferenceConstants.EDITOR_MARK_OCCURRENCES, true);
+		// prefs.putBoolean(com.aptana.editor.common.preferences.IPreferenceConstants.EDITOR_MARK_OCCURRENCES, true);
 
 		// Check if we previously set preference to use global defaults
 		IEclipsePreferences instanceScopePref = EclipseUtil.instanceScope().getNode(RubyEditorPlugin.PLUGIN_ID);

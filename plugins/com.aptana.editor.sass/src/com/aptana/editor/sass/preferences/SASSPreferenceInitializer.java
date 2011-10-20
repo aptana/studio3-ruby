@@ -25,7 +25,7 @@ public class SASSPreferenceInitializer extends AbstractPreferenceInitializer
 		prefs.putBoolean(IPreferenceConstants.EDITOR_ENABLE_FOLDING, true);
 
 		// mark occurrences
-		prefs.putBoolean(com.aptana.editor.common.preferences.IPreferenceConstants.EDITOR_MARK_OCCURRENCES, true);
+		// prefs.putBoolean(com.aptana.editor.common.preferences.IPreferenceConstants.EDITOR_MARK_OCCURRENCES, true);
 
 		// Check if we previously set preference to use global defaults
 		IEclipsePreferences instanceScopePref = EclipseUtil.instanceScope().getNode(SassPlugin.PLUGIN_ID);
