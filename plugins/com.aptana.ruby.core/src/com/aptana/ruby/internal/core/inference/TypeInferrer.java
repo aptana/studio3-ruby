@@ -325,7 +325,8 @@ public class TypeInferrer implements ITypeInferrer
 			typeName = typeName.substring(lastNS + 2);
 		}
 		// Build query key
-		StringBuilder builder = new StringBuilder('^');
+		StringBuilder builder = new StringBuilder();
+		builder.append('^'); // start matching at beginning of key
 		builder.append(typeName);
 		builder.append(IRubyIndexConstants.SEPARATOR);
 		builder.append(namespace);

@@ -71,7 +71,7 @@ public class CoreStubber extends Job
 	 * A way to version the core stubs. If the core stubber script changes, be sure to bump this so new core stubs are
 	 * created!
 	 */
-	private static final String CORE_STUBBER_VERSION = "3"; //$NON-NLS-1$
+	private static final String CORE_STUBBER_VERSION = "4"; //$NON-NLS-1$
 
 	protected static boolean fgOutOfDate = false;
 
@@ -378,15 +378,6 @@ public class CoreStubber extends Job
 		return false;
 	}
 
-	/**
-	 * @deprecated Use getRubyCoreIndex(IProject)
-	 * @return
-	 */
-	public static Index getRubyCoreIndex()
-	{
-		return getRubyCoreIndex(null);
-	}
-
 	protected static File getRubyCoreStubDir(IProject project)
 	{
 		String rubyVersion = RubyLaunchingPlugin.getRubyVersionForProject(project);
@@ -416,15 +407,6 @@ public class CoreStubber extends Job
 		return jobs;
 	}
 
-	/**
-	 * @deprecated use getGemPaths(IProject)
-	 * @return
-	 */
-	public static Set<IPath> getGemPaths()
-	{
-		return RubyLaunchingPlugin.getGemPaths(null);
-	}
-
 	protected List<Job> indexStdLib(Set<IPath> uniqueLoadPaths)
 	{
 		List<Job> jobs = new ArrayList<Job>();
@@ -437,15 +419,6 @@ public class CoreStubber extends Job
 			}
 		}
 		return jobs;
-	}
-
-	/**
-	 * @deprecated use getLoadPaths(IProject)
-	 * @return
-	 */
-	public static Set<IPath> getLoadpaths()
-	{
-		return RubyLaunchingPlugin.getLoadpaths(null);
 	}
 
 	protected Job indexCoreStubs(File outputDir)

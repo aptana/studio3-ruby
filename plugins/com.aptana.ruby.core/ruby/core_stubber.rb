@@ -19,7 +19,7 @@ end
 def get_classes
   klasses = Module.constants.select {|c| ["Class", "Module"].include?(eval("#{c}.class").to_s) }
   klasses = klasses.reject {|klass| klass.to_s[0].chr == "f" or klass.to_s == "JavaPackageModuleTemplate" }
-  klasses = klasses.collect {|k| eval("#{k}")}  
+  klasses = klasses.collect {|k| eval("#{k}")}
   klasses = klasses.uniq.sort_by {|klass| klass.to_s }
 end
 
@@ -35,7 +35,7 @@ def print_type(klass)
   # FIXME 1.8 doesn't take inherit argument for constants call!
   (klass.constants(false) rescue klass.constants).sort_by {|c| c.to_s }.each do |constant_name|
     constant_val = eval("#{klass}").const_get(constant_name.to_sym) rescue nil
-    f << "  #{constant_name} = #{constant_val}\n"
+    f << "  #{constant_name} = #{print_value(constant_val)}\n"
   end
   f << "\n"
 
@@ -102,7 +102,7 @@ def grab_instance_method(klass, method_name)
         obj.module_eval do
           module_function(method_name.to_s)
         end
-        return obj.method(method_name.to_s)      
+        return obj.method(method_name.to_s)
       end
     rescue StandardError => e
       STDERR.puts e
@@ -136,9 +136,15 @@ def print_args(arity)
     (arity.abs + 1).times {|i| args << "arg#{i}" }
     args << "*rest"  
   else
-    arity.times {|i| args << "arg#{i}" }    
+    arity.times {|i| args << "arg#{i}" }
   end
   args.join(", ")
+end
+
+def print_value(value)
+  str_value = value.nil? ? 'nil' : value.inspect
+  str_value = 'IO.new' if value.class == IO
+  return str_value
 end
 
 # Now do the actual main loop, which is to get all the types and then print them out to files.
@@ -172,9 +178,7 @@ get_classes.each do |klass|
   open(file_name('globals'), 'w') do |f|
     global_variables.each do |v|
       value = eval(v.to_s)
-      str_value = value.nil? ? 'nil' : value.inspect
-      str_value = 'IO.new' if value.class == IO
-      f << "#{v.to_s} = #{str_value}\n"
+      f << "#{v.to_s} = #{print_value(value)}\n"
     end
   end
 end
