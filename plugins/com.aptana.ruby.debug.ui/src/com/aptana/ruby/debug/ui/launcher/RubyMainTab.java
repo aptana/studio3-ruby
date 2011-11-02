@@ -17,7 +17,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -177,13 +176,20 @@ public class RubyMainTab extends AbstractLaunchConfigurationTab
 		String text = fProgramText.getText();
 		if (text.length() > 0)
 		{
-			IPath path = new Path(text);
 			// first check if it's an absolute path
 			File aFile = new File(text);
 			if (!aFile.exists() || aFile.isDirectory())
 			{
 				// now check relative to workspace root
-				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+				IFile file = null;
+				try
+				{
+					file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(text));
+				}
+				catch (Exception e)
+				{
+					// ignore, may get an error about the path being invalid for workspace...
+				}
 				if (file == null || !file.exists())
 				{
 					setErrorMessage(Messages.RubyMainTab_FileDoesntExistError);
