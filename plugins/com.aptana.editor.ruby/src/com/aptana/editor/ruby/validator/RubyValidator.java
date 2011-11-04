@@ -35,8 +35,8 @@ import org.jrubyparser.parser.Ruby18Parser;
 import org.jrubyparser.parser.Ruby19Parser;
 import org.jrubyparser.parser.RubyParser;
 
+import com.aptana.core.build.IValidationItem;
 import com.aptana.core.logging.IdeLog;
-import com.aptana.editor.common.validator.IValidationItem;
 import com.aptana.editor.common.validator.IValidationManager;
 import com.aptana.editor.common.validator.IValidator;
 import com.aptana.editor.ruby.RubyEditorPlugin;
