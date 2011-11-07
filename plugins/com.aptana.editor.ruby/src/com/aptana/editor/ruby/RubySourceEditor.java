@@ -27,7 +27,6 @@ import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
 import com.aptana.core.logging.IdeLog;
-import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.outline.CommonOutlineItem;
@@ -214,17 +213,21 @@ public class RubySourceEditor extends AbstractThemeableEditor
 				// Match "end" to "do ..." only if it's a do/end block
 				int endOffset = currentNode.getEndingOffset();
 				IDocument document = getSourceViewer().getDocument();
-				String endText = StringUtil.EMPTY;
+				if (endOffset >= document.getLength())
+				{
+					endOffset--;
+				}
+				char endText = 'a';
 				try
 				{
-					endText = document.get(endOffset, 1);
+					endText = document.getChar(endOffset);
 				}
 				catch (BadLocationException e)
 				{
 					IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to get text at end of block, end offset: " //$NON-NLS-1$
 							+ endOffset, e);
 				}
-				if (endText.equals("d")) //$NON-NLS-1$
+				if (endText == 'd')
 				{
 					int startOffset = currentNode.getStartingOffset();
 					if ((offset <= endOffset && offset >= endOffset - 2)
