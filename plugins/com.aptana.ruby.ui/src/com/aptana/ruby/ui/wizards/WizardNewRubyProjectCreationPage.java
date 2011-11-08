@@ -150,17 +150,18 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		createProjectNameGroup(composite);
+
 		// create Location section
 		createDestinationLocationArea(composite);
+
+		// Create the project template section (if required)
+		createProjectTemplateSection(composite);
 
 		// create warning section
 		createWarningArea(composite);
 
 		// Add the generate app section
 		createGenerateGroup(composite);
-
-		// Create the project template section (if required)
-		createProjectTemplateSection(composite);
 
 		// Scale the button based on the rest of the dialog
 		setButtonLayoutData(browseButton);
