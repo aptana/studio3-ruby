@@ -49,7 +49,8 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 	@Override
 	protected WizardNewRubyProjectCreationPage createMainPage()
 	{
-		WizardNewRailsProjectCreationPage mainPage = new WizardNewRailsProjectCreationPage("basicNewProjectPage"); //$NON-NLS-1$
+		WizardNewRailsProjectCreationPage mainPage = new WizardNewRailsProjectCreationPage(
+				"basicNewProjectPage", selectedTemplate); //$NON-NLS-1$
 		mainPage.setTitle(Messages.NewProject_title);
 		mainPage.setDescription(Messages.NewRailsProject_description);
 		return mainPage;

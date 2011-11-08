@@ -61,10 +61,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.ide.IIDEHelpContextIds;
 import org.eclipse.ui.internal.ide.dialogs.IDEResourceInfoUtils;
 
+import com.aptana.core.projects.templates.IProjectTemplate;
 import com.aptana.core.util.StringUtil;
 import com.aptana.projects.internal.wizards.IWizardProjectCreationPage;
 import com.aptana.ui.util.SWTUtils;
 import com.aptana.ui.util.UIUtils;
+import com.aptana.ui.widgets.SelectedTemplateComposite;
 
 /**
  * TODO Extract common code between this and our Web project wizard!
@@ -101,6 +103,9 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 	private Composite projectGenerationControls;
 	private Label warningLabel;
 
+	// Initial Project template
+	private IProjectTemplate projectTemplate = null;
+
 	// constants
 	private static final int SIZING_TEXT_FIELD_WIDTH = 250;
 	private static final String SAVED_LOCATION_ATTR = "OUTSIDE_LOCATION"; //$NON-NLS-1$
@@ -112,10 +117,11 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 	 * @param pageName
 	 *            the name of this page
 	 */
-	public WizardNewRubyProjectCreationPage(String pageName)
+	public WizardNewRubyProjectCreationPage(String pageName, IProjectTemplate projectTemplate)
 	{
 		super(pageName);
 		setPageComplete(false);
+		this.projectTemplate = projectTemplate;
 	}
 
 	/*
@@ -152,6 +158,9 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 		// Add the generate app section
 		createGenerateGroup(composite);
 
+		// Create the project template section (if required)
+		createProjectTemplateSection(composite);
+
 		// Scale the button based on the rest of the dialog
 		setButtonLayoutData(browseButton);
 
@@ -163,6 +172,16 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 		setMessage(null);
 		setControl(composite);
 		Dialog.applyDialogFont(composite);
+	}
+
+	protected void createProjectTemplateSection(Composite parent)
+	{
+		if (projectTemplate != null)
+		{
+			new SelectedTemplateComposite(parent, projectTemplate);
+		}
+
+		return;
 	}
 
 	/**

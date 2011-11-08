@@ -56,6 +56,8 @@ public class NewRubyProjectWizard extends NewProjectWizard implements IExecutabl
 	@Override
 	public void addPages()
 	{
+		validateProjectTemplate(getTemplateTypes());
+
 		mainPage = createMainPage();
 		mainPage.setWizard(this);
 		mainPage.setPageComplete(false);
@@ -63,7 +65,7 @@ public class NewRubyProjectWizard extends NewProjectWizard implements IExecutabl
 
 		// project templates
 		List<IProjectTemplate> templates = getProjectTemplates(getTemplateTypes());
-		if (templates.size() > 0)
+		if (templates.size() > 0 && selectedTemplate == null)
 		{
 			addPage(templatesPage = new ProjectTemplateSelectionPage(TEMPLATE_SELECTION_PAGE_NAME, templates));
 		}
@@ -76,7 +78,8 @@ public class NewRubyProjectWizard extends NewProjectWizard implements IExecutabl
 
 	protected WizardNewRubyProjectCreationPage createMainPage()
 	{
-		WizardNewRubyProjectCreationPage mainPage = new WizardNewRubyProjectCreationPage("basicNewProjectPage"); //$NON-NLS-1$
+		WizardNewRubyProjectCreationPage mainPage = new WizardNewRubyProjectCreationPage(
+				"basicNewProjectPage", selectedTemplate); //$NON-NLS-1$
 		mainPage.setTitle(Messages.NewProject_title);
 		mainPage.setDescription(Messages.NewRubyProject_description);
 		return mainPage;
