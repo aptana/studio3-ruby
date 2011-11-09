@@ -68,7 +68,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	// TODO Move this up the hierarchy?
 	private static final ICompletionProposal[] NO_PROPOSALS = new ICompletionProposal[0];
 
-	private static final String NAMESPACE_DELIMITER = IRubyIndexConstants.NAMESPACE_DELIMETER;
+	private static final String NAMESPACE_DELIMITER = IRubyConstants.NAMESPACE_DELIMETER;
 	// TODO Move these images over to the ruby.ui plugin...
 	private static final String GLOBAL_IMAGE = "icons/global_obj.png"; //$NON-NLS-1$
 	private static final String INSTANCE_VAR_IMAGE = "icons/instance_var_obj.png"; //$NON-NLS-1$
@@ -279,13 +279,13 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			// quicker...
 			String fullName = ASTUtils.getFullyQualifiedName(receiver);
 			constantName = fullName;
-			int namespaceIndex = fullName.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
+			int namespaceIndex = fullName.lastIndexOf(IRubyConstants.NAMESPACE_DELIMETER);
 			if (namespaceIndex != -1)
 			{
 				typeName = fullName.substring(0, namespaceIndex);
 				constantName = fullName.substring(namespaceIndex + 2);
 
-				namespaceIndex = typeName.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
+				namespaceIndex = typeName.lastIndexOf(IRubyConstants.NAMESPACE_DELIMETER);
 				if (namespaceIndex != -1)
 				{
 					namespace = typeName.substring(0, namespaceIndex);
@@ -360,7 +360,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 		String fullPrefix = fContext.getFullPrefix();
-		String namespace = fullPrefix.substring(0, fullPrefix.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER));
+		String namespace = fullPrefix.substring(0, fullPrefix.lastIndexOf(IRubyConstants.NAMESPACE_DELIMETER));
 		String key = "^[^/]+?" + IRubyIndexConstants.SEPARATOR + namespace + "[^/]*?" + IRubyIndexConstants.SEPARATOR
 				+ ".+$";
 		Map<String, Boolean> proposalToIsClass = new HashMap<String, Boolean>();
@@ -388,7 +388,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 				else if (aNamespace.startsWith(fullPrefix))
 				{
 					// Suggest next segment of aNamespace
-					int previousDelim = aNamespace.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER,
+					int previousDelim = aNamespace.lastIndexOf(IRubyConstants.NAMESPACE_DELIMETER,
 							fullPrefix.length());
 					if (previousDelim == -1)
 					{
@@ -398,7 +398,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 					{
 						previousDelim += 2;
 					}
-					int nextDelim = aNamespace.indexOf(IRubyIndexConstants.NAMESPACE_DELIMETER, fullPrefix.length());
+					int nextDelim = aNamespace.indexOf(IRubyConstants.NAMESPACE_DELIMETER, fullPrefix.length());
 					if (nextDelim == -1)
 					{
 						nextDelim = aNamespace.length();
@@ -428,27 +428,27 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 	{
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 
-		String typeName = IRubyIndexConstants.OBJECT;
+		String typeName = IRubyConstants.OBJECT;
 		String namespace = StringUtil.EMPTY;
 
 		String fullPrefix = fContext.getFullPrefix();
-		if (!fullPrefix.startsWith(IRubyIndexConstants.NAMESPACE_DELIMETER))
+		if (!fullPrefix.startsWith(IRubyConstants.NAMESPACE_DELIMETER))
 		{
 			// FIXME We also want to search without the implicit namespace!
 			// tack on current namespace to beginning, since we're not explicitly forcing toplevel...
 			String implicitNamespace = fContext.getNamespace();
 			if (implicitNamespace.length() > 0)
 			{
-				fullPrefix = implicitNamespace + IRubyIndexConstants.NAMESPACE_DELIMETER + fullPrefix;
+				fullPrefix = implicitNamespace + IRubyConstants.NAMESPACE_DELIMETER + fullPrefix;
 			}
 		}
 
-		int lastNS = fullPrefix.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
+		int lastNS = fullPrefix.lastIndexOf(IRubyConstants.NAMESPACE_DELIMETER);
 		if (lastNS > 0)
 		{
 			typeName = fullPrefix.substring(0, lastNS);
 		}
-		lastNS = typeName.lastIndexOf(IRubyIndexConstants.NAMESPACE_DELIMETER);
+		lastNS = typeName.lastIndexOf(IRubyConstants.NAMESPACE_DELIMETER);
 		if (lastNS > 0)
 		{
 			namespace = typeName.substring(0, lastNS);
@@ -632,7 +632,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 			ClassNode classNode = (ClassNode) enclosing;
 			Node superNode = classNode.getSuperNode();
 			// Need to also include suggestions against index normally!
-			String superTypeName = IRubyIndexConstants.OBJECT;
+			String superTypeName = IRubyConstants.OBJECT;
 			if (superNode != null)
 			{
 				superTypeName = ASTUtils.getFullyQualifiedName(superNode);
@@ -871,7 +871,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 		String namespace = parts[2];
 		if (namespace != null && namespace.length() > 0)
 		{
-			return namespace + IRubyIndexConstants.NAMESPACE_DELIMETER + simpleName;
+			return namespace + IRubyConstants.NAMESPACE_DELIMETER + simpleName;
 		}
 		return simpleName;
 	}
