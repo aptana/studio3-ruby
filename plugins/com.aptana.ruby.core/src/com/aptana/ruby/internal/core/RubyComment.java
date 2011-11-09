@@ -17,16 +17,25 @@ import com.aptana.ruby.core.IRubyElement;
 public class RubyComment extends ParseNode implements IRubyComment
 {
 
-	public RubyComment(CommentNode commentNode)
+	private String text;
+
+	public RubyComment(CommentNode commentNode, String text)
 	{
 		super(IRubyConstants.CONTENT_TYPE_RUBY);
 		setLocation(commentNode.getPosition().getStartOffset(), commentNode.getPosition().getEndOffset());
+		this.text = text;
 	}
 
 	@Override
 	public short getNodeType()
 	{
 		return IRubyElement.COMMENT;
+	}
+
+	@Override
+	public String getText()
+	{
+		return this.text;
 	}
 
 	@Override

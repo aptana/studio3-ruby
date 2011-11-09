@@ -141,4 +141,17 @@
          </contentTypeBinding>
       </fileIndexingParticipant>
    </extension>
+      <extension
+            point="com.aptana.buildpath.core.buildParticipants">
+         <participant
+               class="com.aptana.ruby.internal.core.build.RubyTaskDetector"
+               priority="50">
+            <contentTypeBinding
+                  contentTypeId="com.aptana.contenttype.ruby">
+            </contentTypeBinding>
+            <contentTypeBinding
+                  contentTypeId="com.aptana.contenttype.ruby.ambiguous">
+            </contentTypeBinding>
+         </participant>
+      </extension>
 </plugin>

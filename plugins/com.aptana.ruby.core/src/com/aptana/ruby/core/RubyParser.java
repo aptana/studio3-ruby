@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jrubyparser.CompatVersion;
+import org.jrubyparser.SourcePosition;
 import org.jrubyparser.ast.CommentNode;
 import org.jrubyparser.parser.ParserResult;
 
@@ -48,12 +49,17 @@ public class RubyParser implements IParser
 		List<IParseNode> commentParseNodes = new ArrayList<IParseNode>();
 		for (CommentNode commentNode : result.getCommentNodes())
 		{
-			commentParseNodes.add(new RubyComment(commentNode));
+			commentParseNodes.add(new RubyComment(commentNode, getText(source, commentNode.getPosition())));
 		}
 		root.setCommentNodes(commentParseNodes);
 		parseState.setParseResult(root);
 
 		return root;
+	}
+
+	private String getText(String source, SourcePosition position)
+	{
+		return new String(source.substring(position.getStartOffset(), position.getEndOffset()));
 	}
 
 	public RubySourceParser getSourceParser(CompatVersion rubyVersion)

@@ -11,47 +11,32 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
 import com.aptana.core.logging.IdeLog;
-import com.aptana.core.util.IOUtil;
 import com.aptana.editor.erb.ERBEditorPlugin;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.html.contentassist.index.HTMLFileIndexingParticipant;
 import com.aptana.editor.html.parsing.HTMLParseState;
 import com.aptana.index.core.AbstractFileIndexingParticipant;
 import com.aptana.index.core.Index;
+import com.aptana.index.core.build.BuildContext;
 import com.aptana.parsing.ParserPoolFactory;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.ruby.internal.core.index.RubyFileIndexingParticipant;
 
 public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipant
 {
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.index.core.AbstractFileIndexingParticipant#indexFileStore(com.aptana.index.core.Index,
-	 * org.eclipse.core.filesystem.IFileStore, org.eclipse.core.runtime.IProgressMonitor)
-	 */
-	protected void indexFileStore(final Index index, IFileStore store, IProgressMonitor monitor)
+
+	public void index(BuildContext context, Index index, IProgressMonitor monitor) throws CoreException
 	{
 		SubMonitor sub = SubMonitor.convert(monitor, 100);
 		try
 		{
-			if (store == null)
-			{
-				return;
-			}
-
-			sub.subTask(getIndexingMessage(index, store));
-
-			removeTasks(store, sub.newChild(10));
-
-			// grab the source of the file we're going to parse
-			String fileContents = IOUtil.read(store.openInputStream(EFS.NONE, sub.newChild(20)));
-			indexSource(index, fileContents, store, sub.newChild(70));
+			sub.subTask(getIndexingMessage(index, context.getURI()));
+			indexSource(context, index, sub.newChild(100));
 		}
 		catch (Throwable e)
 		{
@@ -63,11 +48,12 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 		}
 	}
 
-	private void indexSource(final Index index, String fileContents, IFileStore store, IProgressMonitor monitor)
+	private void indexSource(BuildContext context, final Index index, IProgressMonitor monitor)
 	{
 		SubMonitor sub = SubMonitor.convert(monitor, 100);
 		try
 		{
+			String fileContents = context.getContents();
 			// minor optimization when creating a new empty file
 			if (fileContents == null || fileContents.trim().length() <= 0)
 			{
@@ -79,18 +65,18 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 
 			IParseNode parseNode = ParserPoolFactory.parse(IERBConstants.CONTENT_TYPE_HTML_ERB, parseState);
 			HTMLFileIndexingParticipant part = new HTMLFileIndexingParticipant();
-			part.walkAST(index, store, fileContents, parseNode, sub.newChild(30));
+			part.walkAST(context, index, parseNode, sub.newChild(30));
 
 			// TODO Grab the ruby code only, replace rest with whitespace. Then parse and index that too!
 			String rubyContents = replaceNonRubyCodeWithWhitespace(fileContents);
 			sub.worked(5);
 			RubyFileIndexingParticipant rfip = new RubyFileIndexingParticipant();
-			rfip.indexSource(index, rubyContents, store, sub.newChild(45));
+			rfip.indexSource(index, context, rubyContents, sub.newChild(45));
 		}
 		catch (Exception e)
 		{
 			IdeLog.logError(ERBEditorPlugin.getDefault(),
-					MessageFormat.format(Messages.RHTMLFileIndexingParticipant_ERR_Indexing, store.getName()), e);
+					MessageFormat.format(Messages.RHTMLFileIndexingParticipant_ERR_Indexing, context.getName()), e);
 		}
 		finally
 		{
@@ -194,5 +180,4 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 		}
 		return code;
 	}
-
 }

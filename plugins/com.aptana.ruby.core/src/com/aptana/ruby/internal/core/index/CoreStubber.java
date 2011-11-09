@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -477,12 +476,13 @@ public class CoreStubber extends Job
 			super(message, outputDir);
 		}
 
-		protected List<Map.Entry<IFileStoreIndexingParticipant, Set<IFileStore>>> mapParticipantsToFiles(
-				Set<IFileStore> fileStores)
+		@Override
+		protected List<IFileStoreIndexingParticipant> getIndexParticipants(IFileStore file)
 		{
-			Map<IFileStoreIndexingParticipant, Set<IFileStore>> map = new HashMap<IFileStoreIndexingParticipant, Set<IFileStore>>();
-			map.put(new RubyFileIndexingParticipant(), fileStores);
-			return new ArrayList<Map.Entry<IFileStoreIndexingParticipant, Set<IFileStore>>>(map.entrySet());
+			// FIXME Is this override even necessary?
+			List<IFileStoreIndexingParticipant> participants = new ArrayList<IFileStoreIndexingParticipant>();
+			participants.add(new RubyFileIndexingParticipant());
+			return participants;
 		}
 
 		@Override
