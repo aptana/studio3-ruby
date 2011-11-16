@@ -35,7 +35,7 @@ import org.jrubyparser.parser.Ruby18Parser;
 import org.jrubyparser.parser.Ruby19Parser;
 import org.jrubyparser.parser.RubyParser;
 
-import com.aptana.core.build.IValidationItem;
+import com.aptana.core.build.IProblem;
 import com.aptana.core.logging.IdeLog;
 import com.aptana.editor.common.validator.IValidationManager;
 import com.aptana.editor.common.validator.IValidator;
@@ -49,9 +49,9 @@ public class RubyValidator implements IValidator
 	{
 	}
 
-	public List<IValidationItem> validate(String source, final URI path, final IValidationManager manager)
+	public List<IProblem> validate(String source, final URI path, final IValidationManager manager)
 	{
-		List<IValidationItem> items = new ArrayList<IValidationItem>();
+		List<IProblem> items = new ArrayList<IProblem>();
 		// Check what the version of the current ruby interpreter is and use that to determine which parser compat
 		// to use!
 		CompatVersion version = CompatVersion.BOTH;

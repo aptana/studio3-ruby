@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
 import com.aptana.core.build.AbstractBuildParticipant;
-import com.aptana.core.build.IValidationItem;
+import com.aptana.core.build.IProblem;
 import com.aptana.core.logging.IdeLog;
 import com.aptana.index.core.build.BuildContext;
 import com.aptana.parsing.ast.IParseNode;
@@ -41,7 +41,7 @@ public class RubyTaskDetector extends AbstractBuildParticipant
 
 	public void buildFile(BuildContext context, IProgressMonitor monitor)
 	{
-		Collection<IValidationItem> tasks = detectTasks(context, monitor);
+		Collection<IProblem> tasks = detectTasks(context, monitor);
 		context.putProblems(IMarker.TASK, tasks);
 	}
 
@@ -50,9 +50,9 @@ public class RubyTaskDetector extends AbstractBuildParticipant
 		context.removeProblems(IMarker.TASK);
 	}
 
-	private Collection<IValidationItem> detectTasks(BuildContext context, IProgressMonitor monitor)
+	private Collection<IProblem> detectTasks(BuildContext context, IProgressMonitor monitor)
 	{
-		Collection<IValidationItem> tasks = new ArrayList<IValidationItem>();
+		Collection<IProblem> tasks = new ArrayList<IProblem>();
 
 		try
 		{
