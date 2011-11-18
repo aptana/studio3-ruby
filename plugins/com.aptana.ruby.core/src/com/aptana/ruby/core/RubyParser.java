@@ -7,18 +7,32 @@
  */
 package com.aptana.ruby.core;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jrubyparser.CompatVersion;
+import org.jrubyparser.IRubyWarnings;
 import org.jrubyparser.SourcePosition;
 import org.jrubyparser.ast.CommentNode;
+import org.jrubyparser.lexer.LexerSource;
+import org.jrubyparser.lexer.SyntaxException;
+import org.jrubyparser.parser.ParserConfiguration;
 import org.jrubyparser.parser.ParserResult;
+import org.jrubyparser.parser.ParserSupport;
+import org.jrubyparser.parser.ParserSupport19;
+import org.jrubyparser.parser.Ruby18Parser;
+import org.jrubyparser.parser.Ruby19Parser;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.parsing.IParseState;
 import com.aptana.parsing.IParser;
+import com.aptana.parsing.ast.IParseError;
+import com.aptana.parsing.ast.IParseError.Severity;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.IParseRootNode;
+import com.aptana.parsing.ast.ParseError;
 import com.aptana.ruby.core.ast.SourceElementVisitor;
 import com.aptana.ruby.internal.core.RubyComment;
 import com.aptana.ruby.internal.core.RubyScript;
@@ -28,7 +42,6 @@ public class RubyParser implements IParser
 
 	public RubyParser()
 	{
-
 	}
 
 	public IParseRootNode parse(IParseState parseState)
@@ -36,22 +49,70 @@ public class RubyParser implements IParser
 		String source = new String(parseState.getSource());
 		RubyScript root = new RubyScript(parseState.getStartingOffset(), parseState.getStartingOffset()
 				+ source.length() - 1);
-		RubyStructureBuilder builder = new RubyStructureBuilder(root);
-		SourceElementVisitor visitor = new SourceElementVisitor(builder);
 
 		CompatVersion compatVersion = CompatVersion.BOTH;
+		int lineNumber = 0;
+		String fileName = "<unnamed file>"; //$NON-NLS-1$
+		IRubyWarnings warnings = new CollectingRubyWarnings(fileName);
 		if (parseState instanceof RubyParseState)
 		{
-			compatVersion = ((RubyParseState) parseState).getCompatVersion();
+			RubyParseState rubyParseState = (RubyParseState) parseState;
+			compatVersion = rubyParseState.getCompatVersion();
+			warnings = rubyParseState.getWarnings();
+			lineNumber = rubyParseState.getStartingLineNumber();
+			fileName = rubyParseState.getFilename();
 		}
-		ParserResult result = getSourceParser(compatVersion).parse(source);
-		visitor.acceptNode(result.getAST());
-		List<IParseNode> commentParseNodes = new ArrayList<IParseNode>();
-		for (CommentNode commentNode : result.getCommentNodes())
+
+		org.jrubyparser.parser.RubyParser parser = null;
+		ParserConfiguration config = new ParserConfiguration(lineNumber, compatVersion);
+		if (compatVersion == CompatVersion.RUBY1_8)
 		{
-			commentParseNodes.add(new RubyComment(commentNode, getText(source, commentNode.getPosition())));
+			ParserSupport support = new ParserSupport();
+			support.setConfiguration(config);
+			parser = new Ruby18Parser(support);
 		}
-		root.setCommentNodes(commentParseNodes);
+		else
+		{
+			ParserSupport19 support = new ParserSupport19();
+			support.setConfiguration(config);
+			parser = new Ruby19Parser(support);
+		}
+		parser.setWarnings(warnings);
+		LexerSource lexerSource = LexerSource.getSource(fileName, new StringReader(source), config);
+		ParserResult result = new NullParserResult();
+		try
+		{
+			result = parser.parse(config, lexerSource);
+
+			RubyStructureBuilder builder = new RubyStructureBuilder(root);
+			SourceElementVisitor visitor = new SourceElementVisitor(builder);
+			visitor.acceptNode(result.getAST());
+			List<IParseNode> commentParseNodes = new ArrayList<IParseNode>();
+			for (CommentNode commentNode : result.getCommentNodes())
+			{
+				commentParseNodes.add(new RubyComment(commentNode, getText(source, commentNode.getPosition())));
+			}
+			root.setCommentNodes(commentParseNodes);
+		}
+		catch (SyntaxException se)
+		{
+			int start = se.getPosition().getStartOffset();
+			parseState.addError(new ParseError(start, se.getPosition().getEndOffset() - start, se.getMessage(), Severity.ERROR));
+		}
+		catch (IOException e)
+		{
+			IdeLog.logError(RubyCorePlugin.getDefault(), "Failed to parse ruby code due to IOException", e); //$NON-NLS-1$
+		}
+		// Add warnings
+		if (warnings instanceof CollectingRubyWarnings)
+		{
+			CollectingRubyWarnings collector = (CollectingRubyWarnings) warnings;
+			for (IParseError warning : collector.getWarnings())
+			{
+				parseState.addError(warning);
+			}
+		}
+
 		parseState.setParseResult(root);
 
 		return root;
@@ -60,11 +121,5 @@ public class RubyParser implements IParser
 	private String getText(String source, SourcePosition position)
 	{
 		return new String(source.substring(position.getStartOffset(), position.getEndOffset()));
-	}
-
-	public RubySourceParser getSourceParser(CompatVersion rubyVersion)
-	{
-		// TODO cache the parser by version here?
-		return new RubySourceParser(rubyVersion);
 	}
 }

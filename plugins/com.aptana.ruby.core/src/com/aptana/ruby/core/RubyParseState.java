@@ -8,12 +8,18 @@
 package com.aptana.ruby.core;
 
 import org.jrubyparser.CompatVersion;
+import org.jrubyparser.IRubyWarnings;
+import org.jrubyparser.Parser;
 
 import com.aptana.parsing.ParseState;
 
 public class RubyParseState extends ParseState
 {
+	private static final String DEFAULT_FILENAME = "<unnamed file>"; //$NON-NLS-1$
 	private CompatVersion compatVersion = CompatVersion.BOTH;
+	private IRubyWarnings warnings = new Parser.NullWarnings();
+	private int lineNumber = 0;
+	private String filename = DEFAULT_FILENAME;
 
 	public void setVersion(CompatVersion compatVersion)
 	{
@@ -23,6 +29,51 @@ public class RubyParseState extends ParseState
 	public CompatVersion getCompatVersion()
 	{
 		return compatVersion;
+	}
+
+	public IRubyWarnings getWarnings()
+	{
+		return this.warnings;
+	}
+
+	public void setWarnings(IRubyWarnings warnings)
+	{
+		if (warnings == null)
+		{
+			this.warnings = new Parser.NullWarnings();
+		}
+		else
+		{
+			this.warnings = warnings;
+		}
+	}
+
+	public int getStartingLineNumber()
+	{
+		return this.lineNumber;
+	}
+
+	public void setStartingLineNumber(int lineNumber)
+	{
+		if (lineNumber < 0)
+		{
+			lineNumber = 0;
+		}
+		this.lineNumber = lineNumber;
+	}
+
+	public String getFilename()
+	{
+		return this.filename;
+	}
+
+	public void setFilename(String filename)
+	{
+		if (filename == null)
+		{
+			filename = DEFAULT_FILENAME;
+		}
+		this.filename = filename;
 	}
 
 }

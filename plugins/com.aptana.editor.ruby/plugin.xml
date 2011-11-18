@@ -52,19 +52,6 @@
       </type>
    </extension>
    <extension
-         point="com.aptana.editor.common.validator">
-      <content-type
-            name="%validator.language.ruby.name"
-            id="com.aptana.contenttype.ruby">
-      </content-type>
-      <validator
-            class="com.aptana.editor.ruby.validator.RubyValidator"
-            content-type="com.aptana.contenttype.ruby"
-            marker-type="com.aptana.ruby.core.problem"
-            name="%validator.ruby.name">
-      </validator>
-   </extension>
-   <extension
          point="org.eclipse.ui.preferencePages">
       <page
             category="com.aptana.editor.common.preferences.EditorsPreferencePage"
