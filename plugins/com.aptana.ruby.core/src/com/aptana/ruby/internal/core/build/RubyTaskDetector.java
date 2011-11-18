@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -33,11 +32,6 @@ import com.aptana.ruby.internal.core.RubyComment;
  */
 public class RubyTaskDetector extends AbstractBuildParticipant
 {
-
-	public void clean(IProject project, IProgressMonitor monitor)
-	{
-		// TODO Auto-generated method stub
-	}
 
 	public void buildFile(BuildContext context, IProgressMonitor monitor)
 	{
