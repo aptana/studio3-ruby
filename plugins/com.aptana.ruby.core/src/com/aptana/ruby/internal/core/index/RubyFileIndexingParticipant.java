@@ -19,12 +19,8 @@ import org.jrubyparser.parser.ParserResult;
 import com.aptana.index.core.AbstractFileIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.build.BuildContext;
-import com.aptana.parsing.IParserPool;
-import com.aptana.parsing.ParserPoolFactory;
-import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.ISourceElementRequestor;
 import com.aptana.ruby.core.RubyCorePlugin;
-import com.aptana.ruby.core.RubyParser;
 import com.aptana.ruby.core.RubySourceParser;
 import com.aptana.ruby.core.ast.SourceElementVisitor;
 
@@ -57,18 +53,8 @@ public class RubyFileIndexingParticipant extends AbstractFileIndexingParticipant
 			// FIXME Can we take the AST from the context and traverse that for indexing purposes?
 			// Otherwise we're not re-using the parse!
 
-			// create parser and associated parse state
-			IParserPool pool = ParserPoolFactory.getInstance().getParserPool(IRubyConstants.CONTENT_TYPE_RUBY);
-			if (pool == null)
-			{
-				return;
-			}
-			RubyParser parser = (RubyParser) pool.checkOut();
-
-			RubySourceParser sourceParser = parser.getSourceParser(CompatVersion.BOTH);
+			RubySourceParser sourceParser = new RubySourceParser(CompatVersion.BOTH);
 			ParserResult result = sourceParser.parse(context.getName(), source);
-
-			pool.checkIn(parser);
 			sub.worked(40);
 
 			indexAST(index, context.getURI(), result.getAST(), sub.newChild(20));

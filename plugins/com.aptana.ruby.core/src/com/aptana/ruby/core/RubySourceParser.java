@@ -24,10 +24,13 @@ import org.jrubyparser.parser.Ruby19Parser;
 
 import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.StringUtil;
+import com.aptana.parsing.ParserPoolFactory;
 
 /**
  * @author Chris Williams
  * @author Michael Xia
+ * @deprecated Please use {@link ParserPoolFactory} to make use of the {@link RubyParser}. We may need to alter it and
+ *             {@link RubyParseState} to get what we want.
  */
 public class RubySourceParser
 {
