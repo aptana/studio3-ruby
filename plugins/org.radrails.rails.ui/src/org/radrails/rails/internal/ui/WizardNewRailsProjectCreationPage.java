@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.radrails.rails.ui.RailsUIPlugin;
 
+import com.aptana.core.projects.templates.IProjectTemplate;
 import com.aptana.ruby.ui.wizards.WizardNewRubyProjectCreationPage;
 
 public class WizardNewRailsProjectCreationPage extends WizardNewRubyProjectCreationPage
@@ -35,9 +36,9 @@ public class WizardNewRailsProjectCreationPage extends WizardNewRubyProjectCreat
 	 * @param pageName
 	 *            the name of this page
 	 */
-	public WizardNewRailsProjectCreationPage(String pageName)
+	public WizardNewRailsProjectCreationPage(String pageName, IProjectTemplate projectTemplate)
 	{
-		super(pageName);
+		super(pageName, projectTemplate);
 	}
 
 	@Override

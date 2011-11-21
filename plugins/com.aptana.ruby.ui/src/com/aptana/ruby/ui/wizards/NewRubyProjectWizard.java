@@ -53,7 +53,8 @@ public class NewRubyProjectWizard extends AbstractNewProjectWizard implements IE
 
 	protected WizardNewRubyProjectCreationPage createMainPage()
 	{
-		WizardNewRubyProjectCreationPage mainPage = new WizardNewRubyProjectCreationPage("basicNewProjectPage"); //$NON-NLS-1$
+		WizardNewRubyProjectCreationPage mainPage = new WizardNewRubyProjectCreationPage(
+				"basicNewProjectPage", selectedTemplate); //$NON-NLS-1$
 		mainPage.setTitle(Messages.NewProject_title);
 		mainPage.setDescription(Messages.NewRubyProject_description);
 		mainPage.setWizard(this);
