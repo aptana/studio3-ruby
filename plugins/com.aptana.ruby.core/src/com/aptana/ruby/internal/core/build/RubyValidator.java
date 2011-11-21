@@ -18,7 +18,7 @@ import org.jrubyparser.CompatVersion;
 
 import com.aptana.core.build.AbstractBuildParticipant;
 import com.aptana.core.build.IProblem;
-import com.aptana.core.build.ValidationItem;
+import com.aptana.core.build.Problem;
 import com.aptana.index.core.build.BuildContext;
 import com.aptana.parsing.ast.IParseError;
 import com.aptana.parsing.ast.IParseError.Severity;
@@ -87,7 +87,7 @@ public class RubyValidator extends AbstractBuildParticipant
 			{
 				line = getLineNumber(parseError.getOffset(), contents);
 			}
-			problems.add(new ValidationItem(severity, parseError.getMessage(), parseError.getOffset(), parseError.getLength(), line, uri));
+			problems.add(new Problem(severity, parseError.getMessage(), parseError.getOffset(), parseError.getLength(), line, uri));
 		}
 		context.putProblems(IMarker.PROBLEM, problems);
 	}
