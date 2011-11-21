@@ -9,6 +9,7 @@ package com.aptana.editor.erb.html.outline;
 
 import java.util.StringTokenizer;
 
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Image;
 
 import com.aptana.core.util.StringUtil;
@@ -17,7 +18,6 @@ import com.aptana.editor.erb.ERBEditorPlugin;
 import com.aptana.editor.erb.html.parsing.ERBScript;
 import com.aptana.editor.html.outline.HTMLOutlineLabelProvider;
 import com.aptana.editor.ruby.outline.RubyOutlineLabelProvider;
-import com.aptana.parsing.IParseState;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.IRubyScript;
@@ -29,11 +29,11 @@ public class RHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider
 
 	private static final int TRIM_TO_LENGTH = 20;
 
-	private IParseState fParseState;
+	private IDocument fParseState;
 
-	public RHTMLOutlineLabelProvider(IParseState parseState)
+	public RHTMLOutlineLabelProvider(IDocument document)
 	{
-		fParseState = parseState;
+		fParseState = document;
 		addSubLanguage(IRubyConstants.CONTENT_TYPE_RUBY, new RubyOutlineLabelProvider());
 	}
 
@@ -69,7 +69,7 @@ public class RHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider
 	{
 		StringBuilder text = new StringBuilder();
 		text.append(script.getStartTag());
-		String source = new String(fParseState.getSource());
+		String source = fParseState.get();
 		// locates the ruby source
 		IRubyScript ruby = script.getScript();
 		source = source.substring(ruby.getStartingOffset(), Math.min(ruby.getEndingOffset() + 1, source.length()));

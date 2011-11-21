@@ -57,7 +57,7 @@ public class SassSourceEditor extends AbstractThemeableEditor
 	}
 
 	@Override
-	protected String getFileServiceContentTypeId()
+	public String getContentType()
 	{
 		return ISassConstants.CONTENT_TYPE_SASS;
 	}

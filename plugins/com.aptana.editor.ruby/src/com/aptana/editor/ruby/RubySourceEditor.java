@@ -25,13 +25,11 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.jrubyparser.CompatVersion;
 
 import com.aptana.core.logging.IdeLog;
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.outline.CommonOutlineItem;
-import com.aptana.editor.common.parsing.FileService;
 import com.aptana.editor.common.text.reconciler.IFoldingComputer;
 import com.aptana.editor.ruby.internal.text.RubyFoldingComputer;
 import com.aptana.editor.ruby.outline.RubyOutlineContentProvider;
@@ -43,7 +41,6 @@ import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.IRubyElement;
 import com.aptana.ruby.core.IRubyMethod;
 import com.aptana.ruby.core.IRubyType;
-import com.aptana.ruby.core.RubyParseState;
 
 @SuppressWarnings("restriction")
 public class RubySourceEditor extends AbstractThemeableEditor
@@ -129,7 +126,7 @@ public class RubySourceEditor extends AbstractThemeableEditor
 
 	protected IParseNode getASTNodeAt(int offset)
 	{
-		IParseNode root = getFileService().getParseResult();
+		IParseNode root = getAST();
 		if (root == null)
 		{
 			return null;
@@ -285,19 +282,8 @@ public class RubySourceEditor extends AbstractThemeableEditor
 	}
 
 	@Override
-	protected String getFileServiceContentTypeId()
+	public String getContentType()
 	{
 		return IRubyConstants.CONTENT_TYPE_RUBY;
-	}
-
-	@Override
-	protected FileService createFileService()
-	{
-		RubyParseState parseState = new RubyParseState();
-		parseState.setFilename(getEditorInput().getName());
-		parseState.setStartingLineNumber(1);
-		parseState.setVersion(CompatVersion.BOTH); // FIXME Determine the proper version based on the file here!
-		parseState.setWarnings(null); // ignore warnings
-		return new FileService(getFileServiceContentTypeId(), parseState);
 	}
 }
