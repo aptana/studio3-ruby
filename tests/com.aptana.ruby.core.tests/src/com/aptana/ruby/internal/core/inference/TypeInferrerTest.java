@@ -13,6 +13,7 @@ import com.aptana.index.core.IndexManager;
 import com.aptana.ruby.core.index.IRubyIndexConstants;
 import com.aptana.ruby.core.inference.ITypeGuess;
 
+@SuppressWarnings("nls")
 public class TypeInferrerTest extends TestCase
 {
 	private List<Index> indicesforTesting;

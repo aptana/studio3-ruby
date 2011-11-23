@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.Node;
 
+@SuppressWarnings("nls")
 public class CompletionContextTest extends TestCase
 {
 
