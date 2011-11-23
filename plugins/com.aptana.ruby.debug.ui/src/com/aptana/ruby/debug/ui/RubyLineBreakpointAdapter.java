@@ -2,6 +2,7 @@ package com.aptana.ruby.debug.ui;
 
 import java.io.File;
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,7 +50,9 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 	{
 		IFileStore store = getFileStore(part);
 		if (store == null)
+		{
 			return;
+		}
 
 		URI uri = store.toURI();
 		IResource resource = null;
@@ -70,6 +73,14 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 		{
 			fileName = resource.getProjectRelativePath();
 		}
+
+		if (IdeLog.isInfoEnabled(RubyDebugUIPlugin.getDefault(), null))
+		{
+			IdeLog.logInfo(RubyDebugUIPlugin.getDefault(), MessageFormat.format(
+					"Toggling breakpoint for URI: {0}, filename: {1}. Marker being set on resource: {2}", //$NON-NLS-1$
+					uri.toString(), fileName, resource.getLocation().toOSString()));
+		}
+
 		ITextSelection textSelection = (ITextSelection) selection;
 		int lineNumber = textSelection.getStartLine();
 		IBreakpoint[] breakpoints = DebugPlugin.getDefault().getBreakpointManager()
