@@ -20,6 +20,7 @@ import org.eclipse.ui.IWorkbench;
 
 import com.aptana.core.projects.templates.IProjectTemplate;
 import com.aptana.core.projects.templates.TemplateType;
+import com.aptana.projects.ProjectsPlugin;
 import com.aptana.projects.WebProjectNature;
 import com.aptana.projects.internal.wizards.NewProjectWizard;
 import com.aptana.projects.internal.wizards.ProjectTemplateSelectionPage;
@@ -64,7 +65,8 @@ public class NewRubyProjectWizard extends NewProjectWizard implements IExecutabl
 		addPage(mainPage);
 
 		// project templates
-		List<IProjectTemplate> templates = getProjectTemplates(getTemplateTypes());
+		List<IProjectTemplate> templates = ProjectsPlugin.getDefault().getTemplatesManager()
+				.getTemplates(getTemplateTypes());
 		if (templates.size() > 0 && selectedTemplate == null)
 		{
 			addPage(templatesPage = new ProjectTemplateSelectionPage(TEMPLATE_SELECTION_PAGE_NAME, templates));
@@ -158,7 +160,7 @@ public class NewRubyProjectWizard extends NewProjectWizard implements IExecutabl
 			super.cloneFromGit(newProjectHandle, description);
 		}
 	}
-	
+
 	@Override
 	protected void sendProjectCreateEvent(Map<String, String> payload)
 	{
