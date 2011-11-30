@@ -147,7 +147,8 @@
             point="com.aptana.buildpath.core.buildParticipants">
          <participant
                class="com.aptana.ruby.internal.core.build.RubyTaskDetector"
-               name="Ruby Task Detector"
+               id="com.aptana.ruby.core.build.RubyTaskDetector"
+               name="%ruby.task.detector.name"
                priority="50">
             <contentTypeBinding
                   contentTypeId="com.aptana.contenttype.ruby">
@@ -158,7 +159,8 @@
          </participant>
          <participant
                class="com.aptana.ruby.internal.core.build.RubyValidator"
-               name="Ruby Validator"
+               id="com.aptana.ruby.core.build.RubyValidator"
+               name="%ruby.validator.name"
                priority="51">
             <contentTypeBinding
                   contentTypeId="com.aptana.contenttype.ruby">
