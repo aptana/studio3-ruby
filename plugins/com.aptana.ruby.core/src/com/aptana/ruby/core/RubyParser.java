@@ -46,7 +46,7 @@ public class RubyParser implements IParser
 
 	public IParseRootNode parse(IParseState parseState)
 	{
-		String source = new String(parseState.getSource());
+		String source = parseState.getSource();
 		RubyScript root = new RubyScript(parseState.getStartingOffset(), parseState.getStartingOffset()
 				+ source.length() - 1);
 
@@ -97,7 +97,8 @@ public class RubyParser implements IParser
 		catch (SyntaxException se)
 		{
 			int start = se.getPosition().getStartOffset();
-			parseState.addError(new ParseError(start, se.getPosition().getEndOffset() - start, se.getMessage(), Severity.ERROR));
+			parseState.addError(new ParseError(start, se.getPosition().getEndOffset() - start, se.getMessage(),
+					Severity.ERROR));
 		}
 		catch (IOException e)
 		{

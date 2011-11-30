@@ -36,7 +36,7 @@ public class RHTMLParser extends CompositeParser
 	@Override
 	protected IParseNode processEmbeddedlanguage(IParseState parseState) throws IOException, Exception
 	{
-		String source = new String(parseState.getSource());
+		String source = parseState.getSource();
 		int startingOffset = parseState.getStartingOffset();
 		IParseNode root = null;
 
