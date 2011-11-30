@@ -60,7 +60,7 @@ public class RHTMLFileIndexingParticipant extends AbstractFileIndexingParticipan
 				return;
 			}
 			HTMLParseState parseState = new HTMLParseState();
-			parseState.setEditState(fileContents, null, 0, 0);
+			parseState.setEditState(fileContents, 0);
 			parseState.setProgressMonitor(sub.newChild(20));
 
 			IParseNode parseNode = ParserPoolFactory.parse(IERBConstants.CONTENT_TYPE_HTML_ERB, parseState);
