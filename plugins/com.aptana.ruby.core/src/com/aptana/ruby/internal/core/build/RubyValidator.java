@@ -22,7 +22,6 @@ import com.aptana.core.build.Problem;
 import com.aptana.index.core.build.BuildContext;
 import com.aptana.parsing.ast.IParseError;
 import com.aptana.parsing.ast.IParseError.Severity;
-import com.aptana.ruby.core.CollectingRubyWarnings;
 import com.aptana.ruby.core.RubyParseState;
 import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
@@ -69,7 +68,6 @@ public class RubyValidator extends AbstractBuildParticipant
 		{
 			contents = context.getContents();
 			uri = context.getURI().toString();
-			parseState.setWarnings(new CollectingRubyWarnings(uri));
 			context.getAST(parseState);
 		}
 		catch (CoreException e)
@@ -87,7 +85,8 @@ public class RubyValidator extends AbstractBuildParticipant
 			{
 				line = getLineNumber(parseError.getOffset(), contents);
 			}
-			problems.add(new Problem(severity, parseError.getMessage(), parseError.getOffset(), parseError.getLength(), line, uri));
+			problems.add(new Problem(severity, parseError.getMessage(), parseError.getOffset(), parseError.getLength(),
+					line, uri));
 		}
 		context.putProblems(IMarker.PROBLEM, problems);
 	}

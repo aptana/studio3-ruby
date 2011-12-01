@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jrubyparser.CompatVersion;
-import org.jrubyparser.IRubyWarnings;
 import org.jrubyparser.SourcePosition;
 import org.jrubyparser.ast.CommentNode;
 import org.jrubyparser.lexer.LexerSource;
@@ -52,16 +51,16 @@ public class RubyParser implements IParser
 
 		CompatVersion compatVersion = CompatVersion.BOTH;
 		int lineNumber = 0;
-		String fileName = "<unnamed file>"; //$NON-NLS-1$
-		IRubyWarnings warnings = new CollectingRubyWarnings(fileName);
+		String fileName = "<unnamed file>"; //$NON-NLS-1$		
 		if (parseState instanceof RubyParseState)
 		{
 			RubyParseState rubyParseState = (RubyParseState) parseState;
 			compatVersion = rubyParseState.getCompatVersion();
-			warnings = rubyParseState.getWarnings();
 			lineNumber = rubyParseState.getStartingLineNumber();
 			fileName = rubyParseState.getFilename();
 		}
+		
+		CollectingRubyWarnings warnings = new CollectingRubyWarnings(fileName);
 
 		org.jrubyparser.parser.RubyParser parser = null;
 		ParserConfiguration config = new ParserConfiguration(lineNumber, compatVersion);
@@ -105,17 +104,14 @@ public class RubyParser implements IParser
 			IdeLog.logError(RubyCorePlugin.getDefault(), "Failed to parse ruby code due to IOException", e); //$NON-NLS-1$
 		}
 		// Add warnings
-		if (warnings instanceof CollectingRubyWarnings)
+
+		CollectingRubyWarnings collector = (CollectingRubyWarnings) warnings;
+		for (IParseError warning : collector.getWarnings())
 		{
-			CollectingRubyWarnings collector = (CollectingRubyWarnings) warnings;
-			for (IParseError warning : collector.getWarnings())
-			{
-				parseState.addError(warning);
-			}
+			parseState.addError(warning);
 		}
 
 		parseState.setParseResult(root);
-
 		return root;
 	}
 

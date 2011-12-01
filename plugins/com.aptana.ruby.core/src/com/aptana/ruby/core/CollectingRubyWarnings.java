@@ -22,7 +22,7 @@ import com.aptana.parsing.ast.ParseError;
  * 
  * @author cwilliams
  */
-public class CollectingRubyWarnings implements IRubyWarnings
+class CollectingRubyWarnings implements IRubyWarnings
 {
 
 	private String filename;
