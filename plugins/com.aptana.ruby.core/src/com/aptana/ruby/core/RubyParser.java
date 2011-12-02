@@ -96,7 +96,7 @@ public class RubyParser implements IParser
 		catch (SyntaxException se)
 		{
 			int start = se.getPosition().getStartOffset();
-			parseState.addError(new ParseError(start, se.getPosition().getEndOffset() - start, se.getMessage(),
+			parseState.addError(new ParseError(IRubyConstants.CONTENT_TYPE_RUBY, start, se.getPosition().getEndOffset() - start, se.getMessage(),
 					Severity.ERROR));
 		}
 		catch (IOException e)

@@ -72,7 +72,7 @@ class CollectingRubyWarnings implements IRubyWarnings
 
 	private IParseError createWarning(String message, int lineNumber, int offset, int length, String path)
 	{
-		return new ParseError(offset, length, message, Severity.WARNING);
+		return new ParseError(IRubyConstants.CONTENT_TYPE_RUBY, offset, length, message, Severity.WARNING);
 	}
 
 	public Collection<IParseError> getWarnings()
