@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.radrails.rails_3.0.3.201112121812-7e-7Q7f4kaPI1DFY.jar" id="org.radrails.rails" version="3.0.3.201112121812-7e-7Q7f4kaPI1DFY">
+      <category name="com.aptana.radrails.category"/>
+   </feature>
+   <category-def name="com.aptana.radrails.category" label="Aptana RadRails"/>
+</site>
