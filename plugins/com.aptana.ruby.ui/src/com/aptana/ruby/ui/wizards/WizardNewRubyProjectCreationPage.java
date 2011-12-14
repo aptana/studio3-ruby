@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
@@ -64,16 +65,19 @@ import org.eclipse.ui.internal.ide.dialogs.IDEResourceInfoUtils;
 import com.aptana.core.projects.templates.IProjectTemplate;
 import com.aptana.core.util.StringUtil;
 import com.aptana.projects.internal.wizards.AbstractNewProjectWizard;
+import com.aptana.projects.internal.wizards.IStepIndicatorWizardPage;
 import com.aptana.projects.internal.wizards.IWizardProjectCreationPage;
 import com.aptana.ui.util.SWTUtils;
 import com.aptana.ui.util.UIUtils;
 import com.aptana.ui.widgets.SelectedTemplateComposite;
+import com.aptana.ui.widgets.StepIndicatorComposite;
 
 /**
  * TODO Extract common code between this and our Web project wizard!
  */
 @SuppressWarnings("restriction")
-public class WizardNewRubyProjectCreationPage extends WizardPage implements IWizardProjectCreationPage
+public class WizardNewRubyProjectCreationPage extends WizardPage implements IWizardProjectCreationPage,
+		IStepIndicatorWizardPage
 {
 
 	// initial value stores
@@ -106,6 +110,10 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 
 	// Initial Project template
 	private IProjectTemplate projectTemplate = null;
+
+	// Used for step indicator composite
+	protected StepIndicatorComposite stepIndicatorComposite;
+	protected String[] stepNames;
 
 	// constants
 	private static final int SIZING_TEXT_FIELD_WIDTH = 250;
@@ -140,28 +148,31 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 	 */
 	public void createControl(Composite parent)
 	{
-		Composite composite = new Composite(parent, SWT.NULL);
+		Composite pageComposite = new Composite(parent, SWT.NONE);
+		GridLayout pageLayout = GridLayoutFactory.fillDefaults().spacing(0, 5).create();
+		pageComposite.setLayout(pageLayout);
+		pageComposite.setLayoutData(GridDataFactory.fillDefaults().create());
+
+		stepIndicatorComposite = new StepIndicatorComposite(pageComposite, stepNames);
+		stepIndicatorComposite.setSelection(getStepName());
 
 		initializeDialogUnits(parent);
 
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IIDEHelpContextIds.NEW_PROJECT_WIZARD_PAGE);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(pageComposite, IIDEHelpContextIds.NEW_PROJECT_WIZARD_PAGE);
 
-		composite.setLayout(new GridLayout());
-		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		createProjectNameGroup(composite);
+		createProjectNameGroup(pageComposite);
 
 		// create Location section
-		createDestinationLocationArea(composite);
+		createDestinationLocationArea(pageComposite);
 
 		// Create the project template section (if required)
-		createProjectTemplateSection(composite);
+		createProjectTemplateSection(pageComposite);
 
 		// create warning section
-		createWarningArea(composite);
+		createWarningArea(pageComposite);
 
 		// Add the generate app section
-		createGenerateGroup(composite);
+		createGenerateGroup(pageComposite);
 
 		// Scale the button based on the rest of the dialog
 		setButtonLayoutData(browseButton);
@@ -172,8 +183,8 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 		// Show description on opening
 		setErrorMessage(null);
 		setMessage(null);
-		setControl(composite);
-		Dialog.applyDialogFont(composite);
+		setControl(pageComposite);
+		Dialog.applyDialogFont(pageComposite);
 	}
 
 	protected void createProjectTemplateSection(Composite parent)
@@ -892,4 +903,13 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 
 	}
 
+	public String getStepName()
+	{
+		return Messages.NewRubyProject_stepName;
+	}
+
+	public void initStepIndicator(String[] stepNames)
+	{
+		this.stepNames = stepNames;
+	}
 }

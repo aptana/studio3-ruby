@@ -21,6 +21,7 @@ public class Messages extends NLS
 
 	public static String NewRubyProject_windowTitle;
 	public static String NewRubyProject_description;
+	public static String NewRubyProject_stepName;
 
 	public static String WizardNewProjectCreationPage_BrowseLabel;
 	public static String WizardNewProjectCreationPage_CloneGitRepoLabel;
