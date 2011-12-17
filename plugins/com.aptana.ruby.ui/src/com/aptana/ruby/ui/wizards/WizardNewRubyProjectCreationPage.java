@@ -62,6 +62,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.ide.IIDEHelpContextIds;
 import org.eclipse.ui.internal.ide.dialogs.IDEResourceInfoUtils;
 
+import com.aptana.core.CoreStrings;
 import com.aptana.core.projects.templates.IProjectTemplate;
 import com.aptana.core.util.StringUtil;
 import com.aptana.projects.internal.wizards.AbstractNewProjectWizard;
@@ -238,7 +239,7 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 
 		// browse button
 		browseButton = new Button(projectGroup, SWT.PUSH);
-		browseButton.setText(Messages.WizardNewProjectCreationPage_BrowseLabel);
+		browseButton.setText(StringUtil.ellipsify(CoreStrings.BROWSE));
 		browseButton.addSelectionListener(new SelectionAdapter()
 		{
 			public void widgetSelected(SelectionEvent event)
@@ -574,7 +575,7 @@ public class WizardNewRubyProjectCreationPage extends WizardPage implements IWiz
 
 		// browse button
 		gitBrowseButton = new Button(projectGroup, SWT.PUSH);
-		gitBrowseButton.setText(Messages.WizardNewProjectCreationPage_BrowseLabel);
+		gitBrowseButton.setText(StringUtil.ellipsify(CoreStrings.BROWSE));
 		gitBrowseButton.addSelectionListener(new SelectionAdapter()
 		{
 			@Override
