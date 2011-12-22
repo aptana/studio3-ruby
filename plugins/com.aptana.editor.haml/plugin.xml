@@ -78,5 +78,17 @@
          </action>
       </editorContribution>
    </extension>
+   <extension
+         point="org.eclipse.compare.contentMergeViewers">
+      <contentTypeBinding
+            contentMergeViewerId="com.aptana.editor.haml.contentMergeViewer"
+            contentTypeId="com.aptana.contenttype.haml">
+      </contentTypeBinding>
+      <viewer
+            class="com.aptana.editor.haml.merge.HAMLMergeViewerCreator"
+            extensions="haml"
+            id="com.aptana.editor.haml.contentMergeViewer">
+      </viewer>
+   </extension>
 
 </plugin>

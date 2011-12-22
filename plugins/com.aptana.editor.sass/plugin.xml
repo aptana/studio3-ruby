@@ -53,5 +53,17 @@
          </contentType>
       </hover>
    </extension>
+   <extension
+         point="org.eclipse.compare.contentMergeViewers">
+      <contentTypeBinding
+            contentMergeViewerId="com.aptana.editor.sass.contentMergeViewer"
+            contentTypeId="com.aptana.contenttype.sass">
+      </contentTypeBinding>
+      <viewer
+            class="com.aptana.editor.sass.merge.SassMergeViewerCreator"
+            extensions="sass, scss, less"
+            id="com.aptana.editor.sass.contentMergeViewer">
+      </viewer>
+   </extension>
 
 </plugin>
