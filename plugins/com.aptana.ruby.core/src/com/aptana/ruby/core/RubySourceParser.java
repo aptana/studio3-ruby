@@ -84,7 +84,7 @@ public class RubySourceParser
 		{
 			if (IdeLog.isInfoEnabled(RubyCorePlugin.getDefault(), null))
 			{
-				IdeLog.logInfo(RubyCorePlugin.getDefault(), "Unable to parse ruby file", e, null);
+				IdeLog.logInfo(RubyCorePlugin.getDefault(), "Unable to parse ruby file", e, null); //$NON-NLS-1$
 			}
 		}
 		finally

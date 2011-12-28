@@ -62,9 +62,6 @@
             id="com.aptana.contenttype.jsca">
       </content-type>
       <content-type
-            id="com.aptana.contenttype.jss">
-      </content-type>
-      <content-type
             id="com.aptana.contenttype.markdown">
       </content-type>
       <content-type
@@ -78,6 +75,9 @@
       </content-type>
       <content-type
             id="com.aptana.editor.text.content-type.generic">
+      </content-type>
+      <content-type
+            id="com.appcelerator.titanium.contenttype.jss">
       </content-type>
    </extension>
    <extension
