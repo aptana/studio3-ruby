@@ -108,9 +108,9 @@ public class RubyFormatterIndentationTabPage extends FormatterModifyTabPage
 		tabPolicy.addSelectionListener(tabPolicyListener);
 		manager.addInitializeListener(tabPolicyListener);
 		indentSize = manager.createNumber(tabPolicyGroup, RubyFormatterConstants.FORMATTER_INDENTATION_SIZE,
-				FormatterMessages.IndentationTabPage_general_group_option_indent_size);
+				FormatterMessages.IndentationTabPage_general_group_option_indent_size, 1);
 		tabSize = manager.createNumber(tabPolicyGroup, RubyFormatterConstants.FORMATTER_TAB_SIZE,
-				FormatterMessages.IndentationTabPage_general_group_option_tab_size);
+				FormatterMessages.IndentationTabPage_general_group_option_tab_size, 1);
 		tabSize.addModifyListener(new ModifyListener()
 		{
 			public void modifyText(ModifyEvent e)
