@@ -15,12 +15,16 @@ package com.aptana.editor.ruby.formatter;
 import java.net.URL;
 import java.util.Map;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISharedTextColors;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import com.aptana.core.util.EclipseUtil;
 import com.aptana.editor.common.AbstractThemeableEditor;
+import com.aptana.editor.common.util.EditorUtil;
+import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.editor.ruby.RubySourceConfiguration;
 import com.aptana.editor.ruby.RubySourceViewerConfiguration;
 import com.aptana.editor.ruby.formatter.preferences.RubyFormatterModifyDialog;
@@ -104,5 +108,54 @@ public class RubyFormatterFactory extends AbstractScriptFormatterFactory
 	public Object getPartitioningConfiguration()
 	{
 		return RubySourceConfiguration.getDefault();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.formatter.AbstractScriptFormatterFactory#getEclipsePreferences()
+	 */
+	@Override
+	protected IEclipsePreferences getEclipsePreferences()
+	{
+		return EclipseUtil.instanceScope().getNode(RubyEditorPlugin.PLUGIN_ID);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.formatter.AbstractScriptFormatterFactory#getFormatterTabPolicy()
+	 */
+	@Override
+	protected String getFormatterTabPolicy(Map<String, String> preferences)
+	{
+		return preferences.get(RubyFormatterConstants.FORMATTER_TAB_CHAR);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.formatter.AbstractScriptFormatterFactory#getEditorTabSize()
+	 */
+	@Override
+	protected int getEditorTabSize()
+	{
+		return EditorUtil.getSpaceIndentSize(RubyEditorPlugin.getDefault().getBundle().getSymbolicName());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.formatter.AbstractScriptFormatterFactory#getDefaultEditorTabSize()
+	 */
+	protected int getDefaultEditorTabSize()
+	{
+		return EditorUtil.getDefaultSpaceIndentSize(RubyEditorPlugin.getDefault().getBundle().getSymbolicName());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.formatter.AbstractScriptFormatterFactory#getFormatterTabSizeKey()
+	 */
+	@Override
+	protected String getFormatterTabSizeKey()
+	{
+		return RubyFormatterConstants.FORMATTER_TAB_SIZE;
 	}
 }
