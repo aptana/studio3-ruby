@@ -15,6 +15,8 @@ import org.osgi.service.prefs.BackingStoreException;
 
 import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.EclipseUtil;
+import com.aptana.editor.common.util.EditorUtil;
+import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.editor.ruby.formatter.RubyFormatterConstants;
 import com.aptana.editor.ruby.formatter.RubyFormatterPlugin;
 import com.aptana.formatter.IDebugScopes;
@@ -52,7 +54,10 @@ public class RubyFormatterPreferenceInitializer extends AbstractPreferenceInitia
 		store.putInt(RubyFormatterConstants.WRAP_COMMENTS_LENGTH, 80);
 
 		store.put(RubyFormatterConstants.FORMATTER_TAB_CHAR, CodeFormatterConstants.EDITOR);
-		store.put(RubyFormatterConstants.FORMATTER_TAB_SIZE, "2"); //$NON-NLS-1$
+		store.put(
+				RubyFormatterConstants.FORMATTER_TAB_SIZE,
+				Integer.toString(EditorUtil.getSpaceIndentSize(RubyEditorPlugin.getDefault().getBundle()
+						.getSymbolicName())));
 		store.put(RubyFormatterConstants.FORMATTER_INDENTATION_SIZE, "2"); //$NON-NLS-1$
 
 		store.putBoolean(RubyFormatterConstants.FORMATTER_OFF_ON_ENABLED, false);

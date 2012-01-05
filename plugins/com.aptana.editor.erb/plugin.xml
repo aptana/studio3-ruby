@@ -82,5 +82,17 @@
             name="%page.erb.name">
       </page>
    </extension>
+   <extension
+         point="org.eclipse.compare.contentMergeViewers">
+      <contentTypeBinding
+            contentMergeViewerId="com.aptana.editor.rhtml.contentMergeViewer"
+            contentTypeId="com.aptana.contenttype.html.erb">
+      </contentTypeBinding>
+      <viewer
+            class="com.aptana.editor.erb.html.RHTMLMergeViewerCreator"
+            extensions="rhtml,erb"
+            id="com.aptana.editor.rhtml.contentMergeViewer">
+      </viewer>
+   </extension>
 
 </plugin>

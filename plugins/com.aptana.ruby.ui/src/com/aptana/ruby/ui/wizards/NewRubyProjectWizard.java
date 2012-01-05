@@ -150,4 +150,4 @@ public class NewRubyProjectWizard extends AbstractNewProjectWizard implements IE
 			super.cloneFromGit(newProjectHandle, description, monitor);
 		}
 	}
-}
+	}

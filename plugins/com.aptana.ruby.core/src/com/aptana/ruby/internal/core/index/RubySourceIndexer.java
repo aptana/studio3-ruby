@@ -21,6 +21,7 @@ import com.aptana.ruby.core.index.IRubyIndexConstants;
 // TODO Also index symbols?
 class RubySourceIndexer implements ISourceElementRequestor
 {
+
 	private static final String NAMESPACE_DELIMETER = IRubyConstants.NAMESPACE_DELIMETER;
 
 	protected static final String VERSION_KEY = "index_version"; //$NON-NLS-1$

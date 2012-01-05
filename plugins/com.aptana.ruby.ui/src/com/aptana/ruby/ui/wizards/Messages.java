@@ -21,8 +21,10 @@ public class Messages extends NLS
 
 	public static String NewRubyProject_windowTitle;
 	public static String NewRubyProject_description;
+	public static String NewRubyProject_stepName;
 
-	public static String WizardNewProjectCreationPage_BrowseLabel;
+	public static String ProjectLocationSelectionDialog_locationLabel;
+
 	public static String WizardNewProjectCreationPage_CloneGitRepoLabel;
 	public static String WizardNewProjectCreationPage_GenerateAppGroupLabel;
 	public static String WizardNewProjectCreationPage_nameLabel;
@@ -30,7 +32,6 @@ public class Messages extends NLS
 	public static String WizardNewProjectCreationPage_NoGeneratorText2;
 	public static String WizardNewProjectCreationPage_projectNameEmpty;
 	public static String WizardNewProjectCreationPage_projectExistsMessage;
-	public static String ProjectLocationSelectionDialog_locationLabel;
 	public static String WizardNewProjectCreationPage_projectLocationEmpty;
 	public static String WizardNewProjectCreationPage_gitLocationEmpty;
 	public static String WizardNewProjectCreationPage_location_has_existing_content_warning;

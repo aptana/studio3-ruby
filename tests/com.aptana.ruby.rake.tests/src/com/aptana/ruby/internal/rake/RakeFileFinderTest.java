@@ -125,6 +125,7 @@ public class RakeFileFinderTest extends TestCase
 						return false;
 					}
 
+					@SuppressWarnings("rawtypes")
 					public Object getAdapter(Class adapter)
 					{
 						return null;

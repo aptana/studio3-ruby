@@ -388,8 +388,7 @@ public class RubyContentAssistProcessor extends CommonContentAssistProcessor
 				else if (aNamespace.startsWith(fullPrefix))
 				{
 					// Suggest next segment of aNamespace
-					int previousDelim = aNamespace.lastIndexOf(IRubyConstants.NAMESPACE_DELIMETER,
-							fullPrefix.length());
+					int previousDelim = aNamespace.lastIndexOf(IRubyConstants.NAMESPACE_DELIMETER, fullPrefix.length());
 					if (previousDelim == -1)
 					{
 						previousDelim = 0;

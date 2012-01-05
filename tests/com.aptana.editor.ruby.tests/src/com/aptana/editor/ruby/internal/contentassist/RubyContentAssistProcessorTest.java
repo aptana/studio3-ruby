@@ -26,6 +26,7 @@ import com.aptana.ruby.core.inference.ITypeInferrer;
 import com.aptana.ruby.internal.core.index.RubyFileIndexingParticipant;
 import com.aptana.ruby.internal.core.inference.TypeInferrer;
 
+@SuppressWarnings("restriction")
 public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 {
 	private List<Index> indicesforTesting;

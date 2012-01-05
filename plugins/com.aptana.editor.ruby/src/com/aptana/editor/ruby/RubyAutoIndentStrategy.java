@@ -69,7 +69,7 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 		}
 		catch (BadLocationException e)
 		{
-			IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to get text of line at offset: " + p, e);
+			IdeLog.logError(RubyEditorPlugin.getDefault(), "Unable to get text of line at offset: " + p, e); //$NON-NLS-1$
 			return false;
 		}
 
