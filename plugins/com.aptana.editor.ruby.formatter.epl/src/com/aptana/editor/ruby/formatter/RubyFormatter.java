@@ -31,6 +31,7 @@ import org.jrubyparser.ast.CommentNode;
 import org.jrubyparser.parser.ParserResult;
 
 import com.aptana.core.logging.IdeLog;
+import com.aptana.editor.common.util.EditorUtil;
 import com.aptana.editor.ruby.RubyEditorPlugin;
 import com.aptana.editor.ruby.formatter.internal.RubyFormatterContext;
 import com.aptana.editor.ruby.formatter.internal.RubyFormatterNodeBuilder;
@@ -147,7 +148,7 @@ public class RubyFormatter extends AbstractScriptFormatter
 	 */
 	public int getEditorSpecificTabWidth()
 	{
-		return FormatterUtils.getEditorTabWidth(RubyEditorPlugin.getDefault().getPreferenceStore());
+		return EditorUtil.getSpaceIndentSize(RubyEditorPlugin.getDefault().getBundle().getSymbolicName());
 	}
 
 	/*

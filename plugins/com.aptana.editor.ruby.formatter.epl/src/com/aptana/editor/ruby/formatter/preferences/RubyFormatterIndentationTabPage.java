@@ -77,7 +77,7 @@ public class RubyFormatterIndentationTabPage extends FormatterModifyTabPage
 				manager.enableControl(tabSize, !editorSettingsMode);
 				if (editorSettingsMode)
 				{
-					setEditorTabWidth(RubyEditorPlugin.getDefault().getPreferenceStore(), tabSize, indentSize);
+					setEditorTabWidth(RubyEditorPlugin.getDefault().getBundle().getSymbolicName(), tabSize, indentSize);
 				}
 			}
 		}
@@ -92,7 +92,7 @@ public class RubyFormatterIndentationTabPage extends FormatterModifyTabPage
 			manager.enableControl(tabSize, !editorSettingsMode);
 			if (editorSettingsMode)
 			{
-				setEditorTabWidth(RubyEditorPlugin.getDefault().getPreferenceStore(), tabSize, indentSize);
+				setEditorTabWidth(RubyEditorPlugin.getDefault().getBundle().getSymbolicName(), tabSize, indentSize);
 			}
 		}
 
