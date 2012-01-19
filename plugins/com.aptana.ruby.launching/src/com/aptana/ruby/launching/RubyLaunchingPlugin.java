@@ -189,21 +189,9 @@ public class RubyLaunchingPlugin extends Plugin
 	{
 		// FIXME this is including every single gem! We should narrow the list down based on Gemfile in project root if
 		// we can!
-		IPath wd = null;
-		if (project != null)
-		{
-			wd = project.getLocation();
-		}
+		IPath wd = (project == null ? null : project.getLocation());
 		IPath rubyPath = rubyExecutablePath(wd);
-		String rubyPathString = null;
-		if (rubyPath == null)
-		{
-			rubyPathString = RUBY;
-		}
-		else
-		{
-			rubyPathString = rubyPath.toOSString();
-		}
+		String rubyPathString = (rubyPath == null ? RUBY : rubyPath.toOSString());
 
 		if (!rubyToGemPaths.containsKey(rubyPathString))
 		{

@@ -13,8 +13,20 @@ public class Messages extends NLS
 {
 	private static final String BUNDLE_NAME = "com.aptana.ruby.internal.core.index.messages"; //$NON-NLS-1$
 
+	public static String CoreStubber_GatherLoadpathsMsg;
+
+	public static String CoreStubber_GatherRubyInstallsMsg;
+
+	public static String CoreStubber_GenerateActualStubsMsg;
+
 	public static String CoreStubber_IndexingRuby;
 	public static String CoreStubber_IndexingRubyCore;
+
+	public static String CoreStubber_IndexSubTaskName;
+
+	public static String CoreStubber_RubyFilesCheckMsg;
+
+	public static String CoreStubber_TaskName;
 
 	static
 	{
