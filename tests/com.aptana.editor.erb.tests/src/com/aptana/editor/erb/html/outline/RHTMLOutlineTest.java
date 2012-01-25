@@ -9,34 +9,31 @@ package com.aptana.editor.erb.html.outline;
 
 import junit.framework.TestCase;
 
+import org.eclipse.jface.text.Document;
+
 import com.aptana.editor.erb.ERBEditorPlugin;
-import com.aptana.editor.erb.html.parsing.RHTMLParser;
+import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.html.HTMLPlugin;
-import com.aptana.editor.html.parsing.HTMLParseState;
+import com.aptana.parsing.ParserPoolFactory;
+import com.aptana.parsing.ast.IParseRootNode;
 
 public class RHTMLOutlineTest extends TestCase
 {
 
-	private RHTMLParser fParser;
-	private HTMLParseState fParseState;
-
 	private RHTMLOutlineContentProvider fContentProvider;
 	private RHTMLOutlineLabelProvider fLabelProvider;
+	private Document fDocument;
 
 	@Override
 	protected void setUp() throws Exception
 	{
-		fParser = new RHTMLParser();
-		fParseState = new HTMLParseState();
 		fContentProvider = new RHTMLOutlineContentProvider();
-		fLabelProvider = new RHTMLOutlineLabelProvider(fParseState);
 	}
 
 	@Override
 	protected void tearDown() throws Exception
 	{
-		fParser = null;
-		fParseState = null;
+		fDocument = null;
 		if (fContentProvider != null)
 		{
 			fContentProvider.dispose();
@@ -52,16 +49,16 @@ public class RHTMLOutlineTest extends TestCase
 	public void testBasic() throws Exception
 	{
 		String source = "<% content_for :stylesheets do %><style type=\"text/css\"></style><% end %>";
-		fParseState.setEditState(source, source, 0, 0);
-		fParser.parse(fParseState);
+		fDocument = new Document(source);
+		fLabelProvider = new RHTMLOutlineLabelProvider(fDocument);
+		IParseRootNode root = ParserPoolFactory.parse(IERBConstants.CONTENT_TYPE_HTML_ERB, source);
 
-		Object[] elements = fContentProvider.getElements(fParseState.getParseResult());
+		Object[] elements = fContentProvider.getElements(root);
 		assertEquals(3, elements.length);
 		assertEquals("<% content_for :style... %>", fLabelProvider.getText(elements[0]));
 		assertEquals(ERBEditorPlugin.getImage("icons/embedded_code_fragment.png"), fLabelProvider.getImage(elements[0]));
 		assertEquals("style", fLabelProvider.getText(elements[1]));
-		assertEquals(HTMLPlugin.getImage("icons/element.png"),
-				fLabelProvider.getImage(elements[1]));
+		assertEquals(HTMLPlugin.getImage("icons/element.png"), fLabelProvider.getImage(elements[1]));
 		assertEquals("<% end %>", fLabelProvider.getText(elements[2]));
 		assertEquals(ERBEditorPlugin.getImage("icons/embedded_code_fragment.png"), fLabelProvider.getImage(elements[2]));
 	}

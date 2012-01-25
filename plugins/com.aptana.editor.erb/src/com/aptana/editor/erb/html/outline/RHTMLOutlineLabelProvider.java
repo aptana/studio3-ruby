@@ -29,11 +29,11 @@ public class RHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider
 
 	private static final int TRIM_TO_LENGTH = 20;
 
-	private IDocument fParseState;
+	private IDocument fDocument;
 
 	public RHTMLOutlineLabelProvider(IDocument document)
 	{
-		fParseState = document;
+		fDocument = document;
 		addSubLanguage(IRubyConstants.CONTENT_TYPE_RUBY, new RubyOutlineLabelProvider());
 	}
 
@@ -69,7 +69,7 @@ public class RHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider
 	{
 		StringBuilder text = new StringBuilder();
 		text.append(script.getStartTag());
-		String source = fParseState.get();
+		String source = fDocument.get();
 		// locates the ruby source
 		IRubyScript ruby = script.getScript();
 		source = source.substring(ruby.getStartingOffset(), Math.min(ruby.getEndingOffset() + 1, source.length()));

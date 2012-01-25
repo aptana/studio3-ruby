@@ -18,6 +18,7 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
 import com.aptana.editor.ruby.RubySourceEditor;
+import com.aptana.index.core.FileStoreBuildContext;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.IndexManager;
 import com.aptana.ruby.core.codeassist.CompletionContext;
@@ -776,9 +777,10 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		FileWriter writer = new FileWriter(file);
 		writer.write(indexFileSrc);
 		writer.close();
-		files.add(EFS.getStore(file.toURI()));
-		Index testIndex = getTestIndex();
-		rfip.index(files, testIndex, new NullProgressMonitor());
+		IFileStore fileStore = EFS.getStore(file.toURI());
+		files.add(fileStore);
+		Index testIndex = getTestIndex();		
+		rfip.indexSource(testIndex, new FileStoreBuildContext(fileStore), indexFileSrc, new NullProgressMonitor());
 		indicesforTesting.add(testIndex);
 	}
 }
