@@ -10,6 +10,7 @@ package org.radrails.rails.internal;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Set;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
@@ -34,6 +35,7 @@ import org.radrails.rails.ui.RailsUIPlugin;
 
 import com.aptana.core.epl.IMemento;
 import com.aptana.core.logging.IdeLog;
+import com.aptana.core.util.CollectionsUtil;
 import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.launching.IRubyLaunchConfigurationConstants;
 import com.aptana.ruby.debug.core.launching.InterruptingProcessFactory;
@@ -63,13 +65,12 @@ public class RailsServer extends AbstractWebServer
 	private IProject fProject;
 	private String fMode;
 	private ILaunch fLaunch;
-	private State fState;
 	private Integer fPort;
 	private String fHost;
 
 	public RailsServer()
 	{
-		this.fState = State.STOPPED;
+		super();
 		this.fPort = DEFAULT_PORT;
 		this.fHost = DEFAULT_BINDING;
 	}
@@ -92,7 +93,8 @@ public class RailsServer extends AbstractWebServer
 		catch (DebugException e)
 		{
 			updateState(State.STARTED);
-			return new Status(IStatus.ERROR, RailsUIPlugin.getPluginIdentifier(), Messages.RailsServer_StopFailedErrorMsg, e);
+			return new Status(IStatus.ERROR, RailsUIPlugin.getPluginIdentifier(),
+					Messages.RailsServer_StopFailedErrorMsg, e);
 		}
 		return Status.OK_STATUS;
 	}
@@ -157,20 +159,9 @@ public class RailsServer extends AbstractWebServer
 		return Status.OK_STATUS;
 	}
 
-	protected void updateState(State state)
-	{
-		this.fState = state;
-		fireServerChangedEvent();
-	}
-
 	public String getMode()
 	{
 		return this.fMode;
-	}
-
-	public State getState()
-	{
-		return this.fState;
 	}
 
 	public ILaunch getLaunch()
@@ -322,5 +313,10 @@ public class RailsServer extends AbstractWebServer
 	public IProject getProject()
 	{
 		return this.fProject;
+	}
+
+	public Set<String> getAvailableModes()
+	{
+		return CollectionsUtil.newSet(ILaunchManager.RUN_MODE, ILaunchManager.DEBUG_MODE);
 	}
 }

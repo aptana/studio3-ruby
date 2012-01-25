@@ -47,7 +47,11 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.aptana.core.ShellExecutable;
+import com.aptana.core.logging.IdeLog;
+import com.aptana.core.util.ArrayUtil;
+import com.aptana.core.util.CollectionsUtil;
 import com.aptana.core.util.EclipseUtil;
+import com.aptana.core.util.FileUtil;
 import com.aptana.core.util.ProcessUtil;
 import com.aptana.core.util.ResourceUtil;
 import com.aptana.core.util.StringUtil;
@@ -85,164 +89,107 @@ public class CoreStubber extends Job
 	{
 		// TODO This also needs to listen for new projects added and make sure we do the core stubbing stuff if it's
 		// tied to a new interpreter!
-		SubMonitor sub = SubMonitor.convert(monitor, 100);
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.CoreStubber_TaskName, 100);
+
+		if (sub.isCanceled())
+		{
+			return Status.CANCEL_STATUS;
+		}
 
 		// Bail out early if there are no ruby files in the user's workspace
-		if (!isRubyFileInWorkspace())
+		monitor.subTask(Messages.CoreStubber_RubyFilesCheckMsg);
+		if (!isRubyFileInWorkspace(sub.newChild(10)))
 		{
-			IResourceChangeListener fResourceListener = new IResourceChangeListener()
-			{
-
-				public void resourceChanged(IResourceChangeEvent event)
-				{
-					// listen for addition of ruby files/opening of projects (traverse them and look for ruby
-					// files)
-					IResourceDelta delta = event.getDelta();
-					if (delta == null)
-					{
-						return;
-					}
-					try
-					{
-						final boolean[] found = new boolean[1];
-						delta.accept(new IResourceDeltaVisitor()
-						{
-
-							public boolean visit(IResourceDelta delta) throws CoreException
-							{
-								if (found[0])
-									return false;
-								IResource resource = delta.getResource();
-								if (resource.getType() == IResource.FILE)
-								{
-									if (isRubyFile(resource.getProject(), resource.getName()))
-									{
-										found[0] = true;
-									}
-									return false;
-								}
-								if (resource.getType() == IResource.ROOT || resource.getType() == IResource.FOLDER)
-								{
-									return true;
-								}
-								if (resource.getType() == IResource.PROJECT)
-								{
-									// a project was added or opened
-									if (delta.getKind() == IResourceDelta.ADDED
-											|| (delta.getKind() == IResourceDelta.CHANGED
-													&& (delta.getFlags() & IResourceDelta.OPEN) != 0 && resource
-														.isAccessible()))
-									{
-										// Check if project contains ruby files!
-										IProject project = resource.getProject();
-										RubyFileDetectingVisitor visitor = new RubyFileDetectingVisitor(project);
-										project.accept(visitor, IResource.NONE);
-										if (visitor.found())
-										{
-											found[0] = true;
-											return false;
-										}
-									}
-									else
-									{
-										return true;
-									}
-								}
-								return false;
-							}
-						});
-						if (found[0])
-						{
-							ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
-							schedule();
-						}
-					}
-					catch (CoreException e)
-					{
-						RubyCorePlugin.log(e.getStatus());
-					}
-				}
-			};
+			IResourceChangeListener fResourceListener = new RubyFileListener(this);
 			ResourcesPlugin.getWorkspace().addResourceChangeListener(fResourceListener,
 					IResourceChangeEvent.POST_CHANGE);
 			return Status.CANCEL_STATUS;
 		}
 
+		if (sub.isCanceled())
+		{
+			return Status.CANCEL_STATUS;
+		}
+
 		try
 		{
-			Set<IPath> rubyExes = new HashSet<IPath>();
-			Set<IPath> pathsToIndex = new HashSet<IPath>();
-			// We need to do this for every single project tied to ruby, set up it's own ruby core stub dir, std
-			// lib, gems, etc.
-			for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects())
+			IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+			if (ArrayUtil.isEmpty(projects))
 			{
-				IPath wd = null;
-				if (project != null)
-				{
-					wd = project.getLocation();
-				}
-				IPath rubyExe = RubyLaunchingPlugin.rubyExecutablePath(wd);
-				rubyExes.add(rubyExe);
-				pathsToIndex.addAll(getUniqueLoadpaths(project));
-				pathsToIndex.addAll(RubyLaunchingPlugin.getGemPaths(project));
+				// No projects, do no more work!
+				return Status.OK_STATUS;
 			}
-			// Add "global" ruby
-			rubyExes.add(RubyLaunchingPlugin.rubyExecutablePath(null));
 
-			Set<File> stubDirs = new HashSet<File>();
-			int unit = 50 / rubyExes.size();
-			for (IPath rubyExe : rubyExes)
+			monitor.subTask(Messages.CoreStubber_GatherRubyInstallsMsg);
+			Set<IPath> rubyExes = gatherRubyExecutables(projects, sub.newChild(20));
+			if (CollectionsUtil.isEmpty(rubyExes))
 			{
-				String rubyVersion = RubyLaunchingPlugin.getRubyVersion(rubyExe);
-				File outputDir = getRubyCoreStubDir(rubyVersion);
-				if (outputDir == null)
-				{
-					continue;
-				}
-				stubDirs.add(outputDir);
-				File finishMarker = new File(outputDir, FINISH_MARKER_FILENAME);
-				// Skip if we already generated core stubs for this ruby...
-				if (!finishMarker.exists())
-				{
-					generateCoreStubs(rubyExe, outputDir, finishMarker);
-				}
-				sub.worked(unit);
+				// No ruby installations, do no more work!
+				return Status.OK_STATUS;
 			}
-			sub.setWorkRemaining(50);
 
-			final IProgressMonitor pm = Job.getJobManager().createProgressGroup();
-			final List<Job> jobs = new ArrayList<Job>();
-
-			// Check index version. if out of date, force re-index of everything!
-			int currentVersion = Platform.getPreferencesService().getInt(RubyCorePlugin.PLUGIN_ID,
-					RubySourceIndexer.VERSION_KEY, -1, null);
-			if (currentVersion != RubySourceIndexer.CURRENT_VERSION)
+			if (sub.isCanceled())
 			{
-				fgOutOfDate = true;
+				return Status.CANCEL_STATUS;
 			}
+
+			monitor.subTask(Messages.CoreStubber_GatherLoadpathsMsg);
+			Set<IPath> pathsToIndex = gatherPathsToIndex(projects, sub.newChild(10));
+			if (sub.isCanceled())
+			{
+				return Status.CANCEL_STATUS;
+			}
+
+			sub.subTask(Messages.CoreStubber_GenerateActualStubsMsg);
+			Set<File> stubDirs = generateStubs(rubyExes, sub.newChild(50));
+			if (sub.isCanceled())
+			{
+				return Status.CANCEL_STATUS;
+			}
+
+			checkIndexVersion();
+
+			// Now we're going to queue up a job for every folder we'll need to index...
+			final List<IndexRubyContainerJob> jobs = new ArrayList<IndexRubyContainerJob>();
+			int totalWorkUnits = 0;
 			for (File stubDir : stubDirs)
 			{
-				jobs.add(indexCoreStubs(stubDir));
-			}
-			for (IPath pathToIndex : pathsToIndex)
-			{
-				Job job = indexFiles(pathToIndex.toFile().toURI());
+				IndexRubyContainerJob job = indexCoreStubs(stubDir);
 				if (job != null)
 				{
+					totalWorkUnits += job.workUnits();
 					jobs.add(job);
 				}
 			}
-			pm.beginTask(Messages.CoreStubber_IndexingRuby, jobs.size() * 1000);
-			for (Job job : jobs)
+			for (IPath pathToIndex : pathsToIndex)
 			{
-				if (job == null)
+				IndexRubyContainerJob job = indexFiles(pathToIndex.toFile().toURI());
+				if (job != null)
 				{
-					continue;
+					totalWorkUnits += job.workUnits();
+					jobs.add(job);
 				}
-				job.setProgressGroup(pm, 1000);
+			}
+			sub.worked(10);
+
+			// Last chance to cancel before they all fire off!
+			if (sub.isCanceled())
+			{
+				return Status.CANCEL_STATUS;
+			}
+
+			// Hook the index jobs up to a master progress group and start them
+			sub.subTask(Messages.CoreStubber_IndexSubTaskName);
+			final IProgressMonitor pm = Job.getJobManager().createProgressGroup();
+			pm.beginTask(Messages.CoreStubber_IndexingRuby, totalWorkUnits);
+
+			for (IndexRubyContainerJob job : jobs)
+			{
+				job.setProgressGroup(pm, job.workUnits());
 				job.schedule();
 			}
 			// Use a thread to report back to progress monitor when all the jobs are done.
+			// Also to store index version when we're done.
 			Thread t = new Thread(new Runnable()
 			{
 
@@ -250,10 +197,6 @@ public class CoreStubber extends Job
 				{
 					for (Job job : jobs)
 					{
-						if (job == null)
-						{
-							continue;
-						}
 						try
 						{
 							job.join();
@@ -263,17 +206,10 @@ public class CoreStubber extends Job
 							// ignore
 						}
 					}
-					pm.done();
-					// Store current version of index in prefs so we can force re-index if indexer changes
-					IEclipsePreferences prefs = EclipseUtil.instanceScope().getNode(RubyCorePlugin.PLUGIN_ID);
-					prefs.putInt(RubySourceIndexer.VERSION_KEY, RubySourceIndexer.CURRENT_VERSION);
-					try
+					if (!pm.isCanceled())
 					{
-						prefs.flush();
-					}
-					catch (BackingStoreException e)
-					{
-						RubyCorePlugin.log(e);
+						pm.done();
+						storeIndexVersion();
 					}
 				}
 			});
@@ -291,12 +227,127 @@ public class CoreStubber extends Job
 	}
 
 	/**
+	 * Check index version. if out of date, force re-index of everything!
+	 */
+	private void checkIndexVersion()
+	{
+		int currentVersion = Platform.getPreferencesService().getInt(RubyCorePlugin.PLUGIN_ID,
+				RubySourceIndexer.VERSION_KEY, -1, null);
+		if (currentVersion != RubySourceIndexer.CURRENT_VERSION)
+		{
+			fgOutOfDate = true;
+		}
+	}
+
+	private Set<File> generateStubs(Set<IPath> rubyExes, IProgressMonitor monitor)
+	{
+		SubMonitor sub = SubMonitor.convert(monitor, rubyExes.size());
+		Set<File> stubDirs = new HashSet<File>();
+		for (IPath rubyExe : rubyExes)
+		{
+			String rubyVersion = RubyLaunchingPlugin.getRubyVersion(rubyExe);
+			File outputDir = getRubyCoreStubDir(rubyVersion);
+			if (outputDir == null)
+			{
+				continue;
+			}
+			stubDirs.add(outputDir);
+			File finishMarker = new File(outputDir, FINISH_MARKER_FILENAME);
+			// Skip if we already generated core stubs for this ruby...
+			if (!finishMarker.exists())
+			{
+				try
+				{
+					generateCoreStubs(rubyExe, outputDir, finishMarker);
+				}
+				catch (IOException e)
+				{
+					IdeLog.logError(RubyCorePlugin.getDefault(), e);
+				}
+			}
+			sub.worked(1);
+		}
+		sub.done();
+		return stubDirs;
+	}
+
+	/**
+	 * Loops through the projects and grabs the associated loadpaths and gem paths (based on the associated ruby
+	 * executables).
+	 * 
+	 * @param projects
+	 * @param monitor
+	 * @return
+	 */
+	private Set<IPath> gatherPathsToIndex(IProject[] projects, IProgressMonitor monitor)
+	{
+		SubMonitor sub = SubMonitor.convert(monitor, 2 * (projects.length + 1));
+		Set<IPath> pathsToIndex = new HashSet<IPath>();
+		// Cheat for windows and just use the "global" one
+		if (!Platform.OS_WIN32.equals(Platform.getOS()))
+		{
+			for (IProject project : projects)
+			{
+				if (project == null || !project.isAccessible())
+				{
+					continue;
+				}
+				pathsToIndex.addAll(getUniqueLoadpaths(project));
+				sub.worked(1);
+				pathsToIndex.addAll(RubyLaunchingPlugin.getGemPaths(project));
+				sub.worked(1);
+			}
+		}
+		sub.setWorkRemaining(2);
+		// Add "global" ruby stdlib/gems
+		pathsToIndex.addAll(getUniqueLoadpaths(null));
+		pathsToIndex.addAll(RubyLaunchingPlugin.getGemPaths(null));
+		sub.done();
+		return pathsToIndex;
+	}
+
+	/**
+	 * Loops through the projects and grabs the associated ruby executable for that project (based on RVM settings).
+	 * 
+	 * @param projects
+	 * @param monitor
+	 * @return
+	 */
+	private Set<IPath> gatherRubyExecutables(IProject[] projects, IProgressMonitor monitor)
+	{
+		SubMonitor sub = SubMonitor.convert(monitor, projects.length + 1);
+		Set<IPath> rubyExes = new HashSet<IPath>();
+		// Cheat for windows and just use the "global" one
+		if (!Platform.OS_WIN32.equals(Platform.getOS()))
+		{
+			for (IProject project : projects)
+			{
+				if (project == null || !project.isAccessible())
+				{
+					continue;
+				}
+				IPath rubyExe = RubyLaunchingPlugin.rubyExecutablePath(project.getLocation());
+				if (rubyExe != null)
+				{
+					rubyExes.add(rubyExe);
+				}
+				sub.worked(1);
+			}
+		}
+		sub.setWorkRemaining(1);
+		// Add "global" ruby
+		rubyExes.add(RubyLaunchingPlugin.rubyExecutablePath(null));
+		sub.done();
+		return rubyExes;
+	}
+
+	/**
 	 * Traverses the workspace until we find a file that matches the ruby content type. If one is found, returns true
 	 * early. Otherwise we search everything and ultimately return false.
 	 * 
 	 * @return
 	 */
-	private boolean isRubyFileInWorkspace()
+	private boolean isRubyFileInWorkspace(IProgressMonitor monitor)
 	{
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		for (final IProject project : projects)
@@ -323,7 +374,86 @@ public class CoreStubber extends Job
 		return false;
 	}
 
-	class RubyFileDetectingVisitor implements IResourceProxyVisitor
+	private static final class RubyFileListener implements IResourceChangeListener
+	{
+		private CoreStubber stubber;
+
+		private RubyFileListener(CoreStubber stubber)
+		{
+			this.stubber = stubber;
+		}
+
+		public void resourceChanged(IResourceChangeEvent event)
+		{
+			// listen for addition of ruby files/opening of projects (traverse them and look for ruby
+			// files)
+			IResourceDelta delta = event.getDelta();
+			if (delta == null)
+			{
+				return;
+			}
+			try
+			{
+				final boolean[] found = new boolean[1];
+				delta.accept(new IResourceDeltaVisitor()
+				{
+
+					public boolean visit(IResourceDelta delta) throws CoreException
+					{
+						if (found[0])
+							return false;
+						IResource resource = delta.getResource();
+						if (resource.getType() == IResource.FILE)
+						{
+							if (isRubyFile(resource.getProject(), resource.getName()))
+							{
+								found[0] = true;
+							}
+							return false;
+						}
+						if (resource.getType() == IResource.ROOT || resource.getType() == IResource.FOLDER)
+						{
+							return true;
+						}
+						if (resource.getType() == IResource.PROJECT)
+						{
+							// a project was added or opened
+							if (delta.getKind() == IResourceDelta.ADDED
+									|| (delta.getKind() == IResourceDelta.CHANGED
+											&& (delta.getFlags() & IResourceDelta.OPEN) != 0 && resource.isAccessible()))
+							{
+								// Check if project contains ruby files!
+								IProject project = resource.getProject();
+								RubyFileDetectingVisitor visitor = new RubyFileDetectingVisitor(project);
+								project.accept(visitor, IResource.NONE);
+								if (visitor.found())
+								{
+									found[0] = true;
+									return false;
+								}
+							}
+							else
+							{
+								return true;
+							}
+						}
+						return false;
+					}
+				});
+				if (found[0])
+				{
+					ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+					stubber.schedule();
+				}
+			}
+			catch (CoreException e)
+			{
+				RubyCorePlugin.log(e.getStatus());
+			}
+		}
+	}
+
+	private static class RubyFileDetectingVisitor implements IResourceProxyVisitor
 	{
 
 		private IProject fProject;
@@ -357,7 +487,7 @@ public class CoreStubber extends Job
 		}
 	}
 
-	private boolean isRubyFile(IProject project, String filename)
+	private static boolean isRubyFile(IProject project, String filename)
 	{
 		try
 		{
@@ -420,14 +550,13 @@ public class CoreStubber extends Job
 		return jobs;
 	}
 
-	protected Job indexCoreStubs(File outputDir)
+	protected IndexRubyContainerJob indexCoreStubs(File outputDir)
 	{
 		return indexFiles(Messages.CoreStubber_IndexingRubyCore, outputDir.toURI());
 	}
 
 	protected void generateCoreStubs(IPath rubyExe, File outputDir, File finishMarker) throws IOException
 	{
-		// FIXME Need to be able to version this file? This file has changed...
 		URL url = FileLocator.find(RubyCorePlugin.getDefault().getBundle(), new Path(CORE_STUBBER_PATH), null);
 		File stubberScript = ResourceUtil.resourcePathToFile(url);
 
@@ -454,18 +583,35 @@ public class CoreStubber extends Job
 		}
 	}
 
-	protected Job indexFiles(String message, URI outputDir)
+	protected IndexRubyContainerJob indexFiles(String message, URI outputDir)
 	{
 		return new IndexRubyContainerJob(message, outputDir);
 	}
 
-	protected Job indexFiles(URI outputDir)
+	protected IndexRubyContainerJob indexFiles(URI outputDir)
 	{
 		return new IndexRubyContainerJob(outputDir);
 	}
 
+	protected void storeIndexVersion()
+	{
+		// Store current version of index in prefs so we can force re-index if indexer changes
+		IEclipsePreferences prefs = EclipseUtil.instanceScope().getNode(RubyCorePlugin.PLUGIN_ID);
+		prefs.putInt(RubySourceIndexer.VERSION_KEY, RubySourceIndexer.CURRENT_VERSION);
+		try
+		{
+			prefs.flush();
+		}
+		catch (BackingStoreException e)
+		{
+			RubyCorePlugin.log(e);
+		}
+	}
+
 	private static class IndexRubyContainerJob extends IndexContainerJob
 	{
+		private Integer fWorkUnits;
+
 		private IndexRubyContainerJob(URI outputDir)
 		{
 			super(outputDir);
@@ -515,6 +661,31 @@ public class CoreStubber extends Job
 				}
 			}
 			return filtered;
+		}
+
+		/**
+		 * Give a rough estimate of work units (files) for progress. When possible we estimate this by counting the
+		 * number of files under the directory tree.
+		 * 
+		 * @return
+		 */
+		int workUnits()
+		{
+			if (fWorkUnits == null)
+			{
+				URI uri = getContainerURI();
+				if (uri.getScheme().equals("file")) //$NON-NLS-1$
+				{
+					IPath workingDir = Path.fromPortableString(uri.getPath());
+					File file = workingDir.toFile();
+					fWorkUnits = FileUtil.countFiles(file);
+				}
+				else
+				{
+					fWorkUnits = 100;
+				}
+			}
+			return fWorkUnits;
 		}
 	}
 
