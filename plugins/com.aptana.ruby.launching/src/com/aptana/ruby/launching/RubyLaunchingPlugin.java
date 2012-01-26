@@ -36,7 +36,9 @@ public class RubyLaunchingPlugin extends Plugin
 
 	private static final String GEM_COMMAND = "gem"; //$NON-NLS-1$
 	private static final String RUBYW = "rubyw"; //$NON-NLS-1$
-	private static final String RUBY = "ruby"; //$NON-NLS-1$
+	public static final String RUBY = "ruby"; //$NON-NLS-1$
+	public static final String RAKE = "rake"; //$NON-NLS-1$
+	public static final String RAKEFILE = "Rakefile"; //$NON-NLS-1$
 
 	/**
 	 * Map from project to ruby version. FIXME make use of the workingDirToRubyExe map?
@@ -61,6 +63,11 @@ public class RubyLaunchingPlugin extends Plugin
 	private static Map<IPath, String> pathToVersion = new HashMap<IPath, String>();
 
 	protected static RubyLaunchingPlugin plugin;
+
+	public static IPath getRakePath(IPath workingDir)
+	{
+		return ExecutableUtil.find(RAKE, false, null, workingDir);
+	}
 
 	/**
 	 * Search for the applicable ruby executable for the working dir. If no working dir is set, we won't take rvmrc into
