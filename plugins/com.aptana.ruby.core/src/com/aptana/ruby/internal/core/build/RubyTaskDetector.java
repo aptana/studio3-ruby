@@ -9,7 +9,6 @@ package com.aptana.ruby.internal.core.build;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
@@ -19,6 +18,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import com.aptana.core.build.AbstractBuildParticipant;
 import com.aptana.core.build.IProblem;
 import com.aptana.core.logging.IdeLog;
+import com.aptana.core.util.ArrayUtil;
 import com.aptana.index.core.build.BuildContext;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.IParseRootNode;
@@ -47,14 +47,17 @@ public class RubyTaskDetector extends AbstractBuildParticipant
 	private Collection<IProblem> detectTasks(BuildContext context, IProgressMonitor monitor)
 	{
 		Collection<IProblem> tasks = new ArrayList<IProblem>();
-
 		try
 		{
 			IParseRootNode rootNode = context.getAST();
-			IParseNode[] comments = rootNode.getCommentNodes();
-			if (comments == null || comments.length == 0)
+			if (rootNode == null)
 			{
-				return Collections.emptyList();
+				return tasks;
+			}
+			IParseNode[] comments = rootNode.getCommentNodes();
+			if (ArrayUtil.isEmpty(comments))
+			{
+				return tasks;
 			}
 
 			SubMonitor sub = SubMonitor.convert(monitor, comments.length);
