@@ -12,6 +12,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 
+import com.aptana.ruby.launching.RubyLaunchingPlugin;
+
 public class RakePropertyTester extends PropertyTester
 {
 
@@ -27,7 +29,7 @@ public class RakePropertyTester extends PropertyTester
 		if ("hasRakefile".equals(property)) //$NON-NLS-1$
 		{
 			IProject project = res.getProject();
-			IFile file = project.getFile("Rakefile"); //$NON-NLS-1$
+			IFile file = project.getFile(RubyLaunchingPlugin.RAKEFILE);
 			return file.exists();
 		}
 		return false;

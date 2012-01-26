@@ -12,10 +12,10 @@ import org.eclipse.core.resources.IResourceProxy;
 import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.runtime.IPath;
 
+import com.aptana.ruby.launching.RubyLaunchingPlugin;
+
 class RakeFileFinder implements IResourceProxyVisitor
 {
-
-	private static final String RAKEFILE = "Rakefile"; //$NON-NLS-1$
 
 	private IPath workingDirectory;
 
@@ -23,7 +23,7 @@ class RakeFileFinder implements IResourceProxyVisitor
 	{
 		if (proxy.getType() == IResource.FILE)
 		{
-			if (RAKEFILE.equalsIgnoreCase(proxy.getName()))
+			if (RubyLaunchingPlugin.RAKEFILE.equalsIgnoreCase(proxy.getName()))
 			{
 				workingDirectory = proxy.requestResource().getProjectRelativePath().removeLastSegments(1);
 			}
