@@ -13,8 +13,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.aptana.core.util.ExecutableUtil;
 import com.aptana.ruby.internal.rake.RakeTasksHelper;
+import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -24,8 +24,6 @@ public class RakePlugin extends AbstractUIPlugin
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.aptana.ruby.rake"; //$NON-NLS-1$
-
-	private static final String RAKE = "rake"; //$NON-NLS-1$
 
 	// The shared instance
 	private static RakePlugin plugin;
@@ -46,7 +44,6 @@ public class RakePlugin extends AbstractUIPlugin
 	 */
 	public void start(BundleContext context) throws Exception
 	{
-
 		plugin = this;
 		super.start(context);
 	}
@@ -79,12 +76,8 @@ public class RakePlugin extends AbstractUIPlugin
 		{
 			wd = project.getLocation();
 		}
-		IPath result = ExecutableUtil.find(RAKE, false, null, wd);
-		if (result == null)
-		{
-			return RAKE;
-		}
-		return result.toOSString();
+		IPath result = RubyLaunchingPlugin.getRakePath(wd);
+		return (result == null) ? RubyLaunchingPlugin.RAKE : result.toOSString();
 	}
 
 	public static void log(String message, Exception e)

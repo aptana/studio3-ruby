@@ -97,13 +97,31 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 			}
 			commandList.addAll(debugArguments(rubyExecutablePath, host, port, configuration));
 		}
+
+		IPath workingDir = getWorkingDirectory(configuration);
+
 		// File to run
-		commandList.add(fileToLaunch(configuration));
+		// if the file to launch is "Rakefile", we actually need to run "rake" on the parent
+		String fileToLaunch = fileToLaunch(configuration);
+		if (fileToLaunch.equals(RubyLaunchingPlugin.RAKEFILE) || fileToLaunch.endsWith(File.separator + RubyLaunchingPlugin.RAKEFILE))
+		{
+			IPath rakeFilePath = Path.fromOSString(fileToLaunch);
+			IPath parent = rakeFilePath.removeLastSegments(1);
+
+			IPath rakePath = RubyLaunchingPlugin.getRakePath(parent);
+			String rakePathString = (rakePath == null) ? RubyLaunchingPlugin.RAKE : rakePath.toOSString();
+			commandList.add(rakePathString);
+			workingDir = parent;
+		}
+		else
+		{
+			commandList.add(fileToLaunch);
+		}
+
 		// Args to file
 		commandList.addAll(programArguments(configuration));
 
 		// Now actually launch the process!
-		IPath workingDir = getWorkingDirectory(configuration);
 		Process process = DebugPlugin.exec(commandList.toArray(new String[commandList.size()]),
 				(workingDir == null) ? null : workingDir.toFile(), getEnvironment(configuration));
 		// FIXME Build a label from args?
@@ -173,10 +191,11 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 	private Collection<? extends String> debugArguments(IPath rubyExecutablePath, String host, int port,
 			ILaunchConfiguration configuration) throws CoreException
 	{
+		IPath workingDir = getWorkingDirectory(configuration);
 		List<String> commandList = new ArrayList<String>();
 		// FIXME What if user is using RVM? We need to respect which version of rdebug-ide we need to use!
-		IPath rdebug = ExecutableUtil.find(RDEBUG_IDE, false, getRDebugIDELocations(rubyExecutablePath),
-				getWorkingDirectory(configuration));
+		IPath rdebug = ExecutableUtil.find(RDEBUG_IDE, false, getRDebugIDELocations(rubyExecutablePath), workingDir);
+		rdebug = RubyLaunchingPlugin.resolveRBENVShimPath(rdebug, workingDir);
 		if (rdebug == null)
 		{
 			abort(Messages.RubyDebuggerLaunchDelegate_3, null);
@@ -250,7 +269,7 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 		}
 		catch (Exception e)
 		{
-			RubyLaunchingPlugin.log(e);
+			IdeLog.logError(RubyLaunchingPlugin.getDefault(), e);
 		}
 		arguments.add(END_OF_ARGUMENTS_DELIMETER);
 		return arguments;

@@ -57,7 +57,7 @@ public class RakeTasksHelper implements IRakeHelper
 	 * If we fail to find a ruby executable on PATH, use this command as last ditch try at running something under ruby
 	 * intrerpreter.
 	 */
-	private static final String RUBY_EXE_NAME = "ruby"; //$NON-NLS-1$
+	private static final String RUBY_EXE_NAME = RubyLaunchingPlugin.RUBY;
 
 	/**
 	 * Command line switch used to have rake list the available tasks that can be run.

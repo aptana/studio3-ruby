@@ -16,19 +16,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.contentobjects.jnotify.IJNotify;
+import net.contentobjects.jnotify.JNotifyException;
+import net.contentobjects.jnotify.JNotifyListener;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
-import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
 import com.aptana.core.ShellExecutable;
+import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.ExecutableUtil;
 import com.aptana.core.util.PlatformUtil;
 import com.aptana.core.util.ProcessUtil;
+import com.aptana.filewatcher.FileWatcher;
 
 public class RubyLaunchingPlugin extends Plugin
 {
@@ -36,7 +41,10 @@ public class RubyLaunchingPlugin extends Plugin
 
 	private static final String GEM_COMMAND = "gem"; //$NON-NLS-1$
 	private static final String RUBYW = "rubyw"; //$NON-NLS-1$
-	private static final String RUBY = "ruby"; //$NON-NLS-1$
+	private static final String RBENV = "rbenv"; //$NON-NLS-1$
+	public static final String RUBY = "ruby"; //$NON-NLS-1$
+	public static final String RAKE = "rake"; //$NON-NLS-1$
+	public static final String RAKEFILE = "Rakefile"; //$NON-NLS-1$
 
 	/**
 	 * Map from project to ruby version. FIXME make use of the workingDirToRubyExe map?
@@ -62,6 +70,41 @@ public class RubyLaunchingPlugin extends Plugin
 
 	protected static RubyLaunchingPlugin plugin;
 
+	private static RbenvVersionListener rbEnvVersionListener;
+
+	private static Map<IPath, Integer> filewatcherIds = new HashMap<IPath, Integer>();
+
+	public static IPath getRakePath(IPath workingDir)
+	{
+		IPath rakePath = ExecutableUtil.find(RAKE, false, null, workingDir);
+		return resolveRBENVShimPath(rakePath, workingDir);
+	}
+
+	public static IPath resolveRBENVShimPath(IPath rbenvShimPath, IPath workingDir)
+	{
+		if (rbenvShimPath == null)
+		{
+			return null;
+		}
+
+		// if we're using rbenv, resolve to the underlying install/script we're targeting.
+		// we can't chain the rbenv shims together on the command line or it all blows up.
+		if (!Platform.OS_WIN32.equals(Platform.getOS()) && rbenvShimPath.toOSString().contains("/.rbenv/")) //$NON-NLS-1$
+		{
+			IPath rbEnvPath = ExecutableUtil.find(RBENV, false, null, workingDir);
+			if (rbEnvPath != null)
+			{
+				IStatus status = ProcessUtil.runInBackground(rbEnvPath.toOSString(), workingDir,
+						"which", rbenvShimPath.lastSegment()); //$NON-NLS-1$
+				if (status.isOK())
+				{
+					return Path.fromOSString(status.getMessage());
+				}
+			}
+		}
+		return rbenvShimPath;
+	}
+
 	/**
 	 * Search for the applicable ruby executable for the working dir. If no working dir is set, we won't take rvmrc into
 	 * account (we'll use global PATH).
@@ -83,6 +126,34 @@ public class RubyLaunchingPlugin extends Plugin
 			if (path == null)
 			{
 				path = ExecutableUtil.find(RUBY, true, getCommonRubyBinaryLocations(RUBY), workingDir);
+				IPath resolved = resolveRBENVShimPath(path, workingDir);
+				if (resolved != null)
+				{
+					if (workingDir != null && !resolved.equals(path))
+					{
+						// We had to dereference an rbenv shim. We need to hook up some listener here to handle
+						// .rbenv-version file changes
+						try
+						{
+							if (rbEnvVersionListener == null)
+							{
+								rbEnvVersionListener = new RbenvVersionListener();
+							}
+							Integer watchId = filewatcherIds.get(pathKey);
+							if (watchId == null)
+							{
+								watchId = FileWatcher.addWatch(workingDir.toOSString(), IJNotify.FILE_ANY, false,
+										rbEnvVersionListener);
+								filewatcherIds.put(pathKey, watchId);
+							}
+						}
+						catch (JNotifyException e)
+						{
+							IdeLog.logError(getDefault(), e);
+						}
+					}
+					path = resolved;
+				}
 			}
 			// TODO check TM_RUBY env value too?
 			workingDirToRubyExe.put(pathKey, path);
@@ -266,40 +337,30 @@ public class RubyLaunchingPlugin extends Plugin
 	@Override
 	public void stop(BundleContext context) throws Exception
 	{
-		plugin = null;
-		projectToVersion = null;
-		workingDirToRubyExe = null;
-		rubyToLoadPaths = null;
-		pathToVersion = null;
-		super.stop(context);
-	}
-
-	public static void log(int severity, String message)
-	{
-		log(new Status(severity, PLUGIN_ID, IStatus.OK, message, null));
-	}
-
-	public static void log(String message, Throwable e)
-	{
-		log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, message, e));
-	}
-
-	private static void log(IStatus status)
-	{
-		if (RubyLaunchingPlugin.getDefault() != null)
+		try
 		{
-			getDefault().getLog().log(status);
+			for (Map.Entry<IPath, Integer> entry : filewatcherIds.entrySet())
+			{
+				try
+				{
+					FileWatcher.removeWatch(entry.getValue());
+				}
+				catch (Exception e)
+				{
+					IdeLog.logError(getDefault(), e);
+				}
+			}
 		}
-		else
+		finally
 		{
-			System.out.println("Error: "); //$NON-NLS-1$
-			System.out.println(status.getMessage());
+			filewatcherIds = null;
+			plugin = null;
+			projectToVersion = null;
+			workingDirToRubyExe = null;
+			rubyToLoadPaths = null;
+			pathToVersion = null;
+			super.stop(context);
 		}
-	}
-
-	public static void log(Throwable e)
-	{
-		log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, e.getMessage(), e));
 	}
 
 	public static String getPluginIdentifier()
@@ -322,5 +383,49 @@ public class RubyLaunchingPlugin extends Plugin
 			pathToVersion.put(rubyExe, version);
 		}
 		return pathToVersion.get(rubyExe);
+	}
+
+	/**
+	 * Listens for rbenv version changes to projects. When the special file changes, we wipe our in-memory cache of ruby
+	 * executable/version so we re-calculate the next time we need them.
+	 * 
+	 * @author cwilliams
+	 */
+	private static class RbenvVersionListener implements JNotifyListener
+	{
+		private static final String RBENV_VERSION_FILENAME = ".rbenv-version"; //$NON-NLS-1$
+
+		public void fileRenamed(int wd, String rootPath, String oldName, String newName)
+		{
+			if (newName.equals(RBENV_VERSION_FILENAME))
+			{
+				fileCreated(wd, rootPath, newName);
+			}
+			else if (oldName.equals(RBENV_VERSION_FILENAME))
+			{
+				fileDeleted(wd, rootPath, oldName);
+			}
+		}
+
+		public void fileModified(int wd, String rootPath, String name)
+		{
+			if (name.equals(RBENV_VERSION_FILENAME))
+			{
+				// Wipe out the cached version since it's been changed
+				IPath path = Path.fromOSString(rootPath);
+				workingDirToRubyExe.remove(path);
+				pathToVersion.remove(path);
+			}
+		}
+
+		public void fileDeleted(int wd, String rootPath, String name)
+		{
+			fileModified(wd, rootPath, name);
+		}
+
+		public void fileCreated(int wd, String rootPath, String name)
+		{
+			fileModified(wd, rootPath, name);
+		}
 	}
 }
