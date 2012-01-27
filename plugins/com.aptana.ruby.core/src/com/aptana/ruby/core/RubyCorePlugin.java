@@ -9,10 +9,10 @@ package com.aptana.ruby.core;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.osgi.framework.BundleContext;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.ruby.core.codeassist.CodeResolver;
 import com.aptana.ruby.internal.core.codeassist.RubyCodeResolver;
 import com.aptana.ruby.internal.core.index.CoreStubber;
@@ -70,14 +70,22 @@ public class RubyCorePlugin extends Plugin
 		return fgPlugin;
 	}
 
+	/**
+	 * @deprecated use {@link IdeLog}
+	 * @param e
+	 */
 	public static void log(Throwable e)
 	{
-		log(new Status(IStatus.ERROR, PLUGIN_ID, null, e));
+		IdeLog.logError(getDefault(), e);
 	}
 
+	/**
+	 * @deprecated use {@link IdeLog}
+	 * @param status
+	 */
 	public static void log(IStatus status)
 	{
-		getDefault().getLog().log(status);
+		IdeLog.log(getDefault(), status);
 	}
 
 	public synchronized CodeResolver getCodeResolver()

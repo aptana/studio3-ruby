@@ -103,7 +103,7 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 		// File to run
 		// if the file to launch is "Rakefile", we actually need to run "rake" on the parent
 		String fileToLaunch = fileToLaunch(configuration);
-		if (fileToLaunch.endsWith(RubyLaunchingPlugin.RAKEFILE))
+		if (fileToLaunch.equals(RubyLaunchingPlugin.RAKEFILE) || fileToLaunch.endsWith(File.separator + RubyLaunchingPlugin.RAKEFILE))
 		{
 			IPath rakeFilePath = Path.fromOSString(fileToLaunch);
 			IPath parent = rakeFilePath.removeLastSegments(1);
@@ -195,6 +195,7 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 		List<String> commandList = new ArrayList<String>();
 		// FIXME What if user is using RVM? We need to respect which version of rdebug-ide we need to use!
 		IPath rdebug = ExecutableUtil.find(RDEBUG_IDE, false, getRDebugIDELocations(rubyExecutablePath), workingDir);
+		rdebug = RubyLaunchingPlugin.resolveRBENVShimPath(rdebug, workingDir);
 		if (rdebug == null)
 		{
 			abort(Messages.RubyDebuggerLaunchDelegate_3, null);
@@ -268,7 +269,7 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 		}
 		catch (Exception e)
 		{
-			RubyLaunchingPlugin.log(e);
+			IdeLog.logError(RubyLaunchingPlugin.getDefault(), e);
 		}
 		arguments.add(END_OF_ARGUMENTS_DELIMETER);
 		return arguments;
