@@ -1,6 +1,6 @@
 /**
  * Aptana Studio
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -16,16 +16,21 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.jrubyparser.CompatVersion;
 
-import com.aptana.core.build.AbstractBuildParticipant;
 import com.aptana.core.build.IProblem;
 import com.aptana.core.build.Problem;
+import com.aptana.core.build.RequiredBuildParticipant;
 import com.aptana.index.core.build.BuildContext;
 import com.aptana.parsing.ast.IParseError;
 import com.aptana.parsing.ast.IParseError.Severity;
 import com.aptana.ruby.core.RubyParseState;
 import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
-public class RubyValidator extends AbstractBuildParticipant
+/**
+ * Parses the file with the correct ruby parser given the project setup. Marks syntax errors/warnings.
+ * 
+ * @author cwilliams
+ */
+public class RubyValidator extends RequiredBuildParticipant
 {
 	private CompatVersion version;
 
