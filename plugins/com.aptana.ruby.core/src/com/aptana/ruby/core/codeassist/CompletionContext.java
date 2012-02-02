@@ -27,6 +27,7 @@ import org.jrubyparser.ast.RootNode;
 import org.jrubyparser.ast.SymbolNode;
 import org.jrubyparser.parser.ParserResult;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.RubyCorePlugin;
@@ -76,7 +77,7 @@ public class CompletionContext
 		}
 		catch (RuntimeException e)
 		{
-			RubyCorePlugin.log(e);
+			IdeLog.logError(RubyCorePlugin.getDefault(), e);
 		}
 	}
 

@@ -33,6 +33,7 @@ import org.jrubyparser.ast.NodeType;
 import org.jrubyparser.ast.StrNode;
 import org.jrubyparser.lexer.SyntaxException;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.IOUtil;
 import com.aptana.core.util.StringUtil;
 import com.aptana.index.core.Index;
@@ -287,7 +288,7 @@ public class RubyCodeResolver extends CodeResolver
 		}
 		catch (Exception e)
 		{
-			RubyCorePlugin.log(e);
+			IdeLog.logError(RubyCorePlugin.getDefault(), e);
 		}
 		return null;
 	}

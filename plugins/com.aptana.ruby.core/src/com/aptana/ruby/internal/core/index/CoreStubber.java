@@ -448,7 +448,7 @@ public class CoreStubber extends Job
 			}
 			catch (CoreException e)
 			{
-				RubyCorePlugin.log(e.getStatus());
+				IdeLog.log(RubyCorePlugin.getDefault(), e.getStatus());
 			}
 		}
 	}
@@ -604,7 +604,7 @@ public class CoreStubber extends Job
 		}
 		catch (BackingStoreException e)
 		{
-			RubyCorePlugin.log(e);
+			IdeLog.logError(RubyCorePlugin.getDefault(), e);
 		}
 	}
 
@@ -632,7 +632,7 @@ public class CoreStubber extends Job
 		}
 
 		@Override
-		protected Set<IFileStore> filterFiles(long indexLastModified, Set<IFileStore> files)
+		protected Set<IFileStore> filterFilesByTimestamp(long indexLastModified, Set<IFileStore> files)
 		{
 			Set<IFileStore> firstPass;
 			if (fgOutOfDate)
@@ -641,9 +641,9 @@ public class CoreStubber extends Job
 			}
 			else
 			{
-				firstPass = super.filterFiles(indexLastModified, files);
+				firstPass = super.filterFilesByTimestamp(indexLastModified, files);
 			}
-			if (firstPass == null || firstPass.isEmpty())
+			if (CollectionsUtil.isEmpty(firstPass))
 			{
 				return firstPass;
 			}
@@ -661,6 +661,34 @@ public class CoreStubber extends Job
 				}
 			}
 			return filtered;
+		}
+
+		/**
+		 * hasTypes
+		 * 
+		 * @param store
+		 * @param types
+		 * @return
+		 */
+		protected boolean hasType(IFileStore store, Set<IContentType> types)
+		{
+			if (CollectionsUtil.isEmpty(types))
+			{
+				return false;
+			}
+			String name = store.getName();
+			for (IContentType type : types)
+			{
+				if (type == null)
+				{
+					continue;
+				}
+				if (type.isAssociatedWith(name))
+				{
+					return true;
+				}
+			}
+			return false;
 		}
 
 		/**

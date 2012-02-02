@@ -16,6 +16,7 @@ import org.jrubyparser.CompatVersion;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.parser.ParserResult;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.index.core.AbstractFileIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.build.BuildContext;
@@ -37,7 +38,7 @@ public class RubyFileIndexingParticipant extends AbstractFileIndexingParticipant
 		}
 		catch (Throwable e)
 		{
-			RubyCorePlugin.log(e);
+			IdeLog.logError(RubyCorePlugin.getDefault(), e);
 		}
 		finally
 		{

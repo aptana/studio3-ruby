@@ -47,6 +47,7 @@ import org.jrubyparser.ast.ReturnNode;
 import org.jrubyparser.lexer.SyntaxException;
 import org.jrubyparser.parser.ParserConfiguration;
 
+import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.StringUtil;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.QueryResult;
@@ -517,7 +518,7 @@ public class TypeInferrer implements ITypeInferrer
 			}
 			catch (CoreException e)
 			{
-				RubyCorePlugin.log(e.getStatus());
+				IdeLog.log(RubyCorePlugin.getDefault(), e.getStatus());
 			}
 			finally
 			{
