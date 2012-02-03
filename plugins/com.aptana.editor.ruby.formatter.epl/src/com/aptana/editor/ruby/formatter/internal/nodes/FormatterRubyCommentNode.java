@@ -8,7 +8,9 @@
 package com.aptana.editor.ruby.formatter.internal.nodes;
 
 import com.aptana.editor.ruby.formatter.RubyFormatterConstants;
+import com.aptana.formatter.IFormatterContext;
 import com.aptana.formatter.IFormatterDocument;
+import com.aptana.formatter.IFormatterWriter;
 import com.aptana.formatter.nodes.FormatterCommentNode;
 
 /**
@@ -16,6 +18,11 @@ import com.aptana.formatter.nodes.FormatterCommentNode;
  */
 public class FormatterRubyCommentNode extends FormatterCommentNode
 {
+
+	/**
+	 * A block comment 'begin' syntax. We make sure that those blocks don't get indented.
+	 */
+	private static final String BLOCK_COMMENT_BEGIN = "=begin"; //$NON-NLS-1$
 
 	/**
 	 * @param document
@@ -35,5 +42,28 @@ public class FormatterRubyCommentNode extends FormatterCommentNode
 	public String getWrappingKey()
 	{
 		return RubyFormatterConstants.WRAP_COMMENTS;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.formatter.nodes.FormatterCommentNode#accept(com.aptana.formatter.IFormatterContext,
+	 * com.aptana.formatter.IFormatterWriter)
+	 */
+	@Override
+	public void accept(IFormatterContext context, IFormatterWriter visitor) throws Exception
+	{
+		String text = getText();
+		int indent = context.getIndent();
+		boolean isBlockComment = (text != null && text.startsWith(BLOCK_COMMENT_BEGIN));
+		if (isBlockComment)
+		{
+			// We need to make sure we don't indent that block.
+			context.setIndent(0);
+		}
+		super.accept(context, visitor);
+		if (isBlockComment)
+		{
+			context.setIndent(indent);
+		}
 	}
 }
