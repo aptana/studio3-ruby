@@ -74,9 +74,9 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 			fileName = resource.getProjectRelativePath();
 		}
 
-		if (IdeLog.isInfoEnabled(RubyDebugUIPlugin.getDefault(), null))
+		if (IdeLog.isTraceEnabled(RubyDebugUIPlugin.getDefault(), null))
 		{
-			IdeLog.logInfo(RubyDebugUIPlugin.getDefault(), MessageFormat.format(
+			IdeLog.logTrace(RubyDebugUIPlugin.getDefault(), MessageFormat.format(
 					"Toggling breakpoint for URI: {0}, filename: {1}. Marker being set on resource: {2}", //$NON-NLS-1$
 					uri.toString(), fileName, resource.getLocation().toOSString()));
 		}
