@@ -1,0 +1,35 @@
+<script language="javascript" type="text/javascript">
+var downloadOptions = { // field names and option values
+  "studio_versiontype": ["standalone", "plugin", "zip"],
+  "studio_version": [ "<%= product.current_releases.first.version -%>" ],
+  "studio_system": ["mac", "win", "linux"],
+  "studio_arch": ["x64", "x86"],
+};
+
+// studio Scenario data set 
+var studioScenarios = [ 
+
+<%
+  release_counter = 0
+  for release in product.current_releases
+    for deliverable in release.deliverables
+-%>
+  // scenarios for <%= "#{release.version} #{deliverable.platform} #{deliverable.kind} #{deliverable.architecture}" %>
+  {
+    "studio_versiontype": "<%= deliverable.kind -%>",
+    "studio_version": "<%= release.version -%>",
+    "studio_system": "<%= deliverable.platform -%>",
+    "studio_arch": "<%= deliverable.architecture -%>",
+    "studio_system_human": "<%= humanize_platform(deliverable) -%>",
+    "studio_architecture_human": "<%= humanize_architecture(product, deliverable) || 'All' -%>",
+    "systemRequirements": "<%= deliverable.requirements -%>",
+    "downloadUrl": "<%= download_url_for_deliverable(product, release, deliverable) -%>"
+  },
+<%
+    end
+    release_counter += 1
+  end
+-%>
+  
+]; //
+</script>

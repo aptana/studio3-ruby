@@ -78,6 +78,7 @@ public class RubyParser implements IParser
 		}
 		parser.setWarnings(warnings);
 		LexerSource lexerSource = LexerSource.getSource(fileName, new StringReader(source), config);
+		lexerSource.setOffset(parseState.getStartingOffset());
 		ParserResult result = new NullParserResult();
 		try
 		{
