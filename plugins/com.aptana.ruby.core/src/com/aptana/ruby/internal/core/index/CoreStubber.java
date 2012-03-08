@@ -59,6 +59,7 @@ import com.aptana.index.core.IFileStoreIndexingParticipant;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.IndexContainerJob;
 import com.aptana.index.core.IndexManager;
+import com.aptana.index.core.IndexPlugin;
 import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.RubyCorePlugin;
 import com.aptana.ruby.core.RubyProjectNature;
@@ -722,9 +723,14 @@ public class CoreStubber extends Job
 		Collection<Index> indices = new ArrayList<Index>();
 		for (IPath path : getUniqueLoadpaths(iProject))
 		{
-			indices.add(IndexManager.getInstance().getIndex(path.toFile().toURI()));
+			indices.add(getIndexManager().getIndex(path.toFile().toURI()));
 		}
 		return indices;
+	}
+
+	protected static IndexManager getIndexManager()
+	{
+		return IndexPlugin.getDefault().getIndexManager();
 	}
 
 	/**
@@ -774,7 +780,7 @@ public class CoreStubber extends Job
 		{
 			return null;
 		}
-		return IndexManager.getInstance().getIndex(stubDir.toURI());
+		return getIndexManager().getIndex(stubDir.toURI());
 	}
 
 }

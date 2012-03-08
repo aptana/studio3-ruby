@@ -21,6 +21,7 @@ import com.aptana.editor.ruby.RubySourceEditor;
 import com.aptana.index.core.FileStoreBuildContext;
 import com.aptana.index.core.Index;
 import com.aptana.index.core.IndexManager;
+import com.aptana.index.core.IndexPlugin;
 import com.aptana.ruby.core.codeassist.CompletionContext;
 import com.aptana.ruby.core.index.IRubyIndexConstants;
 import com.aptana.ruby.core.inference.ITypeInferrer;
@@ -304,7 +305,12 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		String tmpDir = System.getProperty("java.io.tmpdir");
 		File caIndexDir = new File(tmpDir, "ruby_ca_core" + System.currentTimeMillis());
 		caIndexDir.deleteOnExit();
-		return IndexManager.getInstance().getIndex(caIndexDir.toURI());
+		return getIndexManager().getIndex(caIndexDir.toURI());
+	}
+
+	protected IndexManager getIndexManager()
+	{
+		return IndexPlugin.getDefault().getIndexManager();
 	}
 
 	public void testDoesntSuggestMethodsDefinedInTypesScopeWhenInTopLevel() throws Exception
@@ -779,7 +785,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		writer.close();
 		IFileStore fileStore = EFS.getStore(file.toURI());
 		files.add(fileStore);
-		Index testIndex = getTestIndex();		
+		Index testIndex = getTestIndex();
 		rfip.indexSource(testIndex, new FileStoreBuildContext(fileStore), indexFileSrc, new NullProgressMonitor());
 		indicesforTesting.add(testIndex);
 	}

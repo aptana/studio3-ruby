@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IPath;
 
 import com.aptana.index.core.Index;
 import com.aptana.index.core.IndexManager;
+import com.aptana.index.core.IndexPlugin;
 import com.aptana.ruby.internal.core.index.CoreStubber;
 import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
@@ -60,7 +61,7 @@ public class RubyIndexUtil
 		{
 			return null;
 		}
-		return IndexManager.getInstance().getIndex(project.getLocationURI());
+		return getIndexManager().getIndex(project.getLocationURI());
 	}
 
 	public static Collection<Index> getStdLibIndices(IProject project)
@@ -74,9 +75,14 @@ public class RubyIndexUtil
 		Collection<Index> indices = new ArrayList<Index>();
 		for (IPath path : RubyLaunchingPlugin.getGemPaths(project))
 		{
-			indices.add(IndexManager.getInstance().getIndex(path.toFile().toURI()));
+			indices.add(getIndexManager().getIndex(path.toFile().toURI()));
 		}
 		return indices;
+	}
+
+	protected static IndexManager getIndexManager()
+	{
+		return IndexPlugin.getDefault().getIndexManager();
 	}
 
 }
