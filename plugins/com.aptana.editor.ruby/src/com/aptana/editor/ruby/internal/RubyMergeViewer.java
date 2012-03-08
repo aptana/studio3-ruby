@@ -17,6 +17,7 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.widgets.Composite;
 
 import com.aptana.editor.common.ExtendedFastPartitioner;
+import com.aptana.editor.common.viewer.CommonMergeViewer;
 import com.aptana.editor.ruby.MergingPartitionScanner;
 import com.aptana.editor.ruby.RubySourceConfiguration;
 import com.aptana.editor.ruby.RubySourceEditor;
@@ -26,7 +27,7 @@ import com.aptana.editor.ruby.RubySourceViewerConfiguration;
 /**
  * @author cwilliams
  */
-public class RubyMergeViewer extends TextMergeViewer
+public class RubyMergeViewer extends CommonMergeViewer
 {
 	public RubyMergeViewer(Composite parent, CompareConfiguration configuration)
 	{
@@ -42,14 +43,10 @@ public class RubyMergeViewer extends TextMergeViewer
 	}
 
 	@Override
-	protected String getDocumentPartitioning()
-	{
-		return IDocumentExtension3.DEFAULT_PARTITIONING;
-	}
-
-	@Override
 	protected void configureTextViewer(TextViewer textViewer)
 	{
+		super.configureTextViewer(textViewer);
+
 		if (textViewer instanceof SourceViewer)
 		{
 			SourceViewer sourceViewer = (SourceViewer) textViewer;

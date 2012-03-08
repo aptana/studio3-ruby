@@ -8,9 +8,7 @@
 package com.aptana.editor.haml.merge;
 
 import org.eclipse.compare.CompareConfiguration;
-import org.eclipse.compare.contentmergeviewer.TextMergeViewer;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.text.source.SourceViewer;
@@ -21,6 +19,7 @@ import com.aptana.editor.common.IExtendedPartitioner;
 import com.aptana.editor.common.NullPartitionerSwitchStrategy;
 import com.aptana.editor.common.text.rules.CompositePartitionScanner;
 import com.aptana.editor.common.text.rules.NullSubPartitionScanner;
+import com.aptana.editor.common.viewer.CommonMergeViewer;
 import com.aptana.editor.haml.HAMLEditor;
 import com.aptana.editor.haml.HAMLSourceConfiguration;
 import com.aptana.editor.haml.HAMLSourceViewerConfiguration;
@@ -28,7 +27,7 @@ import com.aptana.editor.haml.HAMLSourceViewerConfiguration;
 /**
  * @author cwilliams
  */
-class HAMLMergeViewer extends TextMergeViewer
+class HAMLMergeViewer extends CommonMergeViewer
 {
 	HAMLMergeViewer(Composite parent, CompareConfiguration configuration)
 	{
@@ -47,14 +46,10 @@ class HAMLMergeViewer extends TextMergeViewer
 	}
 
 	@Override
-	protected String getDocumentPartitioning()
-	{
-		return IDocumentExtension3.DEFAULT_PARTITIONING;
-	}
-
-	@Override
 	protected void configureTextViewer(TextViewer textViewer)
 	{
+		super.configureTextViewer(textViewer);
+
 		if (textViewer instanceof SourceViewer)
 		{
 			SourceViewer sourceViewer = (SourceViewer) textViewer;
