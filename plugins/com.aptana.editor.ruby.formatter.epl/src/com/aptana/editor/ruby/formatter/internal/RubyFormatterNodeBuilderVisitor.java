@@ -23,6 +23,7 @@ import org.jrubyparser.SourcePosition;
 import org.jrubyparser.ast.ArgumentNode;
 import org.jrubyparser.ast.ArrayNode;
 import org.jrubyparser.ast.BeginNode;
+import org.jrubyparser.ast.BlockNode;
 import org.jrubyparser.ast.CaseNode;
 import org.jrubyparser.ast.ClassNode;
 import org.jrubyparser.ast.Colon3Node;
@@ -36,6 +37,7 @@ import org.jrubyparser.ast.FCallNode;
 import org.jrubyparser.ast.ForNode;
 import org.jrubyparser.ast.HashNode;
 import org.jrubyparser.ast.IfNode;
+import org.jrubyparser.ast.InstAsgnNode;
 import org.jrubyparser.ast.IterNode;
 import org.jrubyparser.ast.ListNode;
 import org.jrubyparser.ast.Match2Node;
@@ -882,12 +884,24 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 
 	/*
 	 * (non-Javadoc)
-	 * @see com.aptana.ruby.core.ast.AbstractVisitor#visitOptArgNode(org.jrubyparser.ast.OptArgNode)
+	 * @see com.aptana.ruby.core.ast.AbstractVisitor#visitBlockNode(org.jrubyparser.ast.BlockNode)
 	 */
 	@Override
-	public Object visitOptArgNode(OptArgNode visited)
+	public Object visitBlockNode(BlockNode visited)
 	{
-		return super.visitOptArgNode(visited);
+		visitChildren(visited.childNodes());
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.ruby.core.ast.AbstractVisitor#visitInstAsgnNode(org.jrubyparser.ast.InstAsgnNode)
+	 */
+	@Override
+	public Object visitInstAsgnNode(InstAsgnNode visited)
+	{
+		pushTextNode(visited.getPosition());
+		return null;
 	}
 
 	private boolean isRequireMethod(FCallNode call)
