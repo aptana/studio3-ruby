@@ -9,6 +9,7 @@ package com.aptana.ruby.internal.core.build;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -54,21 +55,29 @@ public class RubyTaskDetector extends RequiredBuildParticipant
 
 	private Collection<IProblem> detectTasks(BuildContext context, IProgressMonitor monitor)
 	{
-		Collection<IProblem> tasks = new ArrayList<IProblem>();
+		IParseRootNode rootNode = null;
 		try
 		{
-			IParseRootNode rootNode = context.getAST();
-			if (rootNode == null)
-			{
-				return tasks;
-			}
-			IParseNode[] comments = rootNode.getCommentNodes();
-			if (ArrayUtil.isEmpty(comments))
-			{
-				return tasks;
-			}
+			rootNode = context.getAST();
+		}
+		catch (CoreException e)
+		{
+			// ignores the parser exception
+		}
+		if (rootNode == null)
+		{
+			return Collections.emptyList();
+		}
+		IParseNode[] comments = rootNode.getCommentNodes();
+		if (ArrayUtil.isEmpty(comments))
+		{
+			return Collections.emptyList();
+		}
 
-			SubMonitor sub = SubMonitor.convert(monitor, comments.length);
+		Collection<IProblem> tasks = new ArrayList<IProblem>();
+		SubMonitor sub = SubMonitor.convert(monitor, comments.length);
+		try
+		{
 			String source = context.getContents();
 			String filePath = context.getURI().toString();
 			for (IParseNode commentNode : comments)
@@ -79,11 +88,14 @@ public class RubyTaskDetector extends RequiredBuildParticipant
 				}
 				sub.worked(1);
 			}
-			sub.done();
 		}
 		catch (CoreException e)
 		{
 			IdeLog.logError(RubyCorePlugin.getDefault(), e);
+		}
+		finally
+		{
+			sub.done();
 		}
 		return tasks;
 	}
