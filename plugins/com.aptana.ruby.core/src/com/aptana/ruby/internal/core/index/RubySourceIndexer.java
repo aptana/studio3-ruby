@@ -13,6 +13,7 @@ import java.util.Stack;
 import com.aptana.core.util.ArrayUtil;
 import com.aptana.core.util.StringUtil;
 import com.aptana.index.core.Index;
+import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.IRubyMethod.Visibility;
 import com.aptana.ruby.core.ISourceElementRequestor;
 import com.aptana.ruby.core.index.IRubyIndexConstants;
@@ -20,7 +21,8 @@ import com.aptana.ruby.core.index.IRubyIndexConstants;
 // TODO Also index symbols?
 class RubySourceIndexer implements ISourceElementRequestor
 {
-	private static final String NAMESPACE_DELIMETER = IRubyIndexConstants.NAMESPACE_DELIMETER;
+
+	private static final String NAMESPACE_DELIMETER = IRubyConstants.NAMESPACE_DELIMETER;
 
 	protected static final String VERSION_KEY = "index_version"; //$NON-NLS-1$
 	protected static final int CURRENT_VERSION = 5;
@@ -76,7 +78,7 @@ class RubySourceIndexer implements ISourceElementRequestor
 		String indexKey = createTypeDeclarationKey(isModule, simpleName, enclosingTypes, secondary);
 		addIndex(IRubyIndexConstants.TYPE_DECL, indexKey);
 
-		if (superclass != null && !IRubyIndexConstants.OBJECT.equals(superclass))
+		if (superclass != null && !IRubyConstants.OBJECT.equals(superclass))
 		{
 			addTypeReference(superclass);
 		}
@@ -84,7 +86,7 @@ class RubySourceIndexer implements ISourceElementRequestor
 		if (!isModule)
 		{
 			// We know that both class and superclass must be classes because Modules can't have subclasses
-			if (superclass != null && !IRubyIndexConstants.OBJECT.equals(superclass))
+			if (superclass != null && !IRubyConstants.OBJECT.equals(superclass))
 			{
 				addIndex(
 						IRubyIndexConstants.SUPER_REF,
@@ -202,7 +204,7 @@ class RubySourceIndexer implements ISourceElementRequestor
 	private String createdNamespacedFieldKey(String name)
 	{
 		// TODO Use Toplevel, not Object?
-		String simpleName = IRubyIndexConstants.OBJECT;
+		String simpleName = IRubyConstants.OBJECT;
 		String[] enclosingTypes = ArrayUtil.NO_STRINGS;
 		if (!typeStack.isEmpty())
 		{
@@ -234,7 +236,7 @@ class RubySourceIndexer implements ISourceElementRequestor
 	public void enterMethod(MethodInfo method)
 	{
 		// TODO Use Toplevel, not Object?
-		String simpleName = IRubyIndexConstants.OBJECT;
+		String simpleName = IRubyConstants.OBJECT;
 		String[] enclosingTypes = ArrayUtil.NO_STRINGS;
 		if (!typeStack.isEmpty())
 		{
@@ -320,7 +322,7 @@ class RubySourceIndexer implements ISourceElementRequestor
 	{
 		if (superTypeName == null)
 		{
-			superTypeName = IRubyIndexConstants.OBJECT;
+			superTypeName = IRubyConstants.OBJECT;
 		}
 		String superSimpleName = lastSegment(superTypeName, NAMESPACE_DELIMETER);
 		char[] superQualification = null;

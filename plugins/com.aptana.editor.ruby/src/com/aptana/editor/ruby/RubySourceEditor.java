@@ -126,7 +126,7 @@ public class RubySourceEditor extends AbstractThemeableEditor
 
 	protected IParseNode getASTNodeAt(int offset)
 	{
-		IParseNode root = getFileService().getParseResult();
+		IParseNode root = getAST();
 		if (root == null)
 		{
 			return null;
@@ -282,7 +282,7 @@ public class RubySourceEditor extends AbstractThemeableEditor
 	}
 
 	@Override
-	protected String getFileServiceContentTypeId()
+	public String getContentType()
 	{
 		return IRubyConstants.CONTENT_TYPE_RUBY;
 	}

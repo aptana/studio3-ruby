@@ -7,9 +7,7 @@
  */
 package com.aptana.ruby.core;
 
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.osgi.framework.BundleContext;
 
@@ -68,16 +66,6 @@ public class RubyCorePlugin extends Plugin
 	public static RubyCorePlugin getDefault()
 	{
 		return fgPlugin;
-	}
-
-	public static void log(Throwable e)
-	{
-		log(new Status(IStatus.ERROR, PLUGIN_ID, null, e));
-	}
-
-	public static void log(IStatus status)
-	{
-		getDefault().getLog().log(status);
 	}
 
 	public synchronized CodeResolver getCodeResolver()

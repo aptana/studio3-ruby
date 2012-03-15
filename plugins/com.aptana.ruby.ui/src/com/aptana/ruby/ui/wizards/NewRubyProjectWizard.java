@@ -7,36 +7,33 @@
  */
 package com.aptana.ruby.ui.wizards;
 
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.IExecutableExtension;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbench;
 
-import com.aptana.core.projects.templates.IProjectTemplate;
+import com.aptana.core.build.UnifiedBuilder;
 import com.aptana.core.projects.templates.TemplateType;
-import com.aptana.projects.ProjectsPlugin;
 import com.aptana.projects.WebProjectNature;
-import com.aptana.projects.internal.wizards.NewProjectWizard;
-import com.aptana.projects.internal.wizards.ProjectTemplateSelectionPage;
+import com.aptana.projects.internal.wizards.AbstractNewProjectWizard;
 import com.aptana.ruby.core.RubyProjectNature;
 import com.aptana.ruby.ui.RubyUIPlugin;
-import com.aptana.usage.FeatureEvent;
-import com.aptana.usage.StudioAnalytics;
 
 /**
  * Ruby project wizard.
  * 
  * @author cwilliams, sgibly
  */
-public class NewRubyProjectWizard extends NewProjectWizard implements IExecutableExtension
+public class NewRubyProjectWizard extends AbstractNewProjectWizard implements IExecutableExtension
 {
-	protected static final String TEMPLATE_SELECTION_PAGE_NAME = "templateSelectionPage"; //$NON-NLS-1$
+	private boolean cloneFromGit;
+	private String cloneSourceURI;
 
 	/*
 	 * (non-Javadoc)
@@ -54,36 +51,14 @@ public class NewRubyProjectWizard extends NewProjectWizard implements IExecutabl
 		setDialogSettings(section);
 	}
 
-	@Override
-	public void addPages()
-	{
-		validateProjectTemplate(getTemplateTypes());
-
-		mainPage = createMainPage();
-		mainPage.setWizard(this);
-		mainPage.setPageComplete(false);
-		addPage(mainPage);
-
-		// project templates
-		List<IProjectTemplate> templates = ProjectsPlugin.getDefault().getTemplatesManager()
-				.getTemplates(getTemplateTypes());
-		if (templates.size() > 0 && selectedTemplate == null)
-		{
-			addPage(templatesPage = new ProjectTemplateSelectionPage(TEMPLATE_SELECTION_PAGE_NAME, templates));
-		}
-	}
-
-	protected TemplateType[] getTemplateTypes()
-	{
-		return new TemplateType[] { TemplateType.RUBY };
-	}
-
 	protected WizardNewRubyProjectCreationPage createMainPage()
 	{
 		WizardNewRubyProjectCreationPage mainPage = new WizardNewRubyProjectCreationPage(
 				"basicNewProjectPage", selectedTemplate); //$NON-NLS-1$
 		mainPage.setTitle(Messages.NewProject_title);
 		mainPage.setDescription(Messages.NewRubyProject_description);
+		mainPage.setWizard(this);
+		mainPage.setPageComplete(false);
 		return mainPage;
 	}
 
@@ -95,6 +70,30 @@ public class NewRubyProjectWizard extends NewProjectWizard implements IExecutabl
 		ImageDescriptor desc = RubyUIPlugin.imageDescriptorFromPlugin(RubyUIPlugin.getPluginIdentifier(),
 				"icons/newproj_wiz.png"); //$NON-NLS-1$
 		setDefaultPageImageDescriptor(desc);
+	}
+
+	@Override
+	protected String[] getProjectNatures()
+	{
+		return new String[] { RubyProjectNature.ID, WebProjectNature.ID };
+	}
+
+	@Override
+	protected String getProjectCreateEventName()
+	{
+		return "project.create.ruby"; //$NON-NLS-1$
+	}
+
+	@Override
+	protected TemplateType[] getProjectTemplateTypes()
+	{
+		return new TemplateType[] { TemplateType.RUBY };
+	}
+
+	@Override
+	protected String[] getProjectBuilders()
+	{
+		return new String[] { UnifiedBuilder.ID };
 	}
 
 	/*
@@ -112,18 +111,7 @@ public class NewRubyProjectWizard extends NewProjectWizard implements IExecutabl
 	public void init(IWorkbench workbench, IStructuredSelection currentSelection)
 	{
 		super.init(workbench, currentSelection);
-		setNeedsProgressMonitor(true);
 		setWindowTitle(Messages.NewRubyProject_windowTitle);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.projects.internal.wizards.NewProjectWizard#getProjectNatures()
-	 */
-	@Override
-	protected String[] getProjectNatures()
-	{
-		return new String[] { RubyProjectNature.ID, WebProjectNature.ID };
 	}
 
 	/*
@@ -135,35 +123,31 @@ public class NewRubyProjectWizard extends NewProjectWizard implements IExecutabl
 	{
 		// First check the main page specific settings for the git clone. In case the setting is off, check the super
 		// for any template that requires a clone.
-		boolean cloneFromGit = mainPage.isCloneFromGit();
 		return cloneFromGit || super.isCloneFromGit();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.projects.internal.wizards.NewProjectWizard#cloneFromGit(org.eclipse.core.resources.IProject,
-	 * org.eclipse.core.resources.IProjectDescription)
-	 */
 	@Override
-	protected void cloneFromGit(IProject newProjectHandle, IProjectDescription description)
+	public boolean performFinish()
+	{
+		cloneFromGit = mainPage.isCloneFromGit();
+		cloneSourceURI = mainPage.getCloneURI();
+		return super.performFinish();
+	}
+
+	@Override
+	protected void cloneFromGit(IProject newProjectHandle, IProjectDescription description, IProgressMonitor monitor)
+			throws InvocationTargetException
 	{
 		// We override the default implementation since this project wizard may define a git clone location even without
 		// any project templates.
-		if (mainPage.isCloneFromGit())
+		if (cloneFromGit)
 		{
-			String sourceURI = mainPage.getCloneURI();
-			doCloneFromGit(sourceURI, newProjectHandle, description);
+			doCloneFromGit(cloneSourceURI, newProjectHandle, description, monitor);
 		}
 		else
 		{
 			// The super cloneFromGit will deal with the project template cloning
-			super.cloneFromGit(newProjectHandle, description);
+			super.cloneFromGit(newProjectHandle, description, monitor);
 		}
 	}
-
-	@Override
-	protected void sendProjectCreateEvent(Map<String, String> payload)
-	{
-		StudioAnalytics.getInstance().sendEvent(new FeatureEvent("project.create.ruby", payload)); //$NON-NLS-1$
 	}
-}

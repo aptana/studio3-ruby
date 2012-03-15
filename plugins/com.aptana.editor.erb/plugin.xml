@@ -31,6 +31,7 @@
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="com.aptana.contenttype.html"
+            default-charset="UTF-8"
             describer="com.aptana.editor.erb.html.RHTMLContentDescriber"
             file-extensions="rhtml,erb"
             id="com.aptana.contenttype.html.erb"
@@ -39,6 +40,7 @@
       </content-type>
       <content-type
             base-type="org.eclipse.core.runtime.xml"
+            default-charset="UTF-8"
             describer="com.aptana.editor.erb.xml.RXMLContentDescriber"
             file-extensions="rxml,erb,builder"
             id="com.aptana.contenttype.xml.erb"
@@ -79,6 +81,18 @@
             id="com.aptana.editor.erb.preferences.ERBPreferencePage"
             name="%page.erb.name">
       </page>
+   </extension>
+   <extension
+         point="org.eclipse.compare.contentMergeViewers">
+      <contentTypeBinding
+            contentMergeViewerId="com.aptana.editor.rhtml.contentMergeViewer"
+            contentTypeId="com.aptana.contenttype.html.erb">
+      </contentTypeBinding>
+      <viewer
+            class="com.aptana.editor.erb.html.RHTMLMergeViewerCreator"
+            extensions="rhtml,erb"
+            id="com.aptana.editor.rhtml.contentMergeViewer">
+      </viewer>
    </extension>
 
 </plugin>

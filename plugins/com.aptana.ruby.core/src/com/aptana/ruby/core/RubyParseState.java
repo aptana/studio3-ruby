@@ -13,7 +13,10 @@ import com.aptana.parsing.ParseState;
 
 public class RubyParseState extends ParseState
 {
+	private static final String DEFAULT_FILENAME = "<unnamed file>"; //$NON-NLS-1$
 	private CompatVersion compatVersion = CompatVersion.BOTH;
+	private int lineNumber = 0;
+	private String filename = DEFAULT_FILENAME;
 
 	public void setVersion(CompatVersion compatVersion)
 	{
@@ -23,6 +26,34 @@ public class RubyParseState extends ParseState
 	public CompatVersion getCompatVersion()
 	{
 		return compatVersion;
+	}
+
+	public int getStartingLineNumber()
+	{
+		return this.lineNumber;
+	}
+
+	public void setStartingLineNumber(int lineNumber)
+	{
+		if (lineNumber < 0)
+		{
+			lineNumber = 0;
+		}
+		this.lineNumber = lineNumber;
+	}
+
+	public String getFilename()
+	{
+		return this.filename;
+	}
+
+	public void setFilename(String filename)
+	{
+		if (filename == null)
+		{
+			filename = DEFAULT_FILENAME;
+		}
+		this.filename = filename;
 	}
 
 }

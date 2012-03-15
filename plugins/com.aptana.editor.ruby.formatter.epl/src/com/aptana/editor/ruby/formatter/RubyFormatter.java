@@ -47,9 +47,7 @@ import com.aptana.formatter.IFormatterDocument;
 import com.aptana.formatter.nodes.IFormatterContainerNode;
 import com.aptana.formatter.ui.FormatterException;
 import com.aptana.formatter.ui.FormatterMessages;
-import com.aptana.parsing.IParser;
 import com.aptana.ruby.core.NullParserResult;
-import com.aptana.ruby.core.RubyParser;
 import com.aptana.ruby.core.RubySourceParser;
 import com.aptana.ui.util.StatusLineMessageTimerManager;
 
@@ -85,10 +83,8 @@ public class RubyFormatter extends AbstractScriptFormatter
 			final String source = document.get();
 			final ParserResult result;
 
-			IParser parser = super.checkoutParser();
-			RubySourceParser sourceParser = getSourceParser(parser);
+			RubySourceParser sourceParser = getSourceParser();
 			result = sourceParser.parse(source);
-			checkinParser(parser);
 			if (!(result instanceof NullParserResult))
 			{
 				final RubyFormatterNodeBuilder builder = new RubyFormatterNodeBuilder();
@@ -207,10 +203,8 @@ public class RubyFormatter extends AbstractScriptFormatter
 				length -= toTrim;
 			}
 		}
-		IParser parser = super.checkoutParser();
-		RubySourceParser sourceParser = getSourceParser(parser);
+		RubySourceParser sourceParser = getSourceParser();
 		ParserResult result = sourceParser.parse(input);
-		checkinParser(parser);
 		try
 		{
 			if (!(result instanceof NullParserResult))
@@ -281,18 +275,9 @@ public class RubyFormatter extends AbstractScriptFormatter
 	/**
 	 * @return RubySourceParser
 	 */
-	protected RubySourceParser getSourceParser(IParser parser)
+	protected RubySourceParser getSourceParser()
 	{
-		RubySourceParser sourceParser = null;
-		if (parser instanceof RubyParser)
-		{
-			sourceParser = ((RubyParser) parser).getSourceParser(CompatVersion.BOTH);
-		}
-		if (sourceParser == null)
-		{
-			sourceParser = new RubyParser().getSourceParser(CompatVersion.BOTH);
-		}
-		return sourceParser;
+		return new RubySourceParser(CompatVersion.BOTH);
 	}
 
 	protected boolean isValidation()
@@ -368,10 +353,8 @@ public class RubyFormatter extends AbstractScriptFormatter
 	private List<IRegion> getOutputOnOffRegions(String output, String formatterOffPattern, String formatterOnPattern,
 			IFormatterDocument document)
 	{
-		IParser parser = super.checkoutParser();
-		RubySourceParser sourceParser = getSourceParser(parser);
+		RubySourceParser sourceParser = getSourceParser();
 		ParserResult result = sourceParser.parse(output);
-		checkinParser(parser);
 		if (result != null && !(result instanceof NullParserResult))
 		{
 			return collectOffOnRegions(result.getCommentNodes(), document);

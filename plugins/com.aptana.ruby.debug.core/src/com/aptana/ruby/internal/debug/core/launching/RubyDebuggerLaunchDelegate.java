@@ -64,6 +64,9 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 	 */
 	private static final String END_OF_ARGUMENTS_DELIMETER = "--"; //$NON-NLS-1$
 
+	// TODO implement getLaunch to generate our own Launch class to help terminate rails server processes? normal
+	// terminate doesn't work.
+
 	/*
 	 * (non-Javadoc)
 	 * @see
@@ -192,6 +195,7 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 		List<String> commandList = new ArrayList<String>();
 		// FIXME What if user is using RVM? We need to respect which version of rdebug-ide we need to use!
 		IPath rdebug = ExecutableUtil.find(RDEBUG_IDE, false, getRDebugIDELocations(rubyExecutablePath), workingDir);
+		rdebug = RubyLaunchingPlugin.resolveRBENVShimPath(rdebug, workingDir);
 		if (rdebug == null)
 		{
 			abort(Messages.RubyDebuggerLaunchDelegate_3, null);
@@ -265,7 +269,7 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 		}
 		catch (Exception e)
 		{
-			RubyLaunchingPlugin.log(e);
+			IdeLog.logError(RubyLaunchingPlugin.getDefault(), e);
 		}
 		arguments.add(END_OF_ARGUMENTS_DELIMETER);
 		return arguments;

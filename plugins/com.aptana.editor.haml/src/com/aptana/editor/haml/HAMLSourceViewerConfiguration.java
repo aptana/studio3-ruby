@@ -25,7 +25,7 @@ import com.aptana.editor.ruby.RubySourceConfiguration;
 public class HAMLSourceViewerConfiguration extends SimpleSourceViewerConfiguration
 {
 
-	protected HAMLSourceViewerConfiguration(IPreferenceStore preferences, AbstractThemeableEditor editor)
+	public HAMLSourceViewerConfiguration(IPreferenceStore preferences, AbstractThemeableEditor editor)
 	{
 		super(preferences, editor);
 	}

@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.aptana.core.CoreStrings;
 import com.aptana.core.util.StringUtil;
 
 abstract class ResourceSelector
@@ -44,7 +45,7 @@ abstract class ResourceSelector
 		});
 
 		browseButton = new Button(composite, SWT.PUSH);
-		browseButton.setText(Messages.ResourceSelector_BrowseButtonLabel);
+		browseButton.setText(StringUtil.ellipsify(CoreStrings.BROWSE));
 		browseButton.addSelectionListener(new SelectionAdapter()
 		{
 			public void widgetSelected(SelectionEvent e)

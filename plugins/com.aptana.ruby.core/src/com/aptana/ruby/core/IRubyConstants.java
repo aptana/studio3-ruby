@@ -10,6 +10,7 @@ package com.aptana.ruby.core;
 
 /**
  * @author Max Stepanov
+ * @author cwilliams
  */
 public interface IRubyConstants
 {

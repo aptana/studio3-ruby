@@ -7,19 +7,28 @@
  */
 package com.aptana.editor.erb.html;
 
+import java.io.InputStream;
+
 import junit.framework.TestCase;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+
+import com.aptana.core.util.IOUtil;
+import com.aptana.editor.erb.ERBEditorPlugin;
+import com.aptana.editor.erb.html.parsing.ERBScript;
 import com.aptana.editor.erb.html.parsing.RHTMLParser;
 import com.aptana.editor.html.IHTMLConstants;
 import com.aptana.editor.html.parsing.HTMLParseState;
+import com.aptana.editor.js.parsing.ast.JSStringNode;
+import com.aptana.editor.js.parsing.ast.JSVarNode;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.ruby.core.IRubyConstants;
 
 public class RHTMLParserTest extends TestCase
 {
-
 	private RHTMLParser fParser;
-
 	private HTMLParseState fParseState;
 
 	@Override
@@ -41,7 +50,7 @@ public class RHTMLParserTest extends TestCase
 		String source = "<% content_for :stylesheets do %>\n" + "<%= stylesheet_link_tag 'rails' %>\n"
 				+ "<style></style>\n" + "<%= javascript_include_tag 'slidedeck/slidedeck.jquery.js' %>\n"
 				+ "<script></script>\n" + "<% end %>";
-		fParseState.setEditState(source, source, 0, 0);
+		fParseState.setEditState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren();
@@ -58,7 +67,7 @@ public class RHTMLParserTest extends TestCase
 	public void testNestedERB() throws Exception
 	{
 		String source = "<p>Welcome to <em><%= ENV['SERVER_NAME'] %></em>. If you see a server name, <%= 'e' + 'Ruby' %> is probably working.</p>";
-		fParseState.setEditState(source, source, 0, 0);
+		fParseState.setEditState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren(); // <p></p>
@@ -77,7 +86,7 @@ public class RHTMLParserTest extends TestCase
 	public void testDoubleERBBeforeTagClose() throws Exception
 	{
 		String source = "<table><tr></tr><% content_for :table %><% end %></table>";
-		fParseState.setEditState(source, source, 0, 0);
+		fParseState.setEditState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren(); // <table></table>
@@ -87,5 +96,33 @@ public class RHTMLParserTest extends TestCase
 		assertEquals(2, children[0].getNodeType()); // HTMLElementNode
 		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[1].getLanguage());
 		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[2].getLanguage());
+	}
+
+	public void testAPSTUD4397() throws Exception
+	{
+		String resource = "parsing/offsets.html.erb";
+		InputStream input = FileLocator.openStream(Platform.getBundle(ERBEditorPlugin.PLUGIN_ID), new Path(resource),
+				false);
+		String source = IOUtil.read(input);
+
+		fParseState.setEditState(source);
+		IParseNode result = fParser.parse(fParseState);
+
+		// check node offsets
+		IParseNode varDecl1 = result.getNodeAtOffset(54);
+		assertTrue(varDecl1 instanceof JSVarNode);
+		assertEquals(54, varDecl1.getStartingOffset());
+		assertEquals(320, varDecl1.getEndingOffset());
+
+		IParseNode varDecl2 = result.getNodeAtOffset(352);
+		assertTrue(varDecl2 instanceof JSVarNode);
+		assertEquals(352, varDecl2.getStartingOffset());
+		assertEquals(1199, varDecl2.getEndingOffset());
+
+		IParseNode string = result.getNodeAtOffset(190);
+		assertTrue(string instanceof JSStringNode);
+		assertEquals(1, string.getChildCount());
+		IParseNode erbScript = string.getFirstChild();
+		assertTrue(erbScript instanceof ERBScript);
 	}
 }

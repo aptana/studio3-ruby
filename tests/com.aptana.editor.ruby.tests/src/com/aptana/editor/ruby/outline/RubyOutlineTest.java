@@ -49,7 +49,7 @@ public class RubyOutlineTest extends TestCase
 		// TODO Add more types and ensure we have the right order: imports, class vars, globals, etc.
 		String source = "class Test\n\tdef initialize(files)\n\t\t@files = files\n\tend\nend";
 		ParseState parseState = new ParseState();
-		parseState.setEditState(source, source, 0, 0);
+		parseState.setEditState(source, 0);
 		fParser.parse(parseState);
 
 		Object[] elements = fContentProvider.getElements(parseState.getParseResult());

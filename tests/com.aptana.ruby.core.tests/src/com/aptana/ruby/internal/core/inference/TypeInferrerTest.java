@@ -10,9 +10,11 @@ import junit.framework.TestCase;
 
 import com.aptana.index.core.Index;
 import com.aptana.index.core.IndexManager;
+import com.aptana.index.core.IndexPlugin;
 import com.aptana.ruby.core.index.IRubyIndexConstants;
 import com.aptana.ruby.core.inference.ITypeGuess;
 
+@SuppressWarnings("nls")
 public class TypeInferrerTest extends TestCase
 {
 	private List<Index> indicesforTesting;
@@ -58,7 +60,7 @@ public class TypeInferrerTest extends TestCase
 		String tmpDir = System.getProperty("java.io.tmpdir");
 		File caIndexDir = new File(tmpDir, "ruby_ti_test" + System.currentTimeMillis());
 		caIndexDir.deleteOnExit();
-		return IndexManager.getInstance().getIndex(caIndexDir.toURI());
+		return getIndexManager().getIndex(caIndexDir.toURI());
 	}
 
 	public void testAmbiguousTypeInImplicitNamespaceMatchesFullNameBeforeToplevelName() throws Exception
@@ -77,6 +79,11 @@ public class TypeInferrerTest extends TestCase
 		assertEquals(1, typeGuesses.size());
 		ITypeGuess guess = typeGuesses.iterator().next();
 		assertEquals("Namespace::Subclass", guess.getType());
+	}
+
+	protected IndexManager getIndexManager()
+	{
+		return IndexPlugin.getDefault().getIndexManager();
 	}
 
 }

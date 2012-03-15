@@ -53,7 +53,7 @@ public class RHTMLEditor extends HTMLEditor
 	}
 
 	@Override
-	protected String getFileServiceContentTypeId()
+	public String getContentType()
 	{
 		return IERBConstants.CONTENT_TYPE_HTML_ERB;
 	}
@@ -67,7 +67,7 @@ public class RHTMLEditor extends HTMLEditor
 	@Override
 	public ILabelProvider getOutlineLabelProvider()
 	{
-		return new RHTMLOutlineLabelProvider(getFileService().getParseState());
+		return new RHTMLOutlineLabelProvider(getDocument());
 	}
 
 	/*

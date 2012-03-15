@@ -24,10 +24,13 @@ import org.jrubyparser.parser.Ruby19Parser;
 
 import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.StringUtil;
+import com.aptana.parsing.ParserPoolFactory;
 
 /**
  * @author Chris Williams
  * @author Michael Xia
+ * @deprecated Please use {@link ParserPoolFactory} to make use of the {@link RubyParser}. We may need to alter it and
+ *             {@link RubyParseState} to get what we want.
  */
 public class RubySourceParser
 {
@@ -84,7 +87,7 @@ public class RubySourceParser
 		{
 			if (IdeLog.isInfoEnabled(RubyCorePlugin.getDefault(), null))
 			{
-				IdeLog.logInfo(RubyCorePlugin.getDefault(), "Unable to parse ruby file", e, null);
+				IdeLog.logInfo(RubyCorePlugin.getDefault(), "Unable to parse ruby file", e, null); //$NON-NLS-1$
 			}
 		}
 		finally

@@ -61,8 +61,8 @@ public class AddExceptionAction implements IViewActionDelegate, IWorkbenchWindow
 	public void run(IAction action)
 	{
 		// Open a dialog asking for typename of the exception
-		InputDialog dialog = new InputDialog(fWorkbenchWindow.getShell(), "Add Exception breakpoint",
-				"Please enter the type name of the exception type you'd like to break on", "StandardError",
+		InputDialog dialog = new InputDialog(fWorkbenchWindow.getShell(), Messages.AddExceptionAction_InputTitle,
+				Messages.AddExceptionAction_InputMessage, Messages.AddExceptionAction_DefaultInput,
 				new IInputValidator()
 				{
 
@@ -70,7 +70,7 @@ public class AddExceptionAction implements IViewActionDelegate, IWorkbenchWindow
 					{
 						if (newText == null || newText.trim().length() == 0)
 						{
-							return "Must be a non-empty name of exception type to catch";
+							return Messages.AddExceptionAction_ERR_EmptyInput;
 						}
 						// TODO No spaces, no -
 						return null;
