@@ -55,7 +55,7 @@ class RubyAutoIndentStrategy extends RubyRegexpAutoIndentStrategy
 	{
 		boolean superAutoIndent = super.autoIndent(d, c);
 
-		int p = ((c.offset == d.getLength()) ? c.offset - 1 : c.offset);
+		int p = ((c.offset == d.getLength()) ? Math.min(0, c.offset - 1) : c.offset);
 		int line = 0;
 		IRegion currentLineRegion = null;
 		int startOfCurrentLine = 0;
