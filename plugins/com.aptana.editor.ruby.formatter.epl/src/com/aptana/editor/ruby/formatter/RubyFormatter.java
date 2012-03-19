@@ -117,7 +117,7 @@ public class RubyFormatter extends AbstractScriptFormatter
 	 */
 	public int getIndentSize()
 	{
-		return getInt(RubyFormatterConstants.FORMATTER_INDENTATION_SIZE);
+		return getInt(RubyFormatterConstants.FORMATTER_INDENTATION_SIZE, 1);
 	}
 
 	/*
@@ -135,7 +135,7 @@ public class RubyFormatter extends AbstractScriptFormatter
 	 */
 	public int getTabSize()
 	{
-		return getInt(RubyFormatterConstants.FORMATTER_TAB_SIZE);
+		return getInt(RubyFormatterConstants.FORMATTER_TAB_SIZE, getEditorSpecificTabWidth());
 	}
 
 	/*
