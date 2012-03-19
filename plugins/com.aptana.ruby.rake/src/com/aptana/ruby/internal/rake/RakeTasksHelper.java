@@ -328,16 +328,13 @@ public class RakeTasksHelper implements IRakeHelper
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	private ILaunchConfiguration createConfiguration(IProject project, IPath workingDir, String rubyFile, String args,
 			Map<String, String> env) throws CoreException
 	{
 		// TODO Combine this into some utility method somewhere?
 		ILaunchConfigurationType configType = getRubyLaunchConfigType();
-		ILaunchConfigurationWorkingCopy wc = configType.newInstance(
-				null,
-				getLaunchManager().generateUniqueLaunchConfigurationNameFrom(
-						MessageFormat.format("{0} rake {1}", project.getName(), args))); //$NON-NLS-1$
+		ILaunchConfigurationWorkingCopy wc = configType.newInstance(null, getLaunchManager()
+				.generateLaunchConfigurationName(MessageFormat.format("{0} rake {1}", project.getName(), args))); //$NON-NLS-1$
 		wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_FILE_NAME, rubyFile);
 		wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, workingDir.toOSString());
 		wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, args);

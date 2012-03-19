@@ -261,13 +261,12 @@ public class RailsServer extends AbstractWebServer
 		return createConfiguration(railsProject, filename, args.toString());
 	}
 
-	@SuppressWarnings("deprecation")
 	private ILaunchConfiguration createConfiguration(IProject project, String rubyFile, String args)
 			throws CoreException
 	{
 		ILaunchConfigurationType configType = getRubyLaunchConfigType();
 		ILaunchConfigurationWorkingCopy wc = configType.newInstance(null, getLaunchManager()
-				.generateUniqueLaunchConfigurationNameFrom(project.getName()));
+				.generateLaunchConfigurationName(project.getName()));
 		wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_FILE_NAME, rubyFile);
 		wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, project.getLocation().toOSString());
 		wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, args);
