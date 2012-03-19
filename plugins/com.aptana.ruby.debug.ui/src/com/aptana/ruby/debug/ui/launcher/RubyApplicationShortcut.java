@@ -102,8 +102,7 @@ public class RubyApplicationShortcut implements ILaunchShortcut
 		for (ILaunchConfiguration config : configs)
 		{
 			boolean absoluteFilenamesMatch = config.getAttribute(IRubyLaunchConfigurationConstants.ATTR_FILE_NAME,
-					StringUtil.EMPTY)
-					.equals(rubyFile.getLocation().toOSString());
+					StringUtil.EMPTY).equals(rubyFile.getLocation().toOSString());
 			if (absoluteFilenamesMatch)
 			{
 				candidateConfigs.add(config);
@@ -123,7 +122,6 @@ public class RubyApplicationShortcut implements ILaunchShortcut
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	protected ILaunchConfiguration createConfiguration(IFile rubyFile)
 	{
 		ILaunchConfiguration config = null;
@@ -131,7 +129,7 @@ public class RubyApplicationShortcut implements ILaunchShortcut
 		{
 			ILaunchConfigurationType configType = getRubyLaunchConfigType();
 			ILaunchConfigurationWorkingCopy wc = configType.newInstance(null, getLaunchManager()
-					.generateUniqueLaunchConfigurationNameFrom(rubyFile.getName()));
+					.generateLaunchConfigurationName(rubyFile.getName()));
 			// wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_PROJECT_NAME, rubyFile.getProject().getName());
 			wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_FILE_NAME, rubyFile.getLocation().toOSString());
 			wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY,
