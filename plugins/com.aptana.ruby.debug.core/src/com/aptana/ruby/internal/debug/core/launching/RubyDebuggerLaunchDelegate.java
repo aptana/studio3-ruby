@@ -41,7 +41,6 @@ import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 
 import com.aptana.core.ShellExecutable;
 import com.aptana.core.logging.IdeLog;
-import com.aptana.core.util.ExecutableUtil;
 import com.aptana.core.util.ResourceUtil;
 import com.aptana.core.util.StringUtil;
 import com.aptana.ruby.debug.core.RubyDebugCorePlugin;
@@ -103,7 +102,8 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 		// File to run
 		// if the file to launch is "Rakefile", we actually need to run "rake" on the parent
 		String fileToLaunch = fileToLaunch(configuration);
-		if (fileToLaunch.equals(RubyLaunchingPlugin.RAKEFILE) || fileToLaunch.endsWith(File.separator + RubyLaunchingPlugin.RAKEFILE))
+		if (fileToLaunch.equals(RubyLaunchingPlugin.RAKEFILE)
+				|| fileToLaunch.endsWith(File.separator + RubyLaunchingPlugin.RAKEFILE))
 		{
 			IPath rakeFilePath = Path.fromOSString(fileToLaunch);
 			IPath parent = rakeFilePath.removeLastSegments(1);
@@ -193,9 +193,9 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 	{
 		IPath workingDir = getWorkingDirectory(configuration);
 		List<String> commandList = new ArrayList<String>();
+		IPath rdebug = RubyLaunchingPlugin.getBinaryScriptPath(RDEBUG_IDE, getRDebugIDELocations(rubyExecutablePath),
+				workingDir);
 		// FIXME What if user is using RVM? We need to respect which version of rdebug-ide we need to use!
-		IPath rdebug = ExecutableUtil.find(RDEBUG_IDE, false, getRDebugIDELocations(rubyExecutablePath), workingDir);
-		rdebug = RubyLaunchingPlugin.resolveRBENVShimPath(rdebug, workingDir);
 		if (rdebug == null)
 		{
 			abort(Messages.RubyDebuggerLaunchDelegate_3, null);

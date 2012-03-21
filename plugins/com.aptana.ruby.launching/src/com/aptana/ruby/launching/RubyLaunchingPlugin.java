@@ -76,8 +76,7 @@ public class RubyLaunchingPlugin extends Plugin
 
 	public static IPath getRakePath(IPath workingDir)
 	{
-		IPath rakePath = ExecutableUtil.find(RAKE, false, null, workingDir);
-		return resolveRBENVShimPath(rakePath, workingDir);
+		return getBinaryScriptPath(RAKE, workingDir);
 	}
 
 	public static IPath resolveRBENVShimPath(IPath rbenvShimPath, IPath workingDir)
@@ -256,22 +255,49 @@ public class RubyLaunchingPlugin extends Plugin
 		return result;
 	}
 
+	/**
+	 * Handles resolving RBENV shims
+	 * 
+	 * @param binary
+	 * @param pathsToSearch
+	 * @param workingDirectory
+	 * @return
+	 */
+	public static IPath getBinaryScriptPath(String binary, List<IPath> pathsToSearch, IPath workingDirectory)
+	{
+		IPath path = ExecutableUtil.find(binary, false, pathsToSearch, workingDirectory);
+		if (Platform.OS_WIN32.equals(Platform.getOS()))
+		{
+			// No RBENV on Windows!
+			return path;
+		}
+		return resolveRBENVShimPath(path, workingDirectory);
+	}
+
+	/**
+	 * Handles resolving RBENV shims
+	 * 
+	 * @param binary
+	 * @param workingDirectory
+	 * @return
+	 */
+	public static IPath getBinaryScriptPath(String binary, IPath workingDirectory)
+	{
+		return getBinaryScriptPath(binary, null, workingDirectory);
+	}
+
 	public synchronized static Set<IPath> getGemPaths(IProject project)
 	{
 		// FIXME this is including every single gem! We should narrow the list down based on Gemfile in project root if
 		// we can!
 		IPath wd = (project == null ? null : project.getLocation());
 		IPath rubyPath = rubyExecutablePath(wd);
-		String rubyPathString = (rubyPath == null ? RUBY : rubyPath.toOSString());
+		String rubyPathString = rubyPath == null ? RUBY : rubyPath.toOSString();
 
 		if (!rubyToGemPaths.containsKey(rubyPathString))
 		{
-			IPath gemBinPath = ExecutableUtil.find(GEM_COMMAND, false, null, wd);
-			String gemCommand = GEM_COMMAND;
-			if (gemBinPath != null)
-			{
-				gemCommand = gemBinPath.toOSString();
-			}
+			IPath gemBinPath = getBinaryScriptPath(GEM_COMMAND, wd);
+			String gemCommand = gemBinPath == null ? GEM_COMMAND : gemBinPath.toOSString();
 			// FIXME Will this actually behave properly with RVM?
 			// FIXME Not finding my user gem path on Windows...
 
