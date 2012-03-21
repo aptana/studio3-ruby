@@ -141,10 +141,10 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 				// Now launch the rails command in a terminal!
 				TerminalView terminal = TerminalView.openView(project.getName(), project.getName(),
 						project.getLocation());
-				String input = "rails .\n"; //$NON-NLS-1$
-				if (requiresNewArgToGenerateApp(project))
+				String input = "rails new .\n"; //$NON-NLS-1$
+				if (!requiresNewArgToGenerateApp(project))
 				{
-					input = "rails new .\n"; //$NON-NLS-1$
+					input = "rails .\n"; //$NON-NLS-1$
 				}
 				terminal.sendInput(input);
 
