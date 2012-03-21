@@ -7,7 +7,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
-import com.aptana.core.util.ExecutableUtil;
 import com.aptana.core.util.ProcessUtil;
 import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
@@ -70,16 +69,14 @@ public class RailsCorePlugin extends Plugin
 		return runRailsInBackground(workingDirectory, null, args);
 	}
 
-	public static IStatus runRailsInBackground(IPath workingDirectory, Map<String, String> environment,
-			String... args)
+	public static IStatus runRailsInBackground(IPath workingDirectory, Map<String, String> environment, String... args)
 	{
 		IPath rubyExe = RubyLaunchingPlugin.rubyExecutablePath(workingDirectory);
-		// TODO Add in some common rails bin script paths to search?
-		IPath railsPath = ExecutableUtil.find(RAILS, false, null, workingDirectory);
+		IPath railsPath = RubyLaunchingPlugin.getBinaryScriptPath(RAILS, workingDirectory);
 		String[] newArgs = new String[args.length + 1];
 		newArgs[0] = (railsPath == null) ? RAILS : railsPath.toOSString();
 		System.arraycopy(args, 0, newArgs, 1, args.length);
-		return ProcessUtil.runInBackground(
-				(rubyExe == null) ? "ruby" : rubyExe.toOSString(), workingDirectory, environment, newArgs); //$NON-NLS-1$
+		return ProcessUtil.runInBackground((rubyExe == null) ? RubyLaunchingPlugin.RUBY : rubyExe.toOSString(),
+				workingDirectory, environment, newArgs);
 	}
 }
