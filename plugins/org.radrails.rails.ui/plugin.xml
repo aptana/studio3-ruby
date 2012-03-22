@@ -409,4 +409,11 @@
                objectClass="org.radrails.rails.internal.RailsServer">
          </dialog>
       </extension>
+      <extension
+            point="com.aptana.ui.imageAssociations">
+         <image
+               icon="icons/rails.png"
+               id="org.radrails.rails.railsServer">
+         </image>
+      </extension>
 </plugin>
