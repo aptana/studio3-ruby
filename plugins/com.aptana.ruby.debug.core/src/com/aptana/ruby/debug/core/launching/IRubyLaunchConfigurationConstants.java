@@ -75,4 +75,9 @@ public interface IRubyLaunchConfigurationConstants
 	public static final int ERR_REMOTE_VM_CONNECTION_FAILED = 113;
 
 	public static final String DEFAULT_REMOTE_PORT = "1234";
+
+	/**
+	 * Id of process type that we can hook consoleLineTrackers to.
+	 */
+	public static final String PROCESS_TYPE = "ruby";
 }

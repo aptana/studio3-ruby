@@ -416,4 +416,17 @@
                id="org.radrails.rails.railsServer">
          </image>
       </extension>
+      <extension
+            point="org.eclipse.debug.ui.consoleLineTrackers">
+         <consoleLineTracker
+               class="org.radrails.rails.internal.ui.hyperlink.RenderPathHyperlinkDetector"
+               id="org.radrails.rails.ui.renderPathConsoleLineTracker"
+               processType="ruby">
+         </consoleLineTracker>
+         <consoleLineTracker
+               class="org.radrails.rails.internal.ui.hyperlink.URLDetector"
+               id="org.radrails.rails.ui.URLConsoleLineTracker"
+               processType="ruby">
+         </consoleLineTracker>
+      </extension>
 </plugin>

@@ -63,9 +63,6 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 	 */
 	private static final String END_OF_ARGUMENTS_DELIMETER = "--"; //$NON-NLS-1$
 
-	// TODO implement getLaunch to generate our own Launch class to help terminate rails server processes? normal
-	// terminate doesn't work.
-
 	/*
 	 * (non-Javadoc)
 	 * @see
@@ -127,7 +124,11 @@ public class RubyDebuggerLaunchDelegate extends LaunchConfigurationDelegate
 		// FIXME Build a label from args?
 		String label = commandList.get(0);
 
-		IProcess p = DebugPlugin.newProcess(launch, process, label);
+		// Set process type to "ruby" so our linetracker hyperlink stuff works
+		Map<String, String> map = new HashMap<String, String>();
+		map.put(IProcess.ATTR_PROCESS_TYPE, IRubyLaunchConfigurationConstants.PROCESS_TYPE);
+
+		IProcess p = DebugPlugin.newProcess(launch, process, label, map);
 		if (mode.equals(ILaunchManager.DEBUG_MODE))
 		{
 			RubyDebugTarget target = new RubyDebugTarget(launch, host, port);
