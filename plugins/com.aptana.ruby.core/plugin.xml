@@ -156,6 +156,9 @@
             <contentTypeBinding
                   contentTypeId="com.aptana.contenttype.ruby.ambiguous">
             </contentTypeBinding>
+            <projectNatureBinding
+               natureId="com.aptana.ruby.core.rubynature">
+         </projectNatureBinding>
          </participant>
          <participant
                class="com.aptana.ruby.internal.core.build.RubyValidator"
@@ -168,6 +171,9 @@
             <contentTypeBinding
                   contentTypeId="com.aptana.contenttype.ruby.ambiguous">
             </contentTypeBinding>
+            <projectNatureBinding
+               natureId="com.aptana.ruby.core.rubynature">
+         </projectNatureBinding>
          </participant>
       </extension>
 </plugin>
