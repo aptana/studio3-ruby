@@ -68,7 +68,7 @@ public class RubySourceEditor extends AbstractThemeableEditor
 				CommonEditorPlugin.getDefault().getPreferenceStore(), EditorsPlugin.getDefault().getPreferenceStore() });
 	}
 
-	protected char[] getPairMatchingCharacters()
+	public char[] getPairMatchingCharacters()
 	{
 		return PAIR_MATCHING_CHARS;
 	}

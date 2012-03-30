@@ -75,7 +75,7 @@ public class RHTMLEditor extends HTMLEditor
 	 * @see com.aptana.editor.html.HTMLEditor#getPairMatchingCharacters()
 	 */
 	@Override
-	protected char[] getPairMatchingCharacters()
+	public char[] getPairMatchingCharacters()
 	{
 		char[] orig = super.getPairMatchingCharacters();
 		char[] modified = new char[orig.length + 2];
