@@ -17,13 +17,11 @@ import org.eclipse.core.runtime.SubMonitor;
 
 import com.aptana.core.build.IProblem;
 import com.aptana.core.build.RequiredBuildParticipant;
-import com.aptana.core.logging.IdeLog;
 import com.aptana.core.resources.IMarkerConstants;
 import com.aptana.core.util.ArrayUtil;
 import com.aptana.index.core.build.BuildContext;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.IParseRootNode;
-import com.aptana.ruby.core.RubyCorePlugin;
 import com.aptana.ruby.internal.core.RubyComment;
 
 /**
@@ -88,10 +86,6 @@ public class RubyTaskDetector extends RequiredBuildParticipant
 				}
 				sub.worked(1);
 			}
-		}
-		catch (CoreException e)
-		{
-			IdeLog.logError(RubyCorePlugin.getDefault(), e);
 		}
 		finally
 		{

@@ -7,6 +7,7 @@
  */
 package org.radrails.rails.internal;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -17,6 +18,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -186,7 +188,21 @@ public class RailsServer extends AbstractWebServer
 
 	public URI getDocumentRoot()
 	{
-		return fProject.getLocation().append("public").toFile().toURI(); //$NON-NLS-1$
+		if (fProject == null)
+		{
+			return null;
+		}
+		IPath projectLocation = fProject.getLocation();
+		if (projectLocation == null)
+		{
+			return null;
+		}
+		File file = projectLocation.append("public").toFile(); //$NON-NLS-1$
+		if (file == null)
+		{
+			return null;
+		}
+		return file.toURI();
 	}
 
 	public URL getBaseURL()
