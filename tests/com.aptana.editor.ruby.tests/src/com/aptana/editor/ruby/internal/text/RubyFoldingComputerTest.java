@@ -36,8 +36,7 @@ public class RubyFoldingComputerTest extends TestCase
 		{
 			protected IParseNode getAST()
 			{
-				IParseState parseState = new ParseState();
-				parseState.setEditState(getDocument().get(), 0);
+				IParseState parseState = new ParseState(getDocument().get(), 0);
 				try
 				{
 					return new RubyParser().parse(parseState);
