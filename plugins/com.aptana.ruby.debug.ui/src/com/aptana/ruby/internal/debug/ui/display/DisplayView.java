@@ -1,5 +1,6 @@
 package com.aptana.ruby.internal.debug.ui.display;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
@@ -11,6 +12,9 @@ import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPerspectiveDescriptor;
@@ -54,24 +58,7 @@ public class DisplayView extends ViewPart implements ITextInputListener, IPerspe
 		fDataDisplay = new DataDisplay(fSourceViewer);
 		fSourceViewer.configure(new RubySourceViewerConfiguration(RubySourceEditor.getChainedPreferenceStore(), null));
 
-		fSourceViewer.getTextWidget().setBackground(
-				ThemePlugin.getDefault().getColorManager()
-						.getColor(ThemePlugin.getDefault().getThemeManager().getCurrentTheme().getBackground()));
-		fSourceViewer.getTextWidget().setForeground(
-				ThemePlugin.getDefault().getColorManager()
-						.getColor(ThemePlugin.getDefault().getThemeManager().getCurrentTheme().getForeground()));
-		fSourceViewer.getTextWidget()
-				.setSelectionBackground(
-						ThemePlugin
-								.getDefault()
-								.getColorManager()
-								.getColor(
-										ThemePlugin.getDefault().getThemeManager().getCurrentTheme()
-												.getSelectionAgainstBG()));
-		fSourceViewer.getTextWidget().setSelectionForeground(
-				ThemePlugin.getDefault().getColorManager()
-						.getColor(ThemePlugin.getDefault().getThemeManager().getCurrentTheme().getForeground()));
-		fSourceViewer.getTextWidget().setFont(JFaceResources.getTextFont());
+		ThemePlugin.getDefault().getControlThemerFactory().apply(fSourceViewer);
 
 		IDocument doc = getRestoredDocument();
 		fSourceViewer.setDocument(doc);
