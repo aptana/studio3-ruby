@@ -1,6 +1,6 @@
 /**
  * Aptana Studio
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
@@ -25,13 +26,18 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.progress.UIJob;
 import org.radrails.rails.core.RailsCorePlugin;
 import org.radrails.rails.core.RailsProjectNature;
+import org.radrails.rails.internal.RailsServer;
+import org.radrails.rails.ui.RailsUIPlugin;
 
 import com.aptana.core.ShellExecutable;
+import com.aptana.core.logging.IdeLog;
 import com.aptana.core.projects.templates.TemplateType;
 import com.aptana.ruby.core.RubyProjectNature;
 import com.aptana.ruby.ui.wizards.NewRubyProjectWizard;
 import com.aptana.ruby.ui.wizards.WizardNewRubyProjectCreationPage;
 import com.aptana.terminal.views.TerminalView;
+import com.aptana.webserver.core.IServerManager;
+import com.aptana.webserver.core.WebServerCorePlugin;
 
 /**
  * Rails project wizard
@@ -127,6 +133,10 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 					Messages.NewProjectWizard_ContentsAlreadyExist_Msg))
 				return;
 		}
+
+		// Add a rails server for project!
+		addServer(project);
+
 		Job job = new UIJob(Messages.NewProjectWizard_JobTitle)
 		{
 			@Override
@@ -154,6 +164,27 @@ public class NewRailsProjectWizard extends NewRubyProjectWizard
 		job.setUser(true);
 		job.setPriority(Job.SHORT);
 		job.schedule();
+	}
+
+	protected void addServer(final IProject project)
+	{
+		try
+		{
+			IServerManager serverManager = getServerManager();
+			RailsServer server = (RailsServer) serverManager.createServer(RailsServer.TYPE_ID);
+			server.setProject(project);
+			server.setName(project.getName());
+			serverManager.add(server);
+		}
+		catch (CoreException e)
+		{
+			IdeLog.logError(RailsUIPlugin.getDefault(), "Error adding server for Rails project", e); //$NON-NLS-1$
+		}
+	}
+
+	protected IServerManager getServerManager()
+	{
+		return WebServerCorePlugin.getDefault().getServerManager();
 	}
 
 	/**
