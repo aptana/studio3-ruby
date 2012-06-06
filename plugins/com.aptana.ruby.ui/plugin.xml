@@ -18,7 +18,7 @@
             icon="icons/newproj.png"
             id="com.aptana.ruby.core.ui.rubyProjectWizard"
             name="%wizard.ruby.name"
-            preferredPerspectives="com.aptana.ui.WebPerspective"
+            preferredPerspectives="com.aptana.ui.WebPerspective,com.appcelerator.titanium.ui.StudioPerspective"
             project="true">
          <description>
             %wizard.rubynewproject.description
