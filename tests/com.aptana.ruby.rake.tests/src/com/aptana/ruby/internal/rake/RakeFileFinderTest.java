@@ -458,6 +458,11 @@ public class RakeFileFinderTest extends TestCase
 					public void accept(IResourceVisitor visitor) throws CoreException
 					{
 					}
+
+					public void accept(IResourceProxyVisitor visitor,
+							int depth, int memberFlags) throws CoreException 
+					{
+					}
 				};
 			}
 

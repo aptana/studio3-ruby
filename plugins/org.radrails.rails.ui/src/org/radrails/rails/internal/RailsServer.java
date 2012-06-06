@@ -1,12 +1,13 @@
 /**
  * Aptana Studio
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
 package org.radrails.rails.internal;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -17,6 +18,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -44,6 +46,8 @@ import com.aptana.webserver.core.URLtoURIMapper;
 
 public class RailsServer extends AbstractWebServer
 {
+
+	public static final String TYPE_ID = "org.radrails.rails.railsServer"; //$NON-NLS-1$
 
 	/**
 	 * Default values for IP/binding and port.
@@ -186,7 +190,21 @@ public class RailsServer extends AbstractWebServer
 
 	public URI getDocumentRoot()
 	{
-		return fProject.getLocation().append("public").toFile().toURI(); //$NON-NLS-1$
+		if (fProject == null)
+		{
+			return null;
+		}
+		IPath projectLocation = fProject.getLocation();
+		if (projectLocation == null)
+		{
+			return null;
+		}
+		File file = projectLocation.append("public").toFile(); //$NON-NLS-1$
+		if (file == null)
+		{
+			return null;
+		}
+		return file.toURI();
 	}
 
 	public URL getBaseURL()

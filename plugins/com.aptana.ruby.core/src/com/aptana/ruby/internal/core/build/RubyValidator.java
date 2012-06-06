@@ -65,13 +65,11 @@ public class RubyValidator extends RequiredBuildParticipant
 	{
 		String contents = null;
 		String uri = context.getName();
-		RubyParseState parseState = new RubyParseState();
-		parseState.setFilename(uri);
-		parseState.setStartingLineNumber(1);
-		parseState.setVersion(version);
 		try
 		{
 			contents = context.getContents();
+
+			RubyParseState parseState = new RubyParseState(contents, uri, 1, version);
 			uri = context.getURI().toString();
 			context.getAST(parseState);
 		}

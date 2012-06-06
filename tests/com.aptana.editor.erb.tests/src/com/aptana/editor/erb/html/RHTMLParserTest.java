@@ -35,7 +35,6 @@ public class RHTMLParserTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		fParser = new RHTMLParser();
-		fParseState = new HTMLParseState();
 	}
 
 	@Override
@@ -50,7 +49,7 @@ public class RHTMLParserTest extends TestCase
 		String source = "<% content_for :stylesheets do %>\n" + "<%= stylesheet_link_tag 'rails' %>\n"
 				+ "<style></style>\n" + "<%= javascript_include_tag 'slidedeck/slidedeck.jquery.js' %>\n"
 				+ "<script></script>\n" + "<% end %>";
-		fParseState.setEditState(source, 0);
+		fParseState = new HTMLParseState(source);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren();
@@ -67,7 +66,7 @@ public class RHTMLParserTest extends TestCase
 	public void testNestedERB() throws Exception
 	{
 		String source = "<p>Welcome to <em><%= ENV['SERVER_NAME'] %></em>. If you see a server name, <%= 'e' + 'Ruby' %> is probably working.</p>";
-		fParseState.setEditState(source, 0);
+		fParseState = new HTMLParseState(source);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren(); // <p></p>
@@ -86,7 +85,7 @@ public class RHTMLParserTest extends TestCase
 	public void testDoubleERBBeforeTagClose() throws Exception
 	{
 		String source = "<table><tr></tr><% content_for :table %><% end %></table>";
-		fParseState.setEditState(source, 0);
+		fParseState = new HTMLParseState(source);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren(); // <table></table>
@@ -105,7 +104,7 @@ public class RHTMLParserTest extends TestCase
 				false);
 		String source = IOUtil.read(input);
 
-		fParseState.setEditState(source);
+		fParseState = new HTMLParseState(source);
 		IParseNode result = fParser.parse(fParseState);
 
 		// check node offsets

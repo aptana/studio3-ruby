@@ -24,7 +24,6 @@ public class RubyParserTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		fParser = new RubyParser();
-		fParseState = new ParseState();
 	}
 
 	@Override
@@ -37,7 +36,7 @@ public class RubyParserTest extends TestCase
 	public void testClassWithFieldAndMethod() throws Exception
 	{
 		String source = "class Person\n\tattr_reader :name, :age\n\tdef initialize(name, age)\n\t\t@name, @age = name, age\n\tend\nend";
-		fParseState.setEditState(source, 0);
+		fParseState = new ParseState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] classes = result.getChildren();
@@ -57,7 +56,7 @@ public class RubyParserTest extends TestCase
 	public void testModuleWithConst() throws Exception
 	{
 		String source = "module Mod\n\tinclude Math\n\tCONST = 1\nend";
-		fParseState.setEditState(source, 0);
+		fParseState = new ParseState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren();
@@ -74,7 +73,7 @@ public class RubyParserTest extends TestCase
 	public void testSingletonMethod() throws Exception
 	{
 		String source = "def foo.size\n\t0\nend";
-		fParseState.setEditState(source, 0);
+		fParseState = new ParseState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren();
@@ -87,7 +86,7 @@ public class RubyParserTest extends TestCase
 	public void testRequire() throws Exception
 	{
 		String source = "require 'yaml'";
-		fParseState.setEditState(source, 0);
+		fParseState = new ParseState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren();
@@ -107,7 +106,7 @@ public class RubyParserTest extends TestCase
 	public void testGlobalVar() throws Exception
 	{
 		String source = "$foo = 5";
-		fParseState.setEditState(source, 0);
+		fParseState = new ParseState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren();
@@ -119,7 +118,7 @@ public class RubyParserTest extends TestCase
 	public void testClassVar() throws Exception
 	{
 		String source = "@@foo = 5";
-		fParseState.setEditState(source, 0);
+		fParseState = new ParseState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren();
@@ -131,7 +130,7 @@ public class RubyParserTest extends TestCase
 	public void testAlias() throws Exception
 	{
 		String source = "alias :foo :bar";
-		fParseState.setEditState(source, 0);
+		fParseState = new ParseState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren();
@@ -143,7 +142,7 @@ public class RubyParserTest extends TestCase
 	public void testArray() throws Exception
 	{
 		String source = "foo = [1, 2, \"3\"] + [a, b]";
-		fParseState.setEditState(source, 0);
+		fParseState = new ParseState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren();
@@ -155,7 +154,7 @@ public class RubyParserTest extends TestCase
 	public void testHash() throws Exception
 	{
 		String source = "foo = {1 => 2, \"2\" => \"4\"}";
-		fParseState.setEditState(source, 0);
+		fParseState = new ParseState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren();
@@ -167,7 +166,7 @@ public class RubyParserTest extends TestCase
 	public void testRegex() throws Exception
 	{
 		String source = "def foo(s)\\n\\t(s =~ /<0(x|X)(\\d|[a-f]|[A-F])+>/) != nil\nend";
-		fParseState.setEditState(source, 0);
+		fParseState = new ParseState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		assertEquals(IRubyElement.SCRIPT, result.getNodeType());
@@ -178,7 +177,7 @@ public class RubyParserTest extends TestCase
 	public void testCase() throws Exception
 	{
 		String source = "case i\nwhen1, 2..5\n\tputs \"1..5\"\nwhen 6..10\n\tputs \"6..10\"\nend";
-		fParseState.setEditState(source, 0);
+		fParseState = new ParseState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		assertEquals(0, result.getStartingOffset());
@@ -188,7 +187,7 @@ public class RubyParserTest extends TestCase
 	public void testWhile() throws Exception
 	{
 		String source = "puts i+=1 while i<3";
-		fParseState.setEditState(source, 0);
+		fParseState = new ParseState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		assertEquals(0, result.getStartingOffset());
@@ -198,7 +197,7 @@ public class RubyParserTest extends TestCase
 	public void testFor() throws Exception
 	{
 		String source = "for foo in (1..3)\n\tputs foo\nend";
-		fParseState.setEditState(source, 0);
+		fParseState = new ParseState(source, 0);
 
 		IParseNode result = fParser.parse(fParseState);
 		IParseNode[] children = result.getChildren();
@@ -210,7 +209,7 @@ public class RubyParserTest extends TestCase
 	// public void testIfElse() throws Exception
 	// {
 	// String source = "if (foo > 0)\n\tputs foo\nelse\n\tputs -foo\nend";
-	// fParseState.setEditState(source, 0);
+	// fParseState = new ParseState(source, 0);
 	//
 	// IParseNode result = fParser.parse(fParseState);
 	// assertEquals(0, result.getStartingOffset());
