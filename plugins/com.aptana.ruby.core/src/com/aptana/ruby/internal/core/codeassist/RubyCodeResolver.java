@@ -284,7 +284,7 @@ public class RubyCodeResolver extends CodeResolver
 		{
 			IFileStore store = EFS.getStore(URI.create(doc));
 			return (RubyScript) ParserPoolFactory.parse(IRubyConstants.CONTENT_TYPE_RUBY,
-					IOUtil.read(store.openInputStream(EFS.NONE, new NullProgressMonitor())));
+					IOUtil.read(store.openInputStream(EFS.NONE, new NullProgressMonitor()))).getRootNode();
 		}
 		catch (Exception e)
 		{

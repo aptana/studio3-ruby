@@ -16,6 +16,7 @@ import com.aptana.editor.common.parsing.CompositeParser;
 import com.aptana.editor.erb.parsing.lexer.ERBTokens;
 import com.aptana.editor.html.IHTMLConstants;
 import com.aptana.parsing.IParseState;
+import com.aptana.parsing.WorkingParseResult;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
 import com.aptana.parsing.ast.ParseRootNode;
@@ -34,7 +35,7 @@ public class RHTMLParser extends CompositeParser
 	}
 
 	@Override
-	protected IParseNode processEmbeddedlanguage(IParseState parseState) throws IOException, Exception
+	protected IParseNode processEmbeddedlanguage(IParseState parseState, WorkingParseResult working) throws IOException, Exception
 	{
 		String source = parseState.getSource();
 		int startingOffset = parseState.getStartingOffset();
@@ -78,7 +79,7 @@ public class RHTMLParser extends CompositeParser
 			id = getCurrentSymbol().getId();
 		}
 
-		IParseNode result = getParseResult(IRubyConstants.CONTENT_TYPE_RUBY, start, end);
+		IParseNode result = getParseResult(IRubyConstants.CONTENT_TYPE_RUBY, start, end).getRootNode();
 		if (result != null)
 		{
 			Symbol endTag = getCurrentSymbol();

@@ -51,7 +51,7 @@ public class RHTMLOutlineTest extends TestCase
 		String source = "<% content_for :stylesheets do %><style type=\"text/css\"></style><% end %>";
 		fDocument = new Document(source);
 		fLabelProvider = new RHTMLOutlineLabelProvider(fDocument);
-		IParseRootNode root = ParserPoolFactory.parse(IERBConstants.CONTENT_TYPE_HTML_ERB, source);
+		IParseRootNode root = ParserPoolFactory.parse(IERBConstants.CONTENT_TYPE_HTML_ERB, source).getRootNode();
 
 		Object[] elements = fContentProvider.getElements(root);
 		assertEquals(3, elements.length);

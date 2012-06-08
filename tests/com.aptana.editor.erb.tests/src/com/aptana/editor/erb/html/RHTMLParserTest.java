@@ -24,6 +24,7 @@ import com.aptana.editor.html.parsing.HTMLParseState;
 import com.aptana.editor.js.parsing.ast.JSStringNode;
 import com.aptana.editor.js.parsing.ast.JSVarNode;
 import com.aptana.parsing.ast.IParseNode;
+import com.aptana.parsing.ast.IParseRootNode;
 import com.aptana.ruby.core.IRubyConstants;
 
 public class RHTMLParserTest extends TestCase
@@ -51,7 +52,7 @@ public class RHTMLParserTest extends TestCase
 				+ "<script></script>\n" + "<% end %>";
 		fParseState = new HTMLParseState(source);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		IParseNode[] children = result.getChildren();
 		assertEquals(11, children.length);
 		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[0].getLanguage());
@@ -68,7 +69,7 @@ public class RHTMLParserTest extends TestCase
 		String source = "<p>Welcome to <em><%= ENV['SERVER_NAME'] %></em>. If you see a server name, <%= 'e' + 'Ruby' %> is probably working.</p>";
 		fParseState = new HTMLParseState(source);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		IParseNode[] children = result.getChildren(); // <p></p>
 		assertEquals(1, children.length);
 		assertEquals(2, children[0].getNodeType()); // HTMLElementNode
@@ -87,7 +88,7 @@ public class RHTMLParserTest extends TestCase
 		String source = "<table><tr></tr><% content_for :table %><% end %></table>";
 		fParseState = new HTMLParseState(source);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		IParseNode[] children = result.getChildren(); // <table></table>
 		assertEquals(1, children.length);
 		children = children[0].getChildren(); // <tr></tr><% %><% %>
@@ -105,7 +106,7 @@ public class RHTMLParserTest extends TestCase
 		String source = IOUtil.read(input);
 
 		fParseState = new HTMLParseState(source);
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 
 		// check node offsets
 		IParseNode varDecl1 = result.getNodeAtOffset(54);
@@ -123,5 +124,10 @@ public class RHTMLParserTest extends TestCase
 		assertEquals(1, string.getChildCount());
 		IParseNode erbScript = string.getFirstChild();
 		assertTrue(erbScript instanceof ERBScript);
+	}
+
+	private IParseRootNode parse() throws Exception
+	{
+		return fParser.parse(fParseState).getRootNode();
 	}
 }
