@@ -16,6 +16,7 @@ import com.aptana.editor.ruby.preferences.IPreferenceConstants;
 import com.aptana.parsing.IParseState;
 import com.aptana.parsing.ParseState;
 import com.aptana.parsing.ast.IParseNode;
+import com.aptana.parsing.ast.IParseRootNode;
 import com.aptana.ruby.core.RubyParser;
 
 public class RubyFoldingComputerTest extends TestCase
@@ -39,7 +40,7 @@ public class RubyFoldingComputerTest extends TestCase
 				IParseState parseState = new ParseState(getDocument().get(), 0);
 				try
 				{
-					return new RubyParser().parse(parseState);
+					return parse(parseState);
 				}
 				catch (Exception e)
 				{
@@ -229,5 +230,10 @@ public class RubyFoldingComputerTest extends TestCase
 			}
 		}
 		return null;
+	}
+
+	private IParseRootNode parse(IParseState parseState) throws Exception
+	{
+		return new RubyParser().parse(parseState).getRootNode();
 	}
 }

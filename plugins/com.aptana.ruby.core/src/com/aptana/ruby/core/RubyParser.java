@@ -25,8 +25,9 @@ import org.jrubyparser.parser.Ruby18Parser;
 import org.jrubyparser.parser.Ruby19Parser;
 
 import com.aptana.core.logging.IdeLog;
+import com.aptana.parsing.AbstractParser;
 import com.aptana.parsing.IParseState;
-import com.aptana.parsing.IParser;
+import com.aptana.parsing.WorkingParseResult;
 import com.aptana.parsing.ast.IParseError;
 import com.aptana.parsing.ast.IParseError.Severity;
 import com.aptana.parsing.ast.IParseNode;
@@ -36,14 +37,14 @@ import com.aptana.ruby.core.ast.SourceElementVisitor;
 import com.aptana.ruby.internal.core.RubyComment;
 import com.aptana.ruby.internal.core.RubyScript;
 
-public class RubyParser implements IParser
+public class RubyParser extends AbstractParser
 {
 
 	public RubyParser()
 	{
 	}
 
-	public IParseRootNode parse(IParseState parseState)
+	protected void parse(IParseState parseState, WorkingParseResult working)
 	{
 		String source = parseState.getSource();
 		RubyScript root = new RubyScript(parseState.getStartingOffset(), parseState.getStartingOffset()
@@ -97,7 +98,7 @@ public class RubyParser implements IParser
 		catch (SyntaxException se)
 		{
 			int start = se.getPosition().getStartOffset();
-			parseState.addError(new ParseError(IRubyConstants.CONTENT_TYPE_RUBY, start, se.getPosition().getEndOffset() - start, se.getMessage(),
+			working.addError(new ParseError(IRubyConstants.CONTENT_TYPE_RUBY, start, se.getPosition().getEndOffset() - start, se.getMessage(),
 					Severity.ERROR));
 		}
 		catch (IOException e)
@@ -109,11 +110,10 @@ public class RubyParser implements IParser
 		CollectingRubyWarnings collector = (CollectingRubyWarnings) warnings;
 		for (IParseError warning : collector.getWarnings())
 		{
-			parseState.addError(warning);
+			working.addError(warning);
 		}
 
-		parseState.setParseResult(root);
-		return root;
+		working.setParseResult(root);
 	}
 
 	private String getText(String source, SourcePosition position)

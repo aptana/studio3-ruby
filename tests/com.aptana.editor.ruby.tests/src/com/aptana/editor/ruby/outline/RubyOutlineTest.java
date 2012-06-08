@@ -49,9 +49,8 @@ public class RubyOutlineTest extends TestCase
 		// TODO Add more types and ensure we have the right order: imports, class vars, globals, etc.
 		String source = "class Test\n\tdef initialize(files)\n\t\t@files = files\n\tend\nend";
 		ParseState parseState = new ParseState(source, 0);
-		fParser.parse(parseState);
 
-		Object[] elements = fContentProvider.getElements(parseState.getParseResult());
+		Object[] elements = fContentProvider.getElements(fParser.parse(parseState).getRootNode());
 		assertEquals(1, elements.length); // class Test
 		assertEquals("Test", fLabelProvider.getText(elements[0]));
 		assertEquals(RubyOutlineLabelProvider.CLASS, fLabelProvider.getImage(elements[0]));

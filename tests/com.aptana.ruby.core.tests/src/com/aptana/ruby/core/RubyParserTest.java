@@ -11,6 +11,7 @@ import junit.framework.TestCase;
 
 import com.aptana.parsing.ParseState;
 import com.aptana.parsing.ast.IParseNode;
+import com.aptana.parsing.ast.IParseRootNode;
 import com.aptana.ruby.internal.core.RubyElement;
 
 @SuppressWarnings("nls")
@@ -38,7 +39,7 @@ public class RubyParserTest extends TestCase
 		String source = "class Person\n\tattr_reader :name, :age\n\tdef initialize(name, age)\n\t\t@name, @age = name, age\n\tend\nend";
 		fParseState = new ParseState(source, 0);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		IParseNode[] classes = result.getChildren();
 		assertEquals(1, classes.length); // one class declaration
 		assertEquals(IRubyElement.TYPE, classes[0].getNodeType()); // class type
@@ -53,12 +54,17 @@ public class RubyParserTest extends TestCase
 		assertMethods(rubyClass, new String[] { "name()", "age()", "initialize(name, age)" });
 	}
 
+	private IParseRootNode parse() throws Exception
+	{
+		return fParser.parse(fParseState).getRootNode();
+	}
+
 	public void testModuleWithConst() throws Exception
 	{
 		String source = "module Mod\n\tinclude Math\n\tCONST = 1\nend";
 		fParseState = new ParseState(source, 0);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		IParseNode[] children = result.getChildren();
 		assertEquals(1, children.length); // one module declaration
 		assertEquals(IRubyElement.TYPE, children[0].getNodeType());
@@ -75,7 +81,7 @@ public class RubyParserTest extends TestCase
 		String source = "def foo.size\n\t0\nend";
 		fParseState = new ParseState(source, 0);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		IParseNode[] children = result.getChildren();
 		assertEquals(1, children.length);
 		assertEquals(IRubyElement.METHOD, children[0].getNodeType());
@@ -88,7 +94,7 @@ public class RubyParserTest extends TestCase
 		String source = "require 'yaml'";
 		fParseState = new ParseState(source, 0);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		IParseNode[] children = result.getChildren();
 		assertEquals(1, children.length); // the container for require/load statements
 		assertEquals(IRubyElement.IMPORT_CONTAINER, children[0].getNodeType());
@@ -108,7 +114,7 @@ public class RubyParserTest extends TestCase
 		String source = "$foo = 5";
 		fParseState = new ParseState(source, 0);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		IParseNode[] children = result.getChildren();
 		assertEquals(1, children.length); // one global variable
 		assertEquals(IRubyElement.GLOBAL, children[0].getNodeType());
@@ -120,7 +126,7 @@ public class RubyParserTest extends TestCase
 		String source = "@@foo = 5";
 		fParseState = new ParseState(source, 0);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		IParseNode[] children = result.getChildren();
 		assertEquals(1, children.length); // one global variable
 		assertEquals(IRubyElement.CLASS_VAR, children[0].getNodeType());
@@ -132,7 +138,7 @@ public class RubyParserTest extends TestCase
 		String source = "alias :foo :bar";
 		fParseState = new ParseState(source, 0);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		IParseNode[] children = result.getChildren();
 		assertEquals(1, children.length);
 		assertEquals(IRubyElement.METHOD, children[0].getNodeType());
@@ -144,7 +150,7 @@ public class RubyParserTest extends TestCase
 		String source = "foo = [1, 2, \"3\"] + [a, b]";
 		fParseState = new ParseState(source, 0);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		IParseNode[] children = result.getChildren();
 		assertEquals(1, children.length);
 		assertEquals(IRubyElement.LOCAL_VAR, children[0].getNodeType());
@@ -156,7 +162,7 @@ public class RubyParserTest extends TestCase
 		String source = "foo = {1 => 2, \"2\" => \"4\"}";
 		fParseState = new ParseState(source, 0);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		IParseNode[] children = result.getChildren();
 		assertEquals(1, children.length);
 		assertEquals(IRubyElement.LOCAL_VAR, children[0].getNodeType());
@@ -168,7 +174,7 @@ public class RubyParserTest extends TestCase
 		String source = "def foo(s)\\n\\t(s =~ /<0(x|X)(\\d|[a-f]|[A-F])+>/) != nil\nend";
 		fParseState = new ParseState(source, 0);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		assertEquals(IRubyElement.SCRIPT, result.getNodeType());
 		assertEquals(0, result.getStartingOffset());
 		assertEquals(58, result.getEndingOffset());
@@ -179,7 +185,7 @@ public class RubyParserTest extends TestCase
 		String source = "case i\nwhen1, 2..5\n\tputs \"1..5\"\nwhen 6..10\n\tputs \"6..10\"\nend";
 		fParseState = new ParseState(source, 0);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		assertEquals(0, result.getStartingOffset());
 		assertEquals(59, result.getEndingOffset());
 	}
@@ -189,7 +195,7 @@ public class RubyParserTest extends TestCase
 		String source = "puts i+=1 while i<3";
 		fParseState = new ParseState(source, 0);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		assertEquals(0, result.getStartingOffset());
 		assertEquals(20, result.getEndingOffset());
 	}
@@ -199,7 +205,7 @@ public class RubyParserTest extends TestCase
 		String source = "for foo in (1..3)\n\tputs foo\nend";
 		fParseState = new ParseState(source, 0);
 
-		IParseNode result = fParser.parse(fParseState);
+		IParseNode result = parse();
 		IParseNode[] children = result.getChildren();
 		assertEquals(1, children.length);
 		assertEquals(IRubyElement.LOCAL_VAR, children[0].getNodeType());
@@ -211,7 +217,7 @@ public class RubyParserTest extends TestCase
 	// String source = "if (foo > 0)\n\tputs foo\nelse\n\tputs -foo\nend";
 	// fParseState = new ParseState(source, 0);
 	//
-	// IParseNode result = fParser.parse(fParseState);
+	// IParseNode result = fParser.parse(fParseState).getParseResult();
 	// assertEquals(0, result.getStartingOffset());
 	// assertEquals(43, result.getEndingOffset());
 	// }
