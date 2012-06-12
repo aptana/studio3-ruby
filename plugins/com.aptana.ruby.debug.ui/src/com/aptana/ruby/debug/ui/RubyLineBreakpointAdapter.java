@@ -1,3 +1,10 @@
+/**
+ * Aptana Studio
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
+ * Please see the license.html included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package com.aptana.ruby.debug.ui;
 
 import java.io.File;
@@ -152,7 +159,12 @@ public class RubyLineBreakpointAdapter implements IToggleBreakpointsTarget
 					{
 						// path might be relative to workspace root
 						IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-						file = iFile.getLocation().toFile();
+						IPath location = iFile.getLocation();
+						if (location == null)
+						{
+							return null;
+						}
+						file = location.toFile();
 					}
 					store = EFS.getStore(file.toURI());
 				}
