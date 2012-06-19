@@ -27,7 +27,7 @@ public class SassFoldingComputerTest extends TestCase
 			"  margin: $margin / 2\n" +
 			"  border-color: $blue");
 		SassFoldingComputer sfc = new SassFoldingComputer(document);
-		Map<ProjectionAnnotation, Position> annotations = sfc.emitFoldingRegions(false, null);
+		Map<ProjectionAnnotation, Position> annotations = sfc.emitFoldingRegions(false, null, null);
 		assertNotNull(annotations);
 
 		Collection<Position> positions = annotations.values();

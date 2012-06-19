@@ -7,14 +7,16 @@
  */
 package com.aptana.editor.erb.html.outline;
 
+import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.html.outline.HTMLOutlineContentProvider;
 import com.aptana.editor.ruby.outline.RubyOutlineContentProvider;
 import com.aptana.ruby.core.IRubyConstants;
 
 public class RHTMLOutlineContentProvider extends HTMLOutlineContentProvider
 {
-	public RHTMLOutlineContentProvider()
+	public RHTMLOutlineContentProvider(AbstractThemeableEditor editor)
 	{
+		super(editor);
 		addSubLanguage(IRubyConstants.CONTENT_TYPE_RUBY, new RubyOutlineContentProvider());
 	}
 }

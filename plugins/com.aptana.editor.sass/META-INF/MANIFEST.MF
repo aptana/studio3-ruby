@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.aptana.theme,
  com.aptana.editor.common,
  com.aptana.editor.css,
- org.eclipse.compare
+ org.eclipse.compare,
+ com.aptana.parsing
 Export-Package: com.aptana.editor.sass,
  com.aptana.editor.sass.merge
 Bundle-Localization: plugin
