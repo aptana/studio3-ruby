@@ -20,7 +20,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.debug.ui,
  com.aptana.ruby.debug.ui,
  org.eclipse.core.filesystem,
- org.eclipse.compare
+ org.eclipse.compare,
+ com.aptana.parsing
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Eclipse-ExtensibleAPI: true
