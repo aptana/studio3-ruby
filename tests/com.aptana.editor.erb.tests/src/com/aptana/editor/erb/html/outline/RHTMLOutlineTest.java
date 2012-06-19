@@ -27,7 +27,7 @@ public class RHTMLOutlineTest extends TestCase
 	@Override
 	protected void setUp() throws Exception
 	{
-		fContentProvider = new RHTMLOutlineContentProvider();
+		fContentProvider = new RHTMLOutlineContentProvider(null);
 	}
 
 	@Override

@@ -37,6 +37,8 @@ public class HAMLFoldingComputerTest extends TestCase
 		};
 		return folder;
 	}
+	
+
 
 	public void testFoldingByIndent() throws Exception
 	{
@@ -52,7 +54,7 @@ public class HAMLFoldingComputerTest extends TestCase
 				"    #footer \n" + // fold_start 5
 				"      %span.author John Q. Caker"; //
 		folder = createFolder(src);
-		Map<ProjectionAnnotation, Position> annotations = folder.emitFoldingRegions(false, new NullProgressMonitor());
+		Map<ProjectionAnnotation, Position> annotations = folder.emitFoldingRegions(false, new NullProgressMonitor(), null);
 		Collection<Position> positions = annotations.values();
 		assertEquals(5, positions.size());
 		assertTrue(positions.contains(new Position(11, 249)));
@@ -74,7 +76,7 @@ public class HAMLFoldingComputerTest extends TestCase
 				"    #footer \n" + // fold_start 5
 				"      %span.author John Q. Caker"; //
 		folder = createFolder(src);
-		Map<ProjectionAnnotation, Position> annotations = folder.emitFoldingRegions(false, new NullProgressMonitor());
+		Map<ProjectionAnnotation, Position> annotations = folder.emitFoldingRegions(false, new NullProgressMonitor(), null);
 		Collection<Position> positions = annotations.values();
 		assertEquals(5, positions.size());
 		assertTrue(positions.contains(new Position(11, 139)));
@@ -95,7 +97,7 @@ public class HAMLFoldingComputerTest extends TestCase
 				"      \n" + //
 				"    %div{'http-equiv' => 'Content-Type', :content => 'text/html'}"; //
 		folder = createFolder(src);
-		Map<ProjectionAnnotation, Position> annotations = folder.emitFoldingRegions(false, new NullProgressMonitor());
+		Map<ProjectionAnnotation, Position> annotations = folder.emitFoldingRegions(false, new NullProgressMonitor(), null);
 		Collection<Position> positions = annotations.values();
 		assertEquals(2, positions.size());
 		assertTrue(positions.contains(new Position(0, 154)));
@@ -113,7 +115,7 @@ public class HAMLFoldingComputerTest extends TestCase
 				"  \n" + // empty line with indent level changed, should be ignored
 				"    %title= $title_for_layout"; //
 		folder = createFolder(src);
-		Map<ProjectionAnnotation, Position> annotations = folder.emitFoldingRegions(false, new NullProgressMonitor());
+		Map<ProjectionAnnotation, Position> annotations = folder.emitFoldingRegions(false, new NullProgressMonitor(), null);
 		Collection<Position> positions = annotations.values();
 		assertEquals(2, positions.size());
 		assertTrue(positions.contains(new Position(11, src.length() - 11)));

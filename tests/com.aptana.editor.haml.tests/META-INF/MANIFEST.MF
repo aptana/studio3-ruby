@@ -7,4 +7,5 @@ Bundle-Vendor: Aptana
 Fragment-Host: com.aptana.editor.haml
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: com.aptana.editor.haml.tests
-Require-Bundle: org.junit
+Require-Bundle: org.junit,
+ com.aptana.parsing
