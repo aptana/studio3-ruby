@@ -25,6 +25,7 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 
 import com.aptana.editor.common.text.reconciler.IFoldingComputer;
+import com.aptana.parsing.ast.IParseRootNode;
 
 public class SassFoldingComputer implements IFoldingComputer
 {
@@ -41,7 +42,8 @@ public class SassFoldingComputer implements IFoldingComputer
 	 * @see com.aptana.editor.common.text.reconciler.IFoldingComputer#emitFoldingRegions(boolean,
 	 * org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public Map<ProjectionAnnotation, Position> emitFoldingRegions(boolean initialReconcile, IProgressMonitor monitor)
+	public Map<ProjectionAnnotation, Position> emitFoldingRegions(boolean initialReconcile, IProgressMonitor monitor,
+			IParseRootNode ast)
 	{
 		int lineCount = getDocument().getNumberOfLines();
 		if (lineCount <= 1)

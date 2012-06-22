@@ -61,7 +61,7 @@ public class RHTMLEditor extends HTMLEditor
 	@Override
 	public ITreeContentProvider getOutlineContentProvider()
 	{
-		return new RHTMLOutlineContentProvider();
+		return new RHTMLOutlineContentProvider(this);
 	}
 
 	@Override
