@@ -243,8 +243,11 @@ public class RailsServer extends AbstractWebServer
 		}
 		this.fHost = memento.getString(ELEMENT_HOST);
 		String location = memento.getString(ELEMENT_PROJECT);
-		this.fProject = (IProject) ResourcesPlugin.getWorkspace().getRoot()
-				.getContainerForLocation(Path.fromPortableString(location));
+		if (location != null)
+		{
+			this.fProject = (IProject) ResourcesPlugin.getWorkspace().getRoot()
+					.getContainerForLocation(Path.fromPortableString(location));
+		}
 		// TODO Sniff to see if server is actually already started?
 	}
 
@@ -254,7 +257,10 @@ public class RailsServer extends AbstractWebServer
 		super.saveState(memento);
 		memento.putInteger(ELEMENT_PORT, this.fPort);
 		memento.putString(ELEMENT_HOST, this.fHost);
-		memento.putString(ELEMENT_PROJECT, this.fProject.getLocation().toPortableString());
+		if (this.fProject != null && this.fProject.getLocation() != null)
+		{
+			memento.putString(ELEMENT_PROJECT, this.fProject.getLocation().toPortableString());
+		}
 	}
 
 	protected ILaunchConfiguration findOrCreateLaunchConfiguration(IProject railsProject) throws CoreException

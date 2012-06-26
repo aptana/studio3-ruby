@@ -74,7 +74,7 @@ public class RunServerHandler extends AbstractRailsHandler
 		if (server instanceof RailsServer)
 		{
 			RailsServer possible = (RailsServer) server;
-			if (possible.getProject().equals(railsProject))
+			if (railsProject.equals(possible.getProject()))
 			{
 				return possible;
 			}
@@ -86,7 +86,7 @@ public class RunServerHandler extends AbstractRailsHandler
 			if (server2 instanceof RailsServer)
 			{
 				RailsServer possible = (RailsServer) server2;
-				if (possible.getProject().equals(railsProject))
+				if (railsProject.equals(possible.getProject()))
 				{
 					return possible;
 				}
