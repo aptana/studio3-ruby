@@ -7,9 +7,16 @@
  */
 package com.aptana.ruby.ui;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import com.aptana.core.projects.templates.ProjectTemplate;
+import com.aptana.core.projects.templates.TemplateType;
+import com.aptana.projects.ProjectsPlugin;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -22,6 +29,25 @@ public class RubyUIPlugin extends AbstractUIPlugin
 
 	// The shared instance
 	private static RubyUIPlugin plugin;
+
+	private static class DefaultRubyProjectTemplate extends ProjectTemplate
+	{
+
+		private static final String ID = "com.aptana.ruby.default"; //$NON-NLS-1$
+
+		public DefaultRubyProjectTemplate()
+		{
+			super("default.zip", TemplateType.RUBY, Messages.RubyUIPlugin_DefaultRubyProjectTemplate_Name, //$NON-NLS-1$
+					false, Messages.RubyUIPlugin_DefaultRubyProjectTemplate_Description, null, ID, -1);
+		}
+
+		@Override
+		public IStatus apply(IProject project, boolean promptForOverwrite)
+		{
+			// just returns success
+			return Status.OK_STATUS;
+		}
+	}
 
 	/**
 	 * The constructor
@@ -38,6 +64,7 @@ public class RubyUIPlugin extends AbstractUIPlugin
 	{
 		super.start(context);
 		plugin = this;
+		ProjectsPlugin.getDefault().getTemplatesManager().addTemplate(new DefaultRubyProjectTemplate());
 	}
 
 	/*
