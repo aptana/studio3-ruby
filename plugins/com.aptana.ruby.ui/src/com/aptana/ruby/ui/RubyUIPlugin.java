@@ -17,6 +17,7 @@ import org.osgi.framework.BundleContext;
 import com.aptana.core.projects.templates.ProjectTemplate;
 import com.aptana.core.projects.templates.TemplateType;
 import com.aptana.projects.ProjectsPlugin;
+import com.aptana.projects.templates.IDefaultProjectTemplate;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -30,7 +31,7 @@ public class RubyUIPlugin extends AbstractUIPlugin
 	// The shared instance
 	private static RubyUIPlugin plugin;
 
-	private static class DefaultRubyProjectTemplate extends ProjectTemplate
+	private static class DefaultRubyProjectTemplate extends ProjectTemplate implements IDefaultProjectTemplate
 	{
 
 		private static final String ID = "com.aptana.ruby.default"; //$NON-NLS-1$
