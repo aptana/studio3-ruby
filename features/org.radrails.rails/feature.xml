@@ -2,7 +2,7 @@
 <feature
       id="org.radrails.rails"
       label="%featureName"
-      version="3.2.1.qualifier"
+      version="3.2.3.qualifier"
       provider-name="%providerName"
       plugin="com.aptana.editor.ruby">
 
