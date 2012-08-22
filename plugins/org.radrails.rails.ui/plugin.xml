@@ -394,19 +394,11 @@
       </filter>
    </extension>
       <extension
-         point="com.aptana.webserver.core.webServerTypes">
-      <type
-            class="org.radrails.rails.internal.RailsServer"
-            id="org.radrails.rails.railsServer"
-            name="%rails.server.type.name">
-      </type>
-   </extension>
-      <extension
             point="com.aptana.ui.propertyDialogs">
          <dialog
                class="org.radrails.rails.internal.ui.dialogs.RailsServerDialog$Provider"
                id="org.radrails.rails.ui.server.dialog"
-               objectClass="org.radrails.rails.internal.RailsServer">
+               objectClass="org.radrails.rails.core.RailsServer">
          </dialog>
       </extension>
       <extension

@@ -4,35 +4,22 @@ Bundle-Name: %Bundle-Name.0
 Bundle-SymbolicName: org.radrails.rails.ui; singleton:=true
 Bundle-Version: 3.0.2.qualifier
 Bundle-Localization: plugin
-Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ui,
- org.eclipse.ui.console,
- org.eclipse.debug.ui,
- org.eclipse.ui.ide,
+Require-Bundle: com.aptana.core,
+ com.aptana.scripting,
+ com.aptana.ruby.core,
  org.radrails.rails.core,
- org.eclipse.core.filesystem,
- com.aptana.git.ui,
+ org.eclipse.debug.ui,
+ org.eclipse.ui.navigator,
+ org.eclipse.ui.workbench.texteditor,
  com.aptana.terminal,
  com.aptana.explorer,
- com.aptana.scripting,
  com.aptana.editor.common,
- org.eclipse.ui.workbench.texteditor,
- org.eclipse.jface.text,
- com.aptana.ruby.debug.core,
- org.eclipse.ui.navigator,
- com.aptana.core,
- com.aptana.ruby.launching,
+ com.aptana.ui,
  com.aptana.console,
- com.aptana.ruby.ui,
- com.aptana.ruby.core,
+ org.eclipse.ui.console,
  com.aptana.workbench,
  com.aptana.editor.html,
- com.aptana.editor.js,
- com.aptana.editor.ruby,
- com.aptana.projects,
- com.aptana.usage,
- com.aptana.webserver.core,
- com.aptana.ui
+ com.aptana.ruby.ui
 Bundle-Vendor: %Bundle-Vendor.0
 Bundle-Activator: org.radrails.rails.ui.RailsUIPlugin
 Eclipse-LazyStart: true

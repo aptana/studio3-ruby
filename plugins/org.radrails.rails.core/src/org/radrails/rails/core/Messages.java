@@ -1,4 +1,4 @@
-package org.radrails.rails.internal;
+package org.radrails.rails.core;
 
 import org.eclipse.osgi.util.NLS;
 

@@ -5,7 +5,7 @@
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.radrails.rails.internal;
+package org.radrails.rails.core;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -32,8 +32,6 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchesListener2;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.ui.IDebugUIConstants;
-import org.radrails.rails.ui.RailsUIPlugin;
 
 import com.aptana.core.epl.IMemento;
 import com.aptana.core.logging.IdeLog;
@@ -97,8 +95,7 @@ public class RailsServer extends AbstractWebServer
 		catch (DebugException e)
 		{
 			updateState(State.STARTED);
-			return new Status(IStatus.ERROR, RailsUIPlugin.getPluginIdentifier(),
-					Messages.RailsServer_StopFailedErrorMsg, e);
+			return new Status(IStatus.ERROR, RailsCorePlugin.PLUGIN_ID, Messages.RailsServer_StopFailedErrorMsg, e);
 		}
 		return Status.OK_STATUS;
 	}
@@ -158,7 +155,7 @@ public class RailsServer extends AbstractWebServer
 		catch (Exception e)
 		{
 			updateState(State.STOPPED);
-			return new Status(IStatus.ERROR, RailsUIPlugin.getPluginIdentifier(), e.getMessage(), e);
+			return new Status(IStatus.ERROR, RailsCorePlugin.PLUGIN_ID, e.getMessage(), e);
 		}
 		return Status.OK_STATUS;
 	}
@@ -215,7 +212,7 @@ public class RailsServer extends AbstractWebServer
 		}
 		catch (MalformedURLException e)
 		{
-			IdeLog.logError(RailsUIPlugin.getDefault(), e);
+			IdeLog.logError(RailsCorePlugin.getDefault(), e);
 			return null;
 		}
 	}
@@ -296,8 +293,8 @@ public class RailsServer extends AbstractWebServer
 		wc.setAttribute(IRubyLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, args);
 		wc.setAttribute(ILaunchConfiguration.ATTR_SOURCE_LOCATOR_ID,
 				IRubyLaunchConfigurationConstants.ID_RUBY_SOURCE_LOCATOR);
-		wc.setAttribute(IDebugUIConstants.ATTR_PRIVATE, true);
-		wc.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, false);
+		wc.setAttribute(ILaunchManager.ATTR_PRIVATE, true);
+		wc.setAttribute("org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND", false); //$NON-NLS-1$
 		wc.setAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, InterruptingProcessFactory.ID);
 		return wc.doSave();
 	}
