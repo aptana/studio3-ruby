@@ -271,7 +271,11 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 				// keyword, right after the var-node
 				beginEndOffset = varNode.getPosition().getEndOffset();
 				// look for the 'end' keyword start
-				beginEndOffset = charLookup(document, beginEndOffset, 'e');
+				int endKeywordStart = charLookup(document, beginEndOffset, 'e');
+				if (endKeywordStart > -1)
+				{
+					beginEndOffset = endKeywordStart;
+				}
 			}
 			else
 			{
@@ -772,9 +776,8 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 
 	public Object visitMatch3Node(Match3Node visited)
 	{
-		SourcePosition position = visited.getPosition();
-		SourcePosition receiverPosition = visited.getReceiverNode().getPosition();
-		pushTextNode(position.getStartOffset(), receiverPosition.getEndOffset());
+		visitNode(visited.getValueNode());
+		visitNode(visited.getReceiverNode());
 		return null;
 	}
 
