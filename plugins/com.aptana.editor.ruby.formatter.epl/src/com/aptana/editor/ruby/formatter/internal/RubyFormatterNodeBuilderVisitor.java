@@ -259,6 +259,7 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 		Node varNode = visited.getVarNode();
 		Node bodyNode = visited.getBodyNode();
 		SourcePosition position = visited.getPosition();
+		boolean isCurlyIteration = document.charAt(position.getStartOffset()) == '{';
 		// Here we try to figure out what to place in the begin segment
 		int beginEndOffset = position.getEndOffset();
 		if (bodyNode != null)
@@ -273,11 +274,25 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 				// we look for the start offset of the 'end'
 				// keyword, right after the var-node
 				beginEndOffset = varNode.getPosition().getEndOffset();
-				// look for the 'end' keyword start
-				int endKeywordStart = charLookup(document, beginEndOffset, 'e');
-				if (endKeywordStart > -1)
+				if (isCurlyIteration)
 				{
-					beginEndOffset = endKeywordStart;
+					// we need to locate the ending curly
+					if (document.charAt(beginEndOffset - 1) != '}')
+					{
+						// cover a case like:
+						// iteration {|x|
+						// }
+						beginEndOffset = position.getEndOffset() - 1;
+					}
+				}
+				else
+				{
+					// we need to locate the starting of the 'end' keyword
+					int endKeywordStart = charLookup(document, beginEndOffset, 'e');
+					if (endKeywordStart > -1)
+					{
+						beginEndOffset = endKeywordStart;
+					}
 				}
 			}
 			else
@@ -301,7 +316,8 @@ public class RubyFormatterNodeBuilderVisitor extends AbstractVisitor
 			bodyEndOffset = forNode.getEndOffset();
 		}
 		builder.checkedPop(forNode, bodyEndOffset);
-		forNode.setEnd(AbstractFormatterNodeBuilder.createTextNode(document, bodyEndOffset, position.getEndOffset()));
+		forNode.setEnd(AbstractFormatterNodeBuilder.createTextNode(document, bodyEndOffset,
+				Math.max(bodyEndOffset, position.getEndOffset())));
 		return null;
 	}
 
