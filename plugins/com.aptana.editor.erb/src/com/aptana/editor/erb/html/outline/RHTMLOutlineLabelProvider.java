@@ -72,7 +72,8 @@ public class RHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider
 		String source = fDocument.get();
 		// locates the ruby source
 		IRubyScript ruby = script.getScript();
-		source = source.substring(ruby.getStartingOffset(), Math.min(ruby.getEndingOffset() + 1, source.length()));
+		source = source.substring(Math.max(ruby.getStartingOffset(), 0),
+				Math.min(ruby.getEndingOffset() + 1, source.length()));
 		// gets the first line of the ruby source
 		StringTokenizer st = new StringTokenizer(source, "\n\r\f"); //$NON-NLS-1$ // $codepro.audit.disable platformSpecificLineSeparator
 		if (st.hasMoreTokens())
