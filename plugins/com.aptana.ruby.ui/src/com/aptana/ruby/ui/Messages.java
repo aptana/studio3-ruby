@@ -15,7 +15,6 @@ public class Messages extends NLS
 
 	public static String RubyUIPlugin_DefaultRubyProjectTemplate_Description;
 	public static String RubyUIPlugin_DefaultRubyProjectTemplate_Name;
-	public static String RubyUIPlugin_Tag_Ruby;
 
 	static
 	{

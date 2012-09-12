@@ -41,7 +41,7 @@ public class RubyUIPlugin extends AbstractUIPlugin
 		{
 			super("default.zip", TemplateType.RUBY, Messages.RubyUIPlugin_DefaultRubyProjectTemplate_Name, //$NON-NLS-1$
 					false, Messages.RubyUIPlugin_DefaultRubyProjectTemplate_Description, null, ID, 1, CollectionsUtil
-							.newList(Messages.RubyUIPlugin_Tag_Ruby));
+							.newList("Ruby")); //$NON-NLS-1$
 		}
 
 		@Override
