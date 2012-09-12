@@ -1,6 +1,6 @@
 /**
  * Aptana Studio
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -16,6 +16,7 @@ import org.osgi.framework.BundleContext;
 
 import com.aptana.core.projects.templates.ProjectTemplate;
 import com.aptana.core.projects.templates.TemplateType;
+import com.aptana.core.util.CollectionsUtil;
 import com.aptana.projects.ProjectsPlugin;
 import com.aptana.projects.templates.IDefaultProjectTemplate;
 
@@ -39,7 +40,8 @@ public class RubyUIPlugin extends AbstractUIPlugin
 		public DefaultRubyProjectTemplate()
 		{
 			super("default.zip", TemplateType.RUBY, Messages.RubyUIPlugin_DefaultRubyProjectTemplate_Name, //$NON-NLS-1$
-					false, Messages.RubyUIPlugin_DefaultRubyProjectTemplate_Description, null, ID, 1);
+					false, Messages.RubyUIPlugin_DefaultRubyProjectTemplate_Description, null, ID, 1, CollectionsUtil
+							.newList(Messages.RubyUIPlugin_Tag_Ruby));
 		}
 
 		@Override
