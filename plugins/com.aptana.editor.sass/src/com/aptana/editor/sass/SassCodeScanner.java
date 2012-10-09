@@ -27,12 +27,13 @@ import org.eclipse.jface.text.rules.WordRule;
 import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.text.rules.CharacterMapRule;
 import com.aptana.editor.common.text.rules.ExtendedWordRule;
-import com.aptana.editor.css.CSSCodeScanner;
+import com.aptana.editor.css.CSSCodeScannerRuleBased;
 
 /**
  * @author Chris Williams
  */
-public class SassCodeScanner extends CSSCodeScanner
+@SuppressWarnings("deprecation")
+public class SassCodeScanner extends CSSCodeScannerRuleBased
 {
 
 	private IToken lastToken;

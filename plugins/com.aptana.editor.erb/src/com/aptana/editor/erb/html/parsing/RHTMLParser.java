@@ -16,6 +16,7 @@ import com.aptana.editor.common.parsing.CompositeParser;
 import com.aptana.editor.erb.parsing.lexer.ERBTokens;
 import com.aptana.editor.html.IHTMLConstants;
 import com.aptana.parsing.IParseState;
+import com.aptana.parsing.ParseResult;
 import com.aptana.parsing.WorkingParseResult;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
@@ -35,7 +36,8 @@ public class RHTMLParser extends CompositeParser
 	}
 
 	@Override
-	protected IParseNode processEmbeddedlanguage(IParseState parseState, WorkingParseResult working) throws IOException, Exception
+	protected IParseNode processEmbeddedlanguage(IParseState parseState, WorkingParseResult working)
+			throws IOException, Exception
 	{
 		String source = parseState.getSource();
 		int startingOffset = parseState.getStartingOffset();
@@ -79,13 +81,17 @@ public class RHTMLParser extends CompositeParser
 			id = getCurrentSymbol().getId();
 		}
 
-		IParseNode result = getParseResult(IRubyConstants.CONTENT_TYPE_RUBY, start, end).getRootNode();
+		ParseResult result = getParseResult(IRubyConstants.CONTENT_TYPE_RUBY, start, end);
 		if (result != null)
 		{
-			Symbol endTag = getCurrentSymbol();
-			ERBScript erb = new ERBScript((IRubyScript) result, startTag.value.toString(), endTag.value.toString());
-			erb.setLocation(startTag.getStart(), endTag.getEnd());
-			root.addChild(erb);
+			IParseNode rubyRoot = result.getRootNode();
+			if (rubyRoot != null)
+			{
+				Symbol endTag = getCurrentSymbol();
+				ERBScript erb = new ERBScript((IRubyScript) rubyRoot, startTag.value.toString(), endTag.value.toString());
+				erb.setLocation(startTag.getStart(), endTag.getEnd());
+				root.addChild(erb);
+			}
 		}
 	}
 }

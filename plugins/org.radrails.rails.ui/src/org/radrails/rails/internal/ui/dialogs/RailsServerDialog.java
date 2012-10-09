@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.radrails.rails.core.RailsProjectNature;
-import org.radrails.rails.internal.RailsServer;
+import org.radrails.rails.core.RailsServer;
 import org.radrails.rails.ui.RailsUIPlugin;
 
 import com.aptana.core.logging.IdeLog;

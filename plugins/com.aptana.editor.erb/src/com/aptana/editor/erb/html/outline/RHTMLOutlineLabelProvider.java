@@ -7,11 +7,12 @@
  */
 package com.aptana.editor.erb.html.outline;
 
-import java.util.StringTokenizer;
-
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Image;
 
+import com.aptana.core.logging.IdeLog;
+import com.aptana.core.util.ArrayUtil;
 import com.aptana.core.util.StringUtil;
 import com.aptana.editor.common.outline.CommonOutlineItem;
 import com.aptana.editor.erb.ERBEditorPlugin;
@@ -69,29 +70,40 @@ public class RHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider
 	{
 		StringBuilder text = new StringBuilder();
 		text.append(script.getStartTag());
-		String source = fDocument.get();
+
 		// locates the ruby source
 		IRubyScript ruby = script.getScript();
-		source = source.substring(ruby.getStartingOffset(), Math.min(ruby.getEndingOffset() + 1, source.length()));
-		// gets the first line of the ruby source
-		StringTokenizer st = new StringTokenizer(source, "\n\r\f"); //$NON-NLS-1$ // $codepro.audit.disable platformSpecificLineSeparator
-		if (st.hasMoreTokens())
+		int start = Math.max(ruby.getStartingOffset(), 0);
+
+		int endIndex = Math.min(ruby.getEndingOffset(), fDocument.getLength());
+		try
 		{
-			source = st.nextToken();
+			String source = fDocument.get(start, endIndex - start + 1);
+			String[] parts = StringUtil.LINE_SPLITTER.split(source);
+			if (!ArrayUtil.isEmpty(parts))
+			{
+				source = parts[0];
+			}
+			text.append(StringUtil.truncate(source, TRIM_TO_LENGTH));
+			String textString = text.toString();
+			String end = script.getEndTag();
+			if (textString.endsWith(end))
+			{
+				// already has end, just return it
+				return textString;
+			}
+
+			// Do we need to add a space before end tag?
+			if (!textString.endsWith(" ")) //$NON-NLS-1$
+			{
+				return textString + ' ' + end;
+			}
+			return textString + end;
 		}
-		else
+		catch (BadLocationException e)
 		{
-			source = StringUtil.EMPTY;
+			IdeLog.logError(ERBEditorPlugin.getDefault(), e);
+			return StringUtil.EMPTY;
 		}
-		if (source.length() <= TRIM_TO_LENGTH)
-		{
-			text.append(source);
-		}
-		else
-		{
-			text.append(source.substring(0, TRIM_TO_LENGTH - 1)).append("... "); //$NON-NLS-1$
-		}
-		text.append(script.getEndTag());
-		return text.toString();
 	}
 }

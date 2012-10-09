@@ -15,7 +15,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunchManager;
-import org.radrails.rails.internal.RailsServer;
+import org.radrails.rails.core.RailsServer;
 import org.radrails.rails.ui.RailsUIPlugin;
 
 import com.aptana.core.logging.IdeLog;

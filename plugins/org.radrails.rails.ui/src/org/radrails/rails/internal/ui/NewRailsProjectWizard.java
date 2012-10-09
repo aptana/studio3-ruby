@@ -26,7 +26,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.progress.UIJob;
 import org.radrails.rails.core.RailsCorePlugin;
 import org.radrails.rails.core.RailsProjectNature;
-import org.radrails.rails.internal.RailsServer;
+import org.radrails.rails.core.RailsServer;
 import org.radrails.rails.ui.RailsUIPlugin;
 
 import com.aptana.core.ShellExecutable;

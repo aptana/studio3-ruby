@@ -152,4 +152,11 @@
             id="com.aptana.ruby.debug.core.interruptingProcessFactory">
       </processFactory>
    </extension>
+     <extension
+       point="org.eclipse.debug.core.watchExpressionDelegates">
+    <watchExpressionDelegate
+          debugModel="com.aptana.ruby.debug"
+          delegateClass="com.aptana.ruby.internal.debug.core.model.RubyWatchExpressionDelegate">
+    </watchExpressionDelegate>
+ </extension>
 </plugin>

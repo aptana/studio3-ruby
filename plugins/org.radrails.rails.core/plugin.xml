@@ -11,5 +11,13 @@
          </run>
       </runtime>
    </extension>
+   <extension
+         point="com.aptana.webserver.core.webServerTypes">
+      <type
+            class="org.radrails.rails.core.RailsServer"
+            id="org.radrails.rails.railsServer"
+            name="%rails.server.type.name">
+      </type>
+   </extension>
 
 </plugin>

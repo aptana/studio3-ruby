@@ -21,7 +21,7 @@ import org.eclipse.ui.IWorkbench;
 import com.aptana.core.build.UnifiedBuilder;
 import com.aptana.core.projects.templates.TemplateType;
 import com.aptana.projects.WebProjectNature;
-import com.aptana.projects.internal.wizards.AbstractNewProjectWizard;
+import com.aptana.projects.wizards.AbstractNewProjectWizard;
 import com.aptana.ruby.core.RubyProjectNature;
 import com.aptana.ruby.ui.RubyUIPlugin;
 
