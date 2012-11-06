@@ -21,9 +21,14 @@ public class RubyComment extends ParseNode implements IRubyComment
 
 	public RubyComment(CommentNode commentNode, String text)
 	{
-		super(IRubyConstants.CONTENT_TYPE_RUBY);
+		super();
 		setLocation(commentNode.getPosition().getStartOffset(), commentNode.getPosition().getEndOffset());
 		this.text = text;
+	}
+
+	public String getLanguage()
+	{
+		return IRubyConstants.CONTENT_TYPE_RUBY;
 	}
 
 	@Override
