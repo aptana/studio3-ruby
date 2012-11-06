@@ -20,13 +20,18 @@ public class ERBScript extends ParseNode
 
 	public ERBScript(IRubyScript script, String startTag, String endTag)
 	{
-		super(IRubyConstants.CONTENT_TYPE_RUBY);
+		super();
 		fScript = script;
 		fStartTag = startTag;
 		fEndTag = endTag;
 
 		setChildren(fScript.getChildren());
 		setLocation(script.getStartingOffset(), script.getEndingOffset());
+	}
+
+	public String getLanguage()
+	{
+		return IRubyConstants.CONTENT_TYPE_RUBY;
 	}
 
 	public String getStartTag()

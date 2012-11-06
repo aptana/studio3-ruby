@@ -1,6 +1,6 @@
 /**
  * Aptana Studio
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the GNU Public License (GPL) v3 (with exceptions).
  * Please see the license.html included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -19,16 +19,11 @@ import com.aptana.parsing.IParseState;
 import com.aptana.parsing.ParseResult;
 import com.aptana.parsing.WorkingParseResult;
 import com.aptana.parsing.ast.IParseNode;
-import com.aptana.parsing.ast.ParseNode;
-import com.aptana.parsing.ast.ParseRootNode;
 import com.aptana.ruby.core.IRubyConstants;
 import com.aptana.ruby.core.IRubyScript;
 
 public class RHTMLParser extends CompositeParser
 {
-
-	// TODO Move to constants in parsing plugin and re-use
-	private static final ParseNode[] NO_PARSE_NODES = new ParseNode[0];
 
 	public RHTMLParser()
 	{
@@ -53,8 +48,7 @@ public class RHTMLParser extends CompositeParser
 				case ERBTokens.RUBY:
 					if (root == null)
 					{
-						root = new ParseRootNode(IRubyConstants.CONTENT_TYPE_RUBY, NO_PARSE_NODES, startingOffset,
-								startingOffset + source.length() - 1);
+						root = new RubyParseRootNode(startingOffset, startingOffset + source.length() - 1);
 					}
 					processRubyBlock(root);
 					break;
@@ -88,7 +82,8 @@ public class RHTMLParser extends CompositeParser
 			if (rubyRoot != null)
 			{
 				Symbol endTag = getCurrentSymbol();
-				ERBScript erb = new ERBScript((IRubyScript) rubyRoot, startTag.value.toString(), endTag.value.toString());
+				ERBScript erb = new ERBScript((IRubyScript) rubyRoot, startTag.value.toString(),
+						endTag.value.toString());
 				erb.setLocation(startTag.getStart(), endTag.getEnd());
 				root.addChild(erb);
 			}
