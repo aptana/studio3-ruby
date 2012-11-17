@@ -531,7 +531,7 @@ public class RubyDebuggerProxy
 					}
 					RubyDebugCorePlugin.debug(hit);
 					// TODO: should this be using the JOB API?
-					new Thread()
+					new Thread("RubyDebuggerProxy suspension notifier")
 					{
 
 						public void run()

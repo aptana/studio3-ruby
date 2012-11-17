@@ -213,7 +213,7 @@ public class CoreStubber extends Job
 						storeIndexVersion();
 					}
 				}
-			});
+			}, "Ruby CoreStubber thread"); //$NON-NLS-1$
 			t.start();
 		}
 		catch (Exception e)
