@@ -13,6 +13,11 @@
     </description>
 
 	<property file="build_local.properties" />
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="${basedir}/ant-contrib/ant-contrib.jar" />
+		</classpath>
+	</taskdef>
 
 	<!-- Set up EMMA location and instrumentation path -->
 	<path id="emma.lib">
@@ -77,19 +82,9 @@
 		<delete dir="${coverageDirectory}" failonerror="false" />
 		<delete dir="${testResultsDirectory}" failonerror="false" />
 		<delete dir="${buildDirectory}/${buildLabel}" failonerror="false" />
-		<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="false">
-			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/productBuild/productBuild.xml -Dbuilder=${basedir} -nosplash clean" />
-		</java>
 		<delete dir="${baseLocation}" />
 		<delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
-		<delete dir="${p2.repo.dir}" failonerror="false" />
-		<!-- Do a git clean of the build directory -->
-		<exec executable="/bin/bash" dir="${buildDirectory}">
-			<arg value="-c" />
-			<arg value="${git.executable} clean -f -d -x" />
-		</exec>
 		<delete file="build.properties" failonerror="false" />
-		<delete dir="${buildDirectory}/eclipse" failonerror="false" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -111,12 +106,8 @@
 				<include name="**/*" />
 			</fileset>
 		</copy>
-		<antcall target="run.director">
-			<param name="p2.installIU" value="com.aptana.feature.feature.group,com.aptana.studio.tests.feature.group,org.radrails.rails.feature.group,com.windowtester.runtime.feature.group" />
-			<param name="p2.repo" value="${studio3.p2.repo},${studio3.test.p2.repo},${radrails.p2.repo},${windowtester.p2.repo}" />
-		</antcall>
 	</target>
-	
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: wipe.plugins                      
          - - - - - - - - - - - - - - - - - -->
@@ -161,16 +152,14 @@
 		</java>
 	</target>
 
-	<target name="-pre-test" depends="build" description="Install test features and do pre-test setup.">
-		<!-- Unzip Eclipse Testing Framework -->
-		<unzip src="eclipse-test-framework-3.6.zip" dest="${baseLocation}/test-framework" />
-		
-		<!-- Install the test feature we just built and eclipse testing framework -->
+	<target name="-pre-test" description="Install test features and do pre-test setup.">
+		<!-- Unzip Eclipse Testing Framework and... -->
+		<unzip src="eclipse-test-framework-3.6.zip" dest="${baseLocation}/dropins" />
+		<!-- Install the test feature we just built along with eclipse test framework -->
 		<antcall target="run.director">
-			<param name="p2.installIU" value="${topLevelElementId}.feature.group,org.eclipse.test.feature.group" />
-			<param name="p2.repo" value="file:${p2.repo.dir},file:${baseLocation}/test-framework/eclipse" />
+			<param name="p2.installIU" value="com.aptana.feature.feature.group,com.windowtester.runtime.feature.group,org.radrails.rails.feature.group,com.aptana.studio.tests.feature.group,${topLevelElementId}.feature.group" />
+			<param name="p2.repo" value="${studio3.p2.repo},${windowtester.p2.repo},${radrails.p2.repo},${studio3.test.p2.repo},file:${deploy.dir}" />
 		</antcall>
-
 		<!-- Modify the plugin_custimization.ini to set initial properties for tests! -->
 		<concat append="true" destfile="${baseLocation}/plugins/org.eclipse.sdk_3.6.0.v201006080911/plugin_customization.ini">
 			<filelist dir="${basedir}/prefs" files="plugin_customization.ini" />
@@ -207,7 +196,10 @@
 		</emma>
 	</target>
 
-	<target name="test" depends="build,-pre-test,-instrument">
+	<target name="test" depends="build">
+		<antcall target="-pre-test" />
+		<antcall target="-instrument" />
+
 		<!-- Run the tests. -->
 		<antcall target="run-core-test">
 			<param name="test.plugin" value="com.aptana.radrails.tests.all" />
