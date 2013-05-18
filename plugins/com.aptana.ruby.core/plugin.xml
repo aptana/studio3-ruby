@@ -174,4 +174,11 @@
          </projectNatureBinding>
          </participant>
       </extension>
+      <extension
+            point="com.aptana.scripting.applicationBundlePaths">
+         <bundlePath
+               name="Ruby Bundles"
+               path="bundles/">
+         </bundlePath>
+      </extension>
 </plugin>
