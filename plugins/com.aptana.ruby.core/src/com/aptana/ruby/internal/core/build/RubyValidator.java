@@ -21,7 +21,6 @@ import com.aptana.core.build.Problem;
 import com.aptana.core.build.RequiredBuildParticipant;
 import com.aptana.index.core.build.BuildContext;
 import com.aptana.parsing.ast.IParseError;
-import com.aptana.parsing.ast.IParseError.Severity;
 import com.aptana.ruby.core.RubyParseState;
 import com.aptana.ruby.launching.RubyLaunchingPlugin;
 
@@ -81,8 +80,7 @@ public class RubyValidator extends RequiredBuildParticipant
 		Collection<IProblem> problems = new ArrayList<IProblem>();
 		for (IParseError parseError : context.getParseErrors())
 		{
-			int severity = (parseError.getSeverity() == Severity.ERROR) ? IMarker.SEVERITY_ERROR
-					: IMarker.SEVERITY_WARNING;
+			int severity = parseError.getSeverity().intValue();
 			int line = -1;
 			if (contents != null)
 			{
