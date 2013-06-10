@@ -53,7 +53,7 @@ import com.aptana.scripting.model.BundleEntry;
 import com.aptana.scripting.model.BundleManager;
 import com.aptana.scripting.model.CommandContext;
 import com.aptana.scripting.model.CommandElement;
-import com.aptana.usage.PingStartup;
+import com.aptana.usage.UsagePlugin;
 
 @SuppressWarnings("restriction")
 public class HerokuDeployWizard extends AbstractDeployWizard
@@ -213,7 +213,7 @@ public class HerokuDeployWizard extends AbstractDeployWizard
 					final String HOST = "http://toolbox.aptana.com"; //$NON-NLS-1$
 					StringBuilder builder = new StringBuilder(HOST);
 					builder.append("/webhook/heroku?request_id="); //$NON-NLS-1$
-					builder.append(URLEncoder.encode(PingStartup.getApplicationId(), IOUtil.UTF_8));
+					builder.append(URLEncoder.encode(UsagePlugin.getApplicationId(), IOUtil.UTF_8));
 					builder.append("&email="); //$NON-NLS-1$
 					builder.append(URLEncoder.encode(userID, IOUtil.UTF_8));
 					builder.append("&type=signuphook"); //$NON-NLS-1$
