@@ -24,14 +24,13 @@ import org.jrubyparser.parser.ParserSupport19;
 import org.jrubyparser.parser.Ruby18Parser;
 import org.jrubyparser.parser.Ruby19Parser;
 
+import com.aptana.core.build.IProblem.Severity;
 import com.aptana.core.logging.IdeLog;
 import com.aptana.parsing.AbstractParser;
 import com.aptana.parsing.IParseState;
 import com.aptana.parsing.WorkingParseResult;
 import com.aptana.parsing.ast.IParseError;
-import com.aptana.parsing.ast.IParseError.Severity;
 import com.aptana.parsing.ast.IParseNode;
-import com.aptana.parsing.ast.IParseRootNode;
 import com.aptana.parsing.ast.ParseError;
 import com.aptana.ruby.core.ast.SourceElementVisitor;
 import com.aptana.ruby.internal.core.RubyComment;
@@ -60,7 +59,7 @@ public class RubyParser extends AbstractParser
 			lineNumber = rubyParseState.getStartingLineNumber();
 			fileName = rubyParseState.getFilename();
 		}
-		
+
 		CollectingRubyWarnings warnings = new CollectingRubyWarnings(fileName);
 
 		org.jrubyparser.parser.RubyParser parser = null;
@@ -98,8 +97,8 @@ public class RubyParser extends AbstractParser
 		catch (SyntaxException se)
 		{
 			int start = se.getPosition().getStartOffset();
-			working.addError(new ParseError(IRubyConstants.CONTENT_TYPE_RUBY, start, se.getPosition().getEndOffset() - start, se.getMessage(),
-					Severity.ERROR));
+			working.addError(new ParseError(IRubyConstants.CONTENT_TYPE_RUBY, start, se.getPosition().getEndOffset()
+					- start, se.getMessage(), Severity.ERROR));
 		}
 		catch (IOException e)
 		{

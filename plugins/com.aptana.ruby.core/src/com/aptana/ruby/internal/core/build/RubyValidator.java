@@ -17,11 +17,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.jrubyparser.CompatVersion;
 
 import com.aptana.core.build.IProblem;
+import com.aptana.core.build.IProblem.Severity;
 import com.aptana.core.build.Problem;
 import com.aptana.core.build.RequiredBuildParticipant;
 import com.aptana.index.core.build.BuildContext;
 import com.aptana.parsing.ast.IParseError;
-import com.aptana.parsing.ast.IParseError.Severity;
 import com.aptana.ruby.core.RubyParseState;
 import com.aptana.ruby.launching.RubyLaunchingPlugin;
 

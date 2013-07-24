@@ -13,8 +13,8 @@ import java.util.Collection;
 import org.jrubyparser.IRubyWarnings;
 import org.jrubyparser.SourcePosition;
 
+import com.aptana.core.build.IProblem.Severity;
 import com.aptana.parsing.ast.IParseError;
-import com.aptana.parsing.ast.IParseError.Severity;
 import com.aptana.parsing.ast.ParseError;
 
 /**
