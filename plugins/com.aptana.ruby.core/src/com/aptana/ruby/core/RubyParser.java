@@ -24,7 +24,7 @@ import org.jrubyparser.parser.ParserSupport19;
 import org.jrubyparser.parser.Ruby18Parser;
 import org.jrubyparser.parser.Ruby19Parser;
 
-import com.aptana.core.build.IProblem.Severity;
+import com.aptana.core.build.IProblem;
 import com.aptana.core.logging.IdeLog;
 import com.aptana.parsing.AbstractParser;
 import com.aptana.parsing.IParseState;
@@ -98,7 +98,7 @@ public class RubyParser extends AbstractParser
 		{
 			int start = se.getPosition().getStartOffset();
 			working.addError(new ParseError(IRubyConstants.CONTENT_TYPE_RUBY, start, se.getPosition().getEndOffset()
-					- start, se.getMessage(), Severity.ERROR));
+					- start, se.getMessage(), IProblem.Severity.ERROR));
 		}
 		catch (IOException e)
 		{

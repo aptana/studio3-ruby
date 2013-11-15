@@ -19,7 +19,7 @@ import com.aptana.core.util.IOUtil;
 import com.aptana.editor.erb.ERBEditorPlugin;
 import com.aptana.editor.erb.html.parsing.ERBScript;
 import com.aptana.editor.erb.html.parsing.RHTMLParser;
-import com.aptana.editor.html.IHTMLConstants;
+import com.aptana.editor.html.core.IHTMLConstants;
 import com.aptana.editor.html.parsing.HTMLParseState;
 import com.aptana.js.core.parsing.ast.JSStringNode;
 import com.aptana.js.core.parsing.ast.JSVarNode;

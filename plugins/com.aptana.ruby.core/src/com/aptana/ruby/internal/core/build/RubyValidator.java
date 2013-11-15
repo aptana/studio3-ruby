@@ -81,8 +81,7 @@ public class RubyValidator extends RequiredBuildParticipant
 		Collection<IProblem> problems = new ArrayList<IProblem>();
 		for (IParseError parseError : context.getParseErrors())
 		{
-			int severity = (parseError.getSeverity() == Severity.ERROR) ? IMarker.SEVERITY_ERROR
-					: IMarker.SEVERITY_WARNING;
+			int severity = parseError.getSeverity().intValue();
 			int line = -1;
 			if (contents != null)
 			{

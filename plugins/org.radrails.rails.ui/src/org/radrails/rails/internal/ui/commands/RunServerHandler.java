@@ -18,6 +18,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.radrails.rails.core.RailsServer;
 import org.radrails.rails.ui.RailsUIPlugin;
 
+import com.aptana.core.IFilter;
 import com.aptana.core.logging.IdeLog;
 import com.aptana.webserver.core.IServer;
 import com.aptana.webserver.core.IServerManager;
@@ -67,31 +68,31 @@ public class RunServerHandler extends AbstractRailsHandler
 		return null;
 	}
 
-	private RailsServer findOrCreateServer(IProject railsProject)
+	private RailsServer findOrCreateServer(final IProject railsProject)
 	{
-		// First check for server with matching name and verify it's the same project
-		IServer server = getServerManager().findServerByName(railsProject.getName());
-		if (server instanceof RailsServer)
+		// find all the servers for this project
+		List<IServer> servers = getServerManager().getServers(new IFilter<IServer>()
 		{
-			RailsServer possible = (RailsServer) server;
-			if (railsProject.equals(possible.getProject()))
+
+			public boolean include(IServer item)
 			{
-				return possible;
-			}
-		}
-		// No server with matcing name, so iterate through all and find the one for this project
-		List<IServer> servers = getServerManager().getServers();
-		for (IServer server2 : servers)
-		{
-			if (server2 instanceof RailsServer)
-			{
-				RailsServer possible = (RailsServer) server2;
-				if (railsProject.equals(possible.getProject()))
+				if (item instanceof RailsServer)
 				{
-					return possible;
+					RailsServer possible = (RailsServer) item;
+					if (railsProject.equals(possible.getProject()))
+					{
+						return true;
+					}
 				}
+				return false;
 			}
+		});
+		// If there are any, return the first one
+		if (!servers.isEmpty())
+		{
+			return (RailsServer) servers.get(0);
 		}
+
 		// No matching server. We need to create one
 		return addServer(railsProject);
 	}
