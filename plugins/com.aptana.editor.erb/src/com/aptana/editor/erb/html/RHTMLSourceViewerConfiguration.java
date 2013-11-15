@@ -26,7 +26,7 @@ import com.aptana.editor.erb.ERBEditorPlugin;
 import com.aptana.editor.erb.ERBPartitionerSwitchStrategy;
 import com.aptana.editor.erb.IERBConstants;
 import com.aptana.editor.html.HTMLSourceConfiguration;
-import com.aptana.editor.html.IHTMLConstants;
+import com.aptana.editor.html.core.IHTMLConstants;
 import com.aptana.editor.ruby.RubySourceConfiguration;
 import com.aptana.editor.ruby.core.RubyDoubleClickStrategy;
 import com.aptana.js.core.IJSConstants;

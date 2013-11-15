@@ -13,7 +13,7 @@ import java.util.Collection;
 import org.jrubyparser.IRubyWarnings;
 import org.jrubyparser.SourcePosition;
 
-import com.aptana.core.build.IProblem.Severity;
+import com.aptana.core.build.IProblem;
 import com.aptana.parsing.ast.IParseError;
 import com.aptana.parsing.ast.ParseError;
 
@@ -72,7 +72,7 @@ class CollectingRubyWarnings implements IRubyWarnings
 
 	private IParseError createWarning(String message, int lineNumber, int offset, int length, String path)
 	{
-		return new ParseError(IRubyConstants.CONTENT_TYPE_RUBY, offset, length, message, Severity.WARNING);
+		return new ParseError(IRubyConstants.CONTENT_TYPE_RUBY, offset, length, message, IProblem.Severity.WARNING);
 	}
 
 	public Collection<IParseError> getWarnings()
