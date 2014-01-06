@@ -7,32 +7,32 @@
  */
 package com.aptana.editor.ruby.formatter.tests;
 
+import java.util.Arrays;
+
+import org.junit.BeforeClass;
+import org.junit.runners.Parameterized.Parameters;
+
 import com.aptana.editor.common.formatting.AbstractFormatterTestCase;
 import com.aptana.editor.ruby.RubyEditorPlugin;
 
 public class FormattingTests extends AbstractFormatterTestCase
 {
 
-	// Turn this flag on for development only (used to generate the formatted files)
-	// To generate formatted files, place js files under the 'formatting' folder and run these tests from the
-	// com.aptana.editor.js.formatter.tests plugin
-	// NOTE: Ensure that the contents section ends with a newline, or the generation may not work.
-	private static boolean INITIALIZE_MODE = false;
-	// Turning on the overwrite will re-generate the formatted block and overwrite it into the test files.
-	// This is a drastic move that will require a review of the output right after to make sure we have the
-	// right formatting for all the test file, so turn it on at your own risk.
-	private static boolean OVERWRITE_MODE = false;
+	@Parameters(name = "{0}")
+	public static Iterable<Object[]> data()
+	{
+		return Arrays.asList(AbstractFormatterTestCase.getFiles(TEST_BUNDLE_ID, FILE_TYPE));
+	}
 
 	private static String FORMATTER_FACTORY_ID = "com.aptana.editor.ruby.formatterFactory"; //$NON-NLS-1$
 	private static String TEST_BUNDLE_ID = "com.aptana.editor.ruby.formatter.tests"; //$NON-NLS-1$
 	private static String FILE_TYPE = "rb"; //$NON-NLS-1$
 
-	@Override
-	protected void setUpSuite() throws Exception
+	@BeforeClass
+	public static void initializePlugin() throws Exception
 	{
 		// Force the ruby editor plugin to load!
 		RubyEditorPlugin.getDefault();
-		super.setUpSuite();
 	}
 
 	@Override
@@ -52,17 +52,4 @@ public class FormattingTests extends AbstractFormatterTestCase
 	{
 		return FILE_TYPE;
 	}
-
-	@Override
-	protected boolean isOverriteMode()
-	{
-		return OVERWRITE_MODE;
-	}
-
-	@Override
-	protected boolean isInitializeMode()
-	{
-		return INITIALIZE_MODE;
-	}
-
 }

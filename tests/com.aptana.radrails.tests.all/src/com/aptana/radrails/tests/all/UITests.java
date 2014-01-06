@@ -7,33 +7,21 @@
  */
 package com.aptana.radrails.tests.all;
 
-import junit.framework.Test;
-import junit.framework.TestResult;
-import junit.framework.TestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
+@RunWith(Suite.class)
+//@formatter:off
+@SuiteClasses({
+	org.radrails.rails.ui.tests.AllTests.class,
+	com.aptana.editor.ruby.tests.AllTests.class,
+	com.aptana.editor.ruby.formatter.tests.AllTests.class,
+	com.aptana.editor.erb.tests.AllTests.class,
+	com.aptana.editor.haml.tests.HAMLEditorTests.class,
+	com.aptana.editor.sass.tests.AllTests.class,
+})
+// @formatter:on
 public class UITests
 {
-
-	public static Test suite()
-	{
-		TestSuite suite = new TestSuite(UITests.class.getName())
-		{
-			@Override
-			public void runTest(Test test, TestResult result)
-			{
-				System.out.println("Running test: " + test.toString());
-				super.runTest(test, result);
-			}
-		};
-		// $JUnit-BEGIN$
-		suite.addTest(org.radrails.rails.ui.tests.AllTests.suite());
-		suite.addTest(com.aptana.editor.ruby.tests.AllTests.suite());
-		suite.addTest(com.aptana.editor.ruby.formatter.tests.AllTests.suite());
-		suite.addTest(com.aptana.editor.erb.tests.AllTests.suite());
-		suite.addTest(com.aptana.editor.haml.tests.HAMLEditorTests.suite());
-		suite.addTest(com.aptana.editor.sass.tests.AllTests.suite());
-		// $JUnit-END$
-		return suite;
-	}
-
 }
