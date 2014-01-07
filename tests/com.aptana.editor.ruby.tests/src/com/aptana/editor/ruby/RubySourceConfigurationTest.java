@@ -1,5 +1,9 @@
 package com.aptana.editor.ruby;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.IDocument;
@@ -10,22 +14,25 @@ import com.aptana.editor.ruby.internal.contentassist.RubyContentAssistProcessor;
 import com.aptana.editor.ruby.internal.contentassist.RubyDoubleQuotedStringContentAssistProcessor;
 import com.aptana.editor.ruby.internal.contentassist.RubyRegexpContentAssistProcessor;
 
-public class RubySourceConfigurationTest extends TestCase
+public class RubySourceConfigurationTest
 {
 	private RubySourceConfiguration fConfig;
 
-	protected void setUp() throws Exception
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 		fConfig = RubySourceConfiguration.getDefault();
 	}
 
-	protected void tearDown() throws Exception
+	@After
+	public void tearDown() throws Exception
 	{
 		fConfig = null;
-		super.tearDown();
+//		super.tearDown();
 	}
 
+	@Test
 	public void testCommandCAProcessor()
 	{
 		IContentAssistProcessor processor = fConfig.getContentAssistProcessor(null, RubySourceConfiguration.COMMAND);
@@ -33,6 +40,7 @@ public class RubySourceConfigurationTest extends TestCase
 		assertTrue(processor instanceof RubyDoubleQuotedStringContentAssistProcessor);
 	}
 
+	@Test
 	public void testDoubleQuotedStringCAProcessor()
 	{
 		IContentAssistProcessor processor = fConfig.getContentAssistProcessor(null,
@@ -41,6 +49,7 @@ public class RubySourceConfigurationTest extends TestCase
 		assertTrue(processor instanceof RubyDoubleQuotedStringContentAssistProcessor);
 	}
 
+	@Test
 	public void testCodeCAProcessor()
 	{
 		IContentAssistProcessor processor = fConfig.getContentAssistProcessor(null, RubySourceConfiguration.DEFAULT);
@@ -48,6 +57,7 @@ public class RubySourceConfigurationTest extends TestCase
 		assertTrue(processor instanceof RubyContentAssistProcessor);
 	}
 
+	@Test
 	public void testDefaultCAProcessor()
 	{
 		IContentAssistProcessor processor = fConfig.getContentAssistProcessor(null, IDocument.DEFAULT_CONTENT_TYPE);
@@ -55,6 +65,7 @@ public class RubySourceConfigurationTest extends TestCase
 		assertTrue(processor instanceof RubyContentAssistProcessor);
 	}
 
+	@Test
 	public void testLineCommentCAProcessor()
 	{
 		IContentAssistProcessor processor = fConfig.getContentAssistProcessor(null,
@@ -63,6 +74,7 @@ public class RubySourceConfigurationTest extends TestCase
 		assertTrue(processor instanceof RubyCommentContentAssistProcessor);
 	}
 
+	@Test
 	public void testBlockCommentCAProcessor()
 	{
 		IContentAssistProcessor processor = fConfig.getContentAssistProcessor(null,
@@ -71,6 +83,7 @@ public class RubySourceConfigurationTest extends TestCase
 		assertTrue(processor instanceof RubyCommentContentAssistProcessor);
 	}
 
+	@Test
 	public void testSingleQuotedStringCAProcessor()
 	{
 		IContentAssistProcessor processor = fConfig.getContentAssistProcessor(null,
@@ -78,6 +91,7 @@ public class RubySourceConfigurationTest extends TestCase
 		assertNull(processor);
 	}
 
+	@Test
 	public void testRegexpCAProcessor()
 	{
 		IContentAssistProcessor processor = fConfig.getContentAssistProcessor(null,

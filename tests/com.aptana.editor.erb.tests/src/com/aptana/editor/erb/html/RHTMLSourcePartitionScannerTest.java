@@ -7,6 +7,9 @@
  */
 package com.aptana.editor.erb.html;
 
+import org.junit.After;
+import org.junit.Test;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -20,18 +23,20 @@ import com.aptana.editor.html.HTMLSourceConfiguration;
 import com.aptana.editor.js.JSSourceConfiguration;
 import com.aptana.editor.ruby.RubySourceConfiguration;
 
-public class RHTMLSourcePartitionScannerTest extends TestCase
+public class RHTMLSourcePartitionScannerTest
 {
 
 	private ExtendedFastPartitioner partitioner;
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		partitioner = null;
-		super.tearDown();
+//		super.tearDown();
 	}
 
+	@Test
 	public void testPartition()
 	{
 		String source = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n" //$NON-NLS-1$
@@ -70,6 +75,7 @@ public class RHTMLSourcePartitionScannerTest extends TestCase
 		assertContentType(HTMLSourceConfiguration.DEFAULT, source, 221); // '\n'
 	}
 
+	@Test
 	public void testSplitTag()
 	{
 		String source = "<body onload='alert()' <%= Time.now %> id='body'>"; //$NON-NLS-1$
@@ -88,6 +94,7 @@ public class RHTMLSourcePartitionScannerTest extends TestCase
 		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 39); // 'i'd=
 	}
 
+	@Test
 	public void testSplitAttribute()
 	{
 		String source = "<body class=' <%= Time.now %> ' id='body'>"; //$NON-NLS-1$
@@ -106,6 +113,7 @@ public class RHTMLSourcePartitionScannerTest extends TestCase
 		assertContentType(HTMLSourceConfiguration.HTML_TAG, source, 32); // 'i'd=
 	}
 
+	@Test
 	public void testBetweenTags()
 	{
 		String source = "<body class=''><%= Time.now %></div>"; //$NON-NLS-1$
@@ -124,6 +132,7 @@ public class RHTMLSourcePartitionScannerTest extends TestCase
 		assertContentType(HTMLSourceConfiguration.HTML_TAG_CLOSE, source, 30); // %>'<'
 	}
 
+	@Test
 	public void testAfterTagBeforeSpace()
 	{
 		String source = "<body class=''><%= Time.now %> </div>"; //$NON-NLS-1$
@@ -144,6 +153,7 @@ public class RHTMLSourcePartitionScannerTest extends TestCase
 		assertContentType(HTMLSourceConfiguration.HTML_TAG_CLOSE, source, 31); // %>'<'
 	}
 
+	@Test
 	public void testAfterSpaceBeforeTag()
 	{
 		String source = "<body class=''> <%= Time.now %></div>"; //$NON-NLS-1$
@@ -164,6 +174,7 @@ public class RHTMLSourcePartitionScannerTest extends TestCase
 		assertContentType(HTMLSourceConfiguration.HTML_TAG_CLOSE, source, 31); // %>'<'
 	}
 
+	@Test
 	public void testJSStringSplit()
 	{
 		String source = "<script>var i=\"x<%= Time.now %>y\";</script>"; //$NON-NLS-1$

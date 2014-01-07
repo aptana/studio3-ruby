@@ -7,6 +7,8 @@
  */
 package com.aptana.ruby.core.ast;
 
+import org.junit.Test;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.jrubyparser.CompatVersion;
@@ -15,9 +17,10 @@ import org.jrubyparser.parser.ParserResult;
 import com.aptana.ruby.core.RubySourceParser;
 
 @SuppressWarnings("nls")
-public class NamespaceVisitorTest extends TestCase
+public class NamespaceVisitorTest
 {
 
+	@Test
 	public void testNamespaceIsCorrectWhenNoNodesFollowOffset() throws Exception
 	{
 		String src = "module Namespace\n" + //

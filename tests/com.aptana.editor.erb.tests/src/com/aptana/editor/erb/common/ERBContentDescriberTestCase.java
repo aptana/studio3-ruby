@@ -7,6 +7,10 @@
  */
 package com.aptana.editor.erb.common;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
@@ -16,39 +20,44 @@ import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.content.ITextContentDescriber;
 
-public abstract class ERBContentDescriberTestCase extends TestCase
+public abstract class ERBContentDescriberTestCase
 {
 
 	private ERBContentDescriber describer;
 
-	@Override
-	protected void setUp() throws Exception
+//	@Override
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 		describer = createDescriber();
 	}
 
 	protected abstract ERBContentDescriber createDescriber();
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		describer = null;
-		super.tearDown();
+//		super.tearDown();
 	}
 
+	@Test
 	public void testDescribeEmptyContent() throws Exception
 	{
 		Reader contents = new StringReader("");
 		assertEquals(ITextContentDescriber.INDETERMINATE, describer.describe(contents, null));
 	}
 
+	@Test
 	public void testDescribeWithPrefix() throws Exception
 	{
 		Reader contents = new StringReader(describer.getPrefix());
 		assertEquals(ITextContentDescriber.VALID, describer.describe(contents, null));
 	}
 
+	@Test
 	public void testDescribeWithGarbage() throws Exception
 	{
 		Reader contents = new StringReader("gjfhjdhj");
@@ -57,18 +66,21 @@ public abstract class ERBContentDescriberTestCase extends TestCase
 
 	// TODO Call describe(InputStream, IConentDescription)
 
+	@Test
 	public void testDescribeInputStreamWithEmptyContent() throws Exception
 	{
 		InputStream stream = new ByteArrayInputStream("".getBytes());
 		assertEquals(ITextContentDescriber.INDETERMINATE, describer.describe(stream, null));
 	}
 
+	@Test
 	public void testDescribeInputStreamWithPrefix() throws Exception
 	{
 		InputStream stream = new ByteArrayInputStream(describer.getPrefix().getBytes());
 		assertEquals(ITextContentDescriber.VALID, describer.describe(stream, null));
 	}
 
+	@Test
 	public void testDescribeInputStreamWithGarbage() throws Exception
 	{
 		InputStream stream = new ByteArrayInputStream("gjfhjdhj".getBytes());

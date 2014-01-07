@@ -7,6 +7,9 @@
  */
 package com.aptana.editor.sass;
 
+import org.junit.After;
+import org.junit.Test;
+import static org.junit.Assert.*;
 import java.io.File;
 
 import junit.framework.TestCase;
@@ -18,13 +21,14 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-public class SassEditorTest extends TestCase
+public class SassEditorTest
 {
 
 	private ITextEditor editor;
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		if (editor != null)
 		{
@@ -33,6 +37,7 @@ public class SassEditorTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testExecute() throws Exception
 	{
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();

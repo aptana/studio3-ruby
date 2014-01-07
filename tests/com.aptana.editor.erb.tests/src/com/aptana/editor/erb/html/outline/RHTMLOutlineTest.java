@@ -7,6 +7,10 @@
  */
 package com.aptana.editor.erb.html.outline;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -17,21 +21,23 @@ import com.aptana.editor.html.HTMLPlugin;
 import com.aptana.parsing.ParserPoolFactory;
 import com.aptana.parsing.ast.IParseRootNode;
 
-public class RHTMLOutlineTest extends TestCase
+public class RHTMLOutlineTest
 {
 
 	private RHTMLOutlineContentProvider fContentProvider;
 	private RHTMLOutlineLabelProvider fLabelProvider;
 	private Document fDocument;
 
-	@Override
-	protected void setUp() throws Exception
+//	@Override
+	@Before
+	public void setUp() throws Exception
 	{
 		fContentProvider = new RHTMLOutlineContentProvider(null);
 	}
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		fDocument = null;
 		if (fContentProvider != null)
@@ -46,6 +52,7 @@ public class RHTMLOutlineTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testBasic() throws Exception
 	{
 		String source = "<% content_for :stylesheets do %><style type=\"text/css\"></style><% end %>";

@@ -1,5 +1,9 @@
 package com.aptana.editor.haml;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -16,19 +20,22 @@ import com.aptana.editor.common.text.rules.NullSubPartitionScanner;
 import com.aptana.editor.ruby.RubySourceConfiguration;
 
 @SuppressWarnings("nls")
-public class HAMLPartitionTest extends TestCase
+public class HAMLPartitionTest
 {
 
-	protected void setUp() throws Exception
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 	}
 
-	protected void tearDown() throws Exception
+	@After
+	public void tearDown() throws Exception
 	{
-		super.tearDown();
+//		super.tearDown();
 	}
 
+	@Test
 	public void testPlainText() throws Exception
 	{
 		String src = "%gee\n" + //
@@ -44,6 +51,7 @@ public class HAMLPartitionTest extends TestCase
 		assertPartition(partitions[3], 12, 23, HAMLSourceConfiguration.DEFAULT);
 	}
 
+	@Test
 	public void testInsertingRubyIndented() throws Exception
 	{
 		String src = "%p\n" + //
@@ -65,6 +73,7 @@ public class HAMLPartitionTest extends TestCase
 		assertPartition(partitions[5], 11, 1, HAMLSourceConfiguration.DEFAULT);
 	}
 
+	@Test
 	public void testInsertingRubyAtEndOfTag() throws Exception
 	{
 		String src = "%p= \"hello\"\n";
@@ -83,6 +92,7 @@ public class HAMLPartitionTest extends TestCase
 		assertPartition(partitions[4], 11, 1, HAMLSourceConfiguration.DEFAULT);
 	}
 
+	@Test
 	public void testInsertingRubyAcrossMultipleLines() throws Exception
 	{
 		String src = "= link_to_remote \"Add to cart\",\n" + //

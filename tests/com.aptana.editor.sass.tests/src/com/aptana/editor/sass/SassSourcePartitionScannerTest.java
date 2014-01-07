@@ -7,6 +7,9 @@
  */
 package com.aptana.editor.sass;
 
+import org.junit.After;
+import org.junit.Test;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -24,7 +27,7 @@ import com.aptana.editor.common.text.rules.NullSubPartitionScanner;
  * @author Sandip
  */
 @SuppressWarnings("nls")
-public class SassSourcePartitionScannerTest extends TestCase
+public class SassSourcePartitionScannerTest
 {
 
 	private IDocumentPartitioner partitioner;
@@ -35,11 +38,12 @@ public class SassSourcePartitionScannerTest extends TestCase
 				getContentType(code, offset));
 	}
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		partitioner = null;
-		super.tearDown();
+//		super.tearDown();
 	}
 
 	private String getContentType(String content, int offset)
@@ -59,6 +63,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 		return partitioner.getContentType(offset);
 	}
 
+	@Test
 	public void testPartitioningOfEmittedCommentLine()
 	{
 		String source =
@@ -73,6 +78,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 		assertContentType(SassSourceConfiguration.DEFAULT, source, source.length() - 1);
 	}
 
+	@Test
 	public void testPartitioningOfSilentCommentLine()
 	{
 		String source =
@@ -87,6 +93,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 		assertContentType(SassSourceConfiguration.DEFAULT, source, 37);
 	}
 
+	@Test
 	public void testPartitioningOfMultiLineComment()
 	{
 		String source = "/**\n" + //
@@ -101,6 +108,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 		assertContentType(SassSourceConfiguration.DEFAULT, source, source.length() - 1);
 	}
 
+	@Test
 	public void testPartitioningOfSingleQuotedString()
 	{
 		String source =
@@ -113,6 +121,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 		assertContentType(SassSourceConfiguration.DEFAULT, source, 38);
 	}
 
+	@Test
 	public void testPartitioningOfEmptySingleQuotedString()
 	{
 		String source =
@@ -126,6 +135,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 		assertContentType(SassSourceConfiguration.DEFAULT, source, 2);
 	}
 
+	@Test
 	public void testPartitioningOfSingleQuotedStringWithEscape()
 	{
 		String source =
@@ -139,6 +149,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 		assertContentType(SassSourceConfiguration.DEFAULT, source, 54);
 	}
 
+	@Test
 	public void testPartitioningOfSingleQuotedStringWithDoubleQuote()
 	{
 		String source =
@@ -152,6 +163,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 		assertContentType(SassSourceConfiguration.DEFAULT, source, 59);
 	}
 
+	@Test
 	public void testPartitioningOfDoubleQuotedString()
 	{
 		String source =
@@ -164,6 +176,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 		assertContentType(SassSourceConfiguration.DEFAULT, source, 38);
 	}
 
+	@Test
 	public void testPartitioningOfEmptyDoubleQuotedString()
 	{
 		String source =
@@ -176,6 +189,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 		assertContentType(SassSourceConfiguration.DEFAULT, source, 2);
 	}
 
+	@Test
 	public void testPartitioningOfDoubleQuotedStringWithEscape()
 	{
 		String source =
@@ -189,6 +203,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 		assertContentType(SassSourceConfiguration.DEFAULT, source, 54);
 	}
 
+	@Test
 	public void testPartitioningOfDoubleQuotedStringWithSingleQuote()
 	{
 		String source =
@@ -202,6 +217,7 @@ public class SassSourcePartitionScannerTest extends TestCase
 		assertContentType(SassSourceConfiguration.DEFAULT, source, 59);
 	}
 
+	@Test
 	public void testPartitioningOfAllPartitions()
 	{
 		String source =

@@ -1,5 +1,8 @@
 package com.aptana.editor.ruby.internal.text;
 
+import org.junit.After;
+import org.junit.Test;
+import static org.junit.Assert.*;
 import java.util.Collection;
 import java.util.Map;
 
@@ -19,16 +22,17 @@ import com.aptana.parsing.ParseState;
 import com.aptana.parsing.ast.IParseRootNode;
 import com.aptana.ruby.core.RubyParser;
 
-public class RubyFoldingComputerTest extends TestCase
+public class RubyFoldingComputerTest
 {
 
 	private RubyFoldingComputer folder;
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		folder = null;
-		super.tearDown();
+//		super.tearDown();
 	}
 
 	protected void createFolder(String src)
@@ -36,6 +40,7 @@ public class RubyFoldingComputerTest extends TestCase
 		folder = new RubyFoldingComputer(null, new Document(src));
 	}
 
+	@Test
 	public void testMultilineCommentFolding() throws Exception
 	{
 		// @formatter:off
@@ -83,6 +88,7 @@ public class RubyFoldingComputerTest extends TestCase
 	// assertTrue(positions.contains(new Position(0, src.length()))); // eats whole line at end
 	// }
 
+	@Test
 	public void testModuleFolding() throws Exception
 	{
 		// @formatter:off
@@ -98,6 +104,7 @@ public class RubyFoldingComputerTest extends TestCase
 		assertTrue(positions.contains(new Position(0, src.length()))); // eats whole line at end
 	}
 
+	@Test
 	public void testClassFolding() throws Exception
 	{
 		// @formatter:off
@@ -113,6 +120,7 @@ public class RubyFoldingComputerTest extends TestCase
 		assertTrue(positions.contains(new Position(0, src.length()))); // eats whole line at end
 	}
 
+	@Test
 	public void testMethodFolding() throws Exception
 	{
 		// @formatter:off
@@ -128,6 +136,7 @@ public class RubyFoldingComputerTest extends TestCase
 		assertTrue(positions.contains(new Position(0, src.length()))); // eats whole line at end
 	}
 
+	@Test
 	public void testCommentInitiallyFolded() throws Exception
 	{
 		// @formatter:off
@@ -152,6 +161,7 @@ public class RubyFoldingComputerTest extends TestCase
 		assertFalse(annotations.keySet().iterator().next().isCollapsed());
 	}
 
+	@Test
 	public void testMethodInitiallyFolded() throws Exception
 	{
 		// @formatter:off
@@ -173,6 +183,7 @@ public class RubyFoldingComputerTest extends TestCase
 		assertFalse(annotations.keySet().iterator().next().isCollapsed());
 	}
 
+	@Test
 	public void testInnerTypeInitiallyFolded() throws Exception
 	{
 		// @formatter:off
@@ -200,6 +211,7 @@ public class RubyFoldingComputerTest extends TestCase
 		assertFalse(annotation.isCollapsed());
 	}
 
+	@Test
 	public void testBlockInitiallyFolded() throws Exception
 	{
 		// @formatter:off

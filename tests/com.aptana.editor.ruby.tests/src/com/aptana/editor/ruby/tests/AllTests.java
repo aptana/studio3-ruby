@@ -7,8 +7,9 @@
  */
 package com.aptana.editor.ruby.tests;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
 import com.aptana.editor.ruby.RubyEditorTests;
 import com.aptana.editor.ruby.internal.contentassist.RubyCATests;
@@ -16,19 +17,9 @@ import com.aptana.editor.ruby.internal.text.InternalTextTests;
 import com.aptana.editor.ruby.internal.text.rules.InternalTextRulesTests;
 import com.aptana.editor.ruby.outline.RubyOutlineTest;
 
+@RunWith(Suite.class)
+@SuiteClasses({ RubyEditorTests.class, RubyCATests.class, InternalTextTests.class, InternalTextRulesTests.class,
+		RubyOutlineTest.class, })
 public class AllTests
 {
-
-	public static Test suite()
-	{
-		TestSuite suite = new TestSuite("Test for com.aptana.editor.ruby.tests");
-		// $JUnit-BEGIN$
-		suite.addTest(RubyEditorTests.suite());
-		suite.addTest(RubyCATests.suite());
-		suite.addTest(InternalTextTests.suite());
-		suite.addTest(InternalTextRulesTests.suite());
-		suite.addTestSuite(RubyOutlineTest.class);
-		// $JUnit-END$
-		return suite;
-	}
 }

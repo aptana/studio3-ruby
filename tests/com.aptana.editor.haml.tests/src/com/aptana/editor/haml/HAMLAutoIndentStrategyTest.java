@@ -7,6 +7,8 @@
  */
 package com.aptana.editor.haml;
 
+import org.junit.Test;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -17,9 +19,10 @@ import org.eclipse.jface.text.IDocument;
 import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
 
 @SuppressWarnings("nls")
-public class HAMLAutoIndentStrategyTest extends TestCase
+public class HAMLAutoIndentStrategyTest
 {
 
+	@Test
 	public void testTagWithoutTrailingTextRetainsCurrentIndentLevel() throws BadLocationException
 	{
 
@@ -27,33 +30,39 @@ public class HAMLAutoIndentStrategyTest extends TestCase
 				"%div#collection\n  %div.item\n    %div.description What a cool item!");
 	}
 
+	@Test
 	public void testTagWithTrailingTextAddsAutoIndent() throws BadLocationException
 	{
 		addNewLineAtOffset("    %div.description What a cool item!", 38, "    %div.description What a cool item!\n    ");
 	}
 
+	@Test
 	public void testSelfClosingTagRetainsCurrentIndentLevel() throws BadLocationException
 	{
 		addNewLineAtOffset("    %meta{'http-equiv' => 'Content-Type', :content => 'text/html'}/", 67,
 				"    %meta{'http-equiv' => 'Content-Type', :content => 'text/html'}/\n    ");
 	}
 
+	@Test
 	public void testBRTagWithSpacesRetainsCurrentIndentLevel() throws BadLocationException
 	{
 		addNewLineAtOffset("    %br    ", 11, "    %br    \n    ");
 	}
 
+	@Test
 	public void testTagWithAttributesAddsAutoIndent() throws BadLocationException
 	{
 		addNewLineAtOffset("    %div{'http-equiv' => 'Content-Type', :content => 'text/html'}", 65,
 				"    %div{'http-equiv' => 'Content-Type', :content => 'text/html'}\n      ");
 	}
 
+	@Test
 	public void testChildTextOfTagRetainsCurrentLevelIndent() throws BadLocationException
 	{
 		addNewLineAtOffset("%p\n  this is some text", 22, "%p\n  this is some text\n  ");
 	}
 
+	@Test
 	public void testFilterAddsAutoIndent() throws BadLocationException
 	{
 		addNewLineAtOffset(":javascript", 11, ":javascript\n  ");
