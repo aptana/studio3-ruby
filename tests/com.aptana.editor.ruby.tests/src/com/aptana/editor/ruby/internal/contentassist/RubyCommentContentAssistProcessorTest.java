@@ -1,5 +1,7 @@
 package com.aptana.editor.ruby.internal.contentassist;
 
+import org.junit.Test;
+
 import com.aptana.editor.common.CommonContentAssistProcessor;
 import com.aptana.editor.ruby.RubySourceEditor;
 
@@ -19,6 +21,7 @@ public class RubyCommentContentAssistProcessorTest extends RubyContentAssistTest
 		return new RubyCommentContentAssistProcessor(editor);
 	}
 
+	@Test
 	public void testYARDTags() throws Exception
 	{
 		for (String tag : TAGS)
@@ -27,6 +30,7 @@ public class RubyCommentContentAssistProcessorTest extends RubyContentAssistTest
 		}
 	}
 
+	@Test
 	public void testRDOCTokens() throws Exception
 	{
 		for (String tag : RDOC_TOKENS)

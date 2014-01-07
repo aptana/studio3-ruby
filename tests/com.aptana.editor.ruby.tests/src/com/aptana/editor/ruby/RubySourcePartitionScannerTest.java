@@ -7,17 +7,17 @@
  */
 package com.aptana.editor.ruby;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.Before;
-import static org.junit.Assert.*;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IToken;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Chris
@@ -29,28 +29,18 @@ public class RubySourcePartitionScannerTest
 	private RubySourcePartitionScanner scanner;
 	private IDocumentPartitioner partitioner;
 
-//	@Override
-	protected void setUp() throws Exception
+	@Before
+	public void setUp() throws Exception
 	{
-//		super.setUp();
-
 		scanner = new RubySourcePartitionScanner();
 	}
 
-//	@Override
 	@After
 	public void tearDown() throws Exception
 	{
-		try
-		{
-			document = null;
-			scanner = null;
-			partitioner = null;
-		}
-		finally
-		{
-//			super.tearDown();
-		}
+		document = null;
+		scanner = null;
+		partitioner = null;
 	}
 
 	@Test
@@ -1168,13 +1158,12 @@ public class RubySourcePartitionScannerTest
 
 	// TODO Add a test that we clean up/close reader on EOF?
 
-	protected void setUp(String src)
+	private void setUp(String src)
 	{
 		setUp(src, 0, src.length(), 0);
 	}
 
-	@Before
-	public synchronized void setUp(String src, int offset, int length, int partitionOffset)
+	private synchronized void setUp(String src, int offset, int length, int partitionOffset)
 	{
 		getPartitioner(src); // make sure partitioner is set up
 		scanner.setPartialRange(document, offset, length, RubySourceConfiguration.DEFAULT, partitionOffset);

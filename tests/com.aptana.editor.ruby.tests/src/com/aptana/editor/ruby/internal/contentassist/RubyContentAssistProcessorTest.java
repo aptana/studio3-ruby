@@ -93,7 +93,6 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 	@Before
 	public void setUp() throws Exception
 	{
-
 		indicesforTesting = new ArrayList<Index>();
 	}
 
