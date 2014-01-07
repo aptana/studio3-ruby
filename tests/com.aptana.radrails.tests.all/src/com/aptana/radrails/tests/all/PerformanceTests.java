@@ -7,17 +7,22 @@
  */
 package com.aptana.radrails.tests.all;
 
+import org.junit.runners.Suite.SuiteClasses;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+@RunWith(Suite.class)
+@SuiteClasses({})
 public class PerformanceTests
 {
 
-	public static Test suite()
-	{
-		TestSuite suite = new TestSuite(PerformanceTests.class.getName());
-		// $JUnit-BEGIN$
-		// $JUnit-END$
-		return suite;
-	}
+//	public static Test suite()
+//	{
+//		TestSuite suite = new TestSuite(PerformanceTests.class.getName());
+//		// $JUnit-BEGIN$
+//		// $JUnit-END$
+//		return suite;
+//	}
 }

@@ -7,6 +7,10 @@
  */
 package com.aptana.editor.sass;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -16,15 +20,16 @@ import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
 
 @SuppressWarnings("nls")
-public class SassCodeScannerTest extends TestCase
+public class SassCodeScannerTest
 {
 
 	protected ITokenScanner scanner;
 
-	@Override
-	protected void setUp() throws Exception
+//	@Override
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 
 		scanner = new SassCodeScanner()
 		{
@@ -35,12 +40,13 @@ public class SassCodeScannerTest extends TestCase
 		};
 	}
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		scanner = null;
 
-		super.tearDown();
+//		super.tearDown();
 	}
 
 	protected void assertToken(IToken token, int offset, int length)
@@ -60,6 +66,7 @@ public class SassCodeScannerTest extends TestCase
 		return new Token(tokenName);
 	}
 
+	@Test
 	public void testH1Through6()
 	{
 		String src = "h1 h2 h3 h4 h5 h6 ";
@@ -73,6 +80,7 @@ public class SassCodeScannerTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testCSS3PropertyNames()
 	{
 		String src = "border-radius: 1px\n" + "border-image-width: 1px\n" + "box-decoration-break: clone";
@@ -98,6 +106,7 @@ public class SassCodeScannerTest extends TestCase
 
 	// FIXME Test actual Sass, not CSS!
 
+	@Test
 	public void testSmallCaps()
 	{
 		String src = "small { font: small-caps; }";
@@ -120,6 +129,7 @@ public class SassCodeScannerTest extends TestCase
 		assertToken(getToken("meta.property-list.sass punctuation.section.property-list.sass"), 26, 1);
 	}
 
+	@Test
 	public void testVariableDefinition()
 	{
 		String src = "!blue = #3bbfce";
@@ -133,6 +143,7 @@ public class SassCodeScannerTest extends TestCase
 		assertToken(getToken("constant.other.color.rgb-value.sass"), 8, 7);
 	}
 
+	@Test
 	public void testVariableUsage()
 	{
 		String src = ".content_navigation\n  border-color = !blue";
@@ -148,6 +159,7 @@ public class SassCodeScannerTest extends TestCase
 		assertToken(getToken("variable.other.sass"), 37, 5);
 	}
 
+	@Test
 	public void testDeprecatedMixinDefinition()
 	{
 		String src = "=table-scaffolding\n  th\n    text-align: center";
@@ -164,6 +176,7 @@ public class SassCodeScannerTest extends TestCase
 		assertToken(getToken("meta.property-value.sass support.constant.property-value.sass"), 40, 6);
 	}
 
+	@Test
 	public void testMixinDefinition()
 	{
 		String src = "@mixin silly-links {\n" + //
@@ -201,6 +214,7 @@ public class SassCodeScannerTest extends TestCase
 		assertToken(getToken("meta.property-list.sass"), 43, 5);
 	}
 
+	@Test
 	public void testMixinInclusion()
 	{
 		String src = "@include silly-links;";
@@ -214,6 +228,7 @@ public class SassCodeScannerTest extends TestCase
 		assertToken(getToken("punctuation.terminator.rule.sass"), 20, 1);
 	}
 
+	@Test
 	public void testDeprecatedMixinUsage()
 	{
 		String src = "#data\n  +table-scaffolding";
@@ -225,6 +240,7 @@ public class SassCodeScannerTest extends TestCase
 		assertToken(getToken("variable.other.sass"), 8, 18);
 	}
 
+	@Test
 	public void testBasicTokenizing()
 	{
 		String src = "html { color: red; background-color: #333; }";
@@ -257,6 +273,7 @@ public class SassCodeScannerTest extends TestCase
 		assertToken(getToken("meta.property-list.sass punctuation.section.property-list.sass"), 43, 1);
 	}
 
+	@Test
 	public void testBasicTokenizing2()
 	{
 		String src = "body {\n" + // 1

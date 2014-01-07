@@ -7,6 +7,10 @@
  */
 package com.aptana.editor.erb.html;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import java.io.InputStream;
 
 import junit.framework.TestCase;
@@ -27,24 +31,27 @@ import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.IParseRootNode;
 import com.aptana.ruby.core.IRubyConstants;
 
-public class RHTMLParserTest extends TestCase
+public class RHTMLParserTest
 {
 	private RHTMLParser fParser;
 	private HTMLParseState fParseState;
 
-	@Override
-	protected void setUp() throws Exception
+//	@Override
+	@Before
+	public void setUp() throws Exception
 	{
 		fParser = new RHTMLParser();
 	}
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		fParser = null;
 	}
 
 	@SuppressWarnings("nls")
+	@Test
 	public void testTopLevelERB() throws Exception
 	{
 		String source = "<% content_for :stylesheets do %>\n" + "<%= stylesheet_link_tag 'rails' %>\n"
@@ -64,6 +71,7 @@ public class RHTMLParserTest extends TestCase
 	}
 
 	@SuppressWarnings("nls")
+	@Test
 	public void testNestedERB() throws Exception
 	{
 		String source = "<p>Welcome to <em><%= ENV['SERVER_NAME'] %></em>. If you see a server name, <%= 'e' + 'Ruby' %> is probably working.</p>";
@@ -83,6 +91,7 @@ public class RHTMLParserTest extends TestCase
 	}
 
 	@SuppressWarnings("nls")
+	@Test
 	public void testDoubleERBBeforeTagClose() throws Exception
 	{
 		String source = "<table><tr></tr><% content_for :table %><% end %></table>";
@@ -98,6 +107,7 @@ public class RHTMLParserTest extends TestCase
 		assertEquals(IRubyConstants.CONTENT_TYPE_RUBY, children[2].getLanguage());
 	}
 
+	@Test
 	public void testAPSTUD4397() throws Exception
 	{
 		String resource = "parsing/offsets.html.erb";

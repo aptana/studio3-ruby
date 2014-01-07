@@ -1,5 +1,9 @@
 package com.aptana.editor.ruby.internal.text.rules;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -16,19 +20,22 @@ import com.aptana.editor.ruby.RubyCodeScanner;
 import com.aptana.editor.ruby.RubyDocumentProvider;
 import com.aptana.editor.ruby.internal.text.LineContinuationDamagerRepairer;
 
-public class LineContinuationDamagerRepairerTest extends TestCase
+public class LineContinuationDamagerRepairerTest
 {
 
-	protected void setUp() throws Exception
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 	}
 
-	protected void tearDown() throws Exception
+	@After
+	public void tearDown() throws Exception
 	{
-		super.tearDown();
+//		super.tearDown();
 	}
 
+	@Test
 	public void testBug676() throws Exception
 	{
 

@@ -7,12 +7,16 @@
  */
 package com.aptana.editor.ruby.outline;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import com.aptana.parsing.ParseState;
 import com.aptana.ruby.core.RubyParser;
 
-public class RubyOutlineTest extends TestCase
+public class RubyOutlineTest
 {
 
 	private RubyOutlineContentProvider fContentProvider;
@@ -20,16 +24,18 @@ public class RubyOutlineTest extends TestCase
 
 	private RubyParser fParser;
 
-	@Override
-	protected void setUp() throws Exception
+//	@Override
+	@Before
+	public void setUp() throws Exception
 	{
 		fContentProvider = new RubyOutlineContentProvider();
 		fLabelProvider = new RubyOutlineLabelProvider();
 		fParser = new RubyParser();
 	}
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		if (fContentProvider != null)
 		{
@@ -44,6 +50,7 @@ public class RubyOutlineTest extends TestCase
 		fParser = null;
 	}
 
+	@Test
 	public void testBasic() throws Exception
 	{
 		// TODO Add more types and ensure we have the right order: imports, class vars, globals, etc.

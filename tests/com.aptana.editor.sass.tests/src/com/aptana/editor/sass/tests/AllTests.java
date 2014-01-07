@@ -7,26 +7,19 @@
  */
 package com.aptana.editor.sass.tests;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
-import com.aptana.editor.sass.SassFoldingComputerTest;
 import com.aptana.editor.sass.SassCodeScannerTest;
 import com.aptana.editor.sass.SassEditorTest;
+import com.aptana.editor.sass.SassFoldingComputerTest;
 import com.aptana.editor.sass.SassSourcePartitionScannerTest;
 
+@RunWith(Suite.class)
+@SuiteClasses({ SassSourcePartitionScannerTest.class, SassCodeScannerTest.class, SassEditorTest.class,
+		SassFoldingComputerTest.class, })
 public class AllTests
 {
 
-	public static Test suite()
-	{
-		TestSuite suite = new TestSuite("Test for com.aptana.editor.sass.tests"); //$NON-NLS-1$
-		// $JUnit-BEGIN$
-		suite.addTestSuite(SassSourcePartitionScannerTest.class);
-		suite.addTestSuite(SassCodeScannerTest.class);
-		suite.addTestSuite(SassEditorTest.class);
-		suite.addTestSuite(SassFoldingComputerTest.class);
-		// $JUnit-END$
-		return suite;
-	}
 }

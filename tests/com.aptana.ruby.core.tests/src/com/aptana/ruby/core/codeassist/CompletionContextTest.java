@@ -1,14 +1,17 @@
 package com.aptana.ruby.core.codeassist;
 
+import org.junit.Test;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.Node;
 
 @SuppressWarnings("nls")
-public class CompletionContextTest extends TestCase
+public class CompletionContextTest
 {
 
+	@Test
 	public void testGetReceiverAfterDoubleColon() throws Exception
 	{
 		String src = "Namespace::";
@@ -31,6 +34,7 @@ public class CompletionContextTest extends TestCase
 		assertEquals("Context reports an incorrect partial prefix", "", context.getPartialPrefix());
 	}
 
+	@Test
 	public void testGetReceiverAfterDoubleColonInsideType() throws Exception
 	{
 		String src = "module Namespace\n" + //

@@ -1,5 +1,8 @@
 package com.aptana.editor.ruby.internal.contentassist;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,6 +19,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.junit.Before;
+import org.junit.Test;
 
 import com.aptana.editor.ruby.RubySourceEditor;
 import com.aptana.index.core.FileStoreBuildContext;
@@ -85,16 +90,15 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		};
 	}
 
-	@Override
-	protected void setUp() throws Exception
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
 
 		indicesforTesting = new ArrayList<Index>();
 	}
 
 	@Override
-	protected void tearDown() throws Exception
+	public void tearDown() throws Exception
 	{
 		try
 		{
@@ -110,61 +114,73 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		}
 	}
 
+	@Test
 	public void testDefKeyword() throws Exception
 	{
 		assertCompletionCorrect("de", 2, "def", "def"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Test
 	public void testClassKeyword() throws Exception
 	{
 		assertCompletionCorrect("cla", 3, "class", "class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Test
 	public void testModuleKeyword() throws Exception
 	{
 		assertCompletionCorrect("modu", 4, "module", "module"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Test
 	public void testAliasKeyword() throws Exception
 	{
 		assertCompletionCorrect("alia", 4, "alias", "alias"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Test
 	public void testEndKeyword() throws Exception
 	{
 		assertCompletionCorrect("def chris; en", 13, "end", "def chris; end"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Test
 	public void testAndKeyword() throws Exception
 	{
 		assertCompletionCorrect("true an false", 7, "and", "true and false"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Test
 	public void testOrKeyword() throws Exception
 	{
 		assertCompletionCorrect("true o false", 6, "or", "true or false"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Test
 	public void testIfKeyword() throws Exception
 	{
 		assertCompletionCorrect("puts 'hello' i", 14, "if", "puts 'hello' if"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Test
 	public void testUnlessKeyword() throws Exception
 	{
 		assertCompletionCorrect("puts 'hello' un", 15, "unless", "puts 'hello' unless"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Test
 	public void testFalseKeyword() throws Exception
 	{
 		assertCompletionCorrect("puts 'hello' unless fa", 22, "false", "puts 'hello' unless false"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Test
 	public void testTrueKeyword() throws Exception
 	{
 		assertCompletionCorrect("puts 'hello' unless tr", 22, "true", "puts 'hello' unless true"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Test
 	public void testSuperKeyword() throws Exception
 	{
 		assertCompletionCorrect(
@@ -200,44 +216,47 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 	// while
 	// yield
 
-	// public void testExplicitKernelPuts() throws Exception
+	// @Test public void testExplicitKernelPuts() throws Exception
 	// {
 	//		assertCompletionCorrect("Kernel.pu", 9, "puts", "Kernel.puts"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	// }
 
-	// public void testImplicitKernelPuts() throws Exception
+	// @Test public void testImplicitKernelPuts() throws Exception
 	// {
 	// FIXME This assumes that the core index stuff is all hooked up!
 	//		assertCompletionCorrect("pu", 2, "puts", "puts"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	// }
 
-	// public void testKernelMethodsImmediatelyAfterPeriod() throws Exception
+	// @Test public void testKernelMethodsImmediatelyAfterPeriod() throws Exception
 	// {
 	//		assertCompletionCorrect("Kernel.", 7, "puts", "Kernel.puts"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	// }
 
-	// public void testEvenQueryMethodOnFixnumLiteral() throws Exception
+	// @Test public void testEvenQueryMethodOnFixnumLiteral() throws Exception
 	// {
 	//		assertCompletionCorrect("1.eve", 5, "even?", "1.even?"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	// }
 	//
-	// public void testEvenQueryMethodOnFixnumVariable() throws Exception
+	// @Test public void testEvenQueryMethodOnFixnumVariable() throws Exception
 	// {
 	//		assertCompletionCorrect("var = 1\nvar.eve", 15, "even?", "var = 1\nvar.even?"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	// }
 
+	@Test
 	public void testInstanceVariablePreviouslyDeclaredNoSyntaxErrors() throws Exception
 	{
 		assertCompletionCorrect(
 				"class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    puts @c\n  end\nend", 74, "@counter", "class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    puts @counter\n  end\nend"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Test
 	public void testInstanceVariablePreviouslyDeclaredJustAtSigilPrefix() throws Exception
 	{
 		assertCompletionCorrect(
 				"class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    puts @\n  end\nend", 73, "@counter", "class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    puts @counter\n  end\nend"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Test
 	public void testAPSTUD2903() throws Exception
 	{
 		String src = "class Shapes\n" + //
@@ -251,6 +270,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 						"end\n");
 	}
 
+	@Test
 	public void testSymbolsAfterSingleColonBreakingSyntax() throws Exception
 	{
 		String src = "class Shapes\n" + //
@@ -264,6 +284,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 						"end\n");
 	}
 
+	@Test
 	public void testSymbolsAfterSingleColonBreakingSyntaxInsideHash() throws Exception
 	{
 		String src = "class Shapes\n" + //
@@ -277,6 +298,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 						"end\n");
 	}
 
+	@Test
 	public void testDoesntSuggestLocalsNotMatchingPrefix() throws Exception
 	{
 		String src = "def run(test)\n" + //
@@ -289,6 +311,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		assertDoesntContain(proposals, "run", "test");
 	}
 
+	@Test
 	public void testSuggestsKernelMethodsInTopLevel() throws Exception
 	{
 		Index testIndex = getTestIndex();
@@ -313,6 +336,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		return IndexPlugin.getDefault().getIndexManager();
 	}
 
+	@Test
 	public void testDoesntSuggestMethodsDefinedInTypesScopeWhenInTopLevel() throws Exception
 	{
 		String src = "module Chris\n" + //
@@ -325,6 +349,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		assertDoesntContain(proposals, "chris_method");
 	}
 
+	@Test
 	public void testDoesSuggestMethodsDefinedInTopLevelWhenInTopLevel() throws Exception
 	{
 		String src = "def chris_method\n" + //
@@ -336,6 +361,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 				"chris_method");
 	}
 
+	@Test
 	public void testSuggestSingletonMethodsOnClassName() throws Exception
 	{
 		Index testIndex = getTestIndex();
@@ -348,6 +374,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		assertCompletionCorrect(src, 5, "expand_path", "File.expand_path");
 	}
 
+	@Test
 	public void testSymbolsInSameFile() throws Exception
 	{
 		String src = "SYMBOLS = [:triangle, :circle, :rectangle]\n" + //
@@ -359,13 +386,14 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 	}
 
 	// FIXME Implement suggesting instance variables when there's a syntax error, so no AST!
-	// public void testInstanceVariablePreviouslyDeclaredJustAtSigilPrefixWithUnclosedBlockSyntaxErrors() throws
+	// @Test public void testInstanceVariablePreviouslyDeclaredJustAtSigilPrefixWithUnclosedBlockSyntaxErrors() throws
 	// Exception
 	// {
 	// assertCompletionCorrect(
 	//				"class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    puts @", 73, "@counter", "class Chris\n  def initialize\n    @counter = 1\n  end\n  def to_s\n    puts @counter"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	// }
 
+	@Test
 	public void testEvenQueryMethodProposalOnFixnumInstanceVariableRightAfterPeriod() throws Exception
 	{
 		Index testIndex = getTestIndex();
@@ -392,6 +420,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 						"end");
 	}
 
+	@Test
 	public void testEmptyPrefixSuggestsClassInstanceLocalVarsAndMethodsInType() throws Exception
 	{
 		ICompletionProposal[] proposals = computeProposals("class Chris\n" + //
@@ -412,6 +441,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		assertContains(proposals, "@@class_var", "@counter", "arg", "local", "method");
 	}
 
+	@Test
 	public void testSuggestGlobalsInsideIndexAfterDollarSign() throws Exception
 	{
 		Index testIndex = getTestIndex();
@@ -427,6 +457,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		assertContains(proposals, "$global", "$stdout", "$stderr");
 	}
 
+	@Test
 	public void testSuggestsTypeNamesAndConstantsWhenPrefixIsUppercase() throws Exception
 	{
 		Index testIndex = getTestIndex();
@@ -442,6 +473,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		assertContains(proposals, "CONSTANT", "ClassName", "CModule");
 	}
 
+	@Test
 	public void testClassVariablePreviouslyDeclaredNoSyntaxErrors() throws Exception
 	{
 		assertCompletionCorrect("class Chris\n" + //
@@ -458,6 +490,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 						"end");
 	}
 
+	@Test
 	public void testClassVariablePreviouslyDeclaredJustDoubleAtSigilPrefix() throws Exception
 	{
 		assertCompletionCorrect("class Chris\n" + //
@@ -474,6 +507,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 						"end"); //
 	}
 
+	@Test
 	public void testClassVariablePreviouslyDeclaredJustSingleAtSigilPrefix() throws Exception
 	{
 		assertCompletionCorrect("class Chris\n" + //
@@ -490,6 +524,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 						"end"); //
 	}
 
+	@Test
 	public void testDoesntSuggestClassVariablesOutsideCurrentType() throws Exception
 	{
 		String src = "class Outside\n" + //
@@ -509,6 +544,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		assertDoesntContain(proposals, "@@outside");
 	}
 
+	@Test
 	public void testDoesntSuggestInstanceVariablesOutsideCurrentType() throws Exception
 	{
 		String src = "class Outside\n" + //
@@ -532,6 +568,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		assertDoesntContain(proposals, "@outside");
 	}
 
+	@Test
 	public void testSuggestsConstantsAndTypesInNamespaceAfterDoubleColon() throws Exception
 	{
 		Index testIndex = getTestIndex();
@@ -572,6 +609,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 				"private_instance_method_in_namespace");
 	}
 
+	@Test
 	public void testSuggestsConstantsAndTypesInExplicitTopLevelNamespaceAfterDoubleColon() throws Exception
 	{
 		Index testIndex = getTestIndex();
@@ -608,6 +646,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 		assertDoesntContain(proposals, "SubClass", "SubModule", "SUB_CONSTANT");
 	}
 
+	@Test
 	public void testAfterNamespacedDoubleColonInsideImplicitNamespace() throws Exception
 	{
 		Index testIndex = getTestIndex();
@@ -637,6 +676,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 				"SUB_CONSTANT", "method_out_of_namespace");
 	}
 
+	@Test
 	public void testMethodsUpTheHierarchyonInstance() throws Exception
 	{
 		setupHierarchyCA("ruby_ca_methods_on_instance");
@@ -654,6 +694,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 				"other_private_singleton", "other_protected_instance", "other_private_instance");
 	}
 
+	@Test
 	public void testMethodsUpTheHierarchyOnSingleton() throws Exception
 	{
 		setupHierarchyCA("ruby_ca_methods_on_singleton");
@@ -671,6 +712,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 				"other_protected_singleton", "other_private_singleton");
 	}
 
+	@Test
 	public void testMethodsUpTheHierarchyInsideClassDefinitionSingletonMethod() throws Exception
 	{
 		setupHierarchyCA("ruby_ca_methods_inside_class_singleton_method");
@@ -688,6 +730,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 				"super_private_instance", "chris_protected_instance", "chris_public_instance", "chris_private_instance");
 	}
 
+	@Test
 	public void testMethodsUpTheHierarchyInsideClassDefinitionInstanceMethod() throws Exception
 	{
 		setupHierarchyCA("ruby_ca_methods_inside_class_instance_method");
@@ -707,6 +750,7 @@ public class RubyContentAssistProcessorTest extends RubyContentAssistTestCase
 				"chris_private_singleton");
 	}
 
+	@Test
 	public void testMethodsUpTheHierarchyInsideClassDefinitionOutsideMethod() throws Exception
 	{
 		setupHierarchyCA("ruby_ca_methods_inside_class_toplevel");

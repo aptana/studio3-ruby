@@ -1,8 +1,8 @@
 package com.aptana.ruby.core.tests;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
 import com.aptana.ruby.core.RubyParserTest;
 import com.aptana.ruby.core.ast.NamespaceVisitorTest;
@@ -10,20 +10,10 @@ import com.aptana.ruby.core.ast.SourceElementVisitorTest;
 import com.aptana.ruby.core.codeassist.CompletionContextTest;
 import com.aptana.ruby.internal.core.inference.TypeInferrerTest;
 
-public class AllTests extends TestCase
+@RunWith(Suite.class)
+@SuiteClasses({ CompletionContextTest.class, NamespaceVisitorTest.class, RubyParserTest.class,
+		SourceElementVisitorTest.class, TypeInferrerTest.class, })
+public class AllTests
 {
-
-	public static Test suite()
-	{
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		// $JUnit-BEGIN$
-		suite.addTestSuite(CompletionContextTest.class);
-		suite.addTestSuite(NamespaceVisitorTest.class);
-		suite.addTestSuite(RubyParserTest.class);
-		suite.addTestSuite(SourceElementVisitorTest.class);
-		suite.addTestSuite(TypeInferrerTest.class);
-		// $JUnit-END$
-		return suite;
-	}
 
 }

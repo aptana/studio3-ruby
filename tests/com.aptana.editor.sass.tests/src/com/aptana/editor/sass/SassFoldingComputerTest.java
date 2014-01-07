@@ -1,5 +1,7 @@
 package com.aptana.editor.sass;
 
+import org.junit.Test;
+import static org.junit.Assert.*;
 import java.util.Collection;
 import java.util.Map;
 
@@ -10,9 +12,10 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 
-public class SassFoldingComputerTest extends TestCase
+public class SassFoldingComputerTest
 {
 
+	@Test
 	public void testFolding() throws Exception
 	{
 		IDocument document = new Document("blue: #3bbfce\n" +

@@ -7,6 +7,10 @@
  */
 package com.aptana.ruby.core;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import com.aptana.parsing.ParseState;
@@ -15,25 +19,28 @@ import com.aptana.parsing.ast.IParseRootNode;
 import com.aptana.ruby.internal.core.RubyElement;
 
 @SuppressWarnings("nls")
-public class RubyParserTest extends TestCase
+public class RubyParserTest
 {
 
 	private RubyParser fParser;
 	private ParseState fParseState;
 
-	@Override
-	protected void setUp() throws Exception
+//	@Override
+	@Before
+	public void setUp() throws Exception
 	{
 		fParser = new RubyParser();
 	}
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		fParser = null;
 		fParseState.clearEditState();
 	}
 
+	@Test
 	public void testClassWithFieldAndMethod() throws Exception
 	{
 		String source = "class Person\n\tattr_reader :name, :age\n\tdef initialize(name, age)\n\t\t@name, @age = name, age\n\tend\nend";
@@ -59,6 +66,7 @@ public class RubyParserTest extends TestCase
 		return fParser.parse(fParseState).getRootNode();
 	}
 
+	@Test
 	public void testModuleWithConst() throws Exception
 	{
 		String source = "module Mod\n\tinclude Math\n\tCONST = 1\nend";
@@ -76,6 +84,7 @@ public class RubyParserTest extends TestCase
 		assertFields(module, new String[] { "CONST" });
 	}
 
+	@Test
 	public void testSingletonMethod() throws Exception
 	{
 		String source = "def foo.size\n\t0\nend";
@@ -89,6 +98,7 @@ public class RubyParserTest extends TestCase
 		assertEquals(true, method.isSingleton());
 	}
 
+	@Test
 	public void testRequire() throws Exception
 	{
 		String source = "require 'yaml'";
@@ -109,6 +119,7 @@ public class RubyParserTest extends TestCase
 		assertEquals(imports[0], children[0].getNodeAtOffset(5));
 	}
 
+	@Test
 	public void testGlobalVar() throws Exception
 	{
 		String source = "$foo = 5";
@@ -121,6 +132,7 @@ public class RubyParserTest extends TestCase
 		assertEquals("$foo", children[0].toString());
 	}
 
+	@Test
 	public void testClassVar() throws Exception
 	{
 		String source = "@@foo = 5";
@@ -133,6 +145,7 @@ public class RubyParserTest extends TestCase
 		assertEquals("@@foo", children[0].toString());
 	}
 
+	@Test
 	public void testAlias() throws Exception
 	{
 		String source = "alias :foo :bar";
@@ -145,6 +158,7 @@ public class RubyParserTest extends TestCase
 		assertEquals("foo()", children[0].toString());
 	}
 
+	@Test
 	public void testArray() throws Exception
 	{
 		String source = "foo = [1, 2, \"3\"] + [a, b]";
@@ -157,6 +171,7 @@ public class RubyParserTest extends TestCase
 		assertEquals("foo", children[0].toString());
 	}
 
+	@Test
 	public void testHash() throws Exception
 	{
 		String source = "foo = {1 => 2, \"2\" => \"4\"}";
@@ -169,6 +184,7 @@ public class RubyParserTest extends TestCase
 		assertEquals("foo", children[0].toString());
 	}
 
+	@Test
 	public void testRegex() throws Exception
 	{
 		String source = "def foo(s)\\n\\t(s =~ /<0(x|X)(\\d|[a-f]|[A-F])+>/) != nil\nend";
@@ -180,6 +196,7 @@ public class RubyParserTest extends TestCase
 		assertEquals(58, result.getEndingOffset());
 	}
 
+	@Test
 	public void testCase() throws Exception
 	{
 		String source = "case i\nwhen1, 2..5\n\tputs \"1..5\"\nwhen 6..10\n\tputs \"6..10\"\nend";
@@ -190,6 +207,7 @@ public class RubyParserTest extends TestCase
 		assertEquals(59, result.getEndingOffset());
 	}
 
+	@Test
 	public void testWhile() throws Exception
 	{
 		String source = "puts i+=1 while i<3";
@@ -200,6 +218,7 @@ public class RubyParserTest extends TestCase
 		assertEquals(20, result.getEndingOffset());
 	}
 
+	@Test
 	public void testFor() throws Exception
 	{
 		String source = "for foo in (1..3)\n\tputs foo\nend";
