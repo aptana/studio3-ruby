@@ -7,6 +7,10 @@
  */
 package com.aptana.editor.ruby;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -18,23 +22,24 @@ import org.eclipse.jface.text.rules.IToken;
 /**
  * @author Chris
  */
-public class RubySourcePartitionScannerTest extends TestCase
+public class RubySourcePartitionScannerTest
 {
 
 	private IDocument document;
 	private RubySourcePartitionScanner scanner;
 	private IDocumentPartitioner partitioner;
 
-	@Override
+//	@Override
 	protected void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 
 		scanner = new RubySourcePartitionScanner();
 	}
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		try
 		{
@@ -44,10 +49,11 @@ public class RubySourcePartitionScannerTest extends TestCase
 		}
 		finally
 		{
-			super.tearDown();
+//			super.tearDown();
 		}
 	}
 
+	@Test
 	public void testUnclosedInterpolationDoesntInfinitelyLoop()
 	{
 		getContentType("%[\"#{\"]", 0);
@@ -57,6 +63,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 	/**
 	 * http://www.aptana.com/trac/ticket/5730
 	 */
+	@Test
 	public void testBug5730()
 	{
 		getContentType("# Comment\n" + "=begin\n" + "puts 'hi'\n" + "=ne", 0);
@@ -66,6 +73,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 	/**
 	 * http://www.aptana.com/trac/ticket/6052
 	 */
+	@Test
 	public void testBug6052()
 	{
 		getContentType("# Use this class to maintain the decision process\n" + "# To choose a next aprt of text etc.\n"
@@ -77,12 +85,14 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertTrue(true);
 	}
 
+	@Test
 	public void testDivideAndRegexInHeredocInterpolation()
 	{
 		getContentType("test.execute <<END\n" + "#{/[0-9]+/ / 5}\n" + "END", 0);
 		assertTrue(true);
 	}
 
+	@Test
 	public void testPartitioningOfSingleLineComment()
 	{
 		String source = "# This is a comment\n";
@@ -92,6 +102,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.SINGLE_LINE_COMMENT, source, 18);
 	}
 
+	@Test
 	public void testRecognizeSpecialCase()
 	{
 		String source = "a,b=?#,'This is not a comment!'\n";
@@ -100,6 +111,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.DEFAULT, source, 6);
 	}
 
+	@Test
 	public void testMultilineComment_1()
 	{
 		String source = "=begin\nComment\n=end";
@@ -108,6 +120,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.MULTI_LINE_COMMENT, source, 10);
 	}
 
+	@Test
 	public void testMultilineComment_2()
 	{
 		String source = "=begin\n" + "  for multiline comments, the =begin and =end must\n"
@@ -117,6 +130,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.MULTI_LINE_COMMENT, source, source.length() - 2);
 	}
 
+	@Test
 	public void testMultilineCommentNotOnFirstColumn()
 	{
 		String source = " =begin\nComment\n=end";
@@ -133,6 +147,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertToken(RubySourceConfiguration.DEFAULT, 17, 3); // end
 	}
 
+	@Test
 	public void testRecognizeDivision()
 	{
 		String source = "1/3 #This is a comment\n";
@@ -142,6 +157,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.SINGLE_LINE_COMMENT, source, 5);
 	}
 
+	@Test
 	public void testRecognizeOddballCharacters()
 	{
 		String source = "?\" #comment\n";
@@ -163,12 +179,14 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.SINGLE_LINE_COMMENT, source, 5);
 	}
 
+	@Test
 	public void testPoundCharacterIsntAComment()
 	{
 		String source = "?#";
 		assertContentType(RubySourceConfiguration.DEFAULT, source, 1);
 	}
 
+	@Test
 	public void testSinglelineCommentJustAfterMultilineComment()
 	{
 		String source = "=begin\nComment\n=end\n# this is a singleline comment\n";
@@ -178,6 +196,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.SINGLE_LINE_COMMENT, source, source.length() - 5);
 	}
 
+	@Test
 	public void testMultipleCommentsInARow()
 	{
 		String code = "# comment 1\n# comment 2\nclass Chris\nend\n";
@@ -188,6 +207,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.DEFAULT, code, 29);
 	}
 
+	@Test
 	public void testCommentAfterEnd()
 	{
 		String code = "class Chris\nend # comment\n";
@@ -195,6 +215,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.SINGLE_LINE_COMMENT, code, 17);
 	}
 
+	@Test
 	public void testCommentAfterEndWhileEditing()
 	{
 		String code = "=begin\r\n" + "c\r\n" + "=end\r\n" + "#hmm\r\n" + "#comment here why is ths\r\n"
@@ -203,6 +224,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.SINGLE_LINE_COMMENT, code, 83);
 	}
 
+	@Test
 	public void testCommentAtEndOfLineWithStringAtBeginning()
 	{
 		String code = "hash = {\n" + "  \"string\" => { # comment\n" + "    123\n" + "  }\n" + "}";
@@ -220,6 +242,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.SINGLE_LINE_COMMENT, code, 25);
 	}
 
+	@Test
 	public void testLinesWithJustSpaceBeforeComment()
 	{
 		String code = "  \n" + "  # comment\n" + "  def method\n" + "    \n" + "  end";
@@ -228,6 +251,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.DEFAULT, code, 20);
 	}
 
+	@Test
 	public void testCommentsWithAlotOfPrecedingSpaces()
 	{
 		String code = "                # We \n" + "                # caller-requested until.\n" + "return self\n";
@@ -236,6 +260,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.DEFAULT, code, 70);
 	}
 
+	@Test
 	public void testCodeWithinString()
 	{
 		String code = "string = \"here's some code: #{1} there\"";
@@ -247,6 +272,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_DOUBLE, code, 35); // th'e're..
 	}
 
+	@Test
 	public void testCodeWithinSingleQuoteString()
 	{
 		String code = "string = 'here s some code: #{1} there'";
@@ -258,6 +284,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_SINGLE, code, 35); // th'e're..
 	}
 
+	@Test
 	public void testVariableSubstitutionWithinString()
 	{
 		String code = "string = \"here's some code: #$global there\"";
@@ -268,6 +295,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_DOUBLE, code, 36);// ' 'there...
 	}
 
+	@Test
 	public void testStringWithinCodeWithinString()
 	{
 		String code = "string = \"here's some code: #{var = 'string'} there\"";
@@ -308,6 +336,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 	// assertToken(RubySourceConfiguration.STRING_DOUBLE, 49, 1); // "
 	// }
 
+	@Test
 	public void testRegex()
 	{
 		String code = "regex = /hi there/";
@@ -316,6 +345,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.REGULAR_EXPRESSION, code, 11); // /h'i' the
 	}
 
+	@Test
 	public void testRegexWithDynamicCode()
 	{
 		String code = "/\\.#{Regexp.escape(extension.to_s)}$/ # comment";
@@ -324,6 +354,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.SINGLE_LINE_COMMENT, code, 40); // # 'c'ommen
 	}
 
+	@Test
 	public void testEscapedCharactersAndSingleQuoteInsideDoubleQuote()
 	{
 		String code = "quoted_value = \"'#{quoted_value[1..-2].gsub(/\\'/, \"\\\\\\\\'\")}'\" if quoted_value.include?(\"\\\\\\'\") # (for ruby mode) \"\n"
@@ -339,6 +370,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.DEFAULT, code, code.length() - 3);
 	}
 
+	@Test
 	public void testSingleQuotedString()
 	{
 		String code = "require 'commands/server'";
@@ -350,6 +382,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_SINGLE, code, 24);
 	}
 
+	@Test
 	public void testCommands()
 	{
 		// @formatter:off
@@ -390,6 +423,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertToken(RubySourceConfiguration.DEFAULT, 69, 1); // \n
 	}
 
+	@Test
 	public void testPercentXCommand()
 	{
 		String code = "if (@options.do_it)\n" + "  %x{#{cmd}}\n" + "end\n";
@@ -402,6 +436,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.DEFAULT, code, 33); // 'e'nd
 	}
 
+	@Test
 	public void testHeredocInArgumentList()
 	{
 		// @formatter:off
@@ -425,6 +460,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_DOUBLE, code, 177); // 'e'nd_sql
 	}
 
+	@Test
 	public void testScaryString()
 	{
 		// @formatter:off
@@ -452,6 +488,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 	// TODO Handle yet even wackier heredoc syntax:
 	// http://blog.jayfields.com/2006/12/ruby-multiline-strings-here-doc-or.html
 
+	@Test
 	public void testNestedHeredocs()
 	{
 		// @formatter:off
@@ -501,6 +538,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertToken(RubySourceConfiguration.DEFAULT, 127, 1); // \n
 	}
 
+	@Test
 	public void testBug5448()
 	{
 		String code = "m.class_collisions controller_class_path,       \"#{controller_class_name}Controller\", # Sessions Controller\r\n"
@@ -517,6 +555,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.SINGLE_LINE_COMMENT, code, 86);
 	}
 
+	@Test
 	public void testBug5208()
 	{
 		String code = "=begin\r\n" + "  This is a comment\r\n" + "=end\r\n" + "require 'gosu'";
@@ -526,6 +565,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_SINGLE, code, 44);
 	}
 
+	@Test
 	public void testROR255()
 	{
 		String code = "\"all_of(#{@matchers.map { |matcher| matcher.mocha_inspect }.join(\", \") })\"";
@@ -537,6 +577,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_DOUBLE, code, 72); // ) }')'"
 	}
 
+	@Test
 	public void testROR950_1()
 	{
 		String code = "config.load_paths += [\"#{RAILS_ROOT}/vendor/plugins/sql_session_store/lib\"]";
@@ -547,6 +588,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_DOUBLE, code, 36); // '/'vendor
 	}
 
+	@Test
 	public void testROR950_2()
 	{
 		String code = "config.load_paths += %W(#{RAILS_ROOT}/vendor/plugins/sql_session_store/lib)";
@@ -556,6 +598,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_DOUBLE, code, 37); // '/'vendor
 	}
 
+	@Test
 	public void testSmallQString()
 	{
 		String code = "%q(string)";
@@ -565,6 +608,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testLargeQString()
 	{
 		String code = "%Q(string)";
@@ -574,6 +618,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testPercentXCommand2()
 	{
 		String code = "%x(command)";
@@ -583,6 +628,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testPercentSyntax()
 	{
 		String code = "%(unknown)";
@@ -592,6 +638,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testPercentSSymbol()
 	{
 		String code = "%s(symbol)";
@@ -604,6 +651,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testSmallWString()
 	{
 		String code = "%w(string two)";
@@ -613,6 +661,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testLargeWString()
 	{
 		String code = "%W(string two)";
@@ -622,6 +671,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testSingleQuotedHeredoc()
 	{
 		String code = "heredoc =<<'END'\n  hello world!\nEND\n";
@@ -634,6 +684,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 	// TODO Write tests for nested heredocs and heredocs in middle of line with the heredoc being single-quoted (or
 	// mixture)
 
+	@Test
 	public void testROR975()
 	{
 		String code = "exist_sym = :\"#{row['PROVVPI']}.#{row['vpi']}.#{row['vci']}.#{row['seq_num']}\"";
@@ -642,6 +693,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_DOUBLE, code, 13); // '"'#
 	}
 
+	@Test
 	public void testROR1278()
 	{
 		// @formatter:off
@@ -656,6 +708,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertEquals(RubySourceConfiguration.DEFAULT, token.getData());
 	}
 
+	@Test
 	public void testCGILib()
 	{
 		String code = "warn \"Warning:#{caller[0].sub(/'/, '')}: cgi-lib is deprecated after Ruby 1.8.1; use cgi instead\"";
@@ -679,6 +732,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_DOUBLE, code, 38);
 	}
 
+	@Test
 	public void testROR1307StringSymbols()
 	{
 		// @formatter:off
@@ -730,6 +784,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_SINGLE, code, 210);
 	}
 
+	@Test
 	public void testROR1248()
 	{
 		String code = "`wc -l \"#{ f.gsub('\"','\\\"') }\"`\n\n" + "puts \"syntax hilighting broken here\"";
@@ -761,6 +816,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_DOUBLE, code, 68);
 	}
 
+	@Test
 	public void testCGI()
 	{
 		// @formatter:off
@@ -813,6 +869,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.DEFAULT, src, 329); // e
 	}
 
+	@Test
 	public void testBlockComment()
 	{
 		String code = "=begin\n=end";
@@ -820,6 +877,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.MULTI_LINE_COMMENT, code, code.length() - 1);
 	}
 
+	@Test
 	public void testSymbolBeginningWithS()
 	{
 		String code = "hash[:symbol]";
@@ -829,6 +887,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testSymbolWithString()
 	{
 		String code = "hash[:\"symbol\"]";
@@ -839,6 +898,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.DEFAULT, code, 14);
 	}
 
+	@Test
 	public void testSymbolHitsEndOfFile()
 	{
 		String code = "hash[:";
@@ -848,6 +908,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testPercentSSymbolHitsEndOfFile()
 	{
 		String code = "hash[%s";
@@ -857,6 +918,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testSymbolStringHitsEndOfFile()
 	{
 		String code = "hash[:\"";
@@ -867,6 +929,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.STRING_DOUBLE, code, code.length() - 1);
 	}
 
+	@Test
 	public void testHeredoc()
 	{
 		// @formatter:off
@@ -896,6 +959,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertToken(RubySourceConfiguration.DEFAULT, 66, 1); // \n
 	}
 
+	@Test
 	public void testReturnsRubyDefaultContentTypeNotDocumentDefaultContentType()
 	{
 		String src = "  config.parameters << :password";
@@ -915,6 +979,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 	/*
 	 * https://aptana.lighthouseapp.com/projects/45260/tickets/372-color-syntax-when-dividing-inline-ruby
 	 */
+	@Test
 	public void testBug372()
 	{
 		// @formatter:off
@@ -941,6 +1006,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertContentType(RubySourceConfiguration.DEFAULT, code, 62);
 	}
 
+	@Test
 	public void testBug676() throws Exception
 	{
 		// @formatter:off
@@ -966,6 +1032,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertToken(RubySourceConfiguration.DEFAULT, 37, 1); // ]
 	}
 
+	@Test
 	public void testAPSTUD3261()
 	{
 		// @formatter:off
@@ -1055,6 +1122,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertToken(RubySourceConfiguration.STRING_DOUBLE, 104, 1); // "
 	}
 
+	@Test
 	public void testRegexpWithStringInterpolation()
 	{
 		String src = "/(\\S{#{n.to_i/2},#{n}})/";
@@ -1077,6 +1145,7 @@ public class RubySourcePartitionScannerTest extends TestCase
 		assertToken(RubySourceConfiguration.REGULAR_EXPRESSION, 23, 1); // /
 	}
 
+	@Test
 	public void testResumeAfterStringAndLineContinuationMidPartition()
 	{
 		// @formatter:off
@@ -1104,7 +1173,8 @@ public class RubySourcePartitionScannerTest extends TestCase
 		setUp(src, 0, src.length(), 0);
 	}
 
-	protected synchronized void setUp(String src, int offset, int length, int partitionOffset)
+	@Before
+	public synchronized void setUp(String src, int offset, int length, int partitionOffset)
 	{
 		getPartitioner(src); // make sure partitioner is set up
 		scanner.setPartialRange(document, offset, length, RubySourceConfiguration.DEFAULT, partitionOffset);

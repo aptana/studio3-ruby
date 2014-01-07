@@ -7,6 +7,10 @@
  */
 package com.aptana.editor.ruby;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -19,14 +23,15 @@ import org.eclipse.jface.text.rules.Token;
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.IPartitioningConfiguration;
 
-public class RubyCodeScannerTest extends TestCase
+public class RubyCodeScannerTest
 {
 	protected ITokenScanner scanner;
 
-	@Override
-	protected void setUp() throws Exception
+//	@Override
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 
 		scanner = new RubyCodeScanner()
 		{
@@ -37,12 +42,13 @@ public class RubyCodeScannerTest extends TestCase
 		};
 	}
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		scanner = null;
 
-		super.tearDown();
+//		super.tearDown();
 	}
 
 	private void setUpScanner(String code)
@@ -77,6 +83,7 @@ public class RubyCodeScannerTest extends TestCase
 		return new Token(scope);
 	}
 
+	@Test
 	public void testNoParensNextIdentifierIsntParameter()
 	{
 		String code = "def denominator\nmethod_call\nend";
@@ -90,6 +97,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 28, 3); // 'end'
 	}
 
+	@Test
 	public void testMethodDefinition()
 	{
 		String code = "def denominator() 0 end";
@@ -105,6 +113,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 20, 3); // 'end'
 	}
 
+	@Test
 	public void testSpecialCompareMethodDefinition()
 	{
 		String code = "def <=>(other) 0 end";
@@ -121,6 +130,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 17, 3); // 'end'
 	}
 
+	@Test
 	public void testPercentMethodDefinition()
 	{
 		String code = "def %(other) 0.0 || Rational.new end";
@@ -143,6 +153,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 33, 3); // 'end'
 	}
 
+	@Test
 	public void testMultiplyMethodDefinition()
 	{
 		String code = "def *(other) 0.0 || Rational.new end";
@@ -165,6 +176,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 33, 3); // 'end'
 	}
 
+	@Test
 	public void testPowerMethodDefinition()
 	{
 		String code = "def **(other) 0.0 || Rational.new end";
@@ -187,6 +199,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 34, 3); // 'end'
 	}
 
+	@Test
 	public void testPlusMethodDefinition()
 	{
 		String code = "def +(other) 0.0 || Rational.new end";
@@ -209,6 +222,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 33, 3); // 'end'
 	}
 
+	@Test
 	public void testMinusMethodDefinition()
 	{
 		String code = "def *(other) 0.0 || Rational.new end";
@@ -231,6 +245,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 33, 3); // 'end'
 	}
 
+	@Test
 	public void testDivideMethodDefinition()
 	{
 		String code = "def /(other) 0.0 || Rational.new end";
@@ -253,6 +268,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 33, 3); // 'end'
 	}
 
+	@Test
 	public void testEqualMethodDefinition()
 	{
 		String code = "def ==(other) BOOLEAN end";
@@ -269,6 +285,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 22, 3); // 'end'
 	}
 
+	@Test
 	public void testTripleEqualMethodDefinition()
 	{
 		String code = "def ===(other) BOOLEAN end";
@@ -285,6 +302,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 23, 3); // 'end'
 	}
 
+	@Test
 	public void testGreaterThanOrEqualMethodDefinition()
 	{
 		String code = "def >=(other) BOOLEAN end";
@@ -301,6 +319,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 22, 3); // 'end'
 	}
 
+	@Test
 	public void testLessThanOrEqualMethodDefinition()
 	{
 		String code = "def <=(other) BOOLEAN end";
@@ -317,6 +336,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 22, 3); // 'end'
 	}
 
+	@Test
 	public void testLessThanMethodDefinition()
 	{
 		String code = "def <(other) BOOLEAN end";
@@ -333,6 +353,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 21, 3); // 'end'
 	}
 
+	@Test
 	public void testGreaterThanMethodDefinition()
 	{
 		String code = "def >(other) BOOLEAN end";
@@ -349,6 +370,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 21, 3); // 'end'
 	}
 
+	@Test
 	public void testBitwiseOrMethodDefinition()
 	{
 		String code = "def |(other) BOOLEAN end";
@@ -365,6 +387,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 21, 3); // 'end'
 	}
 
+	@Test
 	public void testBitwiseAndMethodDefinition()
 	{
 		String code = "def &(other) self || other end";
@@ -385,6 +408,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 27, 3); // 'end'
 	}
 
+	@Test
 	public void testShiftMethodDefinition()
 	{
 		String code = "def <<(obj) self end";
@@ -401,6 +425,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 17, 3); // 'end'
 	}
 
+	@Test
 	public void testOverridePlusMethodDefinition()
 	{
 		String code = "def +@() self end";
@@ -416,6 +441,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 14, 3); // 'end'
 	}
 
+	@Test
 	public void testOverrideMinusMethodDefinition()
 	{
 		String code = "def -@() 0 end";
@@ -431,6 +457,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 11, 3); // 'end'
 	}
 
+	@Test
 	public void testBitwiseComplementMethodDefinition()
 	{
 		String code = "def ~() 0 end";
@@ -446,6 +473,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 10, 3); // 'end'
 	}
 
+	@Test
 	public void testHatMethodDefinition()
 	{
 		String code = "def ^(other) BOOLEAN end";
@@ -462,6 +490,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 21, 3); // 'end'
 	}
 
+	@Test
 	public void testArrayIndexMethodDefinition()
 	{
 		String code = "def [](*) at(0) end";
@@ -481,6 +510,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 16, 3); // 'end'
 	}
 
+	@Test
 	public void testArraySetMethodDefinition()
 	{
 		String code = "def []=(key, value) value end";
@@ -500,6 +530,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 26, 3); // 'end'
 	}
 
+	@Test
 	public void testNextMethodDefinition()
 	{
 		String code = "def next() 0 end";
@@ -515,6 +546,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 13, 3); // 'end'
 	}
 
+	@Test
 	public void testBeginMethodDefinition()
 	{
 		String code = "def begin(n) 0 end";
@@ -531,6 +563,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 15, 3); // 'end'
 	}
 
+	@Test
 	public void testEndMethodDefinition()
 	{
 		String code = "def end(n) 0 end";
@@ -547,6 +580,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 13, 3); // 'end'
 	}
 
+	@Test
 	public void testMatchMethodDefinition()
 	{
 		String code = "def =~(other) FALSE end";
@@ -563,6 +597,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("keyword.control.ruby", 20, 3); // 'end'
 	}
 
+	@Test
 	public void testTwoAliasLines()
 	{
 		String code = "alias :include? :===\nalias :member? :===";
@@ -584,6 +619,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("constant.other.symbol.ruby", 37, 3); // '==='
 	}
 
+	@Test
 	public void testResumeAfterString() throws Exception
 	{
 		String code = "\"Just an example: %s %d\" \\\n% [1, 9000]";
@@ -605,6 +641,7 @@ public class RubyCodeScannerTest extends TestCase
 		assertToken("punctuation.section.array.ruby", 37, 1); // ']'
 	}
 
+	@Test
 	public void testAPSTUD817()
 	{
 		String code = "def sample(array)\n" + //

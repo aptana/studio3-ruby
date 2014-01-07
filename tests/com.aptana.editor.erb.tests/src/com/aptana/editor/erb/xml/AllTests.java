@@ -7,19 +7,24 @@
  */
 package com.aptana.editor.erb.xml;
 
+import org.junit.runners.Suite.SuiteClasses;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+@RunWith(Suite.class)
+@SuiteClasses({RXMLContentDescriberTest.class, RXMLEditorTest.class, })
 public class AllTests
 {
 
-	public static Test suite()
-	{
-		TestSuite suite = new TestSuite("Tests for com.aptana.editor.erb.xml"); //$NON-NLS-1$
-		// $JUnit-BEGIN$
-		suite.addTestSuite(RXMLContentDescriberTest.class);
-		suite.addTestSuite(RXMLEditorTest.class);
-		// $JUnit-END$
-		return suite;
-	}
+//	public static Test suite()
+//	{
+//		TestSuite suite = new TestSuite("Tests for com.aptana.editor.erb.xml"); //$NON-NLS-1$
+//		// $JUnit-BEGIN$
+//		suite.addTestSuite(RXMLContentDescriberTest.class);
+//		suite.addTestSuite(RXMLEditorTest.class);
+//		// $JUnit-END$
+//		return suite;
+//	}
 }

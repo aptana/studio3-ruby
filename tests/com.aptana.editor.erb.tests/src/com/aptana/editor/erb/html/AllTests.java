@@ -7,26 +7,31 @@
  */
 package com.aptana.editor.erb.html;
 
+import org.junit.runners.Suite.SuiteClasses;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import com.aptana.editor.erb.html.outline.RHTMLOutlineTest;
 
+@RunWith(Suite.class)
+@SuiteClasses({RHTMLSourcePartitionScannerTest.class, RHTMLTagScannerTest.class, RHTMLParserTest.class, RHTMLContentDescriberTest.class, ERBOpenTagCloserTest.class, RHTMLEditorTest.class, RHTMLOutlineTest.class, })
 public class AllTests
 {
 
-	public static Test suite()
-	{
-		TestSuite suite = new TestSuite("Tests for com.aptana.editor.erb.html"); //$NON-NLS-1$
-		// $JUnit-BEGIN$
-		suite.addTestSuite(RHTMLSourcePartitionScannerTest.class);
-		suite.addTestSuite(RHTMLTagScannerTest.class);
-		suite.addTestSuite(RHTMLParserTest.class);
-		suite.addTestSuite(RHTMLContentDescriberTest.class);
-		suite.addTestSuite(ERBOpenTagCloserTest.class);
-		suite.addTestSuite(RHTMLEditorTest.class);
-		suite.addTestSuite(RHTMLOutlineTest.class);
-		// $JUnit-END$
-		return suite;
-	}
+//	public static Test suite()
+//	{
+//		TestSuite suite = new TestSuite("Tests for com.aptana.editor.erb.html"); //$NON-NLS-1$
+//		// $JUnit-BEGIN$
+//		suite.addTestSuite(RHTMLSourcePartitionScannerTest.class);
+//		suite.addTestSuite(RHTMLTagScannerTest.class);
+//		suite.addTestSuite(RHTMLParserTest.class);
+//		suite.addTestSuite(RHTMLContentDescriberTest.class);
+//		suite.addTestSuite(ERBOpenTagCloserTest.class);
+//		suite.addTestSuite(RHTMLEditorTest.class);
+//		suite.addTestSuite(RHTMLOutlineTest.class);
+//		// $JUnit-END$
+//		return suite;
+//	}
 }

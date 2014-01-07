@@ -1,5 +1,9 @@
 package com.aptana.ruby.internal.rake;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import java.net.URI;
 import java.util.Map;
 
@@ -24,23 +28,26 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 @SuppressWarnings("nls")
-public class RakeFileFinderTest extends TestCase
+public class RakeFileFinderTest
 {
 
 	private RakeFileFinder finder;
 
-	protected void setUp() throws Exception
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 		finder = new RakeFileFinder();
 	}
 
-	protected void tearDown() throws Exception
+	@After
+	public void tearDown() throws Exception
 	{
 		finder = null;
-		super.tearDown();
+//		super.tearDown();
 	}
 
+	@Test
 	public void testVisitRakefile() throws Exception
 	{
 		final String filename = "Rakefile";
@@ -53,6 +60,7 @@ public class RakeFileFinderTest extends TestCase
 				finder.getWorkingDirectory());
 	}
 
+	@Test
 	public void testVisitNonRakefile() throws Exception
 	{
 		final String filename = "file.rb";
@@ -64,6 +72,7 @@ public class RakeFileFinderTest extends TestCase
 		assertNull("Shouldn't have found a Rakefile, so null working directory", finder.getWorkingDirectory());
 	}
 
+	@Test
 	public void testVisitFolder() throws Exception
 	{
 		final String filename = "folder";
@@ -75,6 +84,7 @@ public class RakeFileFinderTest extends TestCase
 		assertNull("Shouldn't have found a Rakefile, so null working directory", finder.getWorkingDirectory());
 	}
 
+	@Test
 	public void testVisitProject() throws Exception
 	{
 		final String filename = "project";
@@ -86,6 +96,7 @@ public class RakeFileFinderTest extends TestCase
 		assertNull("Shouldn't have found a Rakefile, so null working directory", finder.getWorkingDirectory());
 	}
 
+	@Test
 	public void testVisitRoot() throws Exception
 	{
 		final String filename = "";

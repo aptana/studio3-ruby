@@ -7,28 +7,33 @@
  */
 package com.aptana.radrails.tests.all;
 
+import org.junit.runners.Suite.SuiteClasses;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
 
+@RunWith(Suite.class)
+@SuiteClasses({com.aptana.ruby.core.tests.AllTests.class, com.aptana.ruby.rake.tests.AllTests.class, })
 public class CoreTests
 {
 
-	public static Test suite()
-	{
-		TestSuite suite = new TestSuite(CoreTests.class.getName())
-		{
-			@Override
-			public void runTest(Test test, TestResult result)
-			{
-				System.out.println("Running test: " + test.toString());
-				super.runTest(test, result);
-			}
-		};
-		// $JUnit-BEGIN$
-		suite.addTest(com.aptana.ruby.core.tests.AllTests.suite());
-		suite.addTest(com.aptana.ruby.rake.tests.AllTests.suite());
-		// $JUnit-END$
-		return suite;
-	}
+//	public static Test suite()
+//	{
+//		TestSuite suite = new TestSuite(CoreTests.class.getName())
+//		{
+//			@Override
+//			public void runTest(Test test, TestResult result)
+//			{
+//				System.out.println("Running test: " + test.toString());
+//				super.runTest(test, result);
+//			}
+//		};
+//		// $JUnit-BEGIN$
+//		suite.addTest(com.aptana.ruby.core.tests.AllTests.suite());
+//		suite.addTest(com.aptana.ruby.rake.tests.AllTests.suite());
+//		// $JUnit-END$
+//		return suite;
+//	}
 }

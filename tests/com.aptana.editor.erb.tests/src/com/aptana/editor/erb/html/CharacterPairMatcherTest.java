@@ -1,5 +1,9 @@
 package com.aptana.editor.erb.html;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -10,31 +14,34 @@ import org.eclipse.jface.text.source.ICharacterPairMatcher;
 import com.aptana.editor.common.internal.peer.CharacterPairMatcher;
 
 @SuppressWarnings("restriction")
-public class CharacterPairMatcherTest extends TestCase
+public class CharacterPairMatcherTest
 {
 
 	private static final char[] pairs = new char[] { '%', '%', '<', '>', '(', ')', '{', '}', '[', ']', '`', '`', '\'',
 			'\'', '"', '"' };
 	private ICharacterPairMatcher matcher;
 
-	@Override
-	protected void setUp() throws Exception
+//	@Override
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 		matcher = new CharacterPairMatcher(pairs);
 	}
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		if (matcher != null)
 		{
 			matcher.dispose();
 		}
 		matcher = null;
-		super.tearDown();
+//		super.tearDown();
 	}
 
+	@Test
 	public void testERB() throws Exception
 	{
 		String source = "<% @var %>";

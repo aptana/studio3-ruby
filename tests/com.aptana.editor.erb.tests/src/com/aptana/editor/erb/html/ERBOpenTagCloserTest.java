@@ -7,6 +7,9 @@
  */
 package com.aptana.editor.erb.html;
 
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -21,16 +24,17 @@ import org.eclipse.ui.PlatformUI;
 
 import com.aptana.editor.html.HTMLOpenTagCloser;
 
-public class ERBOpenTagCloserTest extends TestCase
+public class ERBOpenTagCloserTest
 {
 
 	protected TextViewer viewer;
 	protected HTMLOpenTagCloser closer;
 
-	@Override
-	protected void setUp() throws Exception
+//	@Override
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 		Display display = PlatformUI.getWorkbench().getDisplay();
 		Shell shell = display.getActiveShell();
 		if (shell == null)
@@ -45,6 +49,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		};
 	}
 
+	@Test
 	public void testDoesntCloseIfIsClosingTag()
 	{
 		IDocument document = setDocument("</p");
@@ -56,6 +61,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertTrue(event.doit);
 	}
 
+	@Test
 	public void testCloseOpenTag()
 	{
 		IDocument document = setDocument("<p");
@@ -66,6 +72,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertFalse(event.doit);
 	}
 
+	@Test
 	public void testDoesntCloseIfNextTagIsClosingTag()
 	{
 		IDocument document = setDocument("<p </p>");
@@ -77,6 +84,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertTrue(event.doit);
 	}
 
+	@Test
 	public void testDoesCloseIfNextTagIsNotClosingTag()
 	{
 		IDocument document = setDocument("<p <div></div>");
@@ -88,6 +96,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertEquals(3, viewer.getSelectedRange().x);
 	}
 
+	@Test
 	public void testDoesntCloseIfClosedLater()
 	{
 		IDocument document = setDocument("<p <b></b></p>");
@@ -98,6 +107,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertTrue(event.doit);
 	}
 
+	@Test
 	public void testDoesCloseIfNotClosedButPairFollows()
 	{
 		IDocument document = setDocument("<p <b></b><p></p>");
@@ -109,6 +119,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertEquals(3, viewer.getSelectedRange().x);
 	}
 
+	@Test
 	public void testDoesCloseIfNextCharIsLessThanAndWeNeedToClose()
 	{
 		IDocument document = setDocument("<p>");
@@ -120,6 +131,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertEquals(3, viewer.getSelectedRange().x);
 	}
 
+	@Test
 	public void testDoesCloseProperlyWithOpenTagContaingAttrsIfNextCharIsLessThanAndWeNeedToClose()
 	{
 		IDocument document = setDocument("<a href=\"\">");
@@ -131,6 +143,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertEquals(11, viewer.getSelectedRange().x);
 	}
 
+	@Test
 	public void testDoesntCloseIfNextCharIsLessThanAndWeDontNeedToCloseButOverwritesExistingLessThan()
 	{
 		IDocument document = setDocument("<p></p>");
@@ -142,6 +155,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertEquals(3, viewer.getSelectedRange().x);
 	}
 
+	@Test
 	public void testDoesntCloseImplicitSelfClosingTag()
 	{
 		IDocument document = setDocument("<br");
@@ -152,6 +166,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertTrue(event.doit);
 	}
 
+	@Test
 	public void testDoesntCloseExplicitSelfClosingTag()
 	{
 		IDocument document = setDocument("<br/");
@@ -163,6 +178,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertEquals(4, viewer.getSelectedRange().x);
 	}
 
+	@Test
 	public void testDoesntCloseExplicitSelfClosingTagWithExtraSpaces()
 	{
 		IDocument document = setDocument("<br /");
@@ -173,6 +189,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertTrue(event.doit);
 	}
 
+	@Test
 	public void testDoesntCloseComments()
 	{
 		IDocument document = setDocument("<!-- ");
@@ -183,6 +200,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertTrue(event.doit);
 	}
 
+	@Test
 	public void testDoesStickCursorBetweenAutoClosedTagPair()
 	{
 		IDocument document = setDocument("<html>");
@@ -195,6 +213,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		assertEquals(6, viewer.getSelectedRange().x);
 	}
 
+	@Test
 	public void testDoesntCloseIfHasSpacesInOpenTagAndHasClosingTag()
 	{
 		IDocument document = setDocument("<script src=\"http://example.org/src.js\">\n\n</script>");
@@ -226,6 +245,7 @@ public class ERBOpenTagCloserTest extends TestCase
 		return document;
 	}
 
+	@Test
 	public void testDoesntCloseSpecialERBTags()
 	{
 		IDocument document = setDocument("<%= %");

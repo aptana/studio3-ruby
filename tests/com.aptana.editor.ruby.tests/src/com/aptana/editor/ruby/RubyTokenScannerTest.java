@@ -7,6 +7,9 @@
  */
 package com.aptana.editor.ruby;
 
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -15,15 +18,16 @@ import org.jrubyparser.parser.Tokens;
 
 import com.aptana.editor.ruby.RubyTokenScanner;
 
-public class RubyTokenScannerTest extends TestCase
+public class RubyTokenScannerTest
 {
 
 	private RubyTokenScanner fScanner;
 
-	@Override
-	protected void setUp() throws Exception
+//	@Override
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 		fScanner = new RubyTokenScanner();
 	}
 
@@ -46,6 +50,7 @@ public class RubyTokenScannerTest extends TestCase
 		assertEquals("Token type doesn't match", tokenType, token.getData());
 	}
 
+	@Test
 	public void testSimpleClassDefinition()
 	{
 		String code = "class Chris\nend\n";
@@ -57,6 +62,7 @@ public class RubyTokenScannerTest extends TestCase
 		assertToken(Tokens.kEND, 12, 3);
 	}
 
+	@Test
 	public void testSymbolAtEndOfLine()
 	{
 		String code = "  helper_method :logged_in?\n" + "  def method\n" + "    \n" + "  end";
@@ -73,6 +79,7 @@ public class RubyTokenScannerTest extends TestCase
 		assertToken(Tokens.tIDENTIFIER, 34, 6); // 'method'
 	}
 
+	@Test
 	public void testSymbolInsideBrackets()
 	{
 		String code = "test[:begin]";
@@ -84,6 +91,7 @@ public class RubyTokenScannerTest extends TestCase
 		assertToken(Tokens.tRBRACK, 11, 1); // ']'
 	}
 
+	@Test
 	public void testSymbolInsideParentheses()
 	{
 		String code = "Object.const_defined?(:RedCloth)";
@@ -97,6 +105,7 @@ public class RubyTokenScannerTest extends TestCase
 		assertToken(Tokens.tRPAREN, 31, 1); // ')'
 	}
 
+	@Test
 	public void testAliasWithTwoSymbols()
 	{
 		String code = "alias :tsort_each_child :each_key";
@@ -110,6 +119,7 @@ public class RubyTokenScannerTest extends TestCase
 		assertToken(Tokens.tSYMBEG, 25, 8); // 'each_key'
 	}
 
+	@Test
 	public void testSymbolInsideBracketsTwo()
 	{
 		String code = "@repository=params[:repository]";
@@ -123,6 +133,7 @@ public class RubyTokenScannerTest extends TestCase
 		assertToken(Tokens.tRBRACK, 30, 1); // ']'
 	}
 
+	@Test
 	public void testTertiaryConditional()
 	{
 		String code = "multiparameter_name = true ? value.method : value";
@@ -144,6 +155,7 @@ public class RubyTokenScannerTest extends TestCase
 		assertToken(Tokens.tIDENTIFIER, 44, 5); // 'value'
 	}
 
+	@Test
 	public void testWhen()
 	{
 		String code = "case value\n" + "when FalseClass: 0\n" + "else value\n" + "end";
@@ -160,6 +172,7 @@ public class RubyTokenScannerTest extends TestCase
 		assertToken(Tokens.tINTEGER, 28, 1); // '0'
 	}
 
+	@Test
 	public void testAppendSymbol()
 	{
 		String code = "puts(:<<)";
@@ -171,6 +184,7 @@ public class RubyTokenScannerTest extends TestCase
 		assertToken(Tokens.tRPAREN, 8, 1); // ')'
 	}
 
+	@Test
 	public void testDollarDollarSymbol()
 	{
 		String code = "puts(:$$)";
@@ -182,6 +196,7 @@ public class RubyTokenScannerTest extends TestCase
 		assertToken(Tokens.tRPAREN, 8, 1); // ')'
 	}
 
+	@Test
 	public void testTertiaryConditionalWithNoSpaces()
 	{
 		String code = "puts(a?b:c)";
@@ -195,6 +210,7 @@ public class RubyTokenScannerTest extends TestCase
 		assertToken(Tokens.tRPAREN, 10, 1); // ')'
 	}
 
+	@Test
 	public void testClassVariable()
 	{
 		String code = "@@var = 1";

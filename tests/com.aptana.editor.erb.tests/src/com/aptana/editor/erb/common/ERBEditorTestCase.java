@@ -7,6 +7,9 @@
  */
 package com.aptana.editor.erb.common;
 
+import org.junit.After;
+import org.junit.Test;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.core.filesystem.IFileStore;
@@ -15,13 +18,14 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-public abstract class ERBEditorTestCase extends TestCase
+public abstract class ERBEditorTestCase
 {
 
 	private ITextEditor editor;
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		if (editor != null)
 		{
@@ -29,6 +33,7 @@ public abstract class ERBEditorTestCase extends TestCase
 		}
 	}
 
+	@Test
 	public void testExecute() throws Exception
 	{
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();

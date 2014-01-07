@@ -1,5 +1,9 @@
 package com.aptana.ruby.internal.core.inference;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -15,15 +19,16 @@ import com.aptana.ruby.core.index.IRubyIndexConstants;
 import com.aptana.ruby.core.inference.ITypeGuess;
 
 @SuppressWarnings("nls")
-public class TypeInferrerTest extends TestCase
+public class TypeInferrerTest
 {
 	private List<Index> indicesforTesting;
 	private TypeInferrer inferrer;
 
-	@Override
-	protected void setUp() throws Exception
+//	@Override
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 
 		indicesforTesting = new ArrayList<Index>();
 		inferrer = new TypeInferrer(null)
@@ -36,8 +41,9 @@ public class TypeInferrerTest extends TestCase
 		};
 	}
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		try
 		{
@@ -50,7 +56,7 @@ public class TypeInferrerTest extends TestCase
 		}
 		finally
 		{
-			super.tearDown();
+//			super.tearDown();
 		}
 	}
 
@@ -63,6 +69,7 @@ public class TypeInferrerTest extends TestCase
 		return getIndexManager().getIndex(caIndexDir.toURI());
 	}
 
+	@Test
 	public void testAmbiguousTypeInImplicitNamespaceMatchesFullNameBeforeToplevelName() throws Exception
 	{
 		Index index = getTestIndex();

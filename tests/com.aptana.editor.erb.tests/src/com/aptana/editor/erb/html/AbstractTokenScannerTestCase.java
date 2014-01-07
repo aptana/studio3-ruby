@@ -7,30 +7,35 @@
  */
 package com.aptana.editor.erb.html;
 
+import org.junit.After;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
 
-public abstract class AbstractTokenScannerTestCase extends TestCase
+public abstract class AbstractTokenScannerTestCase
 {
 	protected ITokenScanner scanner;
 
-	@Override
-	protected void setUp() throws Exception
+//	@Override
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 
 		scanner = createTokenScanner();
 	}
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		scanner = null;
 
-		super.tearDown();
+//		super.tearDown();
 	}
 
 	protected abstract ITokenScanner createTokenScanner();

@@ -1,11 +1,14 @@
 package com.aptana.editor.ruby.internal.contentassist;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -16,26 +19,20 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Shell;
+import org.junit.After;
 
 import com.aptana.editor.common.CommonContentAssistProcessor;
 import com.aptana.editor.ruby.RubySourceEditor;
 
-public abstract class RubyContentAssistTestCase extends TestCase
+public abstract class RubyContentAssistTestCase
 {
 
 	private CommonContentAssistProcessor fProcessor;
 	private Document fDocument;
 	private ITextViewer fViewer;
 
-	@Override
-	protected void setUp() throws Exception
-	{
-		// FIXME Need to set up a real project with core stubs and all!
-		super.setUp();
-	}
-
-	@Override
-	protected void tearDown() throws Exception
+	@After
+	public void tearDown() throws Exception
 	{
 		try
 		{
@@ -46,7 +43,6 @@ public abstract class RubyContentAssistTestCase extends TestCase
 			fProcessor = null;
 			fViewer = null;
 			fDocument = null;
-			super.tearDown();
 		}
 	}
 

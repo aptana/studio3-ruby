@@ -7,6 +7,10 @@
  */
 package com.aptana.editor.ruby;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
@@ -15,14 +19,15 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
 
-public class RubyRegexScannerTest extends TestCase
+public class RubyRegexScannerTest
 {
 	protected ITokenScanner scanner;
 
-	@Override
-	protected void setUp() throws Exception
+//	@Override
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 
 		scanner = new RubyRegexpScanner()
 		{
@@ -34,12 +39,13 @@ public class RubyRegexScannerTest extends TestCase
 		};
 	}
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		scanner = null;
 
-		super.tearDown();
+//		super.tearDown();
 	}
 
 	protected void assertToken(String scope, int offset, int length)
@@ -49,6 +55,7 @@ public class RubyRegexScannerTest extends TestCase
 		assertEquals("Lengths don't match", length, scanner.getTokenLength());
 	}
 
+	@Test
 	public void testBasicTokenizing()
 	{
 		String src = "[\\x20-\\x7F]+";

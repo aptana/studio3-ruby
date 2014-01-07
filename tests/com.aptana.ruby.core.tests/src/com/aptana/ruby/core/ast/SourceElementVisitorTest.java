@@ -1,5 +1,9 @@
 package com.aptana.ruby.core.ast;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +24,7 @@ import com.aptana.ruby.core.ISourceElementRequestor.TypeInfo;
 import com.aptana.ruby.core.RubySourceParser;
 
 @SuppressWarnings("nls")
-public class SourceElementVisitorTest extends TestCase
+public class SourceElementVisitorTest
 {
 
 	private final class CollectingSourceElementRequestor implements ISourceElementRequestor
@@ -152,13 +156,15 @@ public class SourceElementVisitorTest extends TestCase
 
 	private CollectingSourceElementRequestor fRequestor;
 
-	protected void setUp() throws Exception
+	@Before
+	public void setUp() throws Exception
 	{
-		super.setUp();
+//		super.setUp();
 		fRequestor = new CollectingSourceElementRequestor();
 	}
 
-	protected void tearDown() throws Exception
+	@After
+	public void tearDown() throws Exception
 	{
 		try
 		{
@@ -166,10 +172,11 @@ public class SourceElementVisitorTest extends TestCase
 		}
 		finally
 		{
-			super.tearDown();
+//			super.tearDown();
 		}
 	}
 
+	@Test
 	public void testAttrAccessor() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -196,6 +203,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(method, "variable=", 28, 36, false, "new_value");
 	}
 
+	@Test
 	public void testAttrCallWithTrueArg() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -222,6 +230,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(method, "variable=", 19, 27, false, "new_value");
 	}
 
+	@Test
 	public void testAttrCallWithMultipleSymbols() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -253,6 +262,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(method, "other", 30, 35, false);
 	}
 
+	@Test
 	public void testAttrReader() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -275,6 +285,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(method, "variable", 26, 34, false);
 	}
 
+	@Test
 	public void testAttr() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -302,6 +313,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertEquals(end, field.nameSourceEnd);
 	}
 
+	@Test
 	public void testCattrAccessor() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -334,6 +346,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(method, "variable=", 29, 37, false, "new_value");
 	}
 
+	@Test
 	public void testCattrReader() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -358,6 +371,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(method, "default_timezone", 27, 43, false);
 	}
 
+	@Test
 	public void testCattrReaderWithInstanceReaderArgFalse() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -378,6 +392,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(method, "default_timezone", 27, 43, true);
 	}
 
+	@Test
 	public void testCattrWriter() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -402,6 +417,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(method, "default_timezone=", 27, 43, false, "new_value");
 	}
 
+	@Test
 	public void testCattrAccessorWithInstanceWriterFalseArg() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -430,6 +446,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(method, "default_timezone=", 29, 45, true, "new_value");
 	}
 
+	@Test
 	public void testCattrAccessorWithInstanceReaderFalseArg() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -458,6 +475,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(method, "default_timezone=", 29, 45, false, "new_value");
 	}
 
+	@Test
 	public void testCattrAccessorWithInstanceReaderAndWritersFalse() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -482,6 +500,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(method, "default_timezone=", 29, 45, true, "new_value");
 	}
 
+	@Test
 	public void testCattrWriterWithInstanceWriterArgFalse() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -502,6 +521,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(method, "default_timezone=", 27, 43, true, "new_value");
 	}
 
+	@Test
 	public void testClassAttribute() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -519,6 +539,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(fRequestor.methods.get(5), "default_timezone=", 30, 46, false, "new_value");
 	}
 
+	@Test
 	public void testDelegate() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -531,6 +552,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(fRequestor.methods.get(0), "hello", 23, 28, false);
 	}
 
+	@Test
 	public void testDelegateMultiple() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -544,6 +566,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(fRequestor.methods.get(1), "goodbye", 31, 38, false);
 	}
 
+	@Test
 	public void testDelegateMultipleWithPrefixTrue() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -557,6 +580,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(fRequestor.methods.get(1), "client_address", 30, 37, false);
 	}
 
+	@Test
 	public void testDelegateMultipleWithCustomPrefix() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -570,6 +594,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertMethod(fRequestor.methods.get(1), "customer_address", 30, 37, false);
 	}
 
+	@Test
 	public void testRequire() throws Exception
 	{
 		String source = "require 'set'\n"; //
@@ -581,6 +606,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertEquals("set", entry.getValue());
 	}
 
+	@Test
 	public void testLoad() throws Exception
 	{
 		String source = "load 'activerecord/base'\n"; //
@@ -592,6 +618,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertEquals("activerecord/base", entry.getValue());
 	}
 
+	@Test
 	public void testBasicClassDefinition() throws Exception
 	{
 		String source = "class Chris\n" + //
@@ -619,6 +646,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertType(fRequestor.types.get(0), "Chris", false, 0, 6, 10);
 	}
 
+	@Test
 	public void testModulePositionWithPrecedingComment() throws Exception
 	{
 		String source = "# comment\n" + //
@@ -634,6 +662,7 @@ public class SourceElementVisitorTest extends TestCase
 		assertType(fRequestor.types.get(1), "Inner", false, 26, 32, 36);
 	}
 
+	@Test
 	public void testClassPositionWithPrecedingComment() throws Exception
 	{
 		String source = "# comment\n" + //

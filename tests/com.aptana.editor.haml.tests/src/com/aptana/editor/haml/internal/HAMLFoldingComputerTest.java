@@ -1,5 +1,8 @@
 package com.aptana.editor.haml.internal;
 
+import org.junit.After;
+import org.junit.Test;
+import static org.junit.Assert.*;
 import java.util.Collection;
 import java.util.Map;
 
@@ -13,16 +16,17 @@ import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import com.aptana.editor.common.text.reconciler.IFoldingComputer;
 
 @SuppressWarnings("nls")
-public class HAMLFoldingComputerTest extends TestCase
+public class HAMLFoldingComputerTest
 {
 
 	private IFoldingComputer folder;
 
-	@Override
-	protected void tearDown() throws Exception
+//	@Override
+	@After
+	public void tearDown() throws Exception
 	{
 		folder = null;
-		super.tearDown();
+//		super.tearDown();
 	}
 
 	protected IFoldingComputer createFolder(String src)
@@ -40,6 +44,7 @@ public class HAMLFoldingComputerTest extends TestCase
 	
 
 
+	@Test
 	public void testFoldingByIndent() throws Exception
 	{
 		String src = "!!! Strict\n" + //
@@ -64,6 +69,7 @@ public class HAMLFoldingComputerTest extends TestCase
 		assertTrue(positions.contains(new Position(215, 45)));
 	}
 
+	@Test
 	public void testFoldingWithLargeIndentShift() throws Exception
 	{
 		String src = "!!! Strict\n" + //
@@ -86,6 +92,7 @@ public class HAMLFoldingComputerTest extends TestCase
 		assertTrue(positions.contains(new Position(105, 45)));
 	}
 
+	@Test
 	public void testAPSTUD3038DoesntOfferFoldingForBlankLinesThatChangeIndentLevel() throws Exception
 	{
 		String src = "%div#collection\n" + //
@@ -106,6 +113,7 @@ public class HAMLFoldingComputerTest extends TestCase
 		assertFalse(positions.contains(new Position(77, 12)));
 	}
 
+	@Test
 	public void testEmptyLineWithChangedIndentDoesntAffectFolding() throws Exception
 	{
 		String src = "!!! Strict\n" + //
