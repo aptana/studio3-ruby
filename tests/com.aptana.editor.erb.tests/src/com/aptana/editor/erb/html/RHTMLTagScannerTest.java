@@ -12,6 +12,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
+import org.junit.Test;
 
 import com.aptana.editor.html.HTMLTagScanner;
 
@@ -30,6 +31,7 @@ public class RHTMLTagScannerTest extends AbstractTokenScannerTestCase
 		};
 	}
 
+	@Test
 	public void testSplitTag1()
 	{
 		String src = "<html <% %> attribute='chris'>";
@@ -48,6 +50,7 @@ public class RHTMLTagScannerTest extends AbstractTokenScannerTestCase
 		assertToken(getToken("punctuation.definition.tag.end.html"), 29, 1);
 	}
 
+	@Test
 	public void testSplitTag2()
 	{
 		String src = "<html <% %>attribute='chris'>";
@@ -64,6 +67,7 @@ public class RHTMLTagScannerTest extends AbstractTokenScannerTestCase
 		assertToken(getToken("punctuation.definition.tag.end.html"), 28, 1);
 	}
 
+	@Test
 	public void testSplitAttribueValue1()
 	{
 		String src = "<html attribute='<%= Time.now -%>'>";
@@ -81,6 +85,7 @@ public class RHTMLTagScannerTest extends AbstractTokenScannerTestCase
 		assertToken(getToken("punctuation.definition.tag.end.html"), 34, 1);
 	}
 
+	@Test
 	public void testSplitAttribueValue2()
 	{
 		String src = "<html attribute='<%= Time.now -%>' id='id'>";
@@ -102,6 +107,7 @@ public class RHTMLTagScannerTest extends AbstractTokenScannerTestCase
 		assertToken(getToken("punctuation.definition.tag.end.html"), 42, 1);
 	}
 
+	@Test
 	public void testSplitAttribueValue3()
 	{
 		String src = "<html attribute=' <%= Time.now -%> '>";
