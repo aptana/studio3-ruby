@@ -7,7 +7,7 @@
                    
      cwilliams                                                                
      ====================================================================== -->
-<project name="Radrails_Tests" default="test">
+<project name="Radrails_Tests" default="test" xmlns:jacoco="antlib:org.jacoco.ant">
 	<description>
             Tests the RadRails feature
     </description>
@@ -216,8 +216,7 @@
 
 	<target name="run-ui-test">
 		<ant target="ui-test" antfile="${library-file}" dir="${baseLocation}">
-			<reference refid="emma.lib" />
-			<property name="extra.java-test.classpath" value="emma.lib" />
+			<reference refid="jacoco.lib" />
 			<property name="timeout" value="${test.timeout}" />
 			<property name="os" value="${baseos}" />
 			<property name="ws" value="${basews}" />
@@ -232,8 +231,7 @@
 
 	<target name="run-core-test">
 		<ant target="core-test" antfile="${library-file}" dir="${baseLocation}">
-			<reference refid="emma.lib" />
-			<property name="extra.java-test.classpath" value="emma.lib" />
+			<reference refid="jacoco.lib" />
 			<property name="timeout" value="${test.timeout}" />
 			<property name="os" value="${baseos}" />
 			<property name="ws" value="${basews}" />
