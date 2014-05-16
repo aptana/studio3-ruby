@@ -136,8 +136,8 @@ class Account < ActiveRecord::Base
     
     
     
-    cloud_provider_account.access_key_id = "16D5M5ZHA1NW4FNY8JR2"
-    cloud_provider_account.secret_access_key = "KSSB/NtGe1KF83yJV41WGQlKvzHh3miL0GLcRSwy"
+    cloud_provider_account.access_key_id = "XXXXXXXXXXXXXXXXXXXX"
+    cloud_provider_account.secret_access_key = "YYYY/YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
     cloud_provider_account.save!
   end
 
@@ -278,8 +278,8 @@ class Account < ActiveRecord::Base
     cloud_provider_account = self.cloud_provider_accounts.build
     cloud_provider_account.provider = CloudProviderAccount::Provider::Amazon
 
-    cloud_provider_account.access_key_id = "16D5M5ZHA1NW4FNY8JR2"
-    cloud_provider_account.secret_access_key = "KSSB/NtGe1KF83yJV41WGQlKvzHh3miL0GLcRSwy"
+    cloud_provider_account.access_key_id = "XXXXXXXXXXXXXXXXXXXX"
+    cloud_provider_account.secret_access_key = "YYYY/YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
     cloud_provider_account.save!
   end
 
