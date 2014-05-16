@@ -1,4 +1,4 @@
-[![Build Status](http://studio-jenkins.appcelerator.org/job/studio3-ruby-development/badge/icon)](http://studio-jenkins.appcelerator.org/job/studio3-ruby-development)
+[![Build Status](http://studio-jenkins.appcelerator.org/job/studio3-ruby-release/badge/icon)](http://studio-jenkins.appcelerator.org/job/studio3-ruby-release)
 
 Aptana Studio 3: Ruby
 ========================
