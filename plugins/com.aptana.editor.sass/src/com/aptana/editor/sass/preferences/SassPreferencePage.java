@@ -7,7 +7,9 @@
  */
 package com.aptana.editor.sass.preferences;
 
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.aptana.core.util.EclipseUtil;
@@ -32,7 +34,7 @@ public class SassPreferencePage extends CommonEditorPreferencePage
 	@Override
 	protected IEclipsePreferences getPluginPreferenceStore()
 	{
-		return EclipseUtil.instanceScope().getNode(SassPlugin.PLUGIN_ID);
+		return InstanceScope.INSTANCE.getNode(SassPlugin.PLUGIN_ID);
 	}
 
 	@Override
@@ -44,7 +46,7 @@ public class SassPreferencePage extends CommonEditorPreferencePage
 	@Override
 	protected IEclipsePreferences getDefaultPluginPreferenceStore()
 	{
-		return EclipseUtil.defaultScope().getNode(SassPlugin.PLUGIN_ID);
+		return DefaultScope.INSTANCE.getNode(SassPlugin.PLUGIN_ID);
 	}
 
 	@Override

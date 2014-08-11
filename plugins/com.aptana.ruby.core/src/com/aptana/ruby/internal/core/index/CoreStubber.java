@@ -44,13 +44,13 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.aptana.core.ShellExecutable;
 import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.ArrayUtil;
 import com.aptana.core.util.CollectionsUtil;
-import com.aptana.core.util.EclipseUtil;
 import com.aptana.core.util.FileUtil;
 import com.aptana.core.util.ProcessUtil;
 import com.aptana.core.util.ResourceUtil;
@@ -597,7 +597,7 @@ public class CoreStubber extends Job
 	protected void storeIndexVersion()
 	{
 		// Store current version of index in prefs so we can force re-index if indexer changes
-		IEclipsePreferences prefs = EclipseUtil.instanceScope().getNode(RubyCorePlugin.PLUGIN_ID);
+		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(RubyCorePlugin.PLUGIN_ID);
 		prefs.putInt(RubySourceIndexer.VERSION_KEY, RubySourceIndexer.CURRENT_VERSION);
 		try
 		{

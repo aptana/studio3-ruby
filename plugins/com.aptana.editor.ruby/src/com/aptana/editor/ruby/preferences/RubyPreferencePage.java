@@ -7,7 +7,9 @@
  */
 package com.aptana.editor.ruby.preferences;
 
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -42,7 +44,7 @@ public class RubyPreferencePage extends CommonEditorPreferencePage
 	@Override
 	protected IEclipsePreferences getPluginPreferenceStore()
 	{
-		return EclipseUtil.instanceScope().getNode(RubyEditorPlugin.PLUGIN_ID);
+		return InstanceScope.INSTANCE.getNode(RubyEditorPlugin.PLUGIN_ID);
 	}
 
 	@Override
@@ -54,7 +56,7 @@ public class RubyPreferencePage extends CommonEditorPreferencePage
 	@Override
 	protected IEclipsePreferences getDefaultPluginPreferenceStore()
 	{
-		return EclipseUtil.defaultScope().getNode(RubyEditorPlugin.PLUGIN_ID);
+		return DefaultScope.INSTANCE.getNode(RubyEditorPlugin.PLUGIN_ID);
 	}
 
 	@Override
@@ -69,7 +71,7 @@ public class RubyPreferencePage extends CommonEditorPreferencePage
 		return IRubyPreferenceConstants.DEFAULT_RUBY_TAB_WIDTH;
 	}
 
-	@Override	
+	@Override
 	protected Composite createFoldingOptions(Composite parent)
 	{
 		this.foldingGroup = super.createFoldingOptions(parent);
