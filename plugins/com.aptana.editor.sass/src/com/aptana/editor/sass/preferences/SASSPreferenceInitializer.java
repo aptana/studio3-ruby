@@ -8,10 +8,11 @@
 package com.aptana.editor.sass.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 
-import com.aptana.core.util.EclipseUtil;
 import com.aptana.editor.common.preferences.IPreferenceConstants;
 import com.aptana.editor.sass.SassPlugin;
 
@@ -20,7 +21,7 @@ public class SASSPreferenceInitializer extends AbstractPreferenceInitializer
 	@Override
 	public void initializeDefaultPreferences()
 	{
-		IEclipsePreferences prefs = EclipseUtil.defaultScope().getNode(SassPlugin.PLUGIN_ID);
+		IEclipsePreferences prefs = DefaultScope.INSTANCE.getNode(SassPlugin.PLUGIN_ID);
 		prefs.putBoolean(IPreferenceConstants.EDITOR_AUTO_INDENT, true);
 		prefs.putBoolean(IPreferenceConstants.EDITOR_ENABLE_FOLDING, true);
 
@@ -28,7 +29,7 @@ public class SASSPreferenceInitializer extends AbstractPreferenceInitializer
 		// prefs.putBoolean(com.aptana.editor.common.preferences.IPreferenceConstants.EDITOR_MARK_OCCURRENCES, true);
 
 		// Check if we previously set preference to use global defaults
-		IEclipsePreferences instanceScopePref = EclipseUtil.instanceScope().getNode(SassPlugin.PLUGIN_ID);
+		IEclipsePreferences instanceScopePref = InstanceScope.INSTANCE.getNode(SassPlugin.PLUGIN_ID);
 		if (!instanceScopePref.getBoolean(IPreferenceConstants.USE_GLOBAL_DEFAULTS, false))
 		{
 			prefs.putInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH,

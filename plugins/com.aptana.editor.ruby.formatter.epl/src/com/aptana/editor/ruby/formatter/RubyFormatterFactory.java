@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.Map;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISharedTextColors;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
@@ -117,7 +118,7 @@ public class RubyFormatterFactory extends AbstractScriptFormatterFactory
 	@Override
 	protected IEclipsePreferences getEclipsePreferences()
 	{
-		return EclipseUtil.instanceScope().getNode(RubyEditorPlugin.PLUGIN_ID);
+		return InstanceScope.INSTANCE.getNode(RubyEditorPlugin.PLUGIN_ID);
 	}
 
 	/*
