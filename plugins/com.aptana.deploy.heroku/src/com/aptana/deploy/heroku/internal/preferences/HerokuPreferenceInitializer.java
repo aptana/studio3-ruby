@@ -8,6 +8,7 @@
 package com.aptana.deploy.heroku.internal.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import com.aptana.core.util.EclipseUtil;
@@ -20,7 +21,7 @@ public class HerokuPreferenceInitializer extends AbstractPreferenceInitializer
 	@Override
 	public void initializeDefaultPreferences()
 	{
-		IEclipsePreferences prefs = (EclipseUtil.defaultScope()).getNode(HerokuPlugin.getPluginIdentifier());
+		IEclipsePreferences prefs = DefaultScope.INSTANCE.getNode(HerokuPlugin.getPluginIdentifier());
 		prefs.putBoolean(IPreferenceConstants.HEROKU_AUTO_PUBLISH, true);
 	}
 }
