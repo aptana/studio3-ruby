@@ -118,6 +118,7 @@
 				main();
 			]]>
 		</script>
+	</target>
 
 	<target name="clone-bundle">
 		<delete dir="${scripting.plugin.dir}/bundles/${bundle.dir.name}" failonerror="true" />
