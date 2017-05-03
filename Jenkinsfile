@@ -12,7 +12,7 @@ node('linux && ant && eclipse && jdk && vncserver') {
 		def rubyRepo = "file://${env.WORKSPACE}/dist/"
 
 		buildPlugin {
-			dependencies = ['studio3-core': 'Studio/studio3']
+			dependencies = ['studio3-core': '../studio3']
 			builder = 'com.aptana.radrails.build'
 			properties = ['studio3.p2.repo': studio3Repo]
 		}
@@ -31,7 +31,7 @@ node('linux && ant && eclipse && jdk && vncserver') {
 
 		// If not a PR, trigger downstream builds for same branch
 		if (!env.BRANCH_NAME.startsWith('PR-')) {
-			build job: "Studio/studio3-rcp/${env.BRANCH_NAME}", wait: false
+			build job: "../studio3-rcp/${env.BRANCH_NAME}", wait: false
 		}
 	} catch (e) {
 		// if any exception occurs, mark the build as failed
