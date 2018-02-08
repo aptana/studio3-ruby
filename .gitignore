@@ -9,3 +9,12 @@ CVS/
 *.suo
 *.user
 *.sass-cache
+
+# tycho/maven
+target/
+.polyglot.build.properties
+workspace/
+
+# rubles/bundles
+bundles/com.aptana.ruby.core/bundles/*.ruble
+bundles/com.aptana.ruby.core/bundle_timestamps.txt

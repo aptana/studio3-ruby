@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: HAML Editor Tests
 Bundle-SymbolicName: com.aptana.editor.haml.tests
-Bundle-Version: 3.0.0.qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Aptana
 Fragment-Host: com.aptana.editor.haml
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
