@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.aptana.studio.ruby</groupId>
+  <artifactId>com.aptana.studio.ruby.bundles</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <parent>
+    <groupId>com.aptana.studio.ruby</groupId>
+    <artifactId>com.aptana.studio.ruby.root</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <modules>
+    <module>com.aptana.deploy.capistrano</module>
+    <module>com.aptana.deploy.engineyard</module>
+    <module>com.aptana.deploy.heroku</module>
+    <module>com.aptana.editor.erb</module>
+    <module>com.aptana.editor.haml</module>
+    <module>com.aptana.editor.ruby</module>
+    <module>com.aptana.editor.ruby.formatter.epl</module>
+    <module>com.aptana.editor.sass</module>
+    <module>com.aptana.ruby.core</module>
+    <module>com.aptana.ruby.debug.core</module>
+    <module>com.aptana.ruby.debug.ui</module>
+    <module>com.aptana.ruby.launching</module>
+    <module>com.aptana.ruby.rake</module>
+    <module>com.aptana.ruby.ui</module>
+    <module>org.jrubyparser</module>
+    <module>org.radrails.rails.core</module>
+    <module>org.radrails.rails.ui</module>
+  </modules>
+</project>

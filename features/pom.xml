@@ -1,0 +1,17 @@
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.aptana.studio.ruby</groupId>
+	<artifactId>com.aptana.studio.ruby.features</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>com.aptana.studio.ruby</groupId>
+		<artifactId>com.aptana.studio.ruby.root</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<modules>
+		<module>org.radrails.rails</module>
+	</modules>
+</project>
