@@ -50,10 +50,7 @@
       <import plugin="beaver"/>
       <import plugin="org.eclipse.jface" version="3.4.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.workbench" version="3.4.0" match="greaterOrEqual"/>
-      <import plugin="com.aptana.ruby.core" version="3.0.0" match="greaterOrEqual"/>
       <import plugin="com.aptana.core" version="3.0.3" match="greaterOrEqual"/>
-      <import plugin="org.jrubyparser" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="com.aptana.editor.ruby" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.expressions"/>
    </requires>
 

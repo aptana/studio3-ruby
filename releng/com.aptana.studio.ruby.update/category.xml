@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.radrails.rails_3.4.2.qualifier.jar" id="org.radrails.rails" version="3.4.2.qualifier">
+      <category name="com.aptana.studio.ruby"/>
+   </feature>
+   <category-def name="com.aptana.studio.ruby" label="Aptana Studio Ruby Support"/>
+</site>
