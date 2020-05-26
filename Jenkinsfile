@@ -1,6 +1,4 @@
 #! groovy
-@Library('pipeline-build') _
-
 // Keep logs/reports/etc of last 3 builds, only keep build artifacts of last build
 properties([
 	buildDiscarder(logRotator(numToKeepStr: '3', artifactNumToKeepStr: '1')),
@@ -8,43 +6,73 @@ properties([
   	copyArtifactPermission("/aptana-studio-sync/sync-nightlies-aptana-${env.BRANCH_NAME},../studio3-rcp/${env.BRANCH_NAME}"),
 ])
 
-node('linux && ant && eclipse && jdk && vncserver') {
-	try {
+timestamps {
+	def studio3RepoURL = ''
+	def studio3TestRepoURL = ''
+	def targetBranch = 'development'
+	def isPR = false
+
+	// node('((linux && vncserver) || osx) && jdk') {
+	node('linux && vncserver && jdk') {
 		stage('Checkout') {
-			checkout scm
+			// checkout scm
+			// Hack for JENKINS-37658 - see https://support.cloudbees.com/hc/en-us/articles/226122247-How-to-Customize-Checkout-for-Pipeline-Multibranch
+			checkout([
+				$class: 'GitSCM',
+				branches: scm.branches,
+				extensions: scm.extensions + [[$class: 'CleanBeforeCheckout'], [$class: 'CloneOption', honorRefspec: true, noTags: true, reference: '', shallow: true, depth: 30, timeout: 30]],
+				userRemoteConfigs: scm.userRemoteConfigs
+			])
+
+			isPR = env.BRANCH_NAME.startsWith('PR-')
+			if (isPR) {
+				targetBranch = env.CHANGE_TARGET
+			} else {
+				targetBranch = env.BRANCH_NAME
+			}
 		}
 
-		def studio3Repo = "file://${env.WORKSPACE}/studio3-core/dist/"
-		def studio3TestRepo = "file://${env.WORKSPACE}/studio3-core/dist-tests/"
-		def rubyRepo = "file://${env.WORKSPACE}/dist/"
-
-		buildPlugin {
-			dependencies = ['studio3-core': '../studio3']
-			builder = 'com.aptana.radrails.build'
-			properties = ['studio3.p2.repo': studio3Repo]
+		stage('Dependencies') {
+			step([$class: 'CopyArtifact',
+				filter: 'dist/,dist-tests/',
+				fingerprintArtifacts: true,
+				selector: lastSuccessful(),
+				projectName: "/aptana-studio/studio3/${targetBranch}",
+				target: 'studio3'])
+				studio3RepoURL = "file:${pwd()}/studio3/dist"
+				studio3TestRepoURL = "file:${pwd()}/studio3/dist-tests"
 		}
 
-		testPlugin {
-			builder = 'com.aptana.radrails.tests.build'
-			properties = [
-				'studio3.p2.repo': studio3Repo,
-				'studio3.test.p2.repo': studio3TestRepo,
-				'radrails.p2.repo': rubyRepo
-			]
-			classPattern = 'eclipse/plugins'
-			inclusionPattern = 'com.aptana.deploy.capistrano_*.jar, com.aptana.deploy.engineyard_*.jar, com.aptana.deploy.heroku_*.jar, com.aptana.editor.erb_*.jar, com.aptana.editor.haml_*.jar, com.aptana.editor.ruby*.jar, com.aptana.editor.sass_*.jar, com.aptana.ruby.*.jar, org.radrails.rails.*.jar'
-			exclusionPattern = '**/tests/**/*.class,**/*Test*.class,**/Messages.class,com.aptana.*.tests*.jar'
-		}
+		stage('Build') {
+			withEnv(["PATH+MAVEN=${tool name: 'Maven 3.5.0', type: 'maven'}/bin"]) {
+				withCredentials([usernamePassword(credentialsId: 'aca99bee-0f1e-4fc5-a3da-3dfd73f66432', passwordVariable: 'STOREPASS', usernameVariable: 'ALIAS')]) {
+					wrap([$class: 'Xvnc', takeScreenshot: false, useXauthority: true]) {
+						try {
+							timeout(30) {
+								// TODO Get package vs verify goals running in separate stages!
+								sh "mvn -Dstudio3.p2.repo.url=${studio3RepoURL} -Dstudio3.tests.p2.repo.url=${studio3TestRepoURL} -Dmaven.test.failure.ignore=true -Djarsigner.keypass=${env.STOREPASS} -Djarsigner.storepass=${env.STOREPASS} -Djarsigner.keystore=${env.KEYSTORE} clean verify"
+							}
+						} finally {
+							// record tests even if we failed
+							junit 'tests/*/target/surefire-reports/TEST-*.xml'
+						}
+					} // xvnc
+				} // withCredentials
+			} // withEnv(maven)
+			// Archive the generated p2 repo
+			dir('releng/com.aptana.studio.ruby.update/target') {
+				// To keep backwards compatability with existing build pipeline, rename to "dist"
+				sh 'mv repository dist'
+				archiveArtifacts artifacts: 'dist/**/*'
+				def jarName = sh(returnStdout: true, script: 'ls dist/features/org.radrails.rails_*.jar').trim()
+				def version = (jarName =~ /.*?_(.+)\.jar/)[0][1]
+				currentBuild.displayName = "#${version}-${currentBuild.number}"
+			}
+		} // stage('Build')
 
 		// If not a PR, trigger downstream builds for same branch
-		if (!env.BRANCH_NAME.startsWith('PR-')) {
+		if (!isPR) {
 			build job: "../studio3-rcp/${env.BRANCH_NAME}", wait: false
 		}
-	} catch (e) {
-		// if any exception occurs, mark the build as failed
-		currentBuild.result = 'FAILURE'
-		throw e
-	} finally {
-		step([$class: 'WsCleanup', notFailBuild: true])
-	}
-} // end node
+	} // node
+} // timestamps
