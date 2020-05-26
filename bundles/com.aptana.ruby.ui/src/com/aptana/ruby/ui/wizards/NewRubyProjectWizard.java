@@ -150,4 +150,10 @@ public class NewRubyProjectWizard extends AbstractNewProjectWizard implements IE
 			super.cloneFromGit(newProjectHandle, description, monitor);
 		}
 	}
+
+	@Override
+	protected boolean isCLISessionInvalid(String errorMessage)
+	{
+		return false;
 	}
+}
