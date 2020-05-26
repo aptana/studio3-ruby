@@ -335,19 +335,7 @@ public class HAMLSourceConfiguration implements IPartitioningConfiguration, ISou
 
 	private ITokenScanner getHTMLCommentScanner()
 	{
-		// FIXME Use CommentScanner and subclass!
-		RuleBasedScanner commentScanner = new RuleBasedScanner();
-		commentScanner = new CommentScanner(getToken(IHAMLConstants.HTML_COMMENT_SCOPE))
-		{
-			@Override
-			protected List<IRule> createRules()
-			{
-				List<IRule> rules = super.createRules();
-				rules.add(new SingleCharacterRule('/', getToken(IHAMLConstants.COMMENT_PUNCTUATION_SCOPE)));
-				return rules;
-			}
-		};
-		return commentScanner;
+		return new CommentScanner(getToken(IHAMLConstants.HTML_COMMENT_SCOPE));
 	}
 
 	private ITokenScanner getHAMLCommentScanner()
