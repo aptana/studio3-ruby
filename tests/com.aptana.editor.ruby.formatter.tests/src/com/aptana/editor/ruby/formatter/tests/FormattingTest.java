@@ -12,7 +12,7 @@ import java.util.Arrays;
 import org.junit.BeforeClass;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.aptana.editor.common.formatting.AbstractFormatterTestCase;
+import com.aptana.editor.common.formatting.tests.AbstractFormatterTestCase;
 import com.aptana.editor.ruby.RubyEditorPlugin;
 
 public class FormattingTest extends AbstractFormatterTestCase
